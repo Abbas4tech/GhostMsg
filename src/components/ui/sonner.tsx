@@ -1,9 +1,10 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import React, { JSX } from "react";
 import { Toaster as Sonner, ToasterProps } from "sonner";
 
-const Toaster = ({ ...props }: ToasterProps) => {
+const Toaster = ({ ...props }: ToasterProps): JSX.Element => {
   const { theme = "system" } = useTheme();
 
   return (
