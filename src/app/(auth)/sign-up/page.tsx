@@ -6,6 +6,7 @@ import * as z from "zod";
 import { useDebounceValue } from "usehooks-ts";
 import axios, { AxiosError } from "axios";
 import { CheckCircle2, Eye, EyeOff, Loader2, XCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -34,6 +35,8 @@ import {
 } from "@/components/ui/tooltip";
 
 const SignupPage = (): React.JSX.Element => {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [validationResult, setValidationResult] = useState<ApiResponse | null>(
@@ -61,7 +64,7 @@ const SignupPage = (): React.JSX.Element => {
   const submitSignupHandler: SubmitHandler<z.infer<typeof signUpSchema>> = (
     data
   ) => {
-    console.log(data);
+    router.replace(`/verify/${data.username}`);
   };
 
   useEffect(() => {
