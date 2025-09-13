@@ -7,6 +7,7 @@ import { useDebounceValue } from "usehooks-ts";
 import axios, { AxiosError } from "axios";
 import { CheckCircle2, Eye, EyeOff, Loader2, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -39,6 +40,7 @@ const SignupPage = (): React.JSX.Element => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationResult, setValidationResult] = useState<ApiResponse | null>(
     null
   );
@@ -61,10 +63,23 @@ const SignupPage = (): React.JSX.Element => {
     setDebouncedUsername(usernameValue);
   }, [usernameValue, setDebouncedUsername, form]);
 
-  const submitSignupHandler: SubmitHandler<z.infer<typeof signUpSchema>> = (
-    data
-  ) => {
-    router.replace(`/verify/${data.username}`);
+  const submitSignupHandler: SubmitHandler<
+    z.infer<typeof signUpSchema>
+  > = async (data) => {
+    try {
+      setIsSubmitting(true);
+      const res = await axios.post<ApiResponse>("/api/sign-up", data);
+
+      if (res.data.success) {
+        toast(res.data.message);
+      }
+      router.replace(`/verify/${data.username}`);
+    } catch (error) {
+      const err = error as AxiosError<ApiResponse>;
+      toast(err.response?.data.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -227,12 +242,22 @@ const SignupPage = (): React.JSX.Element => {
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Validating username...
                   </>
+                ) : isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing up...
+                  </>
                 ) : (
-                  "Signup"
+                  "Sign up"
                 )}
               </Button>
-              <Button variant={"link"} className="text-xs" type="button">
-                Already a member ? Trying logging in!
+              <Button
+                variant={"link"}
+                className="text-xs"
+                onClick={() => router.replace("/sign-in")}
+                type="button"
+              >
+                Already a member? Trying logging in!
               </Button>
             </CardFooter>
           </form>

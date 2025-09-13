@@ -2,9 +2,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import * as z from "zod";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
+import axios, { AxiosError } from "axios";
+import { toast } from "sonner";
 
 import { verifySchema } from "@/schemas/verifySchema";
 import {
@@ -28,11 +30,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ApiResponse } from "@/types/ApiResponse";
 
 const VerifyUserPage = (): React.JSX.Element => {
+  const router = useRouter();
   const params = useParams<{ username: string }>();
 
-  const onSubmit: SubmitHandler<z.infer<typeof verifySchema>> = (_data) => {};
+  const onSubmit: SubmitHandler<z.infer<typeof verifySchema>> = async (
+    _data
+  ) => {
+    try {
+      const res = await axios.post<ApiResponse>("/api/verify-code", {
+        username: params.username,
+        code: _data.code,
+      });
+
+      toast(res.data.message);
+      router.replace("/sign-in");
+    } catch (error) {
+      const err = error as AxiosError<ApiResponse>;
+      toast(err.response?.data.message);
+    }
+  };
 
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
