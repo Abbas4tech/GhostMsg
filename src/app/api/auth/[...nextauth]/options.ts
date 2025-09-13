@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import CredentialProvider from "next-auth/providers/credentials";
 import { NextAuthOptions } from "next-auth";
 import bcrypt from "bcryptjs";
