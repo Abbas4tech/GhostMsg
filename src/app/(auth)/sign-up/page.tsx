@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useDebounceValue } from "usehooks-ts";
 import axios, { AxiosError } from "axios";
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, Loader2, XCircle } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -27,8 +27,14 @@ import {
 } from "@/components/ui/form";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import { ApiResponse } from "@/types/ApiResponse";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const SignupPage = (): React.JSX.Element => {
+  const [showPassword, setShowPassword] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [validationResult, setValidationResult] = useState<ApiResponse | null>(
     null
@@ -47,10 +53,10 @@ const SignupPage = (): React.JSX.Element => {
   const usernameValue = form.watch("username");
   const [debouncedUsername, setDebouncedUsername] = useDebounceValue("", 500);
 
-  // Update debounced value when username changes
   useEffect(() => {
+    form.clearErrors("username");
     setDebouncedUsername(usernameValue);
-  }, [usernameValue, setDebouncedUsername]);
+  }, [usernameValue, setDebouncedUsername, form]);
 
   const submitSignupHandler: SubmitHandler<z.infer<typeof signUpSchema>> = (
     data
@@ -136,7 +142,14 @@ const SignupPage = (): React.JSX.Element => {
                               {validationResult &&
                                 !isChecking &&
                                 (validationResult.success ? (
-                                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      {validationResult.message}
+                                    </TooltipContent>
+                                  </Tooltip>
                                 ) : (
                                   <XCircle className="h-5 w-5 text-red-500" />
                                 ))}
@@ -157,6 +170,7 @@ const SignupPage = (): React.JSX.Element => {
                         <FormLabel>Email *</FormLabel>
                         <FormControl>
                           <Input
+                            type="email"
                             placeholder="Please choose your email.."
                             {...field}
                           />
@@ -174,11 +188,23 @@ const SignupPage = (): React.JSX.Element => {
                       <FormItem>
                         <FormLabel>Password *</FormLabel>
                         <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="Please choose your password.."
-                            {...field}
-                          />
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Please choose your password.."
+                              {...field}
+                            />
+                            <div
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute cursor-pointer inset-y-0 right-0 flex items-center pr-3"
+                            >
+                              {showPassword ? (
+                                <Eye className="h-5 w-5" />
+                              ) : (
+                                <EyeOff className="h-5 w-5" />
+                              )}
+                            </div>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -196,7 +222,7 @@ const SignupPage = (): React.JSX.Element => {
                 {isChecking ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Checking...
+                    Validating username...
                   </>
                 ) : (
                   "Signup"
