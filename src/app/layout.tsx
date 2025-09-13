@@ -3,8 +3,9 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import React from "react";
 
-import AuthProvider from "@/context/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
+import Header from "@/components/Header";
+import { AuthProvider, ThemeProvider } from "@/context";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -23,11 +24,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>): React.JSX.Element {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <AuthProvider>
-        <body className={`${poppins.variable} antialiased dark`}>
-          {children}
-          <Toaster />
+        <body className={`${poppins.variable} antialiased`}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            {children}
+            <Toaster />
+          </ThemeProvider>
         </body>
       </AuthProvider>
     </html>

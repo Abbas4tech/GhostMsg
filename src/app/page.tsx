@@ -1,3 +1,5 @@
-export default function Home() {
-  return <></>;
+import React from "react";
+
+export default function Home(): React.JSX.Element {
+  return <div>Abbas</div>;
 }

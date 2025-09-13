@@ -60,8 +60,8 @@ const SignInPage = (): React.JSX.Element => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center p-4 bg-background">
-      <Card className="w-full max-w-lg">
+    <div className=" flex justify-center items-center p-4 bg-background">
+      <Card className="w-full my-16 mx-auto max-w-lg">
         <CardHeader className="justify-center">
           <CardTitle className="text-2xl md:text-3xl font-bold">
             Login to Honest Feedback
