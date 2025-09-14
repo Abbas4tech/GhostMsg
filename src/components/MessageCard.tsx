@@ -43,11 +43,20 @@ const MessageCard = ({ message }: MessageCardProps): React.JSX.Element => {
   return (
     <Card className="w-full rounded-sm">
       <CardHeader>
-        <CardTitle className="text-xl font-bold">
-          Login to your account
+        <CardTitle className="text-base md:text-lg font-bold">
+          {message.content}
         </CardTitle>
         <CardDescription>
-          Enter your email below to login to your account
+          {new Date(message.createdAt).toLocaleString("en-In", {
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
+            hour12: true,
+          })}
         </CardDescription>
         <CardAction>
           <Dialog>

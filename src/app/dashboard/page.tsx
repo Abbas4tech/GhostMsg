@@ -45,7 +45,8 @@ const Dashboard = (): React.JSX.Element => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { data: session, status } = useSession();
-  const cancelTokenSourceRef = useRef<CancelTokenSource | null>(null);
+  const messagesCancelTokenRef = useRef<CancelTokenSource | null>(null);
+  const acceptMessageCancelTokenRef = useRef<CancelTokenSource | null>(null);
   const hasFetched = useRef(false);
 
   const {
@@ -62,15 +63,6 @@ const Dashboard = (): React.JSX.Element => {
 
   const acceptMessages = watch("acceptMessages");
 
-  // Create a new cancel token source
-  const createCancelTokenSource = useCallback(() => {
-    if (cancelTokenSourceRef.current) {
-      cancelTokenSourceRef.current.cancel("Request canceled");
-    }
-    cancelTokenSourceRef.current = axios.CancelToken.source();
-    return cancelTokenSourceRef.current;
-  }, []);
-
   // Handle message deletion
   const handleDeleteMessage = useCallback((messageId: string) => {
     setMessages((prev) => prev.filter((m) => m._id !== messageId));
@@ -79,13 +71,18 @@ const Dashboard = (): React.JSX.Element => {
 
   // Fetch acceptance status
   const fetchAcceptMessage = useCallback(async () => {
-    const source = createCancelTokenSource();
+    // Cancel previous request if it exists
+    if (acceptMessageCancelTokenRef.current) {
+      acceptMessageCancelTokenRef.current.cancel("Request canceled");
+    }
+
+    acceptMessageCancelTokenRef.current = axios.CancelToken.source();
 
     try {
       const response = await axios.get<ApiResponse>("/api/accept-message", {
-        cancelToken: source.token,
+        cancelToken: acceptMessageCancelTokenRef.current.token,
       });
-      setValue("acceptMessages", Boolean(response.data.isAccesptingMessage));
+      setValue("acceptMessages", Boolean(response.data.isAcceptingMessage));
     } catch (error) {
       if (axios.isCancel(error)) {
         return;
@@ -95,51 +92,57 @@ const Dashboard = (): React.JSX.Element => {
         e.response?.data.message || "Failed to fetch acceptance status"
       );
     }
-  }, [createCancelTokenSource, setValue]);
+  }, [setValue]);
 
   // Fetch messages
-  const fetchMessages = useCallback(
-    async (isRefresh = false) => {
-      const source = createCancelTokenSource();
+  const fetchMessages = useCallback(async (isRefresh = false) => {
+    // Cancel previous request if it exists
+    if (messagesCancelTokenRef.current) {
+      messagesCancelTokenRef.current.cancel("Request canceled");
+    }
 
-      try {
-        if (isRefresh) {
-          setIsRefreshing(true);
-        } else {
-          setIsLoading(true);
-        }
+    messagesCancelTokenRef.current = axios.CancelToken.source();
 
-        const response = await axios.get<ApiResponse>("/api/get-messages", {
-          cancelToken: source.token,
-        });
-        setMessages(response.data.messages || []);
-
-        if (isRefresh) {
-          toast.success("Messages refreshed successfully");
-        }
-      } catch (error) {
-        if (axios.isCancel(error)) {
-          return;
-        }
-        const e = error as AxiosError<ApiResponse>;
-        toast.error(e.response?.data.message || "Failed to fetch messages");
-      } finally {
-        setIsLoading(false);
-        setIsRefreshing(false);
+    try {
+      if (isRefresh) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
       }
-    },
-    [createCancelTokenSource]
-  );
+
+      const response = await axios.get<ApiResponse>("/api/get-messages", {
+        cancelToken: messagesCancelTokenRef.current.token,
+      });
+      setMessages(response.data.messages || []);
+
+      if (isRefresh) {
+        toast.success("Messages refreshed successfully");
+      }
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        return;
+      }
+      const e = error as AxiosError<ApiResponse>;
+      toast.error(e.response?.data.message || "Failed to fetch messages");
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, []);
 
   // Toggle message acceptance
   const toggleAcceptMessage = useCallback(async () => {
-    const source = createCancelTokenSource();
+    if (acceptMessageCancelTokenRef.current) {
+      acceptMessageCancelTokenRef.current.cancel("Request canceled");
+    }
+
+    acceptMessageCancelTokenRef.current = axios.CancelToken.source();
 
     try {
       const res = await axios.post<ApiResponse>(
         "/api/accept-message",
         { acceptMessages: !acceptMessages },
-        { cancelToken: source.token }
+        { cancelToken: acceptMessageCancelTokenRef.current.token }
       );
       setValue("acceptMessages", !acceptMessages);
       toast.success(res.data.message);
@@ -152,7 +155,7 @@ const Dashboard = (): React.JSX.Element => {
         e.response?.data.message || "Failed to update acceptance status"
       );
     }
-  }, [acceptMessages, createCancelTokenSource, setValue]);
+  }, [acceptMessages, setValue]);
 
   // Initial data fetch
   useEffect(() => {
@@ -164,6 +167,7 @@ const Dashboard = (): React.JSX.Element => {
 
     const fetchData = async (): Promise<void> => {
       try {
+        // Fetch both in parallel but don't cancel each other
         await Promise.all([fetchMessages(), fetchAcceptMessage()]);
       } catch (error) {
         console.error(error);
@@ -174,8 +178,12 @@ const Dashboard = (): React.JSX.Element => {
     fetchData();
 
     return (): void => {
-      if (cancelTokenSourceRef.current) {
-        cancelTokenSourceRef.current.cancel("Component unmounted");
+      // Cancel any ongoing requests when component unmounts
+      if (messagesCancelTokenRef.current) {
+        messagesCancelTokenRef.current.cancel("Component unmounted");
+      }
+      if (acceptMessageCancelTokenRef.current) {
+        acceptMessageCancelTokenRef.current.cancel("Component unmounted");
       }
     };
   }, [status, fetchAcceptMessage, fetchMessages]);
@@ -273,7 +281,7 @@ const Dashboard = (): React.JSX.Element => {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Your Messages</CardTitle>
-                <CardDescription>
+                <CardDescription className="mt-1">
                   {messages.length > 0
                     ? `You have ${messages.length} message${messages.length !== 1 ? "s" : ""}`
                     : "You haven't received any messages yet"}
@@ -306,19 +314,10 @@ const Dashboard = (): React.JSX.Element => {
               ) : (
                 <div className="text-center py-12">
                   <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No messages yet
-                  </h3>
+                  <h3 className="text-lg font-medium mb-2">No messages yet</h3>
                   <p className="text-gray-500 mb-4">
                     Share your profile link to start receiving messages
                   </p>
-                  <Button
-                    onClick={() =>
-                      document.getElementById("profile-tab")?.click()
-                    }
-                  >
-                    Get Your Profile Link
-                  </Button>
                 </div>
               )}
             </CardContent>

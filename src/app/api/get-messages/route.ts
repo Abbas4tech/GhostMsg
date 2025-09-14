@@ -14,53 +14,42 @@ export async function GET(): Promise<Response> {
 
     if (!user || !session?.user) {
       return Response.json(
-        {
-          success: false,
-          message: "Not authenticated, Please login first!",
-        },
-        {
-          status: 401,
-        }
+        { success: false, message: "Not authenticated, Please login first!" },
+        { status: 401 }
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(user._id as string)) {
+      return Response.json(
+        { success: false, message: "Invalid user ID format" },
+        { status: 400 }
       );
     }
 
     const userId = new mongoose.Types.ObjectId(user._id);
 
-    const aggregatedUser = await UserModel.aggregate([
-      {
-        $match: { id: userId },
-      },
-      {
-        $unwind: "$messages",
-      },
-      {
-        $sort: { "messages.createdAt": -1 },
-      },
-      {
-        $group: { _id: "$_id", messages: { $push: "$messages" } },
-      },
-    ]);
-
-    if (!aggregatedUser || aggregatedUser.length === 0) {
+    const userExists = await UserModel.exists({ _id: userId });
+    if (!userExists) {
       return Response.json(
-        {
-          success: false,
-          message: "User not found",
-        },
-        {
-          status: 500,
-        }
+        { success: false, message: "User not found" },
+        { status: 404 }
       );
     }
 
+    const aggregatedUser = await UserModel.aggregate([
+      { $match: { _id: userId } },
+      { $unwind: "$messages" },
+      { $sort: { "messages.createdAt": -1 } },
+      { $group: { _id: "$_id", messages: { $push: "$messages" } } },
+    ]);
+
+    if (aggregatedUser.length === 0) {
+      return Response.json({ success: true, messages: [] }, { status: 200 });
+    }
+
     return Response.json(
-      {
-        success: true,
-        messages: aggregatedUser[0].messages,
-      },
-      {
-        status: 200,
-      }
+      { success: true, messages: aggregatedUser[0].messages },
+      { status: 200 }
     );
   } catch (error) {
     console.error("Failed to get messages - Internal Server Error: ", error);
