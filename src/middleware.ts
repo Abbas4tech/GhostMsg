@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     } else {
       // Allow access to the root path without redirecting to sign-in
-      return NextResponse.next();
+      return NextResponse.redirect(new URL("/sign-up", request.url));
     }
   }
 

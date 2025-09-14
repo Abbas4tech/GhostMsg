@@ -40,7 +40,6 @@ const SignupPage = (): React.JSX.Element => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationResult, setValidationResult] = useState<ApiResponse | null>(
     null
   );
@@ -67,7 +66,6 @@ const SignupPage = (): React.JSX.Element => {
     z.infer<typeof signUpSchema>
   > = async (data) => {
     try {
-      setIsSubmitting(true);
       const res = await axios.post<ApiResponse>("/api/sign-up", data);
 
       if (res.data.success) {
@@ -77,8 +75,6 @@ const SignupPage = (): React.JSX.Element => {
     } catch (error) {
       const err = error as AxiosError<ApiResponse>;
       toast(err.response?.data.message);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -125,8 +121,8 @@ const SignupPage = (): React.JSX.Element => {
   return (
     <div className="flex justify-center items-center p-4 bg-background">
       <Card className="w-full my-16 max-w-lg">
-        <CardHeader className="justify-center">
-          <CardTitle className="text-2xl md:text-3xl font-bold">
+        <CardHeader>
+          <CardTitle className="text-xl md:text-2xl font-bold">
             Join Honest Feedback
           </CardTitle>
           <CardDescription>
@@ -242,7 +238,7 @@ const SignupPage = (): React.JSX.Element => {
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Validating username...
                   </>
-                ) : isSubmitting ? (
+                ) : form.formState.isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Signing up...
