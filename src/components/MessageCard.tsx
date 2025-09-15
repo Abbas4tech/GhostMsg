@@ -41,7 +41,7 @@ const MessageCard = ({ message }: MessageCardProps): React.JSX.Element => {
   };
 
   return (
-    <Card className="w-full rounded-sm">
+    <Card className="w-full shadow-2xs rounded-sm">
       <CardHeader>
         <CardTitle className="text-base md:text-lg font-bold">
           {message.content}
@@ -61,7 +61,7 @@ const MessageCard = ({ message }: MessageCardProps): React.JSX.Element => {
         <CardAction>
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant={"destructive"}>
+              <Button size={"icon"} variant={"destructive"}>
                 <X />
               </Button>
             </DialogTrigger>

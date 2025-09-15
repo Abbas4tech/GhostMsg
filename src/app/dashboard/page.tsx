@@ -1,34 +1,17 @@
 "use client";
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useMemo,
-  useState,
-} from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError, CancelTokenSource } from "axios";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import { useSession } from "next-auth/react";
-import {
-  CopyIcon,
-  Loader2,
-  RefreshCw,
-  MessageSquare,
-  User,
-  Settings,
-  LinkIcon,
-} from "lucide-react";
+import { MessageSquare, User, Settings } from "lucide-react";
+import { Button } from "@react-email/components";
+import { useIsClient } from "usehooks-ts";
 
-import MessageCard from "@/components/MessageCard";
-import { Message } from "@/model/User";
-import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
-import { ApiResponse } from "@/types/ApiResponse";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDashboard } from "@/hooks/useDashboard";
+import { useAcceptMessage } from "@/hooks/useAcceptMessage";
+import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
+import { MessageTab } from "@/components/dashboard/MessageTab";
+import { ProfileTab } from "@/components/dashboard/ProfileTab";
+import { SettingsTab } from "@/components/dashboard/SettingsTab";
 import {
   Card,
   CardContent,
@@ -36,199 +19,46 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const Dashboard = (): React.JSX.Element => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const { data: session, status } = useSession();
-  const messagesCancelTokenRef = useRef<CancelTokenSource | null>(null);
-  const acceptMessageCancelTokenRef = useRef<CancelTokenSource | null>(null);
-  const hasFetched = useRef(false);
-
   const {
-    watch,
-    register,
-    setValue,
-    formState: { isSubmitting },
-  } = useForm<z.infer<typeof acceptMessageSchema>>({
-    resolver: zodResolver(acceptMessageSchema),
-    defaultValues: {
-      acceptMessages: true,
-    },
-  });
+    session,
+    status,
+    messages,
+    isLoading,
+    isRefreshing,
+    fetchMessages,
+    handleDeleteMessage,
+  } = useDashboard();
 
-  const acceptMessages = watch("acceptMessages");
+  const { form, toggleAcceptMessage } = useAcceptMessage();
+  const acceptMessages = form.watch("acceptMessages");
+  const isClient = useIsClient();
 
-  // Handle message deletion
-  const handleDeleteMessage = useCallback((messageId: string) => {
-    setMessages((prev) => prev.filter((m) => m._id !== messageId));
-    toast.success("Message deleted successfully");
-  }, []);
-
-  // Fetch acceptance status
-  const fetchAcceptMessage = useCallback(async () => {
-    // Cancel previous request if it exists
-    if (acceptMessageCancelTokenRef.current) {
-      acceptMessageCancelTokenRef.current.cancel("Request canceled");
-    }
-
-    acceptMessageCancelTokenRef.current = axios.CancelToken.source();
-
-    try {
-      const response = await axios.get<ApiResponse>("/api/accept-message", {
-        cancelToken: acceptMessageCancelTokenRef.current.token,
-      });
-      setValue("acceptMessages", Boolean(response.data.isAcceptingMessage));
-    } catch (error) {
-      if (axios.isCancel(error)) {
-        return;
-      }
-      const e = error as AxiosError<ApiResponse>;
-      toast.error(
-        e.response?.data.message || "Failed to fetch acceptance status"
-      );
-    }
-  }, [setValue]);
-
-  // Fetch messages
-  const fetchMessages = useCallback(async (isRefresh = false) => {
-    // Cancel previous request if it exists
-    if (messagesCancelTokenRef.current) {
-      messagesCancelTokenRef.current.cancel("Request canceled");
-    }
-
-    messagesCancelTokenRef.current = axios.CancelToken.source();
-
-    try {
-      if (isRefresh) {
-        setIsRefreshing(true);
-      } else {
-        setIsLoading(true);
-      }
-
-      const response = await axios.get<ApiResponse>("/api/get-messages", {
-        cancelToken: messagesCancelTokenRef.current.token,
-      });
-      setMessages(response.data.messages || []);
-
-      if (isRefresh) {
-        toast.success("Messages refreshed successfully");
-      }
-    } catch (error) {
-      if (axios.isCancel(error)) {
-        return;
-      }
-      const e = error as AxiosError<ApiResponse>;
-      toast.error(e.response?.data.message || "Failed to fetch messages");
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, []);
-
-  // Toggle message acceptance
-  const toggleAcceptMessage = useCallback(async () => {
-    if (acceptMessageCancelTokenRef.current) {
-      acceptMessageCancelTokenRef.current.cancel("Request canceled");
-    }
-
-    acceptMessageCancelTokenRef.current = axios.CancelToken.source();
-
-    try {
-      const res = await axios.post<ApiResponse>(
-        "/api/accept-message",
-        { acceptMessages: !acceptMessages },
-        { cancelToken: acceptMessageCancelTokenRef.current.token }
-      );
-      setValue("acceptMessages", !acceptMessages);
-      toast.success(res.data.message);
-    } catch (error) {
-      if (axios.isCancel(error)) {
-        return;
-      }
-      const e = error as AxiosError<ApiResponse>;
-      toast.error(
-        e.response?.data.message || "Failed to update acceptance status"
-      );
-    }
-  }, [acceptMessages, setValue]);
-
-  // Initial data fetch
-  useEffect(() => {
-    if (status !== "authenticated" || hasFetched.current) {
-      return;
-    }
-
-    hasFetched.current = true;
-
-    const fetchData = async (): Promise<void> => {
-      try {
-        // Fetch both in parallel but don't cancel each other
-        await Promise.all([fetchMessages(), fetchAcceptMessage()]);
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to load dashboard data");
-      }
-    };
-
-    fetchData();
-
-    return (): void => {
-      // Cancel any ongoing requests when component unmounts
-      if (messagesCancelTokenRef.current) {
-        messagesCancelTokenRef.current.cancel("Component unmounted");
-      }
-      if (acceptMessageCancelTokenRef.current) {
-        acceptMessageCancelTokenRef.current.cancel("Component unmounted");
-      }
-    };
-  }, [status, fetchAcceptMessage, fetchMessages]);
-
-  // Memoized values
-  const baseUrl = useMemo(() => window.location.origin, []);
+  const baseUrl = useMemo(
+    () => (isClient ? window.location.origin : ""),
+    [isClient]
+  );
   const profileUrl = useMemo(
     () => `${baseUrl}/u/${session?.user?.username || ""}`,
     [baseUrl, session?.user?.username]
   );
 
-  const copyToClipboard = useCallback((): void => {
+  const copyToClipboard = useCallback(() => {
     navigator.clipboard.writeText(profileUrl);
     toast.success("Profile link copied to clipboard!");
   }, [profileUrl]);
 
-  // Loading state
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchMessages();
+    }
+  }, [status, fetchMessages]);
+
   if (status === "loading" || isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-10 w-64" />
-            <Skeleton className="h-6 w-80" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Skeleton className="h-40 w-full" />
-            <Skeleton className="h-40 w-full" />
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <Skeleton className="h-8 w-48" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-60 w-full" />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
-  // Unauthenticated state
   if (status === "unauthenticated" || !session?.user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -249,19 +79,18 @@ const Dashboard = (): React.JSX.Element => {
     );
   }
 
-  const { username } = session.user;
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex flex-col gap-2 mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground">
-          Welcome back, {username}! Manage your messages and profile settings.
+          Welcome back, {session.user.username}! Manage your messages and
+          profile settings.
         </p>
       </div>
 
-      <Tabs defaultValue="messages" className="">
-        <TabsList className="grid grid-cols-3 ">
+      <Tabs defaultValue="messages">
+        <TabsList className="grid grid-cols-3">
           <TabsTrigger value="messages" className="flex items-center gap-2">
             <MessageSquare size={16} />
             Messages
@@ -277,110 +106,24 @@ const Dashboard = (): React.JSX.Element => {
         </TabsList>
 
         <TabsContent value="messages">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Your Messages</CardTitle>
-                <CardDescription className="mt-1">
-                  {messages.length > 0
-                    ? `You have ${messages.length} message${messages.length !== 1 ? "s" : ""}`
-                    : "You haven't received any messages yet"}
-                </CardDescription>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => fetchMessages(true)}
-                disabled={isRefreshing}
-              >
-                {isRefreshing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-                <span className="ml-2">Refresh</span>
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {messages.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {messages.map((message) => (
-                    <MessageCard
-                      key={message.content}
-                      message={message}
-                      onMessageDelete={handleDeleteMessage}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No messages yet</h3>
-                  <p className="text-gray-500 mb-4">
-                    Share your profile link to start receiving messages
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <MessageTab
+            messages={messages}
+            isRefreshing={isRefreshing}
+            onRefresh={() => fetchMessages(true)}
+            onDelete={handleDeleteMessage}
+          />
         </TabsContent>
 
         <TabsContent value="profile">
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Profile</CardTitle>
-              <CardDescription>
-                Share this link to receive anonymous messages
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Input value={profileUrl} disabled className="flex-grow" />
-                <Button onClick={copyToClipboard} className="shrink-0">
-                  <CopyIcon className="h-4 w-4 mr-2" />
-                  Copy
-                </Button>
-              </div>
-              <div className="flex items-center text-sm text-gray-500">
-                <LinkIcon className="h-4 w-4 mr-2" />
-                Anyone with this link can send you anonymous messages
-              </div>
-            </CardContent>
-          </Card>
+          <ProfileTab profileUrl={profileUrl} onCopy={copyToClipboard} />
         </TabsContent>
 
         <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Message Settings</CardTitle>
-              <CardDescription>
-                Control your message preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="space-y-0.5">
-                  <label
-                    htmlFor="accept-messages"
-                    className="text-base font-medium cursor-pointer"
-                  >
-                    Accept Messages
-                  </label>
-                  <p className="text-sm text-gray-500">
-                    {acceptMessages
-                      ? "You are currently accepting messages"
-                      : "You are not accepting messages at this time"}
-                  </p>
-                </div>
-                <Switch
-                  {...register("acceptMessages")}
-                  id="accept-messages"
-                  checked={acceptMessages}
-                  onCheckedChange={toggleAcceptMessage}
-                  disabled={isSubmitting}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <SettingsTab
+            acceptMessages={acceptMessages}
+            onToggle={toggleAcceptMessage}
+            isSubmitting={form.formState.isSubmitting}
+          />
         </TabsContent>
       </Tabs>
     </div>
