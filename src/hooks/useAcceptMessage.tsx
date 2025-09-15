@@ -42,7 +42,7 @@ export const useAcceptMessage = (): useAcceptMessageReturn => {
 
   useEffect(() => {
     fetchInitialStatus();
-  }, []);
+  }, [fetchInitialStatus]);
 
   const toggleAcceptMessage = useCallback(async () => {
     try {
