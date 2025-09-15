@@ -64,7 +64,7 @@ const VerifyUserPage = (): React.JSX.Element => {
     <div className="min-h-screen flex justify-center items-center p-4 bg-background">
       <Card className="max-w-lg w-full">
         <CardHeader className="">
-          <CardTitle className="text-xl md:text-3xl font-bold">
+          <CardTitle className="text-xl md:text-2xl font-bold">
             Verify Your account!
           </CardTitle>
           <CardDescription>
@@ -105,8 +105,15 @@ const VerifyUserPage = (): React.JSX.Element => {
                   </FormItem>
                 )}
               />
-              <Button disabled={!form.formState.isValid} type="submit">
-                Submit
+              <Button
+                disabled={
+                  !form.formState.isValid || form.formState.isSubmitting
+                }
+                type="submit"
+              >
+                {form.formState.isSubmitting
+                  ? "Checking your OTP..."
+                  : "Submit"}
               </Button>
             </CardContent>
           </form>

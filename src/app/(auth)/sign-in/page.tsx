@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
@@ -62,12 +62,12 @@ const SignInPage = (): React.JSX.Element => {
   return (
     <div className=" flex justify-center items-center p-4 bg-background">
       <Card className="w-full my-16 mx-auto max-w-lg">
-        <CardHeader className="justify-center">
-          <CardTitle className="text-2xl md:text-3xl font-bold">
-            Login to Honest Feedback
+        <CardHeader>
+          <CardTitle className="text-xl md:text-2xl font-bold">
+            Login to your account
           </CardTitle>
           <CardDescription>
-            Enter your details below to Login to your account
+            Start your journey with Anonymous and honest feedbacks
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -130,11 +130,20 @@ const SignInPage = (): React.JSX.Element => {
             </CardContent>
             <CardFooter className="flex-col gap-2">
               <Button
-                disabled={!form.formState.isValid}
+                disabled={
+                  !form.formState.isValid || form.formState.isSubmitting
+                }
                 type="submit"
                 className="w-full"
               >
-                {"Login"}
+                {form.formState.isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    {"Logging in..."}
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
               <Button variant={"link"} className="text-xs" type="button">
                 <Link href={"/sign-up"}>Create an account!</Link>
