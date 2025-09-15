@@ -28,7 +28,7 @@ const Dashboard = (): React.JSX.Element => {
     isLoading,
     isRefreshing,
     fetchMessages,
-    handleDeleteMessage,
+    deleteMessage,
   } = useDashboard();
 
   const { form, toggleAcceptMessage } = useAcceptMessage();
@@ -107,10 +107,10 @@ const Dashboard = (): React.JSX.Element => {
 
         <TabsContent value="messages">
           <MessageTab
+            onDelete={deleteMessage}
             messages={messages}
             isRefreshing={isRefreshing}
             onRefresh={() => fetchMessages(true)}
-            onDelete={handleDeleteMessage}
           />
         </TabsContent>
 

@@ -16,7 +16,7 @@ interface MessageTabProps {
   messages: Message[];
   isRefreshing: boolean;
   onRefresh: () => void;
-  onDelete: (_messageId: string) => void;
+  onDelete: (_message: Message) => Promise<void>;
 }
 
 export const MessageTab = ({
@@ -54,9 +54,9 @@ export const MessageTab = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
           {messages.map((message) => (
             <MessageCard
-              key={message.content}
+              onDelete={onDelete}
+              key={message._id as string}
               message={message}
-              onMessageDelete={onDelete}
             />
           ))}
         </div>

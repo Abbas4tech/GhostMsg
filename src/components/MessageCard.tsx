@@ -1,11 +1,8 @@
 "use client";
-import React from "react";
-import axios from "axios";
-import { toast } from "sonner";
-import { X } from "lucide-react";
+import React, { useState } from "react";
+import { Loader2, X } from "lucide-react";
 
 import { Message } from "@/model/User";
-import { ApiResponse } from "@/types/ApiResponse";
 
 import {
   Card,
@@ -28,16 +25,19 @@ import {
 
 interface MessageCardProps {
   message: Message;
-  onMessageDelete: (_id: string) => void;
+  onDelete: (_message: Message) => Promise<void>; // Add this
 }
 
-const MessageCard = ({ message }: MessageCardProps): React.JSX.Element => {
-  const handleDeleteConfirm = async (): Promise<void> => {
-    const response = await axios.delete<ApiResponse>(
-      `/api/delete-message/${message._id}`
-    );
+const MessageCard = ({
+  message,
+  onDelete,
+}: MessageCardProps): React.JSX.Element => {
+  const [isLoading, setIsLoading] = useState(false);
 
-    toast(response.data.message);
+  const handleDeleteConfirm = async (): Promise<void> => {
+    setIsLoading(true);
+    await onDelete(message);
+    setIsLoading(false);
   };
 
   return (
@@ -77,7 +77,20 @@ const MessageCard = ({ message }: MessageCardProps): React.JSX.Element => {
                 <DialogClose asChild>
                   <Button variant="outline">Cancel</Button>
                 </DialogClose>
-                <Button onClick={handleDeleteConfirm}>Save changes</Button>
+                <Button
+                  disabled={isLoading}
+                  variant={"destructive"}
+                  onClick={handleDeleteConfirm}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    "Delete"
+                  )}
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

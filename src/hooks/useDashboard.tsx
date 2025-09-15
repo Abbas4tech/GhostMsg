@@ -15,13 +15,13 @@ interface DashboardReturns {
   isLoading: boolean;
   isRefreshing: boolean;
   fetchMessages: (_isRefresh?: boolean) => Promise<void>;
-  handleDeleteMessage: (_messageId: string) => void;
+  deleteMessage: (_message: Message) => Promise<void>;
 }
 
 export const useDashboard = (): DashboardReturns => {
   const { data: session, status } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const cancelTokenRefs = useRef<Record<string, CancelTokenSource>>({});
@@ -43,7 +43,7 @@ export const useDashboard = (): DashboardReturns => {
       }
 
       const response = await axios.get<ApiResponse>("/api/get-messages", {
-        cancelToken: createCancelToken("messages"),
+        cancelToken: createCancelToken("getMessages"),
       });
 
       setMessages(response.data.messages || []);
@@ -61,10 +61,23 @@ export const useDashboard = (): DashboardReturns => {
     }
   }, []);
 
-  const handleDeleteMessage = useCallback((messageId: string) => {
-    setMessages((prev) => prev.filter((m) => m._id !== messageId));
-    toast.success("Message deleted successfully");
-  }, []);
+  const deleteMessage = async (message: Message): Promise<void> => {
+    try {
+      const response = await axios.delete<ApiResponse>(
+        `/api/delete-message/${message._id}`,
+        {
+          cancelToken: createCancelToken("deleteMessages"),
+        }
+      );
+      setMessages((prev) => prev.filter((m) => m._id !== message._id));
+      toast.success(response.data.message);
+    } catch (error) {
+      if (!axios.isCancel(error)) {
+        const e = error as AxiosError<ApiResponse>;
+        toast.error(e.response?.data.message || "Failed to delete message");
+      }
+    }
+  };
 
   useEffect(
     () => (): void => {
@@ -82,6 +95,6 @@ export const useDashboard = (): DashboardReturns => {
     isLoading,
     isRefreshing,
     fetchMessages,
-    handleDeleteMessage,
+    deleteMessage,
   };
 };

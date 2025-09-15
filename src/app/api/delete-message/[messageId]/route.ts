@@ -38,7 +38,7 @@ export async function DELETE(
       return Response.json(
         {
           success: false,
-          messages: "Message not found, or Already Deleted!",
+          message: "Message not found, or Already Deleted!",
         },
         {
           status: 404,
@@ -49,7 +49,7 @@ export async function DELETE(
     return Response.json(
       {
         success: true,
-        messages: "Message deleted successfully!",
+        message: "Message deleted successfully!",
       },
       {
         status: 200,
