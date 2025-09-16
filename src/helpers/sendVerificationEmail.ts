@@ -12,7 +12,7 @@ export async function sendVerificationEmail(
     await resend.emails.send({
       from: "Acme <onboarding@resend.dev>",
       to: email,
-      subject: "Honest Feedback | Verification Code",
+      subject: "GhostMsg | Verification Code",
       react: VerificationEmail({ username, otp: verifyCode }),
     });
     return { success: true, message: "Verification email sent successfully!" };

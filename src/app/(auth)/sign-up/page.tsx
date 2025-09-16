@@ -123,7 +123,7 @@ const SignupPage = (): React.JSX.Element => {
       <Card className="w-full my-16 max-w-lg">
         <CardHeader>
           <CardTitle className="text-xl md:text-2xl font-bold">
-            Join Honest Feedback
+            Join GhostMsg
           </CardTitle>
           <CardDescription>
             Enter your details below to signup for your account

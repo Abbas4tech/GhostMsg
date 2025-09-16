@@ -14,12 +14,12 @@ export default function Home(): React.JSX.Element {
   return (
     <main className="w-full container my-6 md:my-12 max-w-5xl px-4 mx-auto flex flex-col gap-6 md:gap-12">
       <h1 className="scroll-m-20 text-center text-3xl md:text-5xl font-extrabold tracking-tight text-balance">
-        What If You Could Say, What You Really Think?
+        Send messages like a ghost. 👻
       </h1>
 
       <p className="text-lg md:text-2xl font-semibold text-center text-muted-foreground">
-        Now you can! Share your candid feedback safely and anonymously. Help
-        others grow with the honesty they need to hear.
+        GhostMsg lets you send anonymous messages that appear out of nowhere.
+        Perfect for fun confessions, playful hints, or secret admirers.
       </p>
 
       <Carousel
