@@ -2,6 +2,7 @@
 import React from "react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { LogOut, User2 } from "lucide-react";
 
 import { Button } from "./ui/button";
 import ThemeSwitch from "./ThemeSwitch";
@@ -22,10 +23,16 @@ const Header = (): React.JSX.Element => {
 
         <nav className="flex items-center gap-2">
           {status === "authenticated" ? (
-            <Button onClick={() => signOut()}>Logout</Button>
+            <Button onClick={() => signOut()}>
+              <LogOut />
+              Logout
+            </Button>
           ) : (
             <Link href={"/sign-up"}>
-              <Button>Sign Up</Button>
+              <Button>
+                <User2 />
+                Sign Up
+              </Button>
             </Link>
           )}
           <ThemeSwitch />
