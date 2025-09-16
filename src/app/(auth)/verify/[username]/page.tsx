@@ -61,8 +61,8 @@ const VerifyUserPage = (): React.JSX.Element => {
     mode: "onSubmit",
   });
   return (
-    <div className="min-h-screen flex justify-center items-center p-4 bg-background">
-      <Card className="max-w-lg w-full">
+    <div className="flex justify-center items-center p-4 bg-background">
+      <Card className="max-w-lg w-full mt-16">
         <CardHeader className="">
           <CardTitle className="text-xl md:text-2xl font-bold">
             Verify Your account!

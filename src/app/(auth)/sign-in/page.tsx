@@ -61,14 +61,12 @@ const SignInPage = (): React.JSX.Element => {
 
   return (
     <div className=" flex justify-center items-center p-4 bg-background">
-      <Card className="w-full my-16 mx-auto max-w-lg">
+      <Card className="w-full mt-16 mx-auto max-w-lg">
         <CardHeader>
           <CardTitle className="text-xl md:text-2xl font-bold">
             Login to your account
           </CardTitle>
-          <CardDescription>
-            Start your journey with Anonymous and honest feedbacks
-          </CardDescription>
+          <CardDescription>Start your journey with GhostMsg</CardDescription>
         </CardHeader>
         <Form {...form}>
           <form

@@ -2,7 +2,7 @@
 import React from "react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { LogOut, User2 } from "lucide-react";
+import { GhostIcon, LogOut, User2 } from "lucide-react";
 
 import { Button } from "./ui/button";
 import ThemeSwitch from "./ThemeSwitch";
@@ -18,7 +18,9 @@ const Header = (): React.JSX.Element => {
           variant={"link"}
           className="scroll-m-20 p-0 text-center text-xl hover:no-underline md:text-3xl font-extrabold tracking-tight text-balance"
         >
-          <Link href={"/"}>Honest Feedback</Link>
+          <Link href={"/"}>
+            <GhostIcon className="size-7 font-bold" /> GhostMsg{" "}
+          </Link>
         </Button>
 
         <nav className="flex items-center gap-2">
