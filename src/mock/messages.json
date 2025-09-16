@@ -1,0 +1,52 @@
+[
+  {
+    "content": "I've noticed you sometimes interrupt others during meetings. Allowing colleagues to finish their thoughts could improve team dynamics.",
+    "createdAt": "2024-05-19T08:45:22.000Z",
+    "id": "msg_1a2b3c4d"
+  },
+  {
+    "content": "Your documentation could be more detailed. Adding examples and edge cases would help the team understand your work better.",
+    "createdAt": "2024-05-18T11:30:15.000Z",
+    "id": "msg_2b3c4d5e"
+  },
+  {
+    "content": "Sometimes your messages in chat come across as abrupt. Adding more context would prevent misunderstandings.",
+    "createdAt": "2024-05-17T16:20:43.000Z",
+    "id": "msg_3c4d5e6f"
+  },
+  {
+    "content": "You tend to dominate conversations in our team meetings. Creating space for others to contribute would be valuable.",
+    "createdAt": "2024-05-16T14:15:38.000Z",
+    "id": "msg_4d5e6f7g"
+  },
+  {
+    "content": "Your code reviews are very thorough, but sometimes the feedback could be phrased more constructively.",
+    "createdAt": "2024-05-15T10:05:27.000Z",
+    "id": "msg_5e6f7g8h"
+  },
+  {
+    "content": "I've noticed you often miss deadlines. Better time estimation and communication about delays would help the team.",
+    "createdAt": "2024-05-14T13:40:19.000Z",
+    "id": "msg_6f7g8h9i"
+  },
+  {
+    "content": "Your presentations are informative but could be more engaging. Adding visuals and stories might help maintain audience attention.",
+    "createdAt": "2024-05-13T09:25:14.000Z",
+    "id": "msg_7g8h9i0j"
+  },
+  {
+    "content": "You sometimes commit code without adequate testing. More thorough testing would prevent production issues.",
+    "createdAt": "2024-05-12T15:50:33.000Z",
+    "id": "msg_8h9i0j1k"
+  },
+  {
+    "content": "I've noticed you don't always acknowledge others' contributions. Giving credit where it's due would boost team morale.",
+    "createdAt": "2024-05-11T12:35:28.000Z",
+    "id": "msg_9i0j1k2l"
+  },
+  {
+    "content": "You tend to resist new processes and tools. Being more open to change would help your professional growth.",
+    "createdAt": "2024-05-10T17:20:45.000Z",
+    "id": "msg_0j1k2l3m"
+  }
+]

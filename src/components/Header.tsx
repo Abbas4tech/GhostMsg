@@ -10,18 +10,22 @@ const Header = (): React.JSX.Element => {
   const { status } = useSession();
 
   return (
-    <header className="h-20 w-full bg-accent flex justify-center items-center p-4">
+    <header className="md:h-20 w-full bg-accent flex justify-center items-center p-4">
       <section className="container flex items-center justify-between">
-        <h2 className="scroll-m-20 text-center text-xl  md:text-3xl font-extrabold tracking-tight text-balance">
-          Honest Feedback
-        </h2>
+        <Button
+          asChild
+          variant={"link"}
+          className="scroll-m-20 p-0 text-center text-xl hover:no-underline md:text-3xl font-extrabold tracking-tight text-balance"
+        >
+          <Link href={"/"}>Honest Feedback</Link>
+        </Button>
 
         <nav className="flex items-center gap-2">
           {status === "authenticated" ? (
             <Button onClick={() => signOut()}>Logout</Button>
           ) : (
-            <Link href={"/sign-in"}>
-              <Button>Signin</Button>
+            <Link href={"/sign-up"}>
+              <Button>Sign Up</Button>
             </Link>
           )}
           <ThemeSwitch />
