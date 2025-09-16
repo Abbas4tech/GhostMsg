@@ -43,7 +43,7 @@ const MessageCard = ({
   return (
     <Card className="w-full shadow-2xs rounded-sm">
       <CardHeader>
-        <CardTitle className="text-base md:text-lg font-bold">
+        <CardTitle className="text-base md:text-lg font-semibold">
           {message.content}
         </CardTitle>
         <CardDescription>
