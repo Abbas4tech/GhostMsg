@@ -4,7 +4,6 @@ import "./globals.css";
 import React from "react";
 
 import { Toaster } from "@/components/ui/sonner";
-import Header from "@/components/Header";
 import { AuthProvider, ThemeProvider } from "@/context";
 
 const poppins = Poppins({
@@ -33,7 +32,6 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Header />
             {children}
             <Toaster />
           </ThemeProvider>

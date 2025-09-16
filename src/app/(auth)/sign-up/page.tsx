@@ -120,7 +120,7 @@ const SignupPage = (): React.JSX.Element => {
 
   return (
     <div className="flex justify-center items-center p-4 bg-background">
-      <Card className="w-full my-16 max-w-lg">
+      <Card className="w-full mt-16 max-w-lg">
         <CardHeader>
           <CardTitle className="text-xl md:text-2xl font-bold">
             Join GhostMsg

@@ -1,9 +1,7 @@
 "use client";
-import React, { useCallback, useEffect, useMemo } from "react";
-import { toast } from "sonner";
+import React, { useEffect } from "react";
 import { MessageSquare, User, Settings } from "lucide-react";
 import { Button } from "@react-email/components";
-import { useIsClient } from "usehooks-ts";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDashboard } from "@/hooks/useDashboard";
@@ -33,21 +31,6 @@ const Dashboard = (): React.JSX.Element => {
 
   const { form, toggleAcceptMessage } = useAcceptMessage();
   const acceptMessages = form.watch("acceptMessages");
-  const isClient = useIsClient();
-
-  const baseUrl = useMemo(
-    () => (isClient ? window.location.origin : ""),
-    [isClient]
-  );
-  const profileUrl = useMemo(
-    () => `${baseUrl}/u/${session?.user?.username || ""}`,
-    [baseUrl, session?.user?.username]
-  );
-
-  const copyToClipboard = useCallback(() => {
-    navigator.clipboard.writeText(profileUrl);
-    toast.success("Profile link copied to clipboard!");
-  }, [profileUrl]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -115,7 +98,7 @@ const Dashboard = (): React.JSX.Element => {
         </TabsContent>
 
         <TabsContent value="profile">
-          <ProfileTab profileUrl={profileUrl} onCopy={copyToClipboard} />
+          <ProfileTab />
         </TabsContent>
 
         <TabsContent value="settings">

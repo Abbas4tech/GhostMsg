@@ -1,5 +1,5 @@
 import React from "react";
-import { MessageSquare, RefreshCw, Loader2 } from "lucide-react";
+import { MessageSquare, RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Message } from "@/model/User";
 import MessageCard from "@/components/MessageCard";
+import { cn } from "@/lib/utils";
 
 interface MessageTabProps {
   messages: Message[];
@@ -41,11 +42,9 @@ export const MessageTab = ({
         onClick={onRefresh}
         disabled={isRefreshing}
       >
-        {isRefreshing ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <RefreshCw className="h-4 w-4" />
-        )}
+        <RefreshCw
+          className={cn("h-4 w-4", isRefreshing ? "animate-spin" : "")}
+        />
         <span className="ml-2">Refresh</span>
       </Button>
     </CardHeader>
