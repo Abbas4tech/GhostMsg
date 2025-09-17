@@ -10,8 +10,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Message } from "@/model/User";
-import MessageCard from "@/components/MessageCard";
 import { cn } from "@/lib/utils";
+
+import MessageCard from "./MessageCard";
 
 interface MessageTabProps {
   messages: Message[];

@@ -4,11 +4,11 @@ import { Metadata } from "next";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "Dashboard | GhostMsg 👻",
+  title: "Dashboard",
   description:
     "Manage your anonymous messages, view your ghost profile, and control your settings on GhostMsg.",
   openGraph: {
-    title: "Dashboard | GhostMsg 👻",
+    title: "Dashboard",
     description:
       "Your command center for sending and receiving anonymous messages.",
   },

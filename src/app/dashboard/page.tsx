@@ -6,10 +6,6 @@ import { Button } from "@react-email/components";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAcceptMessage } from "@/hooks/useAcceptMessage";
-import { DashboardSkeleton } from "@/components/dashboard/DashboardSkeleton";
-import { MessageTab } from "@/components/dashboard/MessageTab";
-import { ProfileTab } from "@/components/dashboard/ProfileTab";
-import { SettingsTab } from "@/components/dashboard/SettingsTab";
 import {
   Card,
   CardContent,
@@ -17,6 +13,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  DashboardSkeleton,
+  MessageTab,
+  ProfileTab,
+  SettingsTab,
+} from "@/components/dashboard";
 
 const Dashboard = (): React.JSX.Element => {
   const {
