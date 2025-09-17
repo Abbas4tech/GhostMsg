@@ -10,8 +10,8 @@ import {
   CardTitle,
   CardDescription,
   CardAction,
-} from "./ui/card";
-import { Button } from "./ui/button";
+} from "../ui/card";
+import { Button } from "../ui/button";
 import {
   DialogHeader,
   DialogFooter,
@@ -21,7 +21,7 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 
 interface MessageCardProps {
   message: Message;

@@ -1,158 +1,37 @@
-"use client";
-import React, { useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
-import Link from "next/link";
-import { signIn } from "next-auth/react";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import React from "react";
+import { Metadata } from "next";
 
-import { Input } from "@/components/ui/input";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
+  CardDescription,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { signInSchema } from "@/schemas/signInSchema";
+import { AuthForm } from "@/components/auth";
 
-const SignInPage = (): React.JSX.Element => {
-  const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
-
-  const form = useForm<z.infer<typeof signInSchema>>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: {
-      identifier: "",
-      password: "",
-    },
-    mode: "onChange",
-  });
-
-  const submitSignupHandler: SubmitHandler<
-    z.infer<typeof signInSchema>
-  > = async (data) => {
-    try {
-      const response = await signIn("credentials", {
-        redirect: false,
-        ...data,
-      });
-      if (!response?.ok) {
-        toast(response?.error);
-      } else {
-        router.replace("/dashboard");
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return (
-    <div className=" flex justify-center items-center p-4 bg-background">
-      <Card className="w-full mt-16 mx-auto max-w-lg">
-        <CardHeader>
-          <CardTitle className="text-xl md:text-2xl font-bold">
-            Login to your account
-          </CardTitle>
-          <CardDescription>Start your journey with GhostMsg</CardDescription>
-        </CardHeader>
-        <Form {...form}>
-          <form
-            className="space-y-4"
-            onSubmit={form.handleSubmit(submitSignupHandler)}
-          >
-            <CardContent>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <FormField
-                    control={form.control}
-                    name="identifier"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Username/Email *</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter your username/email.."
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password *</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="Enter your password.."
-                              {...field}
-                            />
-                            <div
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute cursor-pointer inset-y-0 right-0 flex items-center pr-3"
-                            >
-                              {showPassword ? (
-                                <Eye className="h-5 w-5" />
-                              ) : (
-                                <EyeOff className="h-5 w-5" />
-                              )}
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex-col gap-2">
-              <Button
-                disabled={
-                  !form.formState.isValid || form.formState.isSubmitting
-                }
-                type="submit"
-                className="w-full"
-              >
-                {form.formState.isSubmitting ? (
-                  <>
-                    <Loader2 className="animate-spin" />
-                    {"Logging in..."}
-                  </>
-                ) : (
-                  "Login"
-                )}
-              </Button>
-              <Button variant={"link"} className="text-xs" type="button">
-                <Link href={"/sign-up"}>Create an account!</Link>
-              </Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
-    </div>
-  );
+export const metadata: Metadata = {
+  title: "SignIn",
+  description:
+    "Access your GhostMsg account to send and receive anonymous messages. Your ghost identity awaits!",
+  openGraph: {
+    title: "SignIn",
+    description:
+      "Access your ghost account and continue sending anonymous messages.",
+  },
 };
+
+const SignInPage = (): React.JSX.Element => (
+  <div className="flex justify-center items-center p-4 bg-background">
+    <Card className="w-full mt-16 mx-auto max-w-lg">
+      <CardHeader>
+        <CardTitle className="text-xl md:text-2xl font-bold">
+          Login to your account
+        </CardTitle>
+        <CardDescription>Start your journey with GhostMsg</CardDescription>
+      </CardHeader>
+      <AuthForm mode="signin" />
+    </Card>
+  </div>
+);
 
 export default SignInPage;
