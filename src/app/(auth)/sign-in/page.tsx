@@ -52,8 +52,9 @@ const SignInPage = (): React.JSX.Element => {
       });
       if (!response?.ok) {
         toast(response?.error);
+      } else {
+        router.replace("/dashboard");
       }
-      router.replace("/dashboard");
     } catch (error) {
       console.error(error);
     }
