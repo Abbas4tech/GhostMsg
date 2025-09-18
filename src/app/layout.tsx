@@ -59,8 +59,8 @@ export default function RootLayout({
 }>): React.JSX.Element {
   return (
     <html lang="en" suppressHydrationWarning>
-      <AuthProvider>
-        <body className={`${poppins.variable} antialiased`}>
+      <body className={`${poppins.variable} antialiased`}>
+        <AuthProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -70,8 +70,8 @@ export default function RootLayout({
             {children}
             <Toaster />
           </ThemeProvider>
-        </body>
-      </AuthProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }

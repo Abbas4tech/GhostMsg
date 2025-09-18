@@ -44,7 +44,7 @@ export const ProfileTab = (): React.JSX.Element => {
         <div className="flex gap-2">
           <Input value={profileUrl} disabled className="flex-grow" />
           <Button onClick={copyToClipboard} className="shrink-0">
-            <CopyIcon className="h-4 w-4 mr-2" />
+            <CopyIcon className="h-4 w-4" />
             Copy
           </Button>
         </div>
