@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GhostMsg - Anonymous Messaging Platform
 
-## Getting Started
+GhostMsg is a Next.js application that allows users to receive anonymous messages. Share your unique profile link and let others send you messages without revealing their identity.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- 🔐 User authentication with email/password
+- 🌐 Public profile URLs for receiving anonymous messages
+- 🤖 AI-powered message suggestions (using Google AI Studio)
+- 📧 Email notifications (via Resend)
+- 💬 Anonymous messaging system
+- 📱 Responsive design
+
+## Prerequisites
+
+Before running this application, make sure you have:
+
+- Node.js (v18 or higher)
+- MongoDB database
+- Resend account for email functionality
+- Google AI Studio API key
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+RESEND_API_KEY=your_resend_api_key
+NEXT_AUTH_SECRET=your_nextauth_secret
+GOOGLE_AI_STUDIO_SECRET=your_google_ai_studio_api_key
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Getting API Keys
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **MongoDB URI**: Create a database at [MongoDB Atlas](https://www.mongodb.com/atlas) and get the connection string.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Resend API Key**: Sign up at [Resend](https://resend.com) and get your API key from the dashboard.
 
-## Learn More
+3. **NextAuth Secret**: Generate a secure random string for NextAuth.js (can use `openssl rand -base64 32`).
 
-To learn more about Next.js, take a look at the following resources:
+4. **Google AI Studio Secret**: Get your API key from [Google AI Studio](https://makersuite.google.com/).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd ghostmsg
+```
 
-## Deploy on Vercel
+2. Install dependencies:
+```bash
+npm install
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Set up environment variables as described above.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Run the development server:
+```bash
+npm run dev
+```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Usage
+
+1. **Sign Up**: Create an account with your email, username, and password.
+
+2. **Get Your Profile Link**: After logging in, you'll receive a unique profile URL (e.g., `ghostmsg.com/yourusername`).
+
+3. **Share Your Link**: Share this link with others to receive anonymous messages.
+
+4. **View Messages**: Check your dashboard to read anonymous messages sent to you.
+
+```bash
+Sample User 
+Username = Test
+Password = Abbas@123
+```
+
+## Technologies Used
+
+- **Frontend**: Next.js, React, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB with Mongoose
+- **Authentication**: NextAuth.js
+- **Email**: Resend
+- **AI Features**: Google AI Studio
+
+## Contributing
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Support
+
+If you have any questions or issues, please open an issue on GitHub or contact us at abbas4engg@gmail.com.
+
+## Screenshots
+
+<img width="1918" height="870" alt="image" src="https://github.com/user-attachments/assets/f4117395-4db6-4302-8acf-dbb584f6a012" />
+
+<img width="1916" height="866" alt="image" src="https://github.com/user-attachments/assets/8b8576e8-0f79-41e3-aa38-644e4816e08b" />
+
+<img width="1918" height="868" alt="image" src="https://github.com/user-attachments/assets/e5606482-c450-4ef0-ac22-229e9ca6dedd" />
+
+---
+
+**Note**: This application is designed for positive and constructive anonymous messaging. Please use responsibly and respect others' privacy.
