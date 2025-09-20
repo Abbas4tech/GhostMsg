@@ -30,12 +30,12 @@ const Header = (): React.JSX.Element => {
               Logout
             </Button>
           ) : (
-            <Link href={"/sign-up"}>
-              <Button>
+            <Button asChild>
+              <Link href={"/sign-up"}>
                 <User2 />
                 Sign Up
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           )}
           <ThemeSwitch />
         </nav>

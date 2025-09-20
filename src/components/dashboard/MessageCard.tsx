@@ -66,7 +66,7 @@ const MessageCard = ({
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
-              <DialogHeader>
+              <DialogHeader className="gap-4">
                 <DialogTitle>Are you absolutely sure?</DialogTitle>
                 <DialogDescription>
                   This action can&#39;t be undone and will permanently delete
