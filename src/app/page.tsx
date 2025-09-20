@@ -35,24 +35,22 @@ export default function Home(): React.JSX.Element {
           <CarouselContent>
             {messages.map((_, index) => (
               <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <Card className="rounded-sm py-6 gap-0">
-                    <CardTitle className="capitalize px-6 pb-6 text-base md:text-lg font-semibold">
-                      {_.content}
-                    </CardTitle>
-                    <CardContent className="px-6">
-                      {new Date(_.createdAt).toLocaleString("en-In", {
-                        timeZone: "Asia/Kolkata",
-                        year: "numeric",
-                        month: "short",
-                        day: "2-digit",
-                        hour: "numeric",
-                        minute: "numeric",
-                        hour12: true,
-                      })}
-                    </CardContent>
-                  </Card>
-                </div>
+                <Card className="rounded-sm h-full py-6 justify-between md:gap-0">
+                  <CardTitle className="capitalize px-6 pb-6 text-base md:text-lg font-semibold">
+                    {_.content}
+                  </CardTitle>
+                  <CardContent className="px-6">
+                    {new Date(_.createdAt).toLocaleString("en-In", {
+                      timeZone: "Asia/Kolkata",
+                      year: "numeric",
+                      month: "short",
+                      day: "2-digit",
+                      hour: "numeric",
+                      minute: "numeric",
+                      hour12: true,
+                    })}
+                  </CardContent>
+                </Card>
               </CarouselItem>
             ))}
           </CarouselContent>

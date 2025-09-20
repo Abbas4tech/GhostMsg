@@ -16,10 +16,8 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   );
 
   // Handle root path separately
-  if (url.pathname === "/") {
-    if (token) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
+  if (url.pathname === "/" && token) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // Redirect authenticated users away from public pages

@@ -1,8 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import { Metadata } from "next";
 
-import Header from "@/components/Header";
-
 export const metadata: Metadata = {
   title: "Dashboard",
   description:
@@ -14,11 +12,6 @@ export const metadata: Metadata = {
   },
 };
 
-const layout = ({ children }: PropsWithChildren): React.JSX.Element => (
-  <>
-    <Header />
-    {children}
-  </>
-);
+const layout = ({ children }: PropsWithChildren): React.ReactNode => children;
 
 export default layout;
