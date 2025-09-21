@@ -11,7 +11,6 @@ export async function GET(): Promise<Response> {
   try {
     const session = await getServerSession(authOptions);
     const user = session?.user as User;
-    console.log("Session User:", user);
 
     if (!user || !session?.user) {
       return Response.json(

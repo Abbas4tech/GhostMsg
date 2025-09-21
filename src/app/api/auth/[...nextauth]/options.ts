@@ -34,7 +34,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!user) {
-            throw new Error("No User found with this email");
+            throw new Error("No User found with this email or username");
           }
 
           if (!user.isVerified) {
@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
           if (isPasswordCorrect) {
             return user;
           } else {
-            throw new Error("Incorrect password");
+            throw new Error("Password is incorrect, Please try again");
           }
         } catch (error: any) {
           throw new Error(error);
@@ -73,7 +73,9 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "google") {
         await dbConnect();
         try {
-          const existingUser = await UserModel.findOne({ email: user.email });
+          const existingUser = await UserModel.findOne({
+            email: user.email,
+          });
 
           if (!existingUser) {
             const newUser = new UserModel({
@@ -91,13 +93,9 @@ export const authOptions: NextAuthOptions = {
               verifyCodeExpiry: new Date(Date.now() + 3600000),
             });
             const savedUser = await newUser.save();
-            user._id = savedUser._id.toString(); // Add this line
+            user._id = savedUser._id.toString();
           } else {
-            if (!existingUser.isVerified) {
-              existingUser.isVerified = true;
-              await existingUser.save();
-            }
-            user._id = existingUser._id.toString(); // Add this line
+            user._id = existingUser._id.toString();
             user.isVerified = existingUser.isVerified;
             user.isAcceptingMessage = existingUser.isAcceptingMessage;
             user.username = existingUser.username;
@@ -111,7 +109,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        session.user._id = token._id?.toString();
+        session.user._id = token._id;
         session.user.isVerified = token.isVerified;
         session.user.isAcceptingMessage = token.isAcceptingMessage;
         session.user.username = token.username;
@@ -120,7 +118,7 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user }) {
       if (user) {
-        token._id = user._id?.toString();
+        token._id = user._id;
         token.isVerified = user.isVerified;
         token.isAcceptingMessage = user.isAcceptingMessage;
         token.username = user.username;
