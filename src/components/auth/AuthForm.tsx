@@ -311,6 +311,14 @@ const AuthForm = ({
               <Link href="/sign-in">Already a member? Try logging in!</Link>
             )}
           </Button>
+
+          <Button
+            type="button"
+            onClick={() => signIn("google")}
+            value={"outline"}
+          >
+            SignIn with Google
+          </Button>
         </CardFooter>
       </form>
     </Form>
