@@ -1,12 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
 
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { AuthForm } from "@/components/auth";
 
 export const metadata: Metadata = {
@@ -21,19 +15,19 @@ export const metadata: Metadata = {
 };
 
 const SignupPage = (): React.JSX.Element => (
-  <div className="flex justify-center items-center p-4 bg-background">
-    <Card className="w-full mt-16 max-w-lg">
-      <CardHeader>
-        <CardTitle className="text-xl md:text-2xl font-bold">
+  <main className="flex justify-center items-center p-4 bg-background">
+    <section className="w-full mt-8 max-w-sm">
+      <header className="text-center flex flex-col mb-6 gap-2">
+        <h2 className="text-xl leading-none md:text-2xl font-bold">
           Join GhostMsg
-        </CardTitle>
-        <CardDescription>
+        </h2>
+        <p className="text-muted-foreground text-sm">
           Enter your details below to signup for your account
-        </CardDescription>
-      </CardHeader>
+        </p>
+      </header>
       <AuthForm mode="signup" />
-    </Card>
-  </div>
+    </section>
+  </main>
 );
 
 export default SignupPage;

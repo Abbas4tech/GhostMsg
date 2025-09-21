@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import CredentialProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { NextAuthOptions } from "next-auth";
 import bcrypt from "bcryptjs";
 
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
+
+import { controlGoogleSignInFlow } from "./controller/google-signin";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -33,7 +36,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (!user) {
-            throw new Error("No User found with this email");
+            throw new Error("No User found with this email or username");
           }
 
           if (!user.isVerified) {
@@ -48,12 +51,16 @@ export const authOptions: NextAuthOptions = {
           if (isPasswordCorrect) {
             return user;
           } else {
-            throw new Error("Incorrect password");
+            throw new Error("Password is incorrect, Please try again");
           }
         } catch (error: any) {
           throw new Error(error);
         }
       },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET as string,
     }),
   ],
   pages: {
@@ -64,20 +71,26 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXT_AUTH_SECRET,
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        return await controlGoogleSignInFlow(user);
+      }
+      return true;
+    },
     async session({ session, token }) {
       if (token) {
-        session.user._id = token._id?.toString();
+        session.user._id = token._id;
         session.user.isVerified = token.isVerified;
-        session.user.isAcceptingMessages = token.isAcceptingMessages;
+        session.user.isAcceptingMessage = token.isAcceptingMessage;
         session.user.username = token.username;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token._id = user._id?.toString();
+        token._id = user._id;
         token.isVerified = user.isVerified;
-        token.isAcceptingMessages = user.isAcceptingMessages;
+        token.isAcceptingMessage = user.isAcceptingMessage;
         token.username = user.username;
       }
       return token;
