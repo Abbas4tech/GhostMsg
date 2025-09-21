@@ -11,7 +11,7 @@ const Header = (): React.JSX.Element => {
   const { status } = useSession();
 
   return (
-    <header className="md:h-20 w-full bg-accent flex justify-center items-center p-4">
+    <header className="md:h-20 w-full bg-primary-foreground flex justify-center items-center p-4">
       <section className="container flex items-center justify-between">
         <Button
           asChild
