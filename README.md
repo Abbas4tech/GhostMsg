@@ -29,6 +29,9 @@ MONGODB_URI=your_mongodb_connection_string
 RESEND_API_KEY=your_resend_api_key
 NEXT_AUTH_SECRET=your_nextauth_secret
 GOOGLE_AI_STUDIO_SECRET=your_google_ai_studio_api_key
+GOOGLE_OAUTH_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_OAUTH_CLIENT_SECRET=your_google_oauth_client_secret
+GOOGLE_OAUTH_CALLBACK_URL=your_google_oauth_callback_url
 ```
 
 ### Getting API Keys
@@ -40,6 +43,8 @@ GOOGLE_AI_STUDIO_SECRET=your_google_ai_studio_api_key
 3. **NextAuth Secret**: Generate a secure random string for NextAuth.js (can use `openssl rand -base64 32`).
 
 4. **Google AI Studio Secret**: Get your API key from [Google AI Studio](https://makersuite.google.com/).
+
+5. **Google Cloud Console**: Get you Client ID and Client for OAuth
 
 ## Installation
 
