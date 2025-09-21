@@ -44,11 +44,11 @@ const VerifyCodeForm = ({
         code: _data.code,
       });
 
-      toast(res.data.message);
+      toast.success(res.data.message);
       router.replace("/sign-in");
     } catch (error) {
       const err = error as AxiosError<ApiResponse>;
-      toast(err.response?.data.message);
+      toast.error(err.response?.data.message);
     }
   };
 

@@ -126,9 +126,9 @@ const AuthForm = ({
         });
 
         if (!response?.ok) {
-          toast(response?.error || "Login failed");
+          toast.error(response?.error || "Login failed");
         } else {
-          toast("Login successful");
+          toast.success("Login successful");
           router.replace(redirectPath);
         }
       } else {
@@ -142,16 +142,16 @@ const AuthForm = ({
         });
 
         if (res.data.success) {
-          toast(res.data.message);
+          toast.success(res.data.message);
           router.replace(`/verify/${username}`);
         }
       }
     } catch (error) {
       if (mode === "signin") {
-        toast("Login failed. Please check your credentials.");
+        toast.error("Login failed. Please check your credentials.");
       } else {
         const err = error as AxiosError<ApiResponse>;
-        toast(err.response?.data.message || "Signup failed");
+        toast.error(err.response?.data.message || "Signup failed");
       }
     }
   };
