@@ -1,12 +1,6 @@
 import React from "react";
 import { Metadata } from "next";
 
-import {
-  Card,
-  CardHeader,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
 import { AuthForm } from "@/components/auth";
 
 export const metadata: Metadata = {
@@ -21,17 +15,19 @@ export const metadata: Metadata = {
 };
 
 const SignInPage = (): React.JSX.Element => (
-  <div className="flex justify-center items-center p-4 bg-background">
-    <Card className="w-full mt-16 mx-auto max-w-lg">
-      <CardHeader>
-        <CardTitle className="text-xl md:text-2xl font-bold">
+  <main className="flex justify-center items-center p-4 bg-background">
+    <section className="w-full mt-8 max-w-sm">
+      <header className="text-center flex flex-col mb-6 gap-2">
+        <h2 className="text-xl leading-none md:text-2xl font-bold">
           Login to your account
-        </CardTitle>
-        <CardDescription>Start your journey with GhostMsg</CardDescription>
-      </CardHeader>
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Continue your journey with GhostMsg
+        </p>
+      </header>
       <AuthForm mode="signin" />
-    </Card>
-  </div>
+    </section>
+  </main>
 );
 
 export default SignInPage;

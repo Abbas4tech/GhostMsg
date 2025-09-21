@@ -16,7 +16,7 @@ const Header = (): React.JSX.Element => {
         <Button
           asChild
           variant={"link"}
-          className="scroll-m-20 p-0 text-center text-xl hover:no-underline md:text-3xl font-extrabold tracking-tight text-balance"
+          className="scroll-m-20 !pl-0 text-center text-xl hover:no-underline md:text-3xl font-extrabold tracking-tight text-balance"
         >
           <Link href={"/"}>
             <GhostIcon className="size-7 font-bold" /> GhostMsg{" "}
