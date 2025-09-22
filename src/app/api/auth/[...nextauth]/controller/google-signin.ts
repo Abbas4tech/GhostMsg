@@ -26,6 +26,9 @@ export const controlGoogleSignInFlow = async (
       });
       const savedUser = await newUser.save();
       user._id = savedUser._id.toString();
+      user.isVerified = savedUser.isVerified;
+      user.isAcceptingMessage = savedUser.isAcceptingMessage;
+      user.username = savedUser.username;
     } else {
       user._id = existingUser._id.toString();
       user.isVerified = existingUser.isVerified;
