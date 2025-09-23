@@ -31,8 +31,8 @@ const Dashboard = (): React.JSX.Element => {
     deleteMessage,
   } = useDashboard();
 
-  const { form, toggleAcceptMessage } = useAcceptMessage();
-  const acceptMessages = form.watch("acceptMessages");
+  const { acceptMessages, isSubmitting, toggleAcceptMessage } =
+    useAcceptMessage();
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -107,7 +107,7 @@ const Dashboard = (): React.JSX.Element => {
           <SettingsTab
             acceptMessages={acceptMessages}
             onToggle={toggleAcceptMessage}
-            isSubmitting={form.formState.isSubmitting}
+            isSubmitting={isSubmitting}
           />
         </TabsContent>
       </Tabs>

@@ -1,63 +1,64 @@
-import { useCallback, useEffect } from "react";
+import {
+  useState,
+  useTransition,
+  useOptimistic,
+  useCallback,
+  useEffect,
+} from "react";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
-import { useForm, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
-import { ApiResponse } from "@/types/ApiResponse";
 
 interface useAcceptMessageReturn {
-  form: UseFormReturn<
-    {
-      acceptMessages: boolean;
-    },
-    unknown,
-    {
-      acceptMessages: boolean;
-    }
-  >;
+  acceptMessages: boolean;
   toggleAcceptMessage: () => Promise<void>;
+  isSubmitting: boolean;
 }
+import { ApiResponse } from "@/types/ApiResponse";
 
 export const useAcceptMessage = (): useAcceptMessageReturn => {
-  const form = useForm<z.infer<typeof acceptMessageSchema>>({
-    resolver: zodResolver(acceptMessageSchema),
-    defaultValues: {
-      acceptMessages: true,
-    },
-  });
-
-  const fetchInitialStatus = useCallback(async () => {
-    try {
-      const res = await axios.get<ApiResponse>("/api/accept-message");
-
-      form.setValue("acceptMessages", Boolean(res.data.isAcceptingMessage));
-    } catch (error) {
-      const e = error as AxiosError<ApiResponse>;
-      toast.error(e.response?.data.message || "Failed to update status");
-    }
-  }, [form]);
+  const [serverState, setServerState] = useState<boolean>(true);
+  const [isPending, startTransition] = useTransition();
+  const [optimisticState, setOptimisticState] = useOptimistic(
+    serverState,
+    (_, newValue: boolean) => newValue
+  );
 
   useEffect(() => {
-    fetchInitialStatus();
-  }, [fetchInitialStatus]);
+    const fetchStatus = async (): Promise<void> => {
+      try {
+        const res = await axios.get<ApiResponse>("/api/accept-message");
+        setServerState(Boolean(res.data.isAcceptingMessage));
+      } catch (error) {
+        const e = error as AxiosError<ApiResponse>;
+        toast.error(e.response?.data.message || "Failed to fetch status");
+      }
+    };
+    fetchStatus();
+  }, []);
 
   const toggleAcceptMessage = useCallback(async () => {
-    try {
-      const acceptMessages = form.getValues("acceptMessages");
-      const res = await axios.post<ApiResponse>("/api/accept-message", {
-        acceptMessages: !acceptMessages,
-      });
+    const newValue = !optimisticState;
 
-      form.setValue("acceptMessages", !acceptMessages);
-      toast.success(res.data.message);
-    } catch (error) {
-      const e = error as AxiosError<ApiResponse>;
-      toast.error(e.response?.data.message || "Failed to update status");
-    }
-  }, [form]);
+    startTransition(async () => {
+      setOptimisticState(newValue);
 
-  return { form, toggleAcceptMessage };
+      try {
+        const res = await axios.post<ApiResponse>("/api/accept-message", {
+          acceptMessages: newValue,
+        });
+        setServerState(newValue);
+        toast.success(res.data.message);
+      } catch (error) {
+        setOptimisticState(serverState);
+        const e = error as AxiosError<ApiResponse>;
+        toast.error(e.response?.data.message || "Failed to update status");
+      }
+    });
+  }, [optimisticState, serverState, startTransition, setOptimisticState]);
+
+  return {
+    acceptMessages: optimisticState,
+    toggleAcceptMessage,
+    isSubmitting: isPending,
+  };
 };
