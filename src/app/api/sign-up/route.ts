@@ -64,7 +64,6 @@ export async function POST(req: NextRequest): Promise<Response> {
       await newUser.save();
     }
 
-    //Send Verification Email
     const emailResponse = await sendVerificationEmail(
       email,
       username,
