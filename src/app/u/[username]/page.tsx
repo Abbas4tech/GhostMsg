@@ -63,10 +63,7 @@ const SendMessagePage = (): React.JSX.Element => {
       const messages = (response.data.messages as unknown as string).split(
         "||"
       );
-      // const messages =
-      //   "\"What's a skill you'd love to master if time and resources were no object?||If you could invent a new holiday, what would it celebrate and how would people observe it?||What's a book or movie that left a lasting positive impression on you and why?\"".split(
-      //     "||"
-      //   );
+
       setSuggestedMessages(messages);
     } catch (error) {
       console.error(error);

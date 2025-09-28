@@ -1,10 +1,8 @@
-import { getServerSession, User } from "next-auth";
 import { NextRequest } from "next/server";
 
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
-
-import { authOptions } from "../../auth/[...nextauth]/options";
+import { getCurrentUser } from "@/helpers/currentUser";
 
 export async function DELETE(
   req: NextRequest,
@@ -14,23 +12,13 @@ export async function DELETE(
   try {
     const { messageId } = await params;
 
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user || !session?.user) {
-      return Response.json(
-        {
-          success: false,
-          message: "Not authenticated, Please login first!",
-        },
-        {
-          status: 401,
-        }
-      );
+    const response = await getCurrentUser();
+    if (response instanceof Response) {
+      return response;
     }
 
     const updatedResult = await UserModel.updateOne(
-      { _id: user._id },
+      { _id: response._id },
       { $pull: { messages: { _id: messageId } } }
     );
 

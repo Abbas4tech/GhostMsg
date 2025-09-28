@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useTransition } from "react";
 import { Loader2, X } from "lucide-react";
 
 import { Message } from "@/model/User";
@@ -25,20 +25,17 @@ import {
 
 interface MessageCardProps {
   message: Message;
-  onDelete: (_message: Message) => Promise<void>; // Add this
+  onDelete: (_message: Message) => Promise<void>;
 }
 
 const MessageCard = ({
   message,
   onDelete,
 }: MessageCardProps): React.JSX.Element => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const handleDeleteConfirm = async (): Promise<void> => {
-    setIsLoading(true);
-    await onDelete(message);
-    setIsLoading(false);
-  };
+  const handleDeleteConfirm = (): void =>
+    startTransition(async () => await onDelete(message));
 
   return (
     <Card className="w-full shadow-2xs rounded-sm">
@@ -78,11 +75,11 @@ const MessageCard = ({
                   <Button variant="outline">Cancel</Button>
                 </DialogClose>
                 <Button
-                  disabled={isLoading}
+                  disabled={isPending}
                   variant={"destructive"}
                   onClick={handleDeleteConfirm}
                 >
-                  {isLoading ? (
+                  {isPending ? (
                     <>
                       <Loader2 className="animate-spin" />
                       <span>Deleting...</span>
