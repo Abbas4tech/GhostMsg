@@ -1,19 +1,23 @@
-import { NextResponse, NextRequest, NextMiddleware } from "next/server";
+import { NextResponse, NextMiddleware } from "next/server";
 import { getToken } from "next-auth/jwt";
 export { default } from "next-auth/middleware";
 
-const publicPaths = ["/", "/sign-in", "/sign-up", "/verify"];
+const publicPaths = ["/sign-in", "/sign-up", "/verify"];
 
-export const middleware: NextMiddleware = async (request: NextRequest) => {
+export const middleware: NextMiddleware = async (request) => {
   const token = await getToken({
     req: request,
     secret: process.env.NEXT_AUTH_SECRET,
   });
   const url = request.nextUrl;
 
-  const isPublicPath = publicPaths.some((path) =>
-    url.pathname.startsWith(path)
+  const isPublicPath = publicPaths.some(
+    (path) => path === url.pathname || url.pathname.startsWith(path)
   );
+
+  if (url.pathname === "/" && token) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   if (token && isPublicPath) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
