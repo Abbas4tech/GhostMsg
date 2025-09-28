@@ -1,30 +1,18 @@
-import { getServerSession, User } from "next-auth";
 import { NextRequest } from "next/server";
 
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
-
-import { authOptions } from "../auth/[...nextauth]/options";
+import { getCurrentUser } from "@/helpers/currentUser";
 
 export async function POST(req: NextRequest): Promise<Response> {
   await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user || !session?.user) {
-      return Response.json(
-        {
-          success: false,
-          message: "Not authenticated, Please login first!",
-        },
-        {
-          status: 400,
-        }
-      );
+    const response = await getCurrentUser();
+    if (response instanceof Response) {
+      return response;
     }
 
-    const userId = user._id;
+    const userId = response._id;
     const { acceptMessages } = await req.json();
 
     const updatedUser = await UserModel.findByIdAndUpdate(
@@ -78,22 +66,12 @@ export async function GET(): Promise<Response> {
   await dbConnect();
 
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user || !session?.user) {
-      return Response.json(
-        {
-          success: false,
-          message: "Not authenticated, Please login first!",
-        },
-        {
-          status: 400,
-        }
-      );
+    const response = await getCurrentUser();
+    if (response instanceof Response) {
+      return response;
     }
 
-    const userId = user._id;
+    const userId = response._id;
 
     const foundUser = await UserModel.findById(userId);
 

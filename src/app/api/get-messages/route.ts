@@ -1,32 +1,25 @@
-import { getServerSession, User } from "next-auth";
 import mongoose from "mongoose";
 
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
-
-import { authOptions } from "../auth/[...nextauth]/options";
+import { getCurrentUser } from "@/helpers/currentUser";
 
 export async function GET(): Promise<Response> {
   await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user || !session?.user) {
-      return Response.json(
-        { success: false, message: "Not authenticated, Please login first!" },
-        { status: 401 }
-      );
+    const response = await getCurrentUser();
+    if (response instanceof Response) {
+      return response;
     }
 
-    if (!mongoose.Types.ObjectId.isValid(user._id as string)) {
+    if (!mongoose.Types.ObjectId.isValid(response._id as string)) {
       return Response.json(
         { success: false, message: "Invalid user ID format" },
         { status: 400 }
       );
     }
 
-    const userId = new mongoose.Types.ObjectId(user._id);
+    const userId = new mongoose.Types.ObjectId(response._id);
 
     const userExists = await UserModel.exists({ _id: userId });
     if (!userExists) {
