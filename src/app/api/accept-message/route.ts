@@ -5,6 +5,7 @@ import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 
 import { authOptions } from "../auth/[...nextauth]/options";
+import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
 
 export async function POST(req: NextRequest): Promise<Response> {
   await dbConnect();
@@ -27,9 +28,23 @@ export async function POST(req: NextRequest): Promise<Response> {
     const userId = user._id;
     const { acceptMessages } = await req.json();
 
+    const res = acceptMessageSchema.safeParse({ acceptMessages });
+
+    if (!res.success) {
+      return Response.json(
+        {
+          success: false,
+          message: "Invalid acceptMessages value",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
-      { isAcceptingMessage: Boolean(acceptMessages) },
+      { isAcceptingMessage: res.data.acceptMessages },
       { new: true }
     );
 
