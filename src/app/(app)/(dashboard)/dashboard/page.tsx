@@ -19,6 +19,7 @@ import {
   ProfileTab,
   SettingsTab,
 } from "@/components/dashboard";
+import { Text } from "@/components/ui/text";
 
 const Dashboard = (): React.JSX.Element => {
   const {
@@ -67,11 +68,11 @@ const Dashboard = (): React.JSX.Element => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex flex-col gap-2 mb-8">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
+        <Text as={"h2"} variant={"h2"}>Dashboard</Text>
+        <Text variant={"muted"}>
           Welcome back, {session.user.username}! Manage your messages and
           profile settings.
-        </p>
+        </Text>
       </div>
 
       <Tabs defaultValue="messages">

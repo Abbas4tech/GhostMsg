@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Text } from "../ui/text";
 
 interface SettingsTabProps {
   acceptMessages: boolean;
@@ -34,11 +35,11 @@ export const SettingsTab = ({
           >
             Accept Messages
           </label>
-          <p className="text-sm text-gray-500">
+          <Text variant={"muted"}>
             {acceptMessages
               ? "You are currently accepting messages"
               : "You are not accepting messages at this time"}
-          </p>
+          </Text>
         </div>
         <Switch
           id="accept-messages"
