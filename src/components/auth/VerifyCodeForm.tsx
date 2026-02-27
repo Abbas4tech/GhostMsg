@@ -22,9 +22,9 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { ApiResponse } from "@/types/ApiResponse";
+import { Button } from "../animate-ui/components/buttons/button";
 
 type VerifyCodeFormProps = {
   username: string;
