@@ -4,8 +4,8 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { GhostIcon, LogOut, User2 } from "lucide-react";
 
-import { Button } from "./ui/button";
-import ThemeSwitch from "./ThemeSwitch";
+import { ThemeTogglerButton } from "./animate-ui/components/buttons/theme-toggler";
+import { Button } from "./animate-ui/components/buttons/button";
 
 const Header = (): React.JSX.Element => {
   const { status } = useSession();
@@ -37,7 +37,7 @@ const Header = (): React.JSX.Element => {
               </Link>
             </Button>
           )}
-          <ThemeSwitch />
+          <ThemeTogglerButton modes={["dark","light"]}/>
         </nav>
       </section>
     </header>

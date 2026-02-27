@@ -10,20 +10,22 @@ import {
 } from "@/components/ui/carousel";
 import messages from "@/mock/messages.json";
 import Header from "@/components/Header";
+import { Text } from "@/components/ui/text";
+import { GravityStarsBackground } from "@/components/animate-ui/components/backgrounds/gravity-stars";
 
 export default function Home(): React.JSX.Element {
   return (
     <>
       <Header />
       <main className="w-full container my-6 md:my-12 max-w-5xl px-4 mx-auto flex flex-col gap-6 md:gap-12">
-        <h1 className="scroll-m-20 text-center text-3xl md:text-5xl font-extrabold tracking-tight text-balance">
+        <Text as={"h1"} variant={"h1"} className="text-center">
           Send Messages like a Ghost. 👻
-        </h1>
+        </Text>
 
-        <p className="text-lg md:text-2xl font-semibold text-center text-muted-foreground">
+        <Text className="text-center" variant={"lead"}>
           GhostMsg lets you send anonymous messages that appear out of nowhere.
           Perfect for fun confessions, playful hints, or secret admirers.
-        </p>
+        </Text>
 
         <Carousel
           opts={{

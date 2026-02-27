@@ -12,7 +12,6 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -29,6 +28,7 @@ import {
 import { signInSchema } from "@/schemas/signInSchema";
 import { ApiResponse } from "@/types/ApiResponse";
 import { signUpSchema } from "@/schemas/signUpSchema";
+import { Button } from "../animate-ui/components/buttons/button";
 
 type AuthFormMode = "signin" | "signup";
 

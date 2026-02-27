@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CopyButton } from "../animate-ui/components/buttons/copy";
 
 export const ProfileTab = (): React.JSX.Element => {
   const { data: session } = useSession();
@@ -28,9 +29,8 @@ export const ProfileTab = (): React.JSX.Element => {
   );
 
   const copyToClipboard = useCallback(() => {
-    navigator.clipboard.writeText(profileUrl);
     toast.success("Profile link copied to clipboard!");
-  }, [profileUrl]);
+  }, []);
 
   return (
     <Card>
@@ -43,10 +43,9 @@ export const ProfileTab = (): React.JSX.Element => {
       <CardContent className="space-y-4">
         <div className="flex gap-2">
           <Input value={profileUrl} disabled className="flex-grow" />
-          <Button onClick={copyToClipboard} className="shrink-0">
-            <CopyIcon className="h-4 w-4" />
-            Copy
-          </Button>
+         
+            <CopyButton onClick={copyToClipboard} content={profileUrl}/>
+
         </div>
         <div className="flex items-center text-sm text-gray-500">
           <LinkIcon className="h-4 w-4 mr-2" />

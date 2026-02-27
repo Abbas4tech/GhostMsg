@@ -13,6 +13,7 @@ import { Message } from "@/model/User";
 import { cn } from "@/lib/utils";
 
 import MessageCard from "./MessageCard";
+import { LiquidButton } from "../animate-ui/components/buttons/liquid";
 
 interface MessageTabProps {
   messages: Message[];
@@ -37,9 +38,8 @@ export const MessageTab = ({
             : "You haven't received any messages yet"}
         </CardDescription>
       </div>
-      <Button
+      <LiquidButton
         className="gap-0"
-        variant="outline"
         onClick={onRefresh}
         disabled={isRefreshing}
       >
@@ -47,7 +47,7 @@ export const MessageTab = ({
           className={cn("h-4 w-4", isRefreshing ? "animate-spin" : "")}
         />
         <span className="ml-2">Refresh</span>
-      </Button>
+      </LiquidButton>
     </CardHeader>
     <CardContent>
       {messages.length > 0 ? (

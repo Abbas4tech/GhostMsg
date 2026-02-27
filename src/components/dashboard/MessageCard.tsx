@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useTransition, MouseEvent } from "react";
 import { Loader2, X } from "lucide-react";
 
 import { Message } from "@/model/User";
@@ -13,31 +13,37 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import {
-  DialogHeader,
-  DialogFooter,
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../animate-ui/components/radix/alert-dialog";
+import { LiquidButton } from "../animate-ui/components/buttons/liquid";
 
 interface MessageCardProps {
   message: Message;
-  onDelete: (_message: Message) => Promise<void>; // Add this
+  onDelete: (message: Message) => Promise<void>;
 }
 
 const MessageCard = ({
   message,
   onDelete,
 }: MessageCardProps): React.JSX.Element => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  const handleDeleteConfirm = async (): Promise<void> => {
-    setIsLoading(true);
-    await onDelete(message);
-    setIsLoading(false);
+  const handleDeleteConfirm = (e: MouseEvent<HTMLButtonElement>): void => {
+    e.preventDefault();
+    e.stopPropagation()
+    if (isPending) return;
+    startTransition(async () => {
+      await onDelete(message);
+      setIsOpen(false);
+    });
   };
 
   return (
@@ -47,7 +53,7 @@ const MessageCard = ({
           {message.content}
         </CardTitle>
         <CardDescription>
-          {new Date(message.createdAt).toLocaleString("en-In", {
+          {new Date(message.createdAt).toLocaleString("en-IN", {
             timeZone: "Asia/Kolkata",
             year: "numeric",
             month: "long",
@@ -59,41 +65,37 @@ const MessageCard = ({
           })}
         </CardDescription>
         <CardAction>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size={"icon"} variant={"destructive"}>
+          <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+            <AlertDialogTrigger asChild>
+              <Button size="icon" variant="destructive">
                 <X />
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader className="gap-4">
-                <DialogTitle>Are you absolutely sure?</DialogTitle>
-                <DialogDescription>
-                  This action can&#39;t be undone and will permanently delete
-                  this message from our servers
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button
-                  disabled={isLoading}
-                  variant={"destructive"}
-                  onClick={handleDeleteConfirm}
-                >
-                  {isLoading ? (
+            </AlertDialogTrigger>
+            <AlertDialogContent from="left" className="sm:max-w-md">
+              <AlertDialogHeader className="gap-4">
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action can't be undone and will permanently delete this
+                  message from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+                <LiquidButton disabled={isPending} variant={"destructive"} onClick={handleDeleteConfirm}>
+                  {isPending ? (
                     <>
-                      <Loader2 className="animate-spin" />
-                      <span>Deleting...</span>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <span>  Deleting...</span>
                     </>
                   ) : (
-                    "Delete"
+                    <>
+                      Delete
+                    </>
                   )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                </LiquidButton>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardAction>
       </CardHeader>
     </Card>

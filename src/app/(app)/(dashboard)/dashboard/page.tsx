@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import { MessageSquare, User, Settings } from "lucide-react";
 import { Button } from "@react-email/components";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAcceptMessage } from "@/hooks/useAcceptMessage";
 import {
@@ -20,6 +19,7 @@ import {
   SettingsTab,
 } from "@/components/dashboard";
 import { Text } from "@/components/ui/text";
+import { Tabs,TabsContent,TabsContentProps,TabsContents,TabsContentsProps,TabsList,TabsListProps,TabsProps,TabsTrigger,TabsTriggerProps } from "@/components/animate-ui/components/radix/tabs";
 
 const Dashboard = (): React.JSX.Element => {
   const {
