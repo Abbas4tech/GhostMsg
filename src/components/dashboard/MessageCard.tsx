@@ -11,7 +11,6 @@ import {
   CardDescription,
   CardAction,
 } from "../ui/card";
-import { Button } from "../ui/button";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -23,6 +22,7 @@ import {
   AlertDialogTrigger,
 } from "../animate-ui/components/radix/alert-dialog";
 import { LiquidButton } from "../animate-ui/components/buttons/liquid";
+import { Button } from "../animate-ui/components/buttons/button";
 
 interface MessageCardProps {
   message: Message;

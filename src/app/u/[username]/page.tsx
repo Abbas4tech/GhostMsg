@@ -10,7 +10,6 @@ import { toast } from "sonner";
 
 import { messageSchema } from "@/schemas/messageSchema";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -19,10 +18,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ApiResponse } from "@/types/ApiResponse";
-import ThemeSwitch from "@/components/ThemeSwitch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { ThemeTogglerButton } from "@/components/animate-ui/components/buttons/theme-toggler";
+import { Button } from "@/components/animate-ui/components/buttons/button";
+import { Text } from "@/components/ui/text";
 
 const SendMessagePage = (): React.JSX.Element => {
   const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
@@ -78,11 +79,11 @@ const SendMessagePage = (): React.JSX.Element => {
   }, [suggestMessages]);
 
   return (
-    <div className="container mx-auto p-4 flex flex-col gap-12 relative">
-      <ThemeSwitch className="absolute right-4 top-4" />
-      <h2 className="scroll-m-20 capitalize text-center mt-8 text-2xl md:text-4xl font-extrabold tracking-tight text-balance">
+    <div className="container mx-auto px-4 py-12 flex flex-col gap-12 relative">
+      <ThemeTogglerButton modes={["dark", "light"]} className="absolute right-4 top-4" />
+      <Text className="text-center capitalize" as={"h1"} variant={"h1"}>
         public profile link
-      </h2>
+      </Text>
 
       <Form {...form}>
         <form

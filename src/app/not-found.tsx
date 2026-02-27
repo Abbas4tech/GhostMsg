@@ -4,7 +4,6 @@ import React from "react";
 import { Home, SearchX } from "lucide-react";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/animate-ui/components/buttons/button";
 
 export default function NotFound(): React.JSX.Element {
   return (
