@@ -1,5 +1,5 @@
-import React from "react";
 import { MessageSquare, RefreshCw } from "lucide-react";
+import type React from "react";
 
 import {
   Card,
@@ -8,17 +8,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Message } from "@/model/User";
 import { cn } from "@/lib/utils";
-
-import MessageCard from "./MessageCard";
+import type { Message } from "@/model/user.model";
 import { LiquidButton } from "../animate-ui/components/buttons/liquid";
+import MessageCard from "./message-card";
 
 interface MessageTabProps {
-  messages: Message[];
   isRefreshing: boolean;
-  onRefresh: () => void;
+  messages: Message[];
   onDelete: (_message: Message) => Promise<void>;
+  onRefresh: () => void;
 }
 
 export const MessageTab = ({
@@ -39,8 +38,8 @@ export const MessageTab = ({
       </div>
       <LiquidButton
         className="gap-0"
-        onClick={onRefresh}
         disabled={isRefreshing}
+        onClick={onRefresh}
       >
         <RefreshCw
           className={cn("h-4 w-4", isRefreshing ? "animate-spin" : "")}
@@ -50,20 +49,20 @@ export const MessageTab = ({
     </CardHeader>
     <CardContent>
       {messages.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
           {messages.map((message) => (
             <MessageCard
-              onDelete={onDelete}
               key={message._id as string}
               message={message}
+              onDelete={onDelete}
             />
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">No messages yet</h3>
-          <p className="text-gray-500 mb-4">
+        <div className="py-12 text-center">
+          <MessageSquare className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+          <h3 className="mb-2 font-medium text-lg">No messages yet</h3>
+          <p className="mb-4 text-gray-500">
             Share your profile link to start receiving messages
           </p>
         </div>

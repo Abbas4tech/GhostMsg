@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { type Document, Schema, type Types } from "mongoose";
 
 export interface Message extends Document {
   content: string;
@@ -19,14 +19,14 @@ const MessageSchema: Schema<Message> = new Schema({
 
 export interface User extends Document {
   _id: Types.ObjectId;
-  username: string;
   email: string;
+  isAcceptingMessage: boolean;
+  isVerified: boolean;
+  messages: Message[];
   password: string;
+  username: string;
   verifyCode: string;
   verifyCodeExpiry: Date;
-  isVerified: boolean;
-  isAcceptingMessage: boolean;
-  messages: Message[];
 }
 
 const UserSchema: Schema<User> = new Schema(
@@ -41,7 +41,7 @@ const UserSchema: Schema<User> = new Schema(
       type: String,
       required: [true, "Email is required"],
       unique: true,
-      match: [/.+\@.+\..+/, "Please use a valid email address"],
+      match: [/.+@.+\..+/, "Please use a valid email address"],
     },
     password: {
       type: String,

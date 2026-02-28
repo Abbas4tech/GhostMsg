@@ -1,11 +1,9 @@
-import React, { useCallback, useMemo } from "react";
-import { CopyIcon, LinkIcon } from "lucide-react";
+import { LinkIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
+import type React from "react";
+import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { useIsClient } from "usehooks-ts";
-import { useSession } from "next-auth/react";
-
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -13,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { CopyButton } from "../animate-ui/components/buttons/copy";
 
 export const ProfileTab = (): React.JSX.Element => {
@@ -42,13 +41,12 @@ export const ProfileTab = (): React.JSX.Element => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
-          <Input value={profileUrl} disabled className="flex-grow" />
-         
-            <CopyButton onClick={copyToClipboard} content={profileUrl}/>
+          <Input className="flex-grow" disabled value={profileUrl} />
 
+          <CopyButton content={profileUrl} onClick={copyToClipboard} />
         </div>
-        <div className="flex items-center text-sm text-gray-500">
-          <LinkIcon className="h-4 w-4 mr-2" />
+        <div className="flex items-center text-gray-500 text-sm">
+          <LinkIcon className="mr-2 h-4 w-4" />
           Anyone with this link can send you anonymous messages
         </div>
       </CardContent>

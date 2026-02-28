@@ -1,16 +1,11 @@
 "use client";
-import React, { useState, useTransition, MouseEvent } from "react";
 import { Loader2, X } from "lucide-react";
+import type React from "react";
+import { type MouseEvent, useState, useTransition } from "react";
 
-import { Message } from "@/model/User";
-
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardAction,
-} from "../ui/card";
+import type { Message } from "@/model/user.model";
+import { Button } from "../animate-ui/components/buttons/button";
+import { LiquidButton } from "../animate-ui/components/buttons/liquid";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -21,8 +16,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../animate-ui/components/radix/alert-dialog";
-import { LiquidButton } from "../animate-ui/components/buttons/liquid";
-import { Button } from "../animate-ui/components/buttons/button";
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 
 interface MessageCardProps {
   message: Message;
@@ -38,8 +38,10 @@ const MessageCard = ({
 
   const handleDeleteConfirm = (e: MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault();
-    e.stopPropagation()
-    if (isPending) return;
+    e.stopPropagation();
+    if (isPending) {
+      return;
+    }
     startTransition(async () => {
       await onDelete(message);
       setIsOpen(false);
@@ -47,9 +49,9 @@ const MessageCard = ({
   };
 
   return (
-    <Card className="w-full shadow-2xs rounded-sm">
+    <Card className="w-full rounded-sm shadow-2xs">
       <CardHeader>
-        <CardTitle className="text-base md:text-lg font-semibold">
+        <CardTitle className="font-semibold text-base md:text-lg">
           {message.content}
         </CardTitle>
         <CardDescription>
@@ -65,13 +67,13 @@ const MessageCard = ({
           })}
         </CardDescription>
         <CardAction>
-          <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+          <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
             <AlertDialogTrigger asChild>
               <Button size="icon" variant="destructive">
                 <X />
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent from="left" className="sm:max-w-md">
+            <AlertDialogContent className="sm:max-w-md" from="left">
               <AlertDialogHeader className="gap-4">
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -80,17 +82,21 @@ const MessageCard = ({
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
-                <LiquidButton disabled={isPending} variant={"destructive"} onClick={handleDeleteConfirm}>
+                <AlertDialogCancel disabled={isPending}>
+                  Cancel
+                </AlertDialogCancel>
+                <LiquidButton
+                  disabled={isPending}
+                  onClick={handleDeleteConfirm}
+                  variant={"destructive"}
+                >
                   {isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      <span>  Deleting...</span>
+                      <span> Deleting...</span>
                     </>
                   ) : (
-                    <>
-                      Delete
-                    </>
+                    <>Delete</>
                   )}
                 </LiquidButton>
               </AlertDialogFooter>

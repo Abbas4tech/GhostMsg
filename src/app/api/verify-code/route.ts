@@ -1,5 +1,5 @@
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
+import dbConnect from "@/lib/db-connect";
+import UserModel from "@/model/user.model";
 
 export async function POST(req: Request): Promise<Response> {
   await dbConnect();
@@ -36,16 +36,8 @@ export async function POST(req: Request): Promise<Response> {
         },
         { status: 200 }
       );
-    } else if (!isCodeExpired) {
-      return Response.json(
-        {
-          success: false,
-          message:
-            "Verification code has expired. Please signup again to get a new code",
-        },
-        { status: 400 }
-      );
-    } else {
+    }
+    if (isCodeExpired) {
       return Response.json(
         {
           success: false,
@@ -54,6 +46,14 @@ export async function POST(req: Request): Promise<Response> {
         { status: 200 }
       );
     }
+    return Response.json(
+      {
+        success: false,
+        message:
+          "Verification code has expired. Please signup again to get a new code",
+      },
+      { status: 400 }
+    );
   } catch (error) {
     console.error("Error verifying code: ", error);
     return Response.json(

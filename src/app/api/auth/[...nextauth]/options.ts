@@ -1,11 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/** biome-ignore-all lint/suspicious/useAwait: false */
+/** biome-ignore-all lint/suspicious/noExplicitAny: false */
+
+import bcrypt from "bcryptjs";
+import type { NextAuthOptions } from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { NextAuthOptions } from "next-auth";
-import bcrypt from "bcryptjs";
 
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
+import dbConnect from "@/lib/db-connect";
+import UserModel from "@/model/user.model";
 
 import { controlGoogleSignInFlow } from "./controller/google-signin";
 
@@ -50,9 +52,8 @@ export const authOptions: NextAuthOptions = {
 
           if (isPasswordCorrect) {
             return user;
-          } else {
-            throw new Error("Password is incorrect, Please try again");
           }
+          throw new Error("Password is incorrect, Please try again");
         } catch (error: any) {
           throw new Error(error);
         }

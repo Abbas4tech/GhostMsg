@@ -1,19 +1,19 @@
 import dynamic from "next/dynamic";
 
 const DashboardSkeleton = dynamic(() =>
-  import("./DashboardSkeleton").then((m) => m.DashboardSkeleton)
+  import("./dashboard-skeleton").then((m) => m.DashboardSkeleton)
 );
 
 const ProfileTab = dynamic(() =>
-  import("./ProfileTab").then((m) => m.ProfileTab)
+  import("./profile-tab").then((m) => m.ProfileTab)
 );
 
 const MessageTab = dynamic(() =>
-  import("./MessageTab").then((m) => m.MessageTab)
+  import("./message-tab").then((m) => m.MessageTab)
 );
 
 const SettingsTab = dynamic(() =>
-  import("./SettingsTab").then((m) => m.SettingsTab)
+  import("./settings-tab").then((m) => m.SettingsTab)
 );
 
 export { DashboardSkeleton, ProfileTab, MessageTab, SettingsTab };

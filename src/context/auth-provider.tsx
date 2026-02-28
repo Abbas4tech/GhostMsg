@@ -1,6 +1,7 @@
 "use client";
 import { SessionProvider } from "next-auth/react";
-import React, { PropsWithChildren } from "react";
+import type React from "react";
+import type { PropsWithChildren } from "react";
 
 export default function AuthProvider({
   children,

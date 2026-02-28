@@ -1,4 +1,5 @@
-import AuthProvider from "./AuthProvider";
-import ThemeProvider from "./ThemeProvider";
+/** biome-ignore-all lint/style/noExportedImports: false */
+import AuthProvider from "./auth-provider";
+import ThemeProvider from "./theme-provider";
 
 export { AuthProvider, ThemeProvider };

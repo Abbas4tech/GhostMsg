@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import mongoose from "mongoose";
 
-type ConnectionObject = {
+interface ConnectionObject {
   isConnected?: number;
-};
+}
 
 const connection: ConnectionObject = {};
 

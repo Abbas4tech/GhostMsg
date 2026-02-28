@@ -1,6 +1,4 @@
-import React from "react";
-
-import { Switch } from "@/components/ui/switch";
+import type React from "react";
 import {
   Card,
   CardContent,
@@ -8,12 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Text } from "../ui/text";
 
 interface SettingsTabProps {
   acceptMessages: boolean;
-  onToggle: () => void;
   isSubmitting: boolean;
+  onToggle: () => void;
 }
 
 export const SettingsTab = ({
@@ -27,11 +26,11 @@ export const SettingsTab = ({
       <CardDescription>Control your message preferences</CardDescription>
     </CardHeader>
     <CardContent>
-      <div className="flex items-center justify-between p-4 border rounded-lg">
+      <div className="flex items-center justify-between rounded-lg border p-4">
         <div className="space-y-0.5">
           <label
+            className="cursor-pointer font-medium text-base"
             htmlFor="accept-messages"
-            className="text-base font-medium cursor-pointer"
           >
             Accept Messages
           </label>
@@ -42,10 +41,10 @@ export const SettingsTab = ({
           </Text>
         </div>
         <Switch
-          id="accept-messages"
           checked={acceptMessages}
-          onCheckedChange={onToggle}
           disabled={isSubmitting}
+          id="accept-messages"
+          onCheckedChange={onToggle}
         />
       </div>
     </CardContent>

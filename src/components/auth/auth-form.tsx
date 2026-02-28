@@ -1,17 +1,16 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useDebounceValue } from "usehooks-ts";
-import axios, { AxiosError } from "axios";
+import axios, { type AxiosError } from "axios";
 import { CheckCircle2, Eye, EyeOff, Loader2, XCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
-
-import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useDebounceValue } from "usehooks-ts";
+import type * as z from "zod";
 import {
   Form,
   FormControl,
@@ -20,14 +19,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { signInSchema } from "@/schemas/signInSchema";
-import { ApiResponse } from "@/types/ApiResponse";
-import { signUpSchema } from "@/schemas/signUpSchema";
+import { signInSchema } from "@/schemas/sign-in-schema";
+import { signUpSchema } from "@/schemas/sign-up-schema";
+import type { ApiResponse } from "@/types/api-response";
 import { Button } from "../animate-ui/components/buttons/button";
 
 type AuthFormMode = "signin" | "signup";
@@ -88,13 +88,13 @@ const AuthForm = ({
         );
         setValidationResult(result.data);
 
-        if (!result.data.success) {
+        if (result.data.success) {
+          form.clearErrors("username");
+        } else {
           form.setError("username", {
             type: "manual",
             message: result.data.message,
           });
-        } else {
-          form.clearErrors("username");
         }
       } catch (error) {
         const err = error as AxiosError<ApiResponse>;
@@ -124,11 +124,11 @@ const AuthForm = ({
           password,
         });
 
-        if (!response?.ok) {
-          toast.error(response?.error || "Login failed");
-        } else {
+        if (response?.ok) {
           toast.success("Login successful");
           router.replace(redirectPath);
+        } else {
+          toast.error(response?.error || "Login failed");
         }
       } else {
         const { email, password, username } = data as z.infer<
@@ -228,8 +228,8 @@ const AuthForm = ({
                       <FormLabel>Email *</FormLabel>
                       <FormControl>
                         <Input
-                          type="email"
                           placeholder="Please choose your email.."
+                          type="email"
                           {...field}
                         />
                       </FormControl>
@@ -251,17 +251,20 @@ const AuthForm = ({
                   <FormControl>
                     <div className="relative">
                       <Input
-                        type={showPassword ? "text" : "password"}
                         placeholder={
                           mode === "signin"
                             ? "Enter your password.."
                             : "Please choose your password.."
                         }
+                        type={showPassword ? "text" : "password"}
                         {...field}
                       />
+                      {/** biome-ignore lint/a11y/noNoninteractiveElementInteractions: false */}
+                      {/** biome-ignore lint/a11y/noStaticElementInteractions: false */}
+                      {/** biome-ignore lint/a11y/useKeyWithClickEvents: false */}
                       <div
+                        className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute cursor-pointer inset-y-0 right-0 flex items-center pr-3"
                       >
                         {showPassword ? (
                           <Eye className="h-5 w-5" />
@@ -277,21 +280,22 @@ const AuthForm = ({
             />
           </div>
         </div>
-        <footer className="flex items-center flex-col gap-2 md:gap-4">
+        <footer className="flex flex-col items-center gap-2 md:gap-4">
           <Button
+            className="w-full"
             disabled={
               !isValid ||
               isSubmitting ||
               (mode === "signup" && isCheckingUsername)
             }
             type="submit"
-            className="w-full"
           >
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {mode === "signin" ? "Logging in..." : "Signing up..."}
               </>
+              // biome-ignore lint/style/noNestedTernary: false
             ) : mode === "signin" ? (
               "Login"
             ) : (
@@ -299,19 +303,20 @@ const AuthForm = ({
             )}
           </Button>
 
-          <div className="after:border-border w-full relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-            <span className="bg-background text-muted-foreground text-sm capitalize relative z-10 px-2">
+          <div className="relative w-full text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-border after:border-t">
+            <span className="relative z-10 bg-background px-2 text-muted-foreground text-sm capitalize">
               Or
             </span>
           </div>
 
           <Button
-            type="button"
             className="w-full"
             onClick={() => signIn("google")}
+            type="button"
             variant={"outline"}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            {/** biome-ignore lint/a11y/noSvgWithoutTitle: false */}
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
                 fill="currentColor"
@@ -320,7 +325,7 @@ const AuthForm = ({
             Continue with Google
           </Button>
 
-          <Button variant={"link"} className="text-xs" type="button">
+          <Button className="text-xs" type="button" variant={"link"}>
             {mode === "signin" ? (
               <Link href="/sign-up">Create an account!</Link>
             ) : (
