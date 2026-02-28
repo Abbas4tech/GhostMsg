@@ -1,6 +1,6 @@
 {
   "name": "ghostmsg",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -52,6 +52,7 @@
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.8",
     "typescript": "^5",
+    "@changesets/cli": "^2.29.8",
     "ultracite": "^7.2.4"
   }
 }
