@@ -1,10 +1,20 @@
 "use client";
-import React, { useEffect } from "react";
-import { MessageSquare, User, Settings } from "lucide-react";
 import { Button } from "@react-email/components";
-
-import { useDashboard } from "@/hooks/useDashboard";
-import { useAcceptMessage } from "@/hooks/useAcceptMessage";
+import { MessageSquare, Settings, User } from "lucide-react";
+import type React from "react";
+import { useEffect } from "react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/animate-ui/components/radix/tabs";
+import {
+  DashboardSkeleton,
+  MessageTab,
+  ProfileTab,
+  SettingsTab,
+} from "@/components/dashboard";
 import {
   Card,
   CardContent,
@@ -12,14 +22,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  DashboardSkeleton,
-  MessageTab,
-  ProfileTab,
-  SettingsTab,
-} from "@/components/dashboard";
 import { Text } from "@/components/ui/text";
-import { Tabs,TabsContent,TabsContentProps,TabsContents,TabsContentsProps,TabsList,TabsListProps,TabsProps,TabsTrigger,TabsTriggerProps } from "@/components/animate-ui/components/radix/tabs";
+import { useAcceptMessage } from "@/hooks/use-accept-message";
+import { useDashboard } from "@/hooks/use-dashboard";
 
 const Dashboard = (): React.JSX.Element => {
   const {
@@ -47,8 +52,8 @@ const Dashboard = (): React.JSX.Element => {
 
   if (status === "unauthenticated" || !session?.user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-full max-w-md mx-4">
+      <div className="flex min-h-screen items-center justify-center">
+        <Card className="mx-4 w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-center">Access Denied</CardTitle>
             <CardDescription className="text-center">
@@ -66,9 +71,11 @@ const Dashboard = (): React.JSX.Element => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="flex flex-col gap-2 mb-8">
-        <Text as={"h2"} variant={"h2"}>Dashboard</Text>
+    <div className="container mx-auto max-w-6xl px-4 py-8">
+      <div className="mb-8 flex flex-col gap-2">
+        <Text as={"h2"} variant={"h2"}>
+          Dashboard
+        </Text>
         <Text variant={"muted"}>
           Welcome back, {session.user.username}! Manage your messages and
           profile settings.
@@ -77,15 +84,15 @@ const Dashboard = (): React.JSX.Element => {
 
       <Tabs defaultValue="messages">
         <TabsList className="grid grid-cols-3">
-          <TabsTrigger value="messages" className="flex items-center gap-2">
+          <TabsTrigger className="flex items-center gap-2" value="messages">
             <MessageSquare size={16} />
             Messages
           </TabsTrigger>
-          <TabsTrigger value="profile" className="flex items-center gap-2">
+          <TabsTrigger className="flex items-center gap-2" value="profile">
             <User size={16} />
             Profile
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
+          <TabsTrigger className="flex items-center gap-2" value="settings">
             <Settings size={16} />
             Settings
           </TabsTrigger>
@@ -93,9 +100,9 @@ const Dashboard = (): React.JSX.Element => {
 
         <TabsContent value="messages">
           <MessageTab
-            onDelete={deleteMessage}
-            messages={messages}
             isRefreshing={isRefreshing}
+            messages={messages}
+            onDelete={deleteMessage}
             onRefresh={() => fetchMessages(true)}
           />
         </TabsContent>
@@ -107,8 +114,8 @@ const Dashboard = (): React.JSX.Element => {
         <TabsContent value="settings">
           <SettingsTab
             acceptMessages={acceptMessages}
-            onToggle={toggleAcceptMessage}
             isSubmitting={isSubmitting}
+            onToggle={toggleAcceptMessage}
           />
         </TabsContent>
       </Tabs>

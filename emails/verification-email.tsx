@@ -1,18 +1,18 @@
 import {
-  Html,
-  Head,
   Font,
-  Preview,
+  Head,
   Heading,
+  Html,
+  Preview,
   Row,
   Section,
   Text,
 } from "@react-email/components";
-import React from "react";
+import type React from "react";
 
 interface VerificationEmailProps {
-  username: string;
   otp: string;
+  username: string;
 }
 
 export default function VerificationEmail({
@@ -20,18 +20,18 @@ export default function VerificationEmail({
   username,
 }: VerificationEmailProps): React.JSX.Element {
   return (
-    <Html lang="en" dir="ltr">
+    <Html dir="ltr" lang="en">
       <Head>
         <title>Verification Code</title>
         <Font
-          fontFamily="Roboto"
           fallbackFontFamily="Verdana"
+          fontFamily="Roboto"
+          fontStyle="normal"
+          fontWeight={400}
           webFont={{
             url: "https://fonts.gstatic.com/s/roboto/v27/KF0mCnqEu92Fr1Mu4mxKKTU1Kg.woff2",
             format: "woff2",
           }}
-          fontWeight={400}
-          fontStyle="normal"
         />
       </Head>
       <Preview>Here &apos;s your Verification code: {otp}</Preview>

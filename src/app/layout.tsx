@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import React from "react";
+import type React from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, ThemeProvider } from "@/context";
@@ -64,8 +64,8 @@ export default function RootLayout({
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
-            enableSystem
             disableTransitionOnChange
+            enableSystem
           >
             {children}
             <Toaster />

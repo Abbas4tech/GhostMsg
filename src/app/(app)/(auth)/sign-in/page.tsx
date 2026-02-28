@@ -1,5 +1,5 @@
-import React from "react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import type React from "react";
 
 import { AuthForm } from "@/components/auth";
 import { Text } from "@/components/ui/text";
@@ -16,15 +16,13 @@ export const metadata: Metadata = {
 };
 
 const SignInPage = (): React.JSX.Element => (
-  <main className="flex justify-center items-center p-4 bg-background">
-    <section className="w-full mt-8 max-w-sm">
-      <header className="flex flex-col mb-6 gap-2">
+  <main className="flex items-center justify-center bg-background p-4">
+    <section className="mt-8 w-full max-w-sm">
+      <header className="mb-6 flex flex-col gap-2">
         <Text as={"h2"} variant={"h2"}>
           Login to your account
-        </Text >
-        <Text variant={"muted"}>
-          Continue your journey with GhostMsg
         </Text>
+        <Text variant={"muted"}>Continue your journey with GhostMsg</Text>
       </header>
       <AuthForm mode="signin" />
     </section>

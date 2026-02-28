@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
 import { Home, SearchX } from "lucide-react";
 import Link from "next/link";
-
+import type React from "react";
+import { Button } from "@/components/animate-ui/components/buttons/button";
 import {
   Card,
   CardContent,
@@ -11,22 +11,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/animate-ui/components/buttons/button";
 
 export default function NotFound(): React.JSX.Element {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br">
-      <Card className="w-full rounded-sm max-w-md shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br px-4">
+      <Card className="w-full max-w-md rounded-sm shadow-lg">
         <CardHeader className="gap-4">
           <div className="flex justify-center">
-            <div className="rounded-full flex justify-center items-center bg-red-200 p-4">
+            <div className="flex items-center justify-center rounded-full bg-red-200 p-4">
               <SearchX className="h-12 w-12 text-red-600" />
             </div>
           </div>
-          <CardTitle className="text-center text-2xl md:text-3xl font-bold">
+          <CardTitle className="text-center font-bold text-2xl md:text-3xl">
             404
           </CardTitle>
-          <CardDescription className="capitalize text-center text-lg md:text-xl font-semibold">
+          <CardDescription className="text-center font-semibold text-lg capitalize md:text-xl">
             page not found
           </CardDescription>
         </CardHeader>
@@ -35,7 +34,7 @@ export default function NotFound(): React.JSX.Element {
             You are trying to access page that doesn&#39;t exist.
           </p>
           <div className="flex flex-col gap-3">
-            <Button asChild variant="default" className="gap-2">
+            <Button asChild className="gap-2" variant="default">
               <Link href={"/"}>
                 <Home className="h-4 w-4" />
                 Home

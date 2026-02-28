@@ -1,20 +1,19 @@
 "use client";
-import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import * as z from "zod";
+import axios, { type AxiosError } from "axios";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import axios, { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
+import type React from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-
-import { verifySchema } from "@/schemas/verifySchema";
+import type * as z from "zod";
+import { CardContent } from "@/components/ui/card";
 import {
   Form,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import {
@@ -22,13 +21,13 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { CardContent } from "@/components/ui/card";
-import { ApiResponse } from "@/types/ApiResponse";
+import { verifySchema } from "@/schemas/verify-schema";
+import type { ApiResponse } from "@/types/api-response";
 import { Button } from "../animate-ui/components/buttons/button";
 
-type VerifyCodeFormProps = {
+interface VerifyCodeFormProps {
   username: string;
-};
+}
 
 const VerifyCodeForm = ({
   username,
@@ -62,7 +61,7 @@ const VerifyCodeForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+      <form className="w-full space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
         <CardContent className="flex flex-col gap-4">
           <FormField
             control={form.control}
@@ -72,8 +71,8 @@ const VerifyCodeForm = ({
                 <FormLabel>One-Time Password</FormLabel>
                 <FormControl>
                   <InputOTP
-                    pattern={REGEXP_ONLY_DIGITS}
                     maxLength={6}
+                    pattern={REGEXP_ONLY_DIGITS}
                     {...field}
                   >
                     <InputOTPGroup>

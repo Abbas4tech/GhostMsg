@@ -1,19 +1,17 @@
-import { getServerSession, User } from "next-auth";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import { getServerSession, type User } from "next-auth";
 
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
-
+import dbConnect from "@/lib/db-connect";
+import UserModel from "@/model/user.model";
+import { acceptMessageSchema } from "@/schemas/accept-message-schema";
 import { authOptions } from "../auth/[...nextauth]/options";
-import { acceptMessageSchema } from "@/schemas/acceptMessageSchema";
-
 export async function POST(req: NextRequest): Promise<Response> {
   await dbConnect();
   try {
     const session = await getServerSession(authOptions);
     const user = session?.user as User;
 
-    if (!user || !session?.user) {
+    if (!(user && session?.user)) {
       return Response.json(
         {
           success: false,
@@ -96,7 +94,7 @@ export async function GET(): Promise<Response> {
     const session = await getServerSession(authOptions);
     const user = session?.user as User;
 
-    if (!user || !session?.user) {
+    if (!(user && session?.user)) {
       return Response.json(
         {
           success: false,

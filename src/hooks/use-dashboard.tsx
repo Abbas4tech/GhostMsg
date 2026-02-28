@@ -1,21 +1,26 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import axios, {
+  type AxiosError,
+  type CancelToken,
+  type CancelTokenSource,
+} from "axios";
+import type { Session } from "next-auth";
 import { useSession } from "next-auth/react";
-import axios, { AxiosError, CancelToken, CancelTokenSource } from "axios";
-import { toast } from "sonner";
-import { Session } from "next-auth";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Message } from "@/model/User";
-import { ApiResponse } from "@/types/ApiResponse";
+import { toast } from "sonner";
+
+import type { Message } from "@/model/user.model";
+import type { ApiResponse } from "@/types/api-response";
 
 interface DashboardReturns {
-  session: Session | null;
-  status: "authenticated" | "loading" | "unauthenticated";
-  messages: Message[];
+  deleteMessage: (_message: Message) => Promise<void>;
+  fetchMessages: (_isRefresh?: boolean) => Promise<void>;
   isLoading: boolean;
   isRefreshing: boolean;
-  fetchMessages: (_isRefresh?: boolean) => Promise<void>;
-  deleteMessage: (_message: Message) => Promise<void>;
+  messages: Message[];
+  session: Session | null;
+  status: "authenticated" | "loading" | "unauthenticated";
 }
 
 export const useDashboard = (): DashboardReturns => {
@@ -34,6 +39,7 @@ export const useDashboard = (): DashboardReturns => {
     return cancelTokenRefs.current[key].token;
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: false
   const fetchMessages = useCallback(async (isRefresh = false) => {
     try {
       if (isRefresh) {
@@ -81,9 +87,9 @@ export const useDashboard = (): DashboardReturns => {
 
   useEffect(
     () => (): void => {
-      Object.values(cancelTokenRefs.current).forEach((source) => {
+      for (const source of Object.values(cancelTokenRefs.current)) {
         source.cancel("Component unmounted");
-      });
+      }
     },
     []
   );

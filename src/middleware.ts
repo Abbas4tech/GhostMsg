@@ -1,5 +1,7 @@
-import { NextResponse, NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+
+// biome-ignore lint/performance/noBarrelFile: false
 export { default } from "next-auth/middleware";
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {

@@ -1,19 +1,20 @@
+import axios, { type AxiosError } from "axios";
 import {
-  useState,
-  useTransition,
-  useOptimistic,
   useCallback,
   useEffect,
+  useOptimistic,
+  useState,
+  useTransition,
 } from "react";
-import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 
 interface useAcceptMessageReturn {
   acceptMessages: boolean;
-  toggleAcceptMessage: () => Promise<void>;
   isSubmitting: boolean;
+  toggleAcceptMessage: () => void;
 }
-import { ApiResponse } from "@/types/ApiResponse";
+
+import type { ApiResponse } from "@/types/api-response";
 
 export const useAcceptMessage = (): useAcceptMessageReturn => {
   const [serverState, setServerState] = useState<boolean>(true);
@@ -36,7 +37,7 @@ export const useAcceptMessage = (): useAcceptMessageReturn => {
     fetchStatus();
   }, []);
 
-  const toggleAcceptMessage = useCallback(async () => {
+  const toggleAcceptMessage = useCallback(() => {
     const newValue = !optimisticState;
 
     startTransition(async () => {
@@ -54,7 +55,7 @@ export const useAcceptMessage = (): useAcceptMessageReturn => {
         toast.error(e.response?.data.message || "Failed to update status");
       }
     });
-  }, [optimisticState, serverState, startTransition, setOptimisticState]);
+  }, [optimisticState, serverState, setOptimisticState]);
 
   return {
     acceptMessages: optimisticState,

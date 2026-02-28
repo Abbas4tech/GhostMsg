@@ -1,22 +1,21 @@
 "use client";
-import React from "react";
-import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
 import { GhostIcon, LogOut, User2 } from "lucide-react";
-
-import { ThemeTogglerButton } from "./animate-ui/components/buttons/theme-toggler";
+import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
+import type React from "react";
 import { Button } from "./animate-ui/components/buttons/button";
+import { ThemeTogglerButton } from "./animate-ui/components/buttons/theme-toggler";
 
 const Header = (): React.JSX.Element => {
   const { status } = useSession();
 
   return (
-    <header className="md:h-20 w-full bg-primary-foreground flex justify-center items-center p-4">
+    <header className="flex w-full items-center justify-center bg-primary-foreground p-4 md:h-20">
       <section className="container flex items-center justify-between">
         <Button
           asChild
+          className="!pl-0 scroll-m-20 text-balance text-center font-extrabold text-xl tracking-tight hover:no-underline md:text-3xl"
           variant={"link"}
-          className="scroll-m-20 !pl-0 text-center text-xl hover:no-underline md:text-3xl font-extrabold tracking-tight text-balance"
         >
           <Link href={"/"}>
             <GhostIcon className="size-7 font-bold" /> GhostMsg{" "}
@@ -37,7 +36,7 @@ const Header = (): React.JSX.Element => {
               </Link>
             </Button>
           )}
-          <ThemeTogglerButton modes={["dark","light"]}/>
+          <ThemeTogglerButton modes={["dark", "light"]} />
         </nav>
       </section>
     </header>
