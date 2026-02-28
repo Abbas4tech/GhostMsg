@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import z from "zod";
 
-import dbConnect from "@/lib/dbConnect";
-import { usernameValidation } from "@/schemas/signUpSchema";
-import UserModel from "@/model/User";
+import dbConnect from "@/lib/db-connect";
+import UserModel from "@/model/user.model";
+import { usernameValidation } from "@/schemas/sign-up-schema";
 
 const usernameQuerySchema = z.object({
   username: usernameValidation,

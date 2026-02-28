@@ -1,9 +1,10 @@
-import { Metadata } from "next";
-import React, { PropsWithChildren } from "react";
+import type { Metadata } from "next";
+import type React from "react";
+import type { PropsWithChildren } from "react";
 
-type PublicProfileLayoutProps = {
+interface PublicProfileLayoutProps {
   params: Promise<{ username: string }>;
-};
+}
 
 export async function generateMetadata({
   params,

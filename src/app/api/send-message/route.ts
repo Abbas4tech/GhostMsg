@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
-import dbConnect from "@/lib/dbConnect";
-import UserModel, { Message } from "@/model/User";
+import dbConnect from "@/lib/db-connect";
+import UserModel, { type Message } from "@/model/user.model";
 
 export async function POST(req: NextRequest): Promise<Response> {
   await dbConnect();

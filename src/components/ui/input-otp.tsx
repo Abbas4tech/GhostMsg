@@ -1,26 +1,25 @@
 "use client";
 
-import * as React from "react";
 import { OTPInput, OTPInputContext } from "input-otp";
 import { MinusIcon } from "lucide-react";
-
+import { type ComponentProps, type JSX, useContext } from "react";
 import { cn } from "@/lib/utils";
 
 function InputOTP({
   className,
   containerClassName,
   ...props
-}: React.ComponentProps<typeof OTPInput> & {
+}: ComponentProps<typeof OTPInput> & {
   containerClassName?: string;
-}): React.JSX.Element {
+}): JSX.Element {
   return (
     <OTPInput
-      data-slot="input-otp"
+      className={cn("disabled:cursor-not-allowed", className)}
       containerClassName={cn(
         "flex items-center gap-2 has-disabled:opacity-50",
         containerClassName
       )}
-      className={cn("disabled:cursor-not-allowed", className)}
+      data-slot="input-otp"
       {...props}
     />
   );
@@ -29,11 +28,11 @@ function InputOTP({
 function InputOTPGroup({
   className,
   ...props
-}: React.ComponentProps<"div">): React.JSX.Element {
+}: ComponentProps<"div">): JSX.Element {
   return (
     <div
-      data-slot="input-otp-group"
       className={cn("flex items-center", className)}
+      data-slot="input-otp-group"
       {...props}
     />
   );
@@ -43,36 +42,37 @@ function InputOTPSlot({
   index,
   className,
   ...props
-}: React.ComponentProps<"div"> & {
+}: ComponentProps<"div"> & {
   index: number;
-}): React.JSX.Element {
-  const inputOTPContext = React.useContext(OTPInputContext);
+}): JSX.Element {
+  const inputOTPContext = useContext(OTPInputContext);
   const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {};
 
   return (
     <div
-      data-slot="input-otp-slot"
-      data-active={isActive}
       className={cn(
-        "data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[active=true]:aria-invalid:border-destructive dark:bg-input/30 border-input relative flex h-9 w-9 items-center justify-center border-y border-r text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:z-10 data-[active=true]:ring-[3px]",
+        "relative flex h-9 w-9 items-center justify-center border-input border-y border-r text-sm shadow-xs outline-none transition-all first:rounded-l-md first:border-l last:rounded-r-md aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-[3px] data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40",
         className
       )}
+      data-active={isActive}
+      data-slot="input-otp-slot"
       {...props}
     >
       {char}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="animate-caret-blink bg-foreground h-4 w-px duration-1000" />
+          <div className="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
         </div>
       )}
     </div>
   );
 }
 
-function InputOTPSeparator({
-  ...props
-}: React.ComponentProps<"div">): React.JSX.Element {
+function InputOTPSeparator({ ...props }: ComponentProps<"div">): JSX.Element {
   return (
+    // biome-ignore lint/a11y/useFocusableInteractive: false
+    // biome-ignore lint/a11y/useSemanticElements: false
+    // biome-ignore lint/a11y/useAriaPropsForRole: false
     <div data-slot="input-otp-separator" role="separator" {...props}>
       <MinusIcon />
     </div>

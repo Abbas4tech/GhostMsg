@@ -1,10 +1,8 @@
-import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
-
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
-import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
-
+import type { NextRequest } from "next/server";
+import { sendVerificationEmail } from "@/helpers/send-verification-email";
+import dbConnect from "@/lib/db-connect";
+import UserModel from "@/model/user.model";
 export async function POST(req: NextRequest): Promise<Response> {
   await dbConnect();
   try {
@@ -25,7 +23,7 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     const existingUserByEmail = await UserModel.findOne({ email });
 
-    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verifyCode = Math.floor(100_000 + Math.random() * 900_000).toString();
 
     if (existingUserByEmail) {
       if (existingUserByEmail.isVerified) {
@@ -38,14 +36,13 @@ export async function POST(req: NextRequest): Promise<Response> {
             status: 400,
           }
         );
-      } else {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        existingUserByEmail.password = hashedPassword;
-        existingUserByEmail.verifyCode = verifyCode;
-        existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
-
-        await existingUserByEmail.save();
       }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      existingUserByEmail.password = hashedPassword;
+      existingUserByEmail.verifyCode = verifyCode;
+      existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3_600_000);
+
+      await existingUserByEmail.save();
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
       const expiryDate = new Date();
