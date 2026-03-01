@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -8,8 +8,8 @@ function Skeleton({
 }: React.ComponentProps<"div">): React.JSX.Element {
   return (
     <div
+      className={cn("animate-pulse rounded-md bg-accent", className)}
       data-slot="skeleton"
-      className={cn("bg-accent animate-pulse rounded-md", className)}
       {...props}
     />
   );

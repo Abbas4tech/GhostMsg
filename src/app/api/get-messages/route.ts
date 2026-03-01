@@ -1,8 +1,8 @@
-import { getServerSession, User } from "next-auth";
 import mongoose from "mongoose";
+import { getServerSession, type User } from "next-auth";
 
-import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
+import dbConnect from "@/lib/db-connect";
+import UserModel from "@/model/user.model";
 
 import { authOptions } from "../auth/[...nextauth]/options";
 
@@ -12,7 +12,7 @@ export async function GET(): Promise<Response> {
     const session = await getServerSession(authOptions);
     const user = session?.user as User;
 
-    if (!user || !session?.user) {
+    if (!(user && session?.user)) {
       return Response.json(
         { success: false, message: "Not authenticated, Please login first!" },
         { status: 401 }
