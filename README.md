@@ -51,13 +51,20 @@ GhostMsg is a modern, privacy-first anonymous messaging platform built with Next
 ```
 GhostMsg/
 ├── .agents/                    # Agent skills & workflows
-├── docs/                       # Project architecture & API specifications
+├── docs/                       # 10-chapter engineering documentation suite
+│   ├── 01-overview.md          # Chapter 1: Vision, philosophy, & domain language
+│   ├── 02-getting-started.md   # Chapter 2: Local setup, environment, & Turbopack
+│   ├── 03-system-architecture.md# Chapter 3: Topology, NextAuth, & data modeling
+│   ├── 04-api-and-type-safety.md# Chapter 4: OpenAPI 3.1, Scalar docs, & openapi-fetch
+│   ├── 05-component-architecture.md# Chapter 5: App Router & Tailwind CSS v4 design
+│   ├── 06-dev-workflow.md      # Chapter 6: Development lifecycle & Changesets
+│   ├── 07-testing-strategy.md  # Chapter 7: Testing hierarchy & Playwright E2E
+│   ├── 08-code-quality.md      # Chapter 8: Ultracite (Biome) & TypeScript standards
+│   ├── 09-deployment-and-operations.md# Chapter 9: Vercel & MongoDB operations
+│   ├── 10-storybook-and-ui-catalog.md# Chapter 10: Component catalog & mock states
 │   ├── adr/                    # Architecture Decision Records (ADRs)
-│   ├── agents/                 # Agent integration documentation
-│   ├── api-architecture.md     # In-depth API type-safety & openapi-fetch guide
-│   ├── api-reference.md        # Complete REST API endpoint reference
-│   ├── architecture.md         # Technical architecture & data flows
-│   └── setup-guide.md          # Local development guide
+│   ├── agents/                 # Agent integration & coding guardrails
+│   └── README.md               # Master documentation table of contents
 ├── emails/                     # React Email verification templates
 ├── public/                     # Static media & assets
 ├── scripts/                    # Code generators (OpenAPI type generation)
@@ -66,7 +73,7 @@ GhostMsg/
 │   │   ├── (app)/              # Authenticated layout group
 │   │   │   ├── (auth)/         # /sign-in, /sign-up, /verify
 │   │   │   └── (dashboard)/    # /dashboard (inbox, profile, settings)
-│   │   ├── api/                # REST API endpoints, OpenAPI JSON, & Scalar docs
+│   │   ├── api/                # REST API endpoints & OpenAPI JSON
 │   │   ├── docs/               # Interactive Scalar documentation route
 │   │   ├── u/[username]/       # Public profile anonymous messaging page
 │   │   ├── layout.tsx          # Root layout & providers
@@ -81,7 +88,6 @@ GhostMsg/
 │   ├── schemas/                # Zod validation schemas extended with OpenAPI metadata
 │   └── types/                  # TypeScript definitions & ambient declarations
 ├── AGENTS.md                   # Agent system guidelines
-
 ├── GLOSSARY.md                 # Domain model glossary
 └── package.json
 ```
@@ -102,7 +108,7 @@ GhostMsg/
 ```bash
 git clone https://github.com/Abbas4tech/GhostMsg.git
 cd GhostMsg
-npm install
+pnpm install
 ```
 
 ### 2. Configure Environment Variables
@@ -132,7 +138,11 @@ GOOGLE_OAUTH_CALLBACK_URL=http://localhost:3000/api/auth/callback/google
 ### 3. Run Development Server
 
 ```bash
-npm run dev
+# 1. Generate TypeScript API types from OpenAPI spec
+pnpm typegen
+
+# 2. Start development server with Turbopack
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the application in your browser.
@@ -143,25 +153,36 @@ Open [http://localhost:3000](http://localhost:3000) to view the application in y
 
 | Script | Command | Description |
 | :--- | :--- | :--- |
-| `dev` | `npm run dev` | Runs the Next.js dev server with Turbopack |
-| `build` | `npm run build` | Builds the optimized production bundle with Turbopack |
-| `start` | `npm run start` | Runs the built production server |
-| `check` | `npm run check` | Runs Ultracite (Biome) type checks and linting |
-| `fix` | `npm run fix` | Automatically fixes code style and lint issues |
+| `dev` | `pnpm dev` | Runs the Next.js dev server with Turbopack |
+| `typegen` | `pnpm typegen` | Generates TypeScript definitions from OpenAPI 3.1 contracts |
+| `build` | `pnpm build` | Automatically generates API types and builds production bundle |
+| `start` | `pnpm start` | Runs the built production server |
+| `check` | `pnpm check` | Runs Ultracite (Biome) type checks and linting |
+| `fix` | `pnpm fix` | Automatically fixes code style and lint issues |
 
 ---
 
-## 📖 Documentation & Architecture
+## 📖 Documentation Suite
 
-- **[System Architecture](file:///docs/architecture.md)**: Technical design, security model, and data flow.
-- **[API Reference](file:///docs/api-reference.md)**: Detailed documentation of all API routes and schemas.
-- **[Setup & Local Development Guide](file:///docs/setup-guide.md)**: Detailed configuration instructions.
-- **[Domain Glossary](file:///GLOSSARY.md)**: Canonical terminology for GhostMsg domain concepts.
-- **[Architecture Decision Records (ADRs)](file:///docs/adr/)**: Documented architectural trade-offs:
-  - [`0001-embedded-messages-schema.md`](file:///docs/adr/0001-embedded-messages-schema.md): Storing messages as subdocuments.
-  - [`0002-dual-authentication-and-email-verification.md`](file:///docs/adr/0002-dual-authentication-and-email-verification.md): Credentials + Google OAuth strategy.
-  - [`0003-edge-runtime-for-ai-suggestions.md`](file:///docs/adr/0003-edge-runtime-for-ai-suggestions.md): Edge Runtime with Gemini 2.5 Flash Lite.
-  - [`0004-ultracite-and-biome-tooling.md`](file:///docs/adr/0004-ultracite-and-biome-tooling.md): Fast, strict code formatting via Biome.
+Explore the numbered engineering chapters in [`docs/`](file:///docs/README.md):
+
+- [**Chapter 1: Project Overview**](file:///docs/01-overview.md) – Vision, ubiquitous language, and feature map.
+- [**Chapter 2: Getting Started & Local Setup**](file:///docs/02-getting-started.md) – Prerequisites, `.env.local` config, and setup.
+- [**Chapter 3: System Architecture**](file:///docs/03-system-architecture.md) – Topology, NextAuth flow, and embedded data model.
+- [**Chapter 4: API & Type-Safety Architecture**](file:///docs/04-api-and-type-safety.md) – OpenAPI 3.1 registry, Scalar UI (`/docs`), and `openapi-fetch`.
+- [**Chapter 5: Component Architecture & UI**](file:///docs/05-component-architecture.md) – App router structure, Tailwind CSS v4, and Radix primitives.
+- [**Chapter 6: Developer Workflow**](file:///docs/06-dev-workflow.md) – Daily commands, pre-commit hooks, and type generation.
+- [**Chapter 7: Testing Strategy**](file:///docs/07-testing-strategy.md) – Playwright E2E suite, mock states, and test fixtures.
+- [**Chapter 8: Code Quality & Standards**](file:///docs/08-code-quality.md) – Ultracite (Biome) configuration and strict TypeScript rules.
+- [**Chapter 9: Deployment & Operations**](file:///docs/09-deployment-and-operations.md) – Vercel deployment, connection pooling, and Resend DNS.
+- [**Chapter 10: Storybook & UI Catalog**](file:///docs/10-storybook-and-ui-catalog.md) – Component isolation and visual state preview.
+
+### Architectural Decision Records (ADRs)
+- [`0001-embedded-messages-schema.md`](file:///docs/adr/0001-embedded-messages-schema.md): Storing messages as subdocuments.
+- [`0002-dual-authentication-and-email-verification.md`](file:///docs/adr/0002-dual-authentication-and-email-verification.md): Credentials + Google OAuth strategy.
+- [`0003-edge-runtime-for-ai-suggestions.md`](file:///docs/adr/0003-edge-runtime-for-ai-suggestions.md): Edge Runtime with Gemini 2.5 Flash Lite.
+- [`0004-ultracite-and-biome-tooling.md`](file:///docs/adr/0004-ultracite-and-biome-tooling.md): Fast, strict code formatting via Biome.
+- [`0005-type-safe-api-and-scalar-documentation.md`](file:///docs/adr/0005-type-safe-api-and-scalar-documentation.md): OpenAPI 3.1 contracts, Scalar UI, and `openapi-fetch`.
 
 ---
 
