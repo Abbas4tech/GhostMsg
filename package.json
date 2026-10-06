@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "npm run typegen && next build",
+    "analyze": "cross-env ANALYZE=true next build",
     "typegen": "tsx scripts/generate-api-types.ts",
     "start": "next start",
     "check": "ultracite check",
@@ -48,10 +49,12 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
     "@changesets/cli": "^2.29.8",
+    "@next/bundle-analyzer": "^15.5.12",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^7.0.3",
     "husky": "^9.1.7",
     "openapi-typescript": "^7.13.0",
     "shadcn": "^3.2.1",

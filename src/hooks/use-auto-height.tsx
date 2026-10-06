@@ -64,7 +64,7 @@ export function useAutoHeight<T extends HTMLElement = HTMLDivElement>(
     }
 
     const dpr =
-      typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+      typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
     const total = Math.ceil((base + extra) * dpr) / dpr;
 
     return total;

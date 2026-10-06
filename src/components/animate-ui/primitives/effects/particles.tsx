@@ -132,7 +132,8 @@ function ParticlesEffect({
                 opacity: [0, 1, 0],
               }}
               initial={{ scale: 0, opacity: 0 }}
-              key={`${i}-${_}`}
+              // biome-ignore lint/suspicious/noArrayIndexKey: generated particles array
+              key={`particle-${i}`}
               style={{ ...containerStyle, ...style }}
               transition={{
                 duration,
@@ -151,6 +152,6 @@ function ParticlesEffect({
 export {
   Particles,
   ParticlesEffect,
-  type ParticlesProps,
   type ParticlesEffectProps,
+  type ParticlesProps,
 };

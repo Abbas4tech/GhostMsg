@@ -32,7 +32,7 @@ export const MessageTab = ({
         <CardTitle>Your Messages</CardTitle>
         <CardDescription className="mt-1">
           {messages.length > 0
-            ? `You have ${messages.length} message${messages.length !== 1 ? "s" : ""}`
+            ? `You have ${messages.length} message${messages.length === 1 ? "" : "s"}`
             : "You haven't received any messages yet"}
         </CardDescription>
       </div>

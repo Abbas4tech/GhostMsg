@@ -359,6 +359,7 @@ function Highlight<T extends ElementType = "div">({
               Children.map(children, (child, index) => (
                 <HighlightItem
                   className={props?.itemsClassName}
+                  // biome-ignore lint/suspicious/noArrayIndexKey: dynamic children wrapper mapping
                   key={`${index}-${child.type}`}
                 >
                   {child}
@@ -677,7 +678,7 @@ function HighlightItem<T extends ElementType>({
 export {
   Highlight,
   HighlightItem,
-  useHighlight,
-  type HighlightProps,
   type HighlightItemProps,
+  type HighlightProps,
+  useHighlight,
 };

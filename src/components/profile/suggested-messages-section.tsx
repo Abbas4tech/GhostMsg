@@ -60,10 +60,10 @@ export const SuggestedMessagesSection = ({
       {suggestedMessages.length > 0 && (
         <Card className="w-full">
           <CardContent className="flex flex-col gap-4 p-6">
-            {suggestedMessages.map((msg, index) => (
+            {suggestedMessages.map((msg) => (
               <Button
                 className="h-auto justify-start whitespace-normal py-3 text-left"
-                key={`suggest-msg-${index}-${msg.slice(0, 15)}`}
+                key={msg}
                 onClick={() => onSelectSuggestion(msg)}
                 variant={"outline"}
               >

@@ -14,12 +14,12 @@ const AlertDialogDescription = AlertDialogPrimitive.Description;
 
 export {
   AlertDialog,
-  AlertDialogPortal,
-  AlertDialogOverlay,
-  AlertDialogCancel,
   AlertDialogAction,
-  AlertDialogTrigger,
+  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogTitle,
   AlertDialogDescription,
+  AlertDialogOverlay,
+  AlertDialogPortal,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 };

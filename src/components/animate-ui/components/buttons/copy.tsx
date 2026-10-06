@@ -117,4 +117,4 @@ function CopyButton({
   );
 }
 
-export { CopyButton, buttonVariants, type CopyButtonProps };
+export { buttonVariants, CopyButton, type CopyButtonProps };

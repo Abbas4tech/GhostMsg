@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Session } from "next-auth";
 import { useSession } from "next-auth/react";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { useDeleteMessageMutation } from "@/hooks/mutations/use-delete-message-mutation";
 import type { Message } from "@/model/user.model";
@@ -48,11 +48,19 @@ export const useDashboard = (): DashboardReturns => {
     [refetch]
   );
 
-  const deleteMessage = async (message: Message): Promise<void> => {
-    await deleteMutation.mutateAsync(String(message._id));
-  };
+  const { mutateAsync: deleteMessageAsync } = deleteMutation;
 
-  const messages = (messagesResponse?.messages || []) as unknown as Message[];
+  const deleteMessage = useCallback(
+    async (message: Message): Promise<void> => {
+      await deleteMessageAsync(String(message._id));
+    },
+    [deleteMessageAsync]
+  );
+
+  const messages = useMemo(
+    () => (messagesResponse?.messages || []) as unknown as Message[],
+    [messagesResponse?.messages]
+  );
 
   return {
     session,

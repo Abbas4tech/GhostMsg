@@ -4,5 +4,22 @@
     "ultracite/biome/core",
     "ultracite/biome/react",
     "ultracite/biome/next"
-  ]
+  ],
+  "files": {
+    "includes": [
+      "!**/node_modules",
+      "!**/.next",
+      "!**/public",
+      "!**/src/types/api.ts",
+      "src/**",
+      "emails/**",
+      "scripts/**",
+      "docs/**",
+      "*.ts",
+      "*.tsx",
+      "*.json",
+      "*.jsonc",
+      "*.md"
+    ]
+  }
 }

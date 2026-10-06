@@ -325,9 +325,9 @@ function GravityStarsBackground({
     resizeCanvas();
     const container = containerRef.current;
     const ro =
-      typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(resizeCanvas)
-        : null;
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(resizeCanvas);
     if (container && ro) {
       ro.observe(container);
     }
