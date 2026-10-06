@@ -1,14 +1,14 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Eye, EyeOff, Loader2, XCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useDebounceValue } from "usehooks-ts";
 import type * as z from "zod";
 import {
   Form,
@@ -19,15 +19,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { api } from "@/lib/api-client";
+import { useSignUpMutation } from "@/hooks/mutations/use-sign-up-mutation";
 import { signInSchema } from "@/schemas/sign-in-schema";
 import { signUpSchema } from "@/schemas/sign-up-schema";
 import { Button } from "../animate-ui/components/buttons/button";
+import { UsernameField } from "./username-field";
 
 type AuthFormMode = "signin" | "signup";
 
@@ -43,10 +39,8 @@ const AuthForm = ({
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const [validationResult, setValidationResult] = useState<{
-    success: boolean;
-    message: string;
-  } | null>(null);
+
+  const signUpMutation = useSignUpMutation();
 
   const schema = mode === "signin" ? signInSchema : signUpSchema;
   const form = useForm<z.infer<typeof schema>>({
@@ -59,66 +53,6 @@ const AuthForm = ({
     },
     mode: "onChange",
   });
-
-  const usernameValue = form.watch("username");
-  const [debouncedUsername, setDebouncedUsername] = useDebounceValue("", 500);
-
-  useEffect(() => {
-    if (mode === "signup") {
-      form.clearErrors("username");
-      setDebouncedUsername(usernameValue);
-    }
-  }, [usernameValue, setDebouncedUsername, form, mode]);
-
-  useEffect(() => {
-    const validateUsername = async (): Promise<void> => {
-      if (
-        mode !== "signup" ||
-        !debouncedUsername ||
-        debouncedUsername.length < 2
-      ) {
-        setValidationResult(null);
-        return;
-      }
-
-      setIsCheckingUsername(true);
-      try {
-        const { data, error } = await api.GET("/api/check-username-unique", {
-          params: { query: { username: debouncedUsername } },
-        });
-
-        if (data?.success) {
-          setValidationResult(data);
-          form.clearErrors("username");
-        } else {
-          const message =
-            data?.message || error?.message || "Unknown error occurred!";
-          form.setError("username", {
-            type: "manual",
-            message,
-          });
-          setValidationResult({
-            success: false,
-            message,
-          });
-        }
-      } catch (error) {
-        const err = error as Error;
-        form.setError("username", {
-          type: "manual",
-          message: err.message || "Unknown error occurred!",
-        });
-        setValidationResult({
-          success: false,
-          message: err.message || "Unknown error occurred!",
-        });
-      } finally {
-        setIsCheckingUsername(false);
-      }
-    };
-
-    validateUsername();
-  }, [debouncedUsername, form, mode]);
 
   const onSubmit: SubmitHandler<z.infer<typeof schema>> = async (data) => {
     try {
@@ -140,19 +74,15 @@ const AuthForm = ({
         const { email, password, username } = data as z.infer<
           typeof signUpSchema
         >;
-        const { data: res, error } = await api.POST("/api/sign-up", {
-          body: {
-            username,
-            email,
-            password,
-          },
+        const res = await signUpMutation.mutateAsync({
+          username,
+          email,
+          password,
         });
 
         if (res?.success) {
           toast.success(res.message);
           router.replace(`/verify/${username}`);
-        } else {
-          toast.error(error?.message || "Signup failed");
         }
       }
     } catch (error) {
@@ -165,8 +95,20 @@ const AuthForm = ({
     }
   };
 
-  const isSubmitting = form.formState.isSubmitting;
+  const isSubmitting = form.formState.isSubmitting || signUpMutation.isPending;
   const isValid = form.formState.isValid;
+
+  const renderSubmitButtonContent = () => {
+    if (isSubmitting) {
+      return (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          {mode === "signin" ? "Logging in..." : "Signing up..."}
+        </>
+      );
+    }
+    return mode === "signin" ? "Login" : "Sign up";
+  };
 
   return (
     <Form {...form}>
@@ -194,39 +136,12 @@ const AuthForm = ({
           ) : (
             <>
               <div className="grid gap-2">
-                <FormField
+                <UsernameField
+                  clearErrors={form.clearErrors}
                   control={form.control}
                   name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username *</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input placeholder="Choose a username.." {...field} />
-                          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                            {isCheckingUsername && (
-                              <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
-                            )}
-                            {validationResult &&
-                              !isCheckingUsername &&
-                              (validationResult.success ? (
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <CheckCircle2 className="h-5 w-5 text-green-500" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    {validationResult.message}
-                                  </TooltipContent>
-                                </Tooltip>
-                              ) : (
-                                <XCircle className="h-5 w-5 text-red-500" />
-                              ))}
-                          </div>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  onCheckingChange={setIsCheckingUsername}
+                  setError={form.setError}
                 />
               </div>
               <div className="grid gap-2">
@@ -300,17 +215,7 @@ const AuthForm = ({
             }
             type="submit"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {mode === "signin" ? "Logging in..." : "Signing up..."}
-              </>
-              // biome-ignore lint/style/noNestedTernary: false
-            ) : mode === "signin" ? (
-              "Login"
-            ) : (
-              "Sign up"
-            )}
+            {renderSubmitButtonContent()}
           </Button>
 
           <div className="relative w-full text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-border after:border-t">

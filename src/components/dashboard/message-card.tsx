@@ -1,8 +1,9 @@
 "use client";
+
 import { Loader2, X } from "lucide-react";
 import type React from "react";
-import { type MouseEvent, useState, useTransition } from "react";
-
+import { type MouseEvent, useState } from "react";
+import { useDeleteMessageMutation } from "@/hooks/mutations/use-delete-message-mutation";
 import type { Message } from "@/model/user.model";
 import { Button } from "../animate-ui/components/buttons/button";
 import { LiquidButton } from "../animate-ui/components/buttons/liquid";
@@ -26,7 +27,7 @@ import {
 
 interface MessageCardProps {
   message: Message;
-  onDelete: (message: Message) => Promise<void>;
+  onDelete?: (message: Message) => Promise<void>;
 }
 
 const MessageCard = ({
@@ -34,18 +35,30 @@ const MessageCard = ({
   onDelete,
 }: MessageCardProps): React.JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const deleteMutation = useDeleteMessageMutation();
 
-  const handleDeleteConfirm = (e: MouseEvent<HTMLButtonElement>): void => {
+  const isPending = deleteMutation.isPending;
+
+  const handleDeleteConfirm = async (
+    e: MouseEvent<HTMLButtonElement>
+  ): Promise<void> => {
     e.preventDefault();
     e.stopPropagation();
+
     if (isPending) {
       return;
     }
-    startTransition(async () => {
-      await onDelete(message);
+
+    try {
+      if (onDelete) {
+        await onDelete(message);
+      } else {
+        await deleteMutation.mutateAsync(String(message._id));
+      }
       setIsOpen(false);
-    });
+    } catch {
+      // Error handled by mutation toast
+    }
   };
 
   return (

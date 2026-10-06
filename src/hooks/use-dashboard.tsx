@@ -1,13 +1,13 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { useCallback } from "react";
 import { toast } from "sonner";
-
-import { api } from "@/lib/api-client";
+import { useDeleteMessageMutation } from "@/hooks/mutations/use-delete-message-mutation";
 import type { Message } from "@/model/user.model";
+import { messagesQueries } from "@/queries/messages.queries";
 
 interface DashboardReturns {
   deleteMessage: (_message: Message) => Promise<void>;
@@ -21,7 +21,7 @@ interface DashboardReturns {
 
 export const useDashboard = (): DashboardReturns => {
   const { data: session, status } = useSession();
-  const queryClient = useQueryClient();
+  const deleteMutation = useDeleteMessageMutation();
 
   const {
     data: messagesResponse,
@@ -29,37 +29,8 @@ export const useDashboard = (): DashboardReturns => {
     isRefetching,
     refetch,
   } = useQuery({
-    queryKey: ["messages"],
-    queryFn: async ({ signal }) => {
-      const { data, error } = await api.GET("/api/get-messages", { signal });
-      if (error || !data) {
-        throw new Error(error?.message || "Failed to fetch messages");
-      }
-      return data;
-    },
+    ...messagesQueries.list(),
     enabled: status === "authenticated",
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (messageId: string) => {
-      const { data, error } = await api.DELETE(
-        "/api/delete-message/{messageId}",
-        {
-          params: { path: { messageId } },
-        }
-      );
-      if (error || !data) {
-        throw new Error(error?.message || "Failed to delete message");
-      }
-      return data;
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["messages"] });
-      toast.success(data.message || "Message deleted successfully!");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to delete message");
-    },
   });
 
   const fetchMessages = useCallback(
@@ -93,3 +64,5 @@ export const useDashboard = (): DashboardReturns => {
     deleteMessage,
   };
 };
+
+export default useDashboard;

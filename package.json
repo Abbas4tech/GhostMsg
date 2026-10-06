@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm run typegen && next build --turbopack",
+    "build": "npm run typegen && next build",
     "typegen": "tsx scripts/generate-api-types.ts",
     "start": "next start",
     "check": "ultracite check",

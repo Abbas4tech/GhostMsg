@@ -1,8 +1,7 @@
 "use client";
-import { Button } from "@react-email/components";
 import { MessageSquare, Settings, User } from "lucide-react";
 import type React from "react";
-import { useEffect } from "react";
+import { Button } from "@/components/animate-ui/components/buttons/button";
 import {
   Tabs,
   TabsContent,
@@ -39,12 +38,6 @@ const Dashboard = (): React.JSX.Element => {
 
   const { acceptMessages, isSubmitting, toggleAcceptMessage } =
     useAcceptMessage();
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchMessages();
-    }
-  }, [status, fetchMessages]);
 
   if (status === "loading" || isLoading) {
     return <DashboardSkeleton />;
