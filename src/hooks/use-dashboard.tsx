@@ -1,17 +1,13 @@
 "use client";
-import axios, {
-  type AxiosError,
-  type CancelToken,
-  type CancelTokenSource,
-} from "axios";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Session } from "next-auth";
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useRef, useState } from "react";
-
+import { useCallback } from "react";
 import { toast } from "sonner";
 
+import { api } from "@/lib/api-client";
 import type { Message } from "@/model/user.model";
-import type { ApiResponse } from "@/types/api-response";
 
 interface DashboardReturns {
   deleteMessage: (_message: Message) => Promise<void>;
@@ -25,81 +21,74 @@ interface DashboardReturns {
 
 export const useDashboard = (): DashboardReturns => {
   const { data: session, status } = useSession();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
 
-  const cancelTokenRefs = useRef<Record<string, CancelTokenSource>>({});
-
-  const createCancelToken = (key: string): CancelToken => {
-    if (cancelTokenRefs.current[key]) {
-      cancelTokenRefs.current[key].cancel("Request canceled");
-    }
-    cancelTokenRefs.current[key] = axios.CancelToken.source();
-    return cancelTokenRefs.current[key].token;
-  };
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: false
-  const fetchMessages = useCallback(async (isRefresh = false) => {
-    try {
-      if (isRefresh) {
-        setIsRefreshing(true);
-      } else {
-        setIsLoading(true);
+  const {
+    data: messagesResponse,
+    isLoading,
+    isRefetching,
+    refetch,
+  } = useQuery({
+    queryKey: ["messages"],
+    queryFn: async ({ signal }) => {
+      const { data, error } = await api.GET("/api/get-messages", { signal });
+      if (error || !data) {
+        throw new Error(error?.message || "Failed to fetch messages");
       }
+      return data;
+    },
+    enabled: status === "authenticated",
+  });
 
-      const response = await axios.get<ApiResponse>("/api/get-messages", {
-        cancelToken: createCancelToken("getMessages"),
-      });
-
-      setMessages(response.data.messages || []);
-      if (isRefresh) {
-        toast.success("Messages refreshed successfully");
-      }
-    } catch (error) {
-      if (!axios.isCancel(error)) {
-        const e = error as AxiosError<ApiResponse>;
-        toast.error(e.response?.data.message || "Failed to fetch messages");
-      }
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, []);
-
-  const deleteMessage = async (message: Message): Promise<void> => {
-    try {
-      const response = await axios.delete<ApiResponse>(
-        `/api/delete-message/${message._id}`,
+  const deleteMutation = useMutation({
+    mutationFn: async (messageId: string) => {
+      const { data, error } = await api.DELETE(
+        "/api/delete-message/{messageId}",
         {
-          cancelToken: createCancelToken("deleteMessages"),
+          params: { path: { messageId } },
         }
       );
-      setMessages((prev) => prev.filter((m) => m._id !== message._id));
-      toast.success(response.data.message);
-    } catch (error) {
-      if (!axios.isCancel(error)) {
-        const e = error as AxiosError<ApiResponse>;
-        toast.error(e.response?.data.message || "Failed to delete message");
+      if (error || !data) {
+        throw new Error(error?.message || "Failed to delete message");
       }
-    }
-  };
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      toast.success(data.message || "Message deleted successfully!");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to delete message");
+    },
+  });
 
-  useEffect(
-    () => (): void => {
-      for (const source of Object.values(cancelTokenRefs.current)) {
-        source.cancel("Component unmounted");
+  const fetchMessages = useCallback(
+    async (isRefresh = false) => {
+      try {
+        await refetch();
+        if (isRefresh) {
+          toast.success("Messages refreshed successfully");
+        }
+      } catch (error) {
+        const err = error as Error;
+        toast.error(err.message || "Failed to fetch messages");
       }
     },
-    []
+    [refetch]
   );
+
+  const deleteMessage = async (message: Message): Promise<void> => {
+    await deleteMutation.mutateAsync(String(message._id));
+  };
+
+  const messages = (messagesResponse?.messages || []) as unknown as Message[];
 
   return {
     session,
     status,
     messages,
     isLoading,
-    isRefreshing,
+    isRefreshing: isRefetching,
     fetchMessages,
     deleteMessage,
   };

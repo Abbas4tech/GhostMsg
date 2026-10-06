@@ -4,7 +4,7 @@ import "./globals.css";
 import type React from "react";
 
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider, ThemeProvider } from "@/context";
+import { AuthProvider, QueryProvider, ThemeProvider } from "@/context";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -61,15 +61,17 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${poppins.variable} antialiased`}>
         <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            disableTransitionOnChange
-            enableSystem
-          >
-            {children}
-            <Toaster />
-          </ThemeProvider>
+          <QueryProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              disableTransitionOnChange
+              enableSystem
+            >
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </QueryProvider>
         </AuthProvider>
       </body>
     </html>

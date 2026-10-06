@@ -1,6 +1,5 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { type AxiosError } from "axios";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter } from "next/navigation";
 import type React from "react";
@@ -21,8 +20,8 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { api } from "@/lib/api-client";
 import { verifySchema } from "@/schemas/verify-schema";
-import type { ApiResponse } from "@/types/api-response";
 import { Button } from "../animate-ui/components/buttons/button";
 
 interface VerifyCodeFormProps {
@@ -38,16 +37,22 @@ const VerifyCodeForm = ({
     _data
   ) => {
     try {
-      const res = await axios.post<ApiResponse>("/api/verify-code", {
-        username,
-        code: _data.code,
+      const { data: res, error } = await api.POST("/api/verify-code", {
+        body: {
+          username,
+          code: _data.code,
+        },
       });
 
-      toast.success(res.data.message);
-      router.replace("/sign-in");
+      if (res?.success) {
+        toast.success(res.message);
+        router.replace("/sign-in");
+      } else {
+        toast.error(error?.message || "Verification failed");
+      }
     } catch (error) {
-      const err = error as AxiosError<ApiResponse>;
-      toast.error(err.response?.data.message);
+      const err = error as Error;
+      toast.error(err.message || "Verification failed");
     }
   };
 

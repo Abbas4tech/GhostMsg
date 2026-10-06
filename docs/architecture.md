@@ -93,8 +93,20 @@ interface User {
 
 ## 5. Security & Validation
 
-- **Input Validation**: Strongly typed schemas defined in `src/schemas/` using Zod v4.
+- **Input Validation & API Contracts**: Strongly typed schemas defined using Zod v4 extended with `@asteasolutions/zod-to-openapi` to generate OpenAPI 3.1 specifications directly from source schemas.
+- **Client-Server Communication**: Type-safe Fetch client integrated with TanStack React Query (`@tanstack/react-query`), replacing Axios and legacy cancel tokens with native `AbortSignal`, declarative caching, and optimistic state updates.
 - **Password Hashing**: One-way bcrypt hashing before database persistence.
 - **Token Verification**: Time-bound expiration (1 hour) on 6-digit numeric verification codes.
 - **Database Connection Caching**: Cached singleton connection pattern in `src/lib/db-connect.ts` to prevent connection exhaustion in serverless environments.
 - **Code Quality**: Biome / Ultracite enforcing strict type safety, accessibility, and anti-pattern bans.
+
+---
+
+## 6. Interactive API Documentation & OpenAPI Specification
+
+- **Specification Format**: OpenAPI 3.1 generated directly from single-source-of-truth Zod schemas via `@asteasolutions/zod-to-openapi`.
+- **Interactive UI**: Scalar API Reference (`@scalar/nextjs-api-reference`) mounted at `/api/docs`.
+- **OpenAPI JSON Endpoint**: Machine-readable specification served dynamically at `/api/openapi.json`.
+- **Features**: Real-time request testing, dark/light theme switching, code generation across multiple languages, and session-aware authentication testing.
+
+

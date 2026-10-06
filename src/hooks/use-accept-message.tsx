@@ -1,12 +1,10 @@
-import axios, { type AxiosError } from "axios";
-import {
-  useCallback,
-  useEffect,
-  useOptimistic,
-  useState,
-  useTransition,
-} from "react";
+"use client";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useOptimistic, useTransition } from "react";
 import { toast } from "sonner";
+
+import { api } from "@/lib/api-client";
 
 interface useAcceptMessageReturn {
   acceptMessages: boolean;
@@ -14,52 +12,65 @@ interface useAcceptMessageReturn {
   toggleAcceptMessage: () => void;
 }
 
-import type { ApiResponse } from "@/types/api-response";
-
 export const useAcceptMessage = (): useAcceptMessageReturn => {
-  const [serverState, setServerState] = useState<boolean>(true);
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
+
+  const { data: statusData } = useQuery({
+    queryKey: ["accept-message"],
+    queryFn: async ({ signal }) => {
+      const { data, error } = await api.GET("/api/accept-message", { signal });
+      if (error || !data) {
+        throw new Error(error?.message || "Failed to fetch acceptance status");
+      }
+      return data;
+    },
+  });
+
+  const serverState = Boolean(statusData?.isAcceptingMessage ?? true);
+
   const [optimisticState, setOptimisticState] = useOptimistic(
     serverState,
     (_, newValue: boolean) => newValue
   );
 
-  useEffect(() => {
-    const fetchStatus = async (): Promise<void> => {
-      try {
-        const res = await axios.get<ApiResponse>("/api/accept-message");
-        setServerState(Boolean(res.data.isAcceptingMessage));
-      } catch (error) {
-        const e = error as AxiosError<ApiResponse>;
-        toast.error(e.response?.data.message || "Failed to fetch status");
+  const mutation = useMutation({
+    mutationFn: async (newValue: boolean) => {
+      const { data, error } = await api.POST("/api/accept-message", {
+        body: { acceptMessages: newValue },
+      });
+      if (error || !data) {
+        throw new Error(error?.message || "Failed to update status");
       }
-    };
-    fetchStatus();
-  }, []);
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["accept-message"] });
+      toast.success(
+        data.message || "Message acceptance status updated successfully!"
+      );
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update status");
+    },
+  });
 
   const toggleAcceptMessage = useCallback(() => {
     const newValue = !optimisticState;
 
     startTransition(async () => {
       setOptimisticState(newValue);
-
       try {
-        const res = await axios.post<ApiResponse>("/api/accept-message", {
-          acceptMessages: newValue,
-        });
-        setServerState(newValue);
-        toast.success(res.data.message);
-      } catch (error) {
+        await mutation.mutateAsync(newValue);
+      } catch {
         setOptimisticState(serverState);
-        const e = error as AxiosError<ApiResponse>;
-        toast.error(e.response?.data.message || "Failed to update status");
       }
     });
-  }, [optimisticState, serverState, setOptimisticState]);
+  }, [optimisticState, serverState, setOptimisticState, mutation]);
 
   return {
     acceptMessages: optimisticState,
     toggleAcceptMessage,
-    isSubmitting: isPending,
+    isSubmitting: isPending || mutation.isPending,
   };
 };

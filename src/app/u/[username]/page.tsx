@@ -1,6 +1,5 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { type AxiosError } from "axios";
 import { Loader2, RefreshCw } from "lucide-react";
 import { useParams } from "next/navigation";
 import type React from "react";
@@ -21,9 +20,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { messageSchema } from "@/schemas/message-schema";
-import type { ApiResponse } from "@/types/api-response";
 
 const SendMessagePage = (): React.JSX.Element => {
   const [suggestedMessages, setSuggestedMessages] = useState<string[]>([]);
@@ -44,31 +43,39 @@ const SendMessagePage = (): React.JSX.Element => {
   ) => {
     const { content } = data;
     try {
-      const response = await axios.post<ApiResponse>("/api/send-message", {
-        username,
-        content,
+      const { data: response, error } = await api.POST("/api/send-message", {
+        body: {
+          username,
+          content,
+        },
       });
 
-      toast.success(response.data.message);
-      form.reset();
+      if (response?.success) {
+        toast.success(response.message);
+        form.reset();
+      } else {
+        toast.error(error?.message || "Failed to send message");
+      }
     } catch (error) {
-      const err = error as AxiosError<ApiResponse>;
-      toast.error(err.response?.data.message);
+      const err = error as Error;
+      toast.error(err.message || "Failed to send message");
     }
   };
 
   const suggestMessages = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get<ApiResponse>("/api/suggest-messages");
-      const messages = (response.data.messages as unknown as string).split(
-        "||"
-      );
-      setSuggestedMessages(messages);
+      const { data: response, error } = await api.GET("/api/suggest-messages");
+      if (response?.success) {
+        const messages = (response.messages || "").split("||");
+        setSuggestedMessages(messages);
+      } else {
+        toast.error(error?.message || "Failed to suggest messages");
+      }
     } catch (error) {
       console.error(error);
-      const err = error as AxiosError<ApiResponse>;
-      toast.error(err.response?.data.message);
+      const err = error as Error;
+      toast.error(err.message || "Failed to suggest messages");
     } finally {
       setIsLoading(false);
     }

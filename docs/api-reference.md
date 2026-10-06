@@ -4,8 +4,10 @@ Complete documentation of all REST API endpoints provided in GhostMsg.
 
 ---
 
-## Base URL
-`/api`
+## Interactive Documentation & OpenAPI Specification
+- **Interactive UI (Scalar)**: [`/api/docs`](file:///d:/Projects/GhostMsg/docs/api-reference.md)
+- **OpenAPI 3.1 Spec JSON**: `/api/openapi.json`
+- **Base URL**: `/api`
 
 ---
 

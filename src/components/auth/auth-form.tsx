@@ -1,6 +1,5 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { type AxiosError } from "axios";
 import { CheckCircle2, Eye, EyeOff, Loader2, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,9 +24,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { api } from "@/lib/api-client";
 import { signInSchema } from "@/schemas/sign-in-schema";
 import { signUpSchema } from "@/schemas/sign-up-schema";
-import type { ApiResponse } from "@/types/api-response";
 import { Button } from "../animate-ui/components/buttons/button";
 
 type AuthFormMode = "signin" | "signup";
@@ -44,9 +43,10 @@ const AuthForm = ({
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const [validationResult, setValidationResult] = useState<ApiResponse | null>(
-    null
-  );
+  const [validationResult, setValidationResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   const schema = mode === "signin" ? signInSchema : signUpSchema;
   const form = useForm<z.infer<typeof schema>>({
@@ -83,28 +83,34 @@ const AuthForm = ({
 
       setIsCheckingUsername(true);
       try {
-        const result = await axios.get<ApiResponse>(
-          `/api/check-username-unique?username=${debouncedUsername}`
-        );
-        setValidationResult(result.data);
+        const { data, error } = await api.GET("/api/check-username-unique", {
+          params: { query: { username: debouncedUsername } },
+        });
 
-        if (result.data.success) {
+        if (data?.success) {
+          setValidationResult(data);
           form.clearErrors("username");
         } else {
+          const message =
+            data?.message || error?.message || "Unknown error occurred!";
           form.setError("username", {
             type: "manual",
-            message: result.data.message,
+            message,
+          });
+          setValidationResult({
+            success: false,
+            message,
           });
         }
       } catch (error) {
-        const err = error as AxiosError<ApiResponse>;
+        const err = error as Error;
         form.setError("username", {
           type: "manual",
-          message: err.response?.data.message || "Unknown error occurred!",
+          message: err.message || "Unknown error occurred!",
         });
         setValidationResult({
           success: false,
-          message: err.response?.data.message || "Unknown error occurred!",
+          message: err.message || "Unknown error occurred!",
         });
       } finally {
         setIsCheckingUsername(false);
@@ -134,23 +140,27 @@ const AuthForm = ({
         const { email, password, username } = data as z.infer<
           typeof signUpSchema
         >;
-        const res = await axios.post<ApiResponse>("/api/sign-up", {
-          username,
-          email,
-          password,
+        const { data: res, error } = await api.POST("/api/sign-up", {
+          body: {
+            username,
+            email,
+            password,
+          },
         });
 
-        if (res.data.success) {
-          toast.success(res.data.message);
+        if (res?.success) {
+          toast.success(res.message);
           router.replace(`/verify/${username}`);
+        } else {
+          toast.error(error?.message || "Signup failed");
         }
       }
     } catch (error) {
       if (mode === "signin") {
         toast.error("Login failed. Please check your credentials.");
       } else {
-        const err = error as AxiosError<ApiResponse>;
-        toast.error(err.response?.data.message || "Signup failed");
+        const err = error as Error;
+        toast.error(err.message || "Signup failed");
       }
     }
   };
