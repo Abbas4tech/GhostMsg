@@ -129,18 +129,18 @@ function AlertDialogContent({
         animate={{
           opacity: 1,
           filter: "blur(0px)",
-          transform: `perspective(500px) ${rotateAxis}(0deg) scale(1)`,
+          transform: `translate(-50%, -50%) perspective(500px) ${rotateAxis}(0deg) scale(1)`,
         }}
         data-slot="alert-dialog-content"
         exit={{
           opacity: 0,
           filter: "blur(4px)",
-          transform: `perspective(500px) ${rotateAxis}(${initialRotation}) scale(0.8)`,
+          transform: `translate(-50%, -50%) perspective(500px) ${rotateAxis}(${initialRotation}) scale(0.8)`,
         }}
         initial={{
           opacity: 0,
           filter: "blur(4px)",
-          transform: `perspective(500px) ${rotateAxis}(${initialRotation}) scale(0.8)`,
+          transform: `translate(-50%, -50%) perspective(500px) ${rotateAxis}(${initialRotation}) scale(0.8)`,
         }}
         key="alert-dialog-content"
         transition={transition}
