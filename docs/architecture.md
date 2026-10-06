@@ -106,7 +106,7 @@ interface User {
 
 - **Specification Format**: OpenAPI 3.1 generated directly from single-source-of-truth Zod schemas via `@asteasolutions/zod-to-openapi` in `src/lib/openapi.ts`.
 - **Automated Type Generation**: Types generated into `src/generated/api-schema.d.ts` via `npm run typegen` (`openapi-typescript`).
-- **Interactive UI**: Scalar API Reference (`@scalar/nextjs-api-reference`) mounted at `/docs` and `/api/docs`.
+- **Interactive UI**: Scalar API Reference (`@scalar/nextjs-api-reference`) mounted at `/docs`.
 - **OpenAPI JSON Endpoint**: Machine-readable specification served dynamically at `/api/openapi.json`.
 - **Features**: Real-time request testing, dark/light theme switching, code generation across multiple languages, and session-aware authentication testing.
 - **Architecture Record**: See [ADR 0005](file:///d:/Projects/GhostMsg/docs/adr/0005-type-safe-api-and-scalar-documentation.md) and [API Architecture Guide](file:///d:/Projects/GhostMsg/docs/api-architecture.md).

@@ -10,7 +10,7 @@ This document details the design, implementation, and developer workflows for Gh
 2. **Zero Code Duplication**: TypeScript types for client and server are generated automatically using `openapi-typescript`. No manual interface synchronization is required.
 3. **Idiomatic HTTP Client**: Axios is deprecated in favor of **`openapi-fetch`**, providing a lightweight (<5kB) type-safe SDK with native `fetch` and `AbortSignal` support.
 4. **Declarative State Synchronization**: Client data fetching and mutations use **`@tanstack/react-query`** for automatic caching, background revalidation, query invalidation, and optimistic UI updates.
-5. **Interactive Living Documentation**: OpenAPI 3.1 specifications are served dynamically at `/api/openapi.json` and rendered interactively via **Scalar API Reference** at `/docs` and `/api/docs`.
+5. **Interactive Living Documentation**: OpenAPI 3.1 specifications are served dynamically at `/api/openapi.json` and rendered interactively via **Scalar API Reference** at `/docs`.
 
 ---
 
@@ -33,7 +33,7 @@ flowchart TD
 
     subgraph Server["4. Server Endpoints (src/app/api)"]
         JSON["/api/openapi.json (Dynamic Spec)"]
-        SCALAR["/docs & /api/docs (Scalar UI)"]
+        SCALAR["/docs (Scalar UI)"]
         ROUTES["Next.js Route Handlers\n(/api/sign-up, /api/get-messages, etc.)"]
     end
 
@@ -155,9 +155,10 @@ const deleteMutation = useMutation({
 ## 6. Interactive Documentation with Scalar
 
 - **Route Endpoints**:
-  - Web UI: [`/docs`](file:///d:/Projects/GhostMsg/src/app/docs/route.ts) and [`/api/docs`](file:///d:/Projects/GhostMsg/src/app/api/docs/route.ts)
+  - Web UI: [`/docs`](file:///d:/Projects/GhostMsg/src/app/docs/route.ts)
   - Spec JSON: [`/api/openapi.json`](file:///d:/Projects/GhostMsg/src/app/api/openapi.json/route.ts)
 - **Features**:
   - Modern purple/dark aesthetic matching GhostMsg design system.
   - Interactive "Test Request" console with session cookie support.
   - Multi-language client code generation (JavaScript, TypeScript fetch, cURL, Python, Go).
+
