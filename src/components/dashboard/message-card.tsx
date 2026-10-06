@@ -86,7 +86,7 @@ const MessageCard = ({
                 <X />
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="sm:max-w-md" from="left">
+            <AlertDialogContent className="sm:max-w-md">
               <AlertDialogHeader className="gap-4">
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
