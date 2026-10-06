@@ -94,7 +94,7 @@ interface User {
 ## 5. Security & Validation
 
 - **Input Validation & API Contracts**: Strongly typed schemas defined using Zod v4 extended with `@asteasolutions/zod-to-openapi` to generate OpenAPI 3.1 specifications directly from source schemas.
-- **Client-Server Communication**: Type-safe Fetch client integrated with TanStack React Query (`@tanstack/react-query`), replacing Axios and legacy cancel tokens with native `AbortSignal`, declarative caching, and optimistic state updates.
+- **Client-Server Communication**: Type-safe SDK powered by `openapi-fetch` and integrated with TanStack React Query (`@tanstack/react-query`), replacing Axios and legacy cancel tokens with native `AbortSignal`, declarative caching, automatic invalidation, and optimistic state updates. See [API Architecture Guide](file:///d:/Projects/GhostMsg/docs/api-architecture.md).
 - **Password Hashing**: One-way bcrypt hashing before database persistence.
 - **Token Verification**: Time-bound expiration (1 hour) on 6-digit numeric verification codes.
 - **Database Connection Caching**: Cached singleton connection pattern in `src/lib/db-connect.ts` to prevent connection exhaustion in serverless environments.
@@ -104,9 +104,12 @@ interface User {
 
 ## 6. Interactive API Documentation & OpenAPI Specification
 
-- **Specification Format**: OpenAPI 3.1 generated directly from single-source-of-truth Zod schemas via `@asteasolutions/zod-to-openapi`.
-- **Interactive UI**: Scalar API Reference (`@scalar/nextjs-api-reference`) mounted at `/api/docs`.
+- **Specification Format**: OpenAPI 3.1 generated directly from single-source-of-truth Zod schemas via `@asteasolutions/zod-to-openapi` in `src/lib/openapi.ts`.
+- **Automated Type Generation**: Types generated into `src/generated/api-schema.d.ts` via `npm run typegen` (`openapi-typescript`).
+- **Interactive UI**: Scalar API Reference (`@scalar/nextjs-api-reference`) mounted at `/docs` and `/api/docs`.
 - **OpenAPI JSON Endpoint**: Machine-readable specification served dynamically at `/api/openapi.json`.
 - **Features**: Real-time request testing, dark/light theme switching, code generation across multiple languages, and session-aware authentication testing.
+- **Architecture Record**: See [ADR 0005](file:///d:/Projects/GhostMsg/docs/adr/0005-type-safe-api-and-scalar-documentation.md) and [API Architecture Guide](file:///d:/Projects/GhostMsg/docs/api-architecture.md).
+
 
 

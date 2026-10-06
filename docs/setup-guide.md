@@ -62,7 +62,25 @@ npm run dev
 
 ---
 
-## 4. Code Quality & Linting
+---
+
+## 4. API Type Generation & Interactive Documentation
+
+GhostMsg automatically derives TypeScript types directly from OpenAPI 3.1 specifications:
+
+```bash
+# Regenerate TypeScript API types (src/generated/api-schema.d.ts)
+npm run typegen
+# or
+pnpm typegen
+```
+
+- **Interactive API Documentation (Scalar)**: Start the dev server and navigate to `http://localhost:3000/docs` (or `http://localhost:3000/api/docs`).
+- **Raw OpenAPI 3.1 JSON**: Available at `http://localhost:3000/api/openapi.json`.
+
+---
+
+## 5. Code Quality & Linting
 
 GhostMsg uses **Ultracite** (powered by Biome) for ultra-fast zero-config linting and formatting.
 
@@ -76,12 +94,13 @@ npm run fix
 
 ---
 
-## 5. Build for Production
+## 6. Build for Production
 
 ```bash
-# Build production bundle with Turbopack
+# Automatically runs typegen and compiles production bundle with Turbopack
 npm run build
 
 # Start production server
 npm run start
 ```
+

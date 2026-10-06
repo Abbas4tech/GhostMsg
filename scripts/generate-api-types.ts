@@ -21,6 +21,7 @@ ${astToString(ast)}
     process.cwd(),
     "src/generated/api-schema.d.ts"
   );
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, tsContent, "utf-8");
   console.log(`Successfully generated ${outputPath}`);
 }

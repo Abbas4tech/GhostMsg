@@ -19,6 +19,8 @@ GhostMsg is a modern, privacy-first anonymous messaging platform built with Next
 - 🔐 **Dual Authentication**: Secure sign-in via Email/Password (bcrypt-hashed + 6-digit OTP verification) and one-click Google OAuth 2.0.
 - 📬 **Interactive User Dashboard**: View chronologically sorted inboxes, copy share links with one tap, and manage settings.
 - 🎛️ **Message Acceptance Toggle**: Instantly switch message reception on or off at any time.
+- 📜 **Interactive Scalar Documentation**: OpenAPI 3.1 interactive API playground and reference hosted at `/docs` and `/api/docs`.
+- ⚡ **End-to-End Type Safety**: `openapi-fetch` SDK and `@tanstack/react-query` replacing Axios with compile-time checked routes, auto-invalidation, and native `AbortSignal`.
 - 📧 **Transactional Verification Emails**: Clean, responsive HTML emails delivered via Resend with React Email templates.
 - 🎨 **Modern Animated UI**: Rich aesthetic built with Tailwind CSS v4, Motion, Lucide icons, and Sonner toast notifications.
 - 🌓 **Theme Support**: Seamless Dark & Light mode toggle with persisted preferences.
@@ -33,7 +35,9 @@ GhostMsg is a modern, privacy-first anonymous messaging platform built with Next
 | **Framework** | [Next.js 15](https://nextjs.org/) (App Router, Turbopack, Edge Runtime) |
 | **Frontend Library** | [React 19](https://react.dev/) |
 | **Styling & UI** | [Tailwind CSS v4](https://tailwindcss.com/), [Motion](https://motion.dev/), [Radix UI](https://www.radix-ui.com/), [Embla Carousel](https://www.embla-carousel.com/) |
-| **State & Forms** | [React Hook Form](https://react-hook-form.com/) + [Zod v4](https://zod.dev/) |
+| **API Client & State** | [openapi-fetch](https://openapi-ts.dev/openapi-fetch/) + [@tanstack/react-query](https://tanstack.com/query) |
+| **API Documentation** | [Scalar](https://scalar.com/) ([@scalar/nextjs-api-reference](https://github.com/scalar/scalar)) + OpenAPI 3.1 |
+| **State & Forms** | [React Hook Form](https://react-hook-form.com/) + [Zod v4](https://zod.dev/) + [@asteasolutions/zod-to-openapi](https://github.com/asteasolutions/zod-to-openapi) |
 | **Database & ODM** | [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/) |
 | **Authentication** | [NextAuth.js v4](https://next-auth.js.org/) (Credentials & Google Providers) |
 | **AI Integration** | [Vercel AI SDK](https://sdk.vercel.ai/) (`@ai-sdk/google`) + Google Gemini 2.5 Flash Lite |
@@ -50,29 +54,34 @@ GhostMsg/
 ├── docs/                       # Project architecture & API specifications
 │   ├── adr/                    # Architecture Decision Records (ADRs)
 │   ├── agents/                 # Agent integration documentation
-│   ├── api-reference.md        # Complete REST API documentation
+│   ├── api-architecture.md     # In-depth API type-safety & openapi-fetch guide
+│   ├── api-reference.md        # Complete REST API endpoint reference
 │   ├── architecture.md         # Technical architecture & data flows
 │   └── setup-guide.md          # Local development guide
 ├── emails/                     # React Email verification templates
 ├── public/                     # Static media & assets
+├── scripts/                    # Code generators (OpenAPI type generation)
 ├── src/
 │   ├── app/                    # Next.js App Router
 │   │   ├── (app)/              # Authenticated layout group
 │   │   │   ├── (auth)/         # /sign-in, /sign-up, /verify
 │   │   │   └── (dashboard)/    # /dashboard (inbox, profile, settings)
-│   │   ├── api/                # REST API endpoints & NextAuth handler
+│   │   ├── api/                # REST API endpoints, OpenAPI JSON, & Scalar docs
+│   │   ├── docs/               # Interactive Scalar documentation route
 │   │   ├── u/[username]/       # Public profile anonymous messaging page
 │   │   ├── layout.tsx          # Root layout & providers
 │   │   └── page.tsx            # Hero landing page
 │   ├── components/             # Reusable UI & animated components
-│   ├── context/                # Context providers
+│   ├── context/                # Context providers (Auth, Query, Theme)
+│   ├── generated/              # Auto-generated TypeScript API types
 │   ├── helpers/                # Email dispatchers & helpers
 │   ├── hooks/                  # Custom React hooks (dashboard, message toggles)
-│   ├── lib/                    # Database singleton, Resend, and utility helpers
+│   ├── lib/                    # Database singleton, openapi-fetch client, OpenAPI registry
 │   ├── model/                  # Mongoose models & schemas (User, Message)
-│   ├── schemas/                # Zod validation schemas
+│   ├── schemas/                # Zod validation schemas extended with OpenAPI metadata
 │   └── types/                  # TypeScript definitions & ambient declarations
 ├── AGENTS.md                   # Agent system guidelines
+
 ├── GLOSSARY.md                 # Domain model glossary
 └── package.json
 ```
