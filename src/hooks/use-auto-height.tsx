@@ -13,6 +13,23 @@ interface AutoHeightOptions {
   includeSelfBox?: boolean;
 }
 
+function getElementBoxExtra(el: HTMLElement | null, include?: boolean): number {
+  if (!(include && el)) {
+    return 0;
+  }
+  const cs = getComputedStyle(el);
+  if (cs.boxSizing !== "border-box") {
+    return 0;
+  }
+  const paddingY =
+    (Number.parseFloat(cs.paddingTop || "0") || 0) +
+    (Number.parseFloat(cs.paddingBottom || "0") || 0);
+  const borderY =
+    (Number.parseFloat(cs.borderTopWidth || "0") || 0) +
+    (Number.parseFloat(cs.borderBottomWidth || "0") || 0);
+  return paddingY + borderY;
+}
+
 export function useAutoHeight<T extends HTMLElement = HTMLDivElement>(
   deps: DependencyList = [],
   options: AutoHeightOptions = {
@@ -24,7 +41,6 @@ export function useAutoHeight<T extends HTMLElement = HTMLDivElement>(
   const roRef = useRef<ResizeObserver | null>(null);
   const [height, setHeight] = useState(0);
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: false
   const measure = useCallback(() => {
     const el = ref.current;
     if (!el) {
@@ -32,42 +48,16 @@ export function useAutoHeight<T extends HTMLElement = HTMLDivElement>(
     }
 
     const base = el.getBoundingClientRect().height || 0;
-
-    let extra = 0;
-
-    if (options.includeParentBox && el.parentElement) {
-      const cs = getComputedStyle(el.parentElement);
-      const paddingY =
-        (Number.parseFloat(cs.paddingTop || "0") || 0) +
-        (Number.parseFloat(cs.paddingBottom || "0") || 0);
-      const borderY =
-        (Number.parseFloat(cs.borderTopWidth || "0") || 0) +
-        (Number.parseFloat(cs.borderBottomWidth || "0") || 0);
-      const isBorderBox = cs.boxSizing === "border-box";
-      if (isBorderBox) {
-        extra += paddingY + borderY;
-      }
-    }
-
-    if (options.includeSelfBox) {
-      const cs = getComputedStyle(el);
-      const paddingY =
-        (Number.parseFloat(cs.paddingTop || "0") || 0) +
-        (Number.parseFloat(cs.paddingBottom || "0") || 0);
-      const borderY =
-        (Number.parseFloat(cs.borderTopWidth || "0") || 0) +
-        (Number.parseFloat(cs.borderBottomWidth || "0") || 0);
-      const isBorderBox = cs.boxSizing === "border-box";
-      if (isBorderBox) {
-        extra += paddingY + borderY;
-      }
-    }
+    const parentExtra = getElementBoxExtra(
+      el.parentElement,
+      options.includeParentBox
+    );
+    const selfExtra = getElementBoxExtra(el, options.includeSelfBox);
+    const extra = parentExtra + selfExtra;
 
     const dpr =
       typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
-    const total = Math.ceil((base + extra) * dpr) / dpr;
-
-    return total;
+    return Math.ceil((base + extra) * dpr) / dpr;
   }, [options.includeParentBox, options.includeSelfBox]);
 
   useLayoutEffect(() => {
@@ -99,8 +89,7 @@ export function useAutoHeight<T extends HTMLElement = HTMLDivElement>(
       ro.disconnect();
       roRef.current = null;
     };
-    // biome-ignore lint/correctness/useExhaustiveDependencies: false
-  }, deps);
+  }, [measure, options.includeParentBox, ...deps]);
 
   useLayoutEffect(() => {
     if (height === 0) {

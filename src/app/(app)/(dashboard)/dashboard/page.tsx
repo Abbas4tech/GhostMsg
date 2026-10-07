@@ -1,5 +1,6 @@
 "use client";
 import { MessageSquare, Settings, User } from "lucide-react";
+import { useSession } from "next-auth/react";
 import type React from "react";
 import { Button } from "@/components/animate-ui/components/buttons/button";
 import {
@@ -22,24 +23,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { useAcceptMessage } from "@/hooks/use-accept-message";
-import { useDashboard } from "@/hooks/use-dashboard";
 
 const Dashboard = (): React.JSX.Element => {
-  const {
-    session,
-    status,
-    messages,
-    isLoading,
-    isRefreshing,
-    fetchMessages,
-    deleteMessage,
-  } = useDashboard();
+  const { data: session, status } = useSession();
 
-  const { acceptMessages, isSubmitting, toggleAcceptMessage } =
-    useAcceptMessage();
-
-  if (status === "loading" || isLoading) {
+  if (status === "loading") {
     return <DashboardSkeleton />;
   }
 
@@ -92,12 +80,7 @@ const Dashboard = (): React.JSX.Element => {
         </TabsList>
 
         <TabsContent value="messages">
-          <MessageTab
-            isRefreshing={isRefreshing}
-            messages={messages}
-            onDelete={deleteMessage}
-            onRefresh={() => fetchMessages(true)}
-          />
+          <MessageTab />
         </TabsContent>
 
         <TabsContent value="profile">
@@ -105,11 +88,7 @@ const Dashboard = (): React.JSX.Element => {
         </TabsContent>
 
         <TabsContent value="settings">
-          <SettingsTab
-            acceptMessages={acceptMessages}
-            isSubmitting={isSubmitting}
-            onToggle={toggleAcceptMessage}
-          />
+          <SettingsTab />
         </TabsContent>
       </Tabs>
     </div>

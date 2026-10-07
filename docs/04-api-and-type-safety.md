@@ -12,7 +12,7 @@ flowchart LR
     B --> C["npm run typegen\n(scripts/generate-api-types.ts)"]
     C --> D["src/generated/api-schema.d.ts\n(Exported paths)"]
     D --> E["openapi-fetch client\n(src/lib/api-client.ts)"]
-    E --> F["React Query Hooks\n(useDashboard, useAcceptMessage)"]
+    E --> F["React Query (queryOptions & useMutation)"]
 ```
 
 ---
