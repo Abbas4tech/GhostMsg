@@ -1,8 +1,5 @@
-/** biome-ignore-all lint/suspicious/useAwait: false */
-/** biome-ignore-all lint/suspicious/noExplicitAny: false */
-
 import bcrypt from "bcryptjs";
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, User as NextAuthUser } from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -24,7 +21,13 @@ export const authOptions: NextAuthOptions = {
         },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials: any): Promise<any> {
+      async authorize(
+        credentials: Record<string, string> | undefined
+      ): Promise<NextAuthUser | null> {
+        if (!(credentials?.identifier && credentials?.password)) {
+          throw new Error("Identifier and password are required");
+        }
+
         await dbConnect();
 
         try {
@@ -51,11 +54,13 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (isPasswordCorrect) {
-            return user;
+            return user as unknown as NextAuthUser;
           }
           throw new Error("Password is incorrect, Please try again");
-        } catch (error: any) {
-          throw new Error(error);
+        } catch (error) {
+          throw new Error(
+            error instanceof Error ? error.message : "Authentication error"
+          );
         }
       },
     }),
@@ -78,7 +83,7 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async session({ session, token }) {
+    session({ session, token }) {
       if (token) {
         session.user._id = token._id;
         session.user.isVerified = token.isVerified;
@@ -87,7 +92,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async jwt({ token, user }) {
+    jwt({ token, user }) {
       if (user) {
         token._id = user._id;
         token.isVerified = user.isVerified;
