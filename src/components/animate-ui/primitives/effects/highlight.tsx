@@ -61,8 +61,7 @@ interface HighlightContextType<T extends string> {
 }
 
 const HighlightContext = createContext<
-  // biome-ignore lint/suspicious/noExplicitAny: false
-  HighlightContextType<any> | undefined
+  HighlightContextType<string> | undefined
 >(undefined);
 
 function useHighlight<T extends string>(): HighlightContextType<T> {
@@ -328,45 +327,61 @@ function Highlight<T extends ElementType = "div">({
     return children;
   };
 
+  const contextValue = {
+    mode,
+    activeValue,
+    setActiveValue: safeSetActiveValue,
+    id,
+    hover,
+    click,
+    className,
+    style,
+    transition,
+    disabled,
+    enabled,
+    exitDelay,
+    setBounds: safeSetBounds,
+    clearBounds,
+    activeClassName: activeClassNameState,
+    setActiveClassName: setActiveClassNameState,
+    forceUpdateBounds: (props as ParentModeHighlightProps)?.forceUpdateBounds,
+  };
+
+  if (!enabled) {
+    return (
+      <HighlightContext.Provider value={contextValue}>
+        {children}
+      </HighlightContext.Provider>
+    );
+  }
+
+  if (controlledItems) {
+    return (
+      <HighlightContext.Provider value={contextValue}>
+        {render(children)}
+      </HighlightContext.Provider>
+    );
+  }
+
   return (
-    <HighlightContext.Provider
-      value={{
-        mode,
-        activeValue,
-        setActiveValue: safeSetActiveValue,
-        id,
-        hover,
-        click,
-        className,
-        style,
-        transition,
-        disabled,
-        enabled,
-        exitDelay,
-        setBounds: safeSetBounds,
-        clearBounds,
-        activeClassName: activeClassNameState,
-        setActiveClassName: setActiveClassNameState,
-        forceUpdateBounds: (props as ParentModeHighlightProps)
-          ?.forceUpdateBounds,
-      }}
-    >
-      {enabled
-        ? // biome-ignore lint/style/noNestedTernary: false
-          controlledItems
-          ? render(children)
-          : render(
-              Children.map(children, (child, index) => (
-                <HighlightItem
-                  className={props?.itemsClassName}
-                  // biome-ignore lint/suspicious/noArrayIndexKey: dynamic children wrapper mapping
-                  key={`${index}-${child.type}`}
-                >
-                  {child}
-                </HighlightItem>
-              ))
-            )
-        : children}
+    <HighlightContext.Provider value={contextValue}>
+      {render(
+        Children.map(children, (child) => {
+          if (!isValidElement(child)) {
+            return child;
+          }
+          const itemKey =
+            child.key ??
+            (child.props as { id?: string })?.id ??
+            (child.props as { "data-value"?: string })?.["data-value"] ??
+            undefined;
+          return (
+            <HighlightItem className={props?.itemsClassName} key={itemKey}>
+              {child}
+            </HighlightItem>
+          );
+        })
+      )}
     </HighlightContext.Provider>
   );
 }
@@ -411,7 +426,6 @@ type HighlightItemProps<T extends ElementType = "div"> = ComponentProps<T> & {
   forceUpdateBounds?: boolean;
 };
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: false
 function HighlightItem<T extends ElementType>({
   ref,
   as,
@@ -532,8 +546,9 @@ function HighlightItem<T extends ElementType>({
     "data-highlight": true,
   };
 
-  const commonHandlers = hover
-    ? {
+  const getCommonHandlers = () => {
+    if (hover) {
+      return {
         onMouseEnter: (e: MouseEvent<HTMLDivElement>) => {
           setActiveValue(childValue);
           element.props.onMouseEnter?.(e);
@@ -542,16 +557,20 @@ function HighlightItem<T extends ElementType>({
           setActiveValue(null);
           element.props.onMouseLeave?.(e);
         },
-      }
-    : // biome-ignore lint/style/noNestedTernary: false
-      click
-      ? {
-          onClick: (e: MouseEvent<HTMLDivElement>) => {
-            setActiveValue(childValue);
-            element.props.onClick?.(e);
-          },
-        }
-      : {};
+      };
+    }
+    if (click) {
+      return {
+        onClick: (e: MouseEvent<HTMLDivElement>) => {
+          setActiveValue(childValue);
+          element.props.onClick?.(e);
+        },
+      };
+    }
+    return {};
+  };
+
+  const commonHandlers = getCommonHandlers();
 
   if (asChild) {
     if (mode === "children") {
