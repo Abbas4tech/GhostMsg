@@ -21,5 +21,45 @@
       "*.jsonc",
       "*.md"
     ]
-  }
+  },
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noArrayIndexKey": "error"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["src/components/ui/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lib/openapi-zod.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noExportedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/animate-ui/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveElementInteractions": "off",
+            "noStaticElementInteractions": "off"
+          }
+        }
+      }
+    }
+  ]
 }

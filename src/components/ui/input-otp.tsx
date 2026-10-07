@@ -70,7 +70,6 @@ function InputOTPSlot({
 
 function InputOTPSeparator({ ...props }: ComponentProps<"div">): JSX.Element {
   return (
-    // biome-ignore lint/a11y/useSemanticElements: false
     <div data-slot="input-otp-separator" role="separator" {...props}>
       <MinusIcon />
     </div>
