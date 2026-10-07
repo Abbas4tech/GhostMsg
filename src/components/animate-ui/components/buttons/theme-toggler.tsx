@@ -19,14 +19,13 @@ const getIcon = (
   modes: ThemeSelection[]
 ) => {
   const theme = modes.includes("system") ? effective : resolved;
-  return theme === "system" ? (
-    <Monitor />
-    // biome-ignore lint/style/noNestedTernary: false
-  ) : theme === "dark" ? (
-    <Moon />
-  ) : (
-    <Sun />
-  );
+  if (theme === "system") {
+    return <Monitor />;
+  }
+  if (theme === "dark") {
+    return <Moon />;
+  }
+  return <Sun />;
 };
 
 const getNextTheme = (

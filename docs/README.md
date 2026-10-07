@@ -31,6 +31,7 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0006: Standardized API Client & React Query Architecture**](file:///d:/Projects/GhostMsg/docs/adr/0006-standardized-api-calling-and-react-query-architecture.md)
 - [**ADR 0007: Dependency Reclassification & Bundle Optimization**](file:///d:/Projects/GhostMsg/docs/adr/0007-dependency-reclassification-and-bundle-optimization.md)
 - [**ADR 0008: React Optimization & Dynamic Bundle Analysis**](file:///d:/Projects/GhostMsg/docs/adr/0008-react-optimization-and-bundle-analysis.md)
+- [**ADR 0009: Biome Suppression Elimination & Code Quality Remediation**](file:///d:/Projects/GhostMsg/docs/adr/0009-biome-suppression-elimination-and-lint-remediation.md)
 
 ---
 

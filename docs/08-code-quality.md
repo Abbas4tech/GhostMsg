@@ -46,8 +46,22 @@ npx tsc --noEmit
 | Manual `useState` for API data | `@tanstack/react-query` (`useQuery`, `useMutation`) |
 | Untyped `any` casting | Strongly typed Zod schemas (`z.infer<typeof schema>`) |
 | Unverified string endpoints | Strongly typed OpenAPI `paths` |
+| Array index as React `key` (`key={index}`) | Stable unique IDs (`key={item.id}` or deterministic item attributes) |
 
 ---
 
-## 4. Next Chapter
+## 4. Biome Suppression Elimination & Code Quality ([ADR 0009](file:///d:/Projects/GhostMsg/docs/adr/0009-biome-suppression-elimination-and-lint-remediation.md))
+
+GhostMsg enforces a **zero-inline-suppression policy** and strict linter rules for core application and feature code:
+- **No Array Index Keys (`suspicious.noArrayIndexKey: "error"`)**: React list rendering must always use stable, deterministic keys (e.g. database `_id`, semantic names, or deterministic angle/coordinate formulas) rather than array indices. Array index keys cause subtle reconciliation bugs, state leakage across reordered items, and animation glitching with Motion / `AnimatePresence`.
+- **No Interactive `<div>`s**: Interactive elements must use semantic `<button type="button">` with `aria-label` or `<input>` to satisfy `a11y` rules.
+- **No `any` Types**: Generic utility hooks and NextAuth callbacks must use `unknown`, strongly typed interfaces, or generic parameters.
+- **No Nested Ternaries**: Branching logic must use early returns, guard clauses, or isolated resolver functions.
+- **Scoped UI Overrides**: Framework conventions in third-party primitives (e.g. `src/components/ui/`) are configured centrally via `overrides` in [`biome.jsonc`](file:///d:/Projects/GhostMsg/biome.jsonc) rather than through ad-hoc inline comments.
+
+---
+
+## 5. Next Chapter
 Proceed to [Chapter 9: Deployment & Operations](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md).
+
+
