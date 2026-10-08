@@ -26,14 +26,14 @@ src/
 │   │   ├── suggested-messages-section.tsx # Gemini prompt ideas generator
 │   │   └── public-qa-feed.tsx       # Public answered Q&A showcase masonry feed
 │   ├── dashboard/
-│   │   ├── message-tab.tsx          # Real-time message list with live SSE & pagination
-│   │   ├── message-card.tsx         # Message card with sentiment badge & action buttons
-│   │   ├── message-filter-bar.tsx   # Search input & filter chips (All/Unread/Starred/Quarantined)
+│   │   ├── message-tab.tsx          # Real-time message list with live SSE, grid/list layout toggle & pagination
+│   │   ├── message-card.tsx         # Message card with sentiment badge, BlockSenderAction & DeleteMessageAction
+│   │   ├── message-filter-bar.tsx   # Full-width search input & filter chips (All/Unread/Starred/Quarantined)
 │   │   ├── bulk-action-toolbar.tsx  # Floating multi-select actions & export modal
 │   │   ├── smart-reply-modal.tsx    # Multi-tone Gemini AI smart reply assistant
 │   │   ├── story-card-modal.tsx     # 9:16 HTML-to-Image Instagram/Snapchat card designer
 │   │   ├── profile-tab.tsx          # Shareable link & AMA Banner settings
-│   │   └── settings-tab.tsx         # Message acceptance & notification preferences
+│   │   └── settings-tab.tsx         # Message acceptance, email alerts, Web Push PWA, & Blocked Senders management
 │   └── ui/                          # Radix / Shadcn primitives & custom design components
 ```
 

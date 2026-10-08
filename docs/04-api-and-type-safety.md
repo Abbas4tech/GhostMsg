@@ -60,7 +60,12 @@ The OpenAPI registry in [`src/lib/openapi.ts`](file:///d:/Projects/GhostMsg/src/
 | `/api/messages/{messageId}` | `PATCH` | Yes (Session) | Path: `messageId`, Body: `{ isPinned, isRead }` | `200 OK` | `401`, `404`, `500` | Toggle star/read status |
 | `/api/messages/{messageId}/reply` | `POST` | Yes (Session) | Path: `messageId`, Body: `{ text, isPublished }` | `200 OK` | `401`, `404`, `500` | Save or publish Q&A response |
 | `/api/messages/bulk` | `POST` | Yes (Session) | Body: `{ action, ids }` | `200 OK` | `400`, `401`, `500` | Batch mark-read, star, or delete |
+| `/api/block-sender` | `GET` | Yes (Session) | None | `200 OK` | `401`, `500` | Fetch recipient's blocked sender fingerprints |
 | `/api/block-sender` | `POST` | Yes (Session) | Body: `{ senderHash }` | `200 OK` | `401`, `500` | Block sender fingerprint |
+| `/api/block-sender` | `DELETE` | Yes (Session) | Body: `{ senderHash }` | `200 OK` | `401`, `500` | Unblock sender fingerprint or clear all |
+| `/api/user/notifications` | `GET` | Yes (Session) | None | `200 OK` | `401`, `500` | Get notification & email alert preferences |
+| `/api/user/notifications` | `PATCH` | Yes (Session) | Body: `{ emailAlerts, webPushEnabled }` | `200 OK` | `401`, `500` | Update notification preferences |
+| `/api/user/push-subscription` | `POST` | Yes (Session) | Body: `PushSubscriptionRequest` | `200 OK` | `401`, `500` | Register Web Push device subscription |
 | `/api/public/{username}/answers` | `GET` | No | Query: `cursor`, `limit` | `200 OK` | `404`, `500` | Public Q&A feed |
 | `/api/ai/smart-reply` | `POST` | Yes (Session) | Body: `{ content, tone }` | `200 OK` | `401`, `500` | Multi-tone AI smart reply generator |
 | `/api/user/ama-prompt` | `PATCH` | Yes (Session) | Body: `{ amaPrompt }` | `200 OK` | `401`, `500` | Customize profile banner prompt |

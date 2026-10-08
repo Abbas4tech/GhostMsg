@@ -25,8 +25,8 @@ GhostMsg is built on the **Next.js 15 App Router** using React 19, Tailwind CSS 
                │               │         │ Google AI Studio (Gemini)  │
                ▼               ▼         └────────────────────────────┘
         ┌──────────────┐ ┌──────────────┐
-        │   MongoDB    │ │    Resend    │
-        │   Database   │ │ Email Service│
+        │   MongoDB    │ │  Nodemailer  │
+        │   Database   │ │ (SMTP Mailer)│
         └──────────────┘ └──────────────┘
 ```
 
@@ -43,15 +43,15 @@ sequenceDiagram
     participant Browser
     participant API as Next.js API (/api/sign-up)
     participant DB as MongoDB (UserModel)
-    participant Resend as Resend Email Service
+    participant Mailer as Nodemailer SMTP Transporter
 
     User->>Browser: Enters Username, Email, Password
     Browser->>API: POST /api/sign-up
     API->>DB: Check unique username & existing email
     API->>API: Generate 6-digit verification code & hash password (bcrypt)
     API->>DB: Save user document (isVerified: false)
-    API->>Resend: Dispatch Verification Email
-    Resend-->>User: Delivers 6-digit code to inbox
+    API->>Mailer: Dispatch Verification Email (@react-email/render)
+    Mailer-->>User: Delivers 6-digit code to inbox
     User->>Browser: Enters code on /verify/[username]
     Browser->>API: POST /api/verify-code
     API->>DB: Validate code & expiration (1 hour)
