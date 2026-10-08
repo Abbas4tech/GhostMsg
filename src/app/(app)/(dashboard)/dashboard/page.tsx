@@ -42,7 +42,7 @@ const Dashboard = (): React.JSX.Element => {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
-            <Button onClick={() => (window.location.href = "/login")}>
+            <Button onClick={() => (window.location.href = "/sign-in")}>
               Go to Login
             </Button>
           </CardContent>

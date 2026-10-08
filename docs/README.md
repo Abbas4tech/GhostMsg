@@ -32,11 +32,13 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0007: Dependency Reclassification & Bundle Optimization**](file:///d:/Projects/GhostMsg/docs/adr/0007-dependency-reclassification-and-bundle-optimization.md)
 - [**ADR 0008: React Optimization & Dynamic Bundle Analysis**](file:///d:/Projects/GhostMsg/docs/adr/0008-react-optimization-and-bundle-analysis.md)
 - [**ADR 0009: Biome Suppression Elimination & Code Quality Remediation**](file:///d:/Projects/GhostMsg/docs/adr/0009-biome-suppression-elimination-and-lint-remediation.md)
+- [**ADR 0010: Standalone Message Collection, Abuse Prevention & Public Q&A Architecture**](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md)
 
 ---
 
 ## 📐 Architecture Blueprints
 
+- [**Feature & Implementation Master Blueprint**](file:///d:/Projects/GhostMsg/docs/feature-and-implementation-blueprint.md)
 - [**API & React Query Architecture Blueprint**](file:///d:/Projects/GhostMsg/docs/api-and-react-query-architecture.md)
 
 

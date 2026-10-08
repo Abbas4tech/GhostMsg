@@ -1,4 +1,5 @@
 import { z } from "@/lib/openapi-zod";
+import { messageReplySchema, sentimentTagEnum } from "./message-schema";
 
 export const baseResponseSchema = z
   .object({
@@ -58,6 +59,12 @@ export const messageItemSchema = z
   .object({
     _id: z.string().openapi({ example: "660c1d2e1b9d4c001f3e8a1a" }),
     content: z.string().openapi({ example: "Hey! Loved your recent project." }),
+    sentimentTag: sentimentTagEnum.default("neutral"),
+    isQuarantined: z.boolean().default(false),
+    isPinned: z.boolean().default(false),
+    isRead: z.boolean().default(false),
+    reply: messageReplySchema.nullable().optional(),
+    senderHash: z.string().optional(),
     createdAt: z.string().openapi({ example: "2026-10-06T12:00:00.000Z" }),
   })
   .openapi("MessageItem");
@@ -68,6 +75,7 @@ export const getMessagesResponseSchema = z
     messages: z
       .array(messageItemSchema)
       .openapi({ description: "List of received messages" }),
+    total: z.number().optional().openapi({ example: 42 }),
   })
   .openapi("GetMessagesResponse");
 
@@ -89,3 +97,44 @@ export const acceptMessagePostResponseSchema = z
       .openapi({ example: "Message acceptance status updated successfully!" }),
   })
   .openapi("AcceptMessagePostResponse");
+
+export const smartReplyResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    reply: z
+      .string()
+      .openapi({ example: "Haha, thanks for keeping me on my toes! 😉" }),
+  })
+  .openapi("SmartReplyResponse");
+
+export const publicAnswerItemSchema = z
+  .object({
+    _id: z.string(),
+    content: z.string(),
+    sentimentTag: sentimentTagEnum,
+    reply: z.object({
+      text: z.string(),
+      publishedAt: z.string().optional(),
+    }),
+    createdAt: z.string(),
+  })
+  .openapi("PublicAnswerItem");
+
+export const publicAnswersResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    username: z.string(),
+    amaPrompt: z.string().optional(),
+    answers: z.array(publicAnswerItemSchema),
+  })
+  .openapi("PublicAnswersResponse");
+
+export const amaPromptResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    amaPrompt: z.string(),
+    message: z
+      .string()
+      .openapi({ example: "AMA prompt updated successfully!" }),
+  })
+  .openapi("AmaPromptResponse");

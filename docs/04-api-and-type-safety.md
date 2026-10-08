@@ -46,19 +46,27 @@ export const signUpSchema = z
 
 ## 3. Registered Operations Matrix
 
-The OpenAPI registry in [`src/lib/openapi.ts`](file:///d:/Projects/GhostMsg/src/lib/openapi.ts) defines 9 core operations:
+The OpenAPI registry in [`src/lib/openapi.ts`](file:///d:/Projects/GhostMsg/src/lib/openapi.ts) defines operations across auth, messaging, AI, moderation, and real-time streaming:
 
-| Endpoint | Method | Auth Required | Request Payload / Params | Success Status | Error Statuses |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/api/check-username-unique` | `GET` | No | Query: `username` | `200 OK` | `400`, `500` |
-| `/api/sign-up` | `POST` | No | Body: `SignUpRequest` | `201 Created` | `400`, `500` |
-| `/api/verify-code` | `POST` | No | Body: `VerifyCodeRequest` | `200 OK` | `400`, `404`, `500` |
-| `/api/send-message` | `POST` | No | Body: `SendMessageRequest` | `200 OK` | `404`, `500` |
-| `/api/suggest-messages` | `GET` | No (Edge) | None | `200 OK` | `500` |
-| `/api/get-messages` | `GET` | Yes (Session) | None | `200 OK` | `401`, `404`, `500` |
-| `/api/delete-message/{messageId}` | `DELETE` | Yes (Session) | Path: `messageId` | `200 OK` | `401`, `404`, `500` |
-| `/api/accept-message` | `GET` | Yes (Session) | None | `200 OK` | `401`, `404`, `500` |
-| `/api/accept-message` | `POST` | Yes (Session) | Body: `AcceptMessageRequest` | `200 OK` | `400`, `401`, `500` |
+| Endpoint | Method | Auth Required | Request Payload / Params | Success Status | Error Statuses | Purpose |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `/api/check-username-unique` | `GET` | No | Query: `username` | `200 OK` | `400`, `500` | Real-time username debounce availability check |
+| `/api/sign-up` | `POST` | No | Body: `SignUpRequest` | `201 Created` | `400`, `500` | User account creation & OTP dispatch |
+| `/api/verify-code` | `POST` | No | Body: `VerifyCodeRequest` | `200 OK` | `400`, `404`, `500` | 6-digit email OTP verification |
+| `/api/send-message` | `POST` | No | Body: `SendMessageRequest` | `200 OK` | `429`, `404`, `500` | Rate limiting, sender hash, AI moderation, ingestion |
+| `/api/suggest-messages` | `GET` | No (Edge) | None | `200 OK` | `500` | Gemini 2.5 Flash Lite prompt suggestions |
+| `/api/get-messages` | `GET` | Yes (Session) | Query: `status`, `q`, `cursor`, `limit` | `200 OK` | `401`, `404`, `500` | Filtered, paginated inbox retrieval |
+| `/api/delete-message/{messageId}` | `DELETE` | Yes (Session) | Path: `messageId` | `200 OK` | `401`, `404`, `500` | Single message deletion |
+| `/api/messages/{messageId}` | `PATCH` | Yes (Session) | Path: `messageId`, Body: `{ isPinned, isRead }` | `200 OK` | `401`, `404`, `500` | Toggle star/read status |
+| `/api/messages/{messageId}/reply` | `POST` | Yes (Session) | Path: `messageId`, Body: `{ text, isPublished }` | `200 OK` | `401`, `404`, `500` | Save or publish Q&A response |
+| `/api/messages/bulk` | `POST` | Yes (Session) | Body: `{ action, ids }` | `200 OK` | `400`, `401`, `500` | Batch mark-read, star, or delete |
+| `/api/block-sender` | `POST` | Yes (Session) | Body: `{ senderHash }` | `200 OK` | `401`, `500` | Block sender fingerprint |
+| `/api/public/{username}/answers` | `GET` | No | Query: `cursor`, `limit` | `200 OK` | `404`, `500` | Public Q&A feed |
+| `/api/ai/smart-reply` | `POST` | Yes (Session) | Body: `{ content, tone }` | `200 OK` | `401`, `500` | Multi-tone AI smart reply generator |
+| `/api/user/ama-prompt` | `PATCH` | Yes (Session) | Body: `{ amaPrompt }` | `200 OK` | `401`, `500` | Customize profile banner prompt |
+| `/api/messages/stream` | `GET` | Yes (Session) | None (SSE Stream) | `200 OK` | `401`, `500` | Live real-time SSE stream |
+| `/api/accept-message` | `GET` | Yes (Session) | None | `200 OK` | `401`, `404`, `500` | Check acceptance status |
+| `/api/accept-message` | `POST` | Yes (Session) | Body: `AcceptMessageRequest` | `200 OK` | `400`, `401`, `500` | Toggle acceptance preference |
 
 ---
 

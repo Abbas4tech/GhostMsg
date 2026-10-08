@@ -11,4 +11,11 @@ export const userQueries = {
         clientFetch(api.GET("/api/accept-message", { signal })),
       staleTime: 60 * 1000,
     }),
+  notifications: () =>
+    queryOptions({
+      queryKey: queryKeys.user.notifications(),
+      queryFn: ({ signal }) =>
+        clientFetch(api.GET("/api/user/notifications", { signal })),
+      staleTime: 60 * 1000,
+    }),
 };

@@ -1,33 +1,42 @@
 import mongoose, { type Document, Schema, type Types } from "mongoose";
 
-export interface Message extends Document {
-  content: string;
-  createdAt: Date;
-}
+export type { Message } from "./message.model";
 
-const MessageSchema: Schema<Message> = new Schema({
-  content: {
-    type: String,
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    required: true,
-    default: Date.now,
-  },
-});
+export interface NotificationSettings {
+  emailAlerts: "instant" | "daily" | "off";
+  webPushEnabled: boolean;
+}
 
 export interface User extends Document {
   _id: Types.ObjectId;
+  amaPrompt?: string;
+  blockedSenderHashes: string[];
+  createdAt: Date;
   email: string;
   isAcceptingMessage: boolean;
   isVerified: boolean;
-  messages: Message[];
-  password: string;
+  notificationSettings: NotificationSettings;
+  password?: string;
+  updatedAt: Date;
   username: string;
   verifyCode: string;
   verifyCodeExpiry: Date;
 }
+
+const NotificationSettingsSchema = new Schema<NotificationSettings>(
+  {
+    emailAlerts: {
+      type: String,
+      enum: ["instant", "daily", "off"],
+      default: "instant",
+    },
+    webPushEnabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { _id: false }
+);
 
 const UserSchema: Schema<User> = new Schema(
   {
@@ -45,7 +54,7 @@ const UserSchema: Schema<User> = new Schema(
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: false,
     },
     verifyCode: {
       type: String,
@@ -63,7 +72,22 @@ const UserSchema: Schema<User> = new Schema(
       type: Boolean,
       default: true,
     },
-    messages: [MessageSchema],
+    amaPrompt: {
+      type: String,
+      maxlength: 120,
+      default: "Send me an anonymous message!",
+    },
+    blockedSenderHashes: {
+      type: [String],
+      default: [],
+    },
+    notificationSettings: {
+      type: NotificationSettingsSchema,
+      default: () => ({
+        emailAlerts: "instant",
+        webPushEnabled: false,
+      }),
+    },
   },
   {
     timestamps: true,

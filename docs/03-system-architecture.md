@@ -68,18 +68,32 @@ sequenceDiagram
 
 ## 3. Data Model & Storage Design
 
-### Embedded Messages Schema ([`src/model/user.model.ts`](file:///d:/Projects/GhostMsg/src/model/user.model.ts))
+GhostMsg implements a decoupled relational document model using a dedicated `Message` collection and compound indexing as defined in [ADR 0010](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md) (superseding legacy embedded subdocuments).
 
-Rather than maintaining a separate `messages` collection, messages are stored directly as embedded subdocuments inside the `User` document ([ADR 0001](file:///d:/Projects/GhostMsg/docs/adr/0001-embedded-messages-schema.md)).
-
+### Standalone Message Schema (`src/model/message.model.ts`)
 ```typescript
-interface Message {
+interface IMessage {
   _id: Types.ObjectId;
-  content: string;
-  createdAt: Date;
+  recipientId: Types.ObjectId; // Ref: User (indexed)
+  content: string;             // 10-300 chars
+  sentimentTag: 'sweet' | 'curious' | 'spicy' | 'advice' | 'neutral';
+  isQuarantined: boolean;      // Moderation flag (indexed)
+  isPinned: boolean;           // Starred message (indexed)
+  isRead: boolean;             // Read tracking
+  reply?: {
+    text: string;
+    isPublished: boolean;      // Public showcase flag (indexed)
+    publishedAt?: Date;
+  };
+  senderHash: string;          // Cryptographic HMAC-SHA256 fingerprint (indexed)
+  createdAt: Date;             // Reverse-chronological sort (indexed)
+  updatedAt: Date;
 }
+```
 
-interface User {
+### User Schema (`src/model/user.model.ts`)
+```typescript
+interface IUser {
   _id: Types.ObjectId;
   username: string;
   email: string;
@@ -88,36 +102,43 @@ interface User {
   verifyCodeExpiry: Date;
   isVerified: boolean;
   isAcceptingMessage: boolean;
-  messages: Message[];
+  amaPrompt?: string;          // Custom banner prompt for /u/[username]
+  blockedSenderHashes: string[]; // Recipient-level blocked sender fingerprints
+  notificationSettings: {
+    emailAlerts: "instant" | "daily" | "off";
+    webPushEnabled: boolean;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
 ```
 
-### Key Database Query Patterns
-- **Fetch Inbox Messages**: Uses MongoDB Aggregation Pipeline (`$match` -> `$unwind` -> `$sort` by `messages.createdAt: -1` -> `$group`) for chronological order.
-- **Delete Single Message**: Atomic `$pull` on `user.messages` matching `_id`.
-- **Send Message**: Pushes new subdocument into `messages` after verifying `isAcceptingMessage === true`.
+### Key Database Compound Indexes
+* `{ recipientId: 1, isQuarantined: 1, createdAt: -1 }` (Primary Inbox Feed)
+* `{ recipientId: 1, isPinned: 1, createdAt: -1 }` (Starred/Favorites Feed)
+* `{ recipientId: 1, "reply.isPublished": 1, createdAt: -1 }` (Public Showcase Q&A Feed)
 
 ---
 
-## 4. AI Prompt Generation Pipeline
+## 4. AI & Content Moderation Pipeline
 
-- **Endpoint**: `/api/suggest-messages`
-- **Runtime**: `edge` (Vercel Edge Network)
-- **Model**: Google AI Studio `gemini-2.5-flash-lite` via `@ai-sdk/google` & Vercel AI SDK
-- **Data Flow**: Streaming response returning 3 engaging prompt ideas delimited by `||` for minimal parsing overhead on the client.
-
----
-
-## 5. Security & Persistence Model
-
-- **Password Hashing**: Bcrypt with salt rounds = 10 (`bcryptjs`).
-- **One-Time Passcode (OTP)**: 6-digit numeric verification code with a 1-hour expiration timestamp.
-- **Connection Pooling**: Cached singleton connection in [`src/lib/db-connect.ts`](file:///d:/Projects/GhostMsg/src/lib/db-connect.ts) to prevent MongoDB connection exhaustion during serverless cold starts.
-- **Input Sanitization**: Strict Zod schema validation on every inbound request payload before database access.
+- **Suggested Prompts**: `/api/suggest-messages` (Edge runtime, Gemini 2.5 Flash Lite) generates 3 randomized conversation starters.
+- **Synchronous Content Moderation & Sentiment Tagging**: Evaluated on `/api/send-message` ingestion:
+  - **Toxicity Check**: Flags harassment or abusive content to set `isQuarantined: true`, isolating the message from the main inbox.
+  - **Sentiment Classification**: Labels the emotional tone (`sweet`, `curious`, `spicy`, `advice`, `neutral`).
+- **AI Smart Reply Assistant**: `/api/ai/smart-reply` generates multi-tone draft replies (`witty`, `wholesome`, `thoughtful`) directly into the recipient's reply modal.
 
 ---
 
-## 6. Next Chapter
+## 5. Privacy, Abuse Prevention & Real-Time Transport
+
+- **In-Memory Rate Limiting**: Upstash Redis sliding window (5 messages per 10 minutes per IP). Raw IPs are never written to MongoDB.
+- **Cryptographic Sender Hash**: Computed as $\text{HMAC-SHA256}(\text{IP} + \text{RecipientId},\; \text{SECRET\_SALT})$. Allows recipients to shadowban abusive senders without compromising visitor anonymity.
+- **Server-Sent Events (SSE) Live Feed**: Backed by Upstash Redis Pub/Sub channel `recipient:{userId}:messages` streamed over `/api/messages/stream`.
+- **Password Hashing & Auth Security**: Bcrypt (rounds = 10), 6-digit verification codes (1-hour expiration), and cached MongoDB connection pooling via [`src/lib/db-connect.ts`](file:///d:/Projects/GhostMsg/src/lib/db-connect.ts).
+
+---
+
+## 6. Master Blueprint & Next Chapter
+For the exhaustive implementation specification, see the [Feature & Implementation Master Blueprint](file:///d:/Projects/GhostMsg/docs/feature-and-implementation-blueprint.md).
 Proceed to [Chapter 4: API & Type Safety Architecture](file:///d:/Projects/GhostMsg/docs/04-api-and-type-safety.md).
