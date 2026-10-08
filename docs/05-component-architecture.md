@@ -88,6 +88,18 @@ GhostMsg uses Tailwind CSS v4 with custom CSS variable tokens defined in [`src/a
 
 ---
 
-## 5. Next Chapter
+## 5. Implemented Component Registry Log
+
+- **Tier 1 Elements**:
+  - `src/components/elements/button/`: Animated Button with 8 CVA variants and sizes, colocated test, stories, and mock fixtures.
+  - `src/components/elements/input/`: Input primitive with `default`, `filled`, `glass` variants and `sm`/`md`/`lg` sizes.
+- **Tier 2 Patterns**:
+  - `src/components/patterns/sentiment-badge/`: Sentiment tag badge for `sweet`, `curious`, `spicy`, `advice`, `neutral` tones with icons and color tokens.
+- **Tier 3 Blocks**:
+  - `src/components/blocks/settings-section/`: Reusable page-builder settings section block with title, description, control slot, and action button slot.
+
+---
+
+## 6. Next Chapter
 Proceed to [Chapter 6: Developer Workflow](file:///d:/Projects/GhostMsg/docs/06-dev-workflow.md).
 

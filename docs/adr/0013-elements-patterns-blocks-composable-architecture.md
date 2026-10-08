@@ -141,6 +141,42 @@ return (
 
 ---
 
+## Implemented Component Registry Log
+
+The following component modules have been migrated and implemented with colocated test, story, mock, and adapter files adhering to the DAG dependency hierarchy:
+
+### Tier 1: Elements (`src/components/elements/`)
+- **`elements/button/`**:
+  - `button.tsx`: Animated Button primitive supporting `cva` variants (`default`, `primary`, `secondary`, `destructive`, `outline`, `ghost`, `glass`, `link`) and sizes (`sm`, `md`, `lg`, `icon`, `icon-sm`, `icon-lg`).
+  - `button.test.tsx`: Vitest component tests verifying rendering, click handlers, and variant class application.
+  - `button.stories.tsx`: Storybook stories for all 8 button variants.
+  - `button.mock.ts`: Mock fixture configurations (`defaultButtonMockProps`, `primaryButtonMockProps`, `glassButtonMockProps`).
+  - `index.ts`: Barrel export for `Button`, `buttonVariants`, and types.
+
+- **`elements/input/`**:
+  - `input.tsx`: Form input primitive supporting `cva` variants (`default`, `filled`, `glass`) and size variants (`sm`, `md`, `lg`).
+  - `input.test.tsx`: Vitest component tests verifying placeholder rendering and keystroke event triggers.
+  - `input.stories.tsx`: Storybook stories for Default and Glass input variants.
+  - `input.mock.ts`: Mock fixture configurations (`defaultInputMockProps`, `glassInputMockProps`).
+  - `index.ts`: Barrel export for `Input`, `inputVariants`, and types.
+
+### Tier 2: Patterns (`src/components/patterns/`)
+- **`patterns/sentiment-badge/`**:
+  - `sentiment-badge.tsx`: Domain sentiment tag badge supporting `cva` sentiment variants (`sweet`, `curious`, `spicy`, `advice`, `neutral`) and sizes (`sm`, `md`).
+  - `sentiment-badge.test.tsx`: Vitest tests for sentiment label text and dynamic color classes.
+  - `sentiment-badge.stories.tsx`: Storybook stories for Sweet, Spicy, and Advice sentiment badges.
+  - `sentiment-badge.mock.ts`: Predefined mock fixtures (`sweetBadgeMockProps`, `spicyBadgeMockProps`).
+  - `index.ts`: Barrel export for `SentimentBadge` and types.
+
+### Tier 3: Blocks (`src/components/blocks/`)
+- **`blocks/settings-section/`**:
+  - `settings-section.tsx`: Page-builder settings row section block supporting variants (`card`, `grouped`, `minimal`) and sizes (`sm`, `md`, `lg`). Decoupled presentational slots: `title`, `description`, `icon`, `controlSlot`, `actionButtonSlot`.
+  - `settings-section.test.tsx`: Vitest component tests for presentational slot composition.
+  - `settings-section.mock.ts`: Mock fixtures (`defaultSettingsSectionMockProps`).
+  - `index.ts`: Barrel export for `SettingsSection` and types.
+
+---
+
 ## References & Code Pointers
 - Engineering Docs: [`docs/05-component-architecture.md`](file:///d:/Projects/GhostMsg/docs/05-component-architecture.md)
 - Testing Strategy: [`docs/07-testing-strategy.md`](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md)

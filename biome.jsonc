@@ -24,6 +24,9 @@
   },
   "linter": {
     "rules": {
+      "performance": {
+        "noBarrelFile": "off"
+      },
       "suspicious": {
         "noArrayIndexKey": "error"
       }
