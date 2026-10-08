@@ -1,10 +1,12 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
   Ban,
   CheckSquare,
   Loader2,
   MessageSquare,
+  ShieldOff,
   Sparkles,
   Square,
   Star,
@@ -12,10 +14,14 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { type MouseEvent, memo, useState } from "react";
-import { useBlockSenderMutation } from "@/hooks/mutations/use-block-sender-mutation";
+import {
+  useBlockSenderMutation,
+  useUnblockSenderMutation,
+} from "@/hooks/mutations/use-block-sender-mutation";
 import { useDeleteMessageMutation } from "@/hooks/mutations/use-delete-message-mutation";
 import { useUpdateMessageMutation } from "@/hooks/mutations/use-update-message-mutation";
 import type { Message } from "@/model/user.model";
+import { userQueries } from "@/queries/user.queries";
 import { Button } from "../animate-ui/components/buttons/button";
 import { LiquidButton } from "../animate-ui/components/buttons/liquid";
 import {
@@ -82,6 +88,184 @@ const SENTIMENT_BADGES: Record<
   },
 };
 
+interface BlockSenderActionProps {
+  isSenderBlocked: boolean;
+  senderHash?: string;
+}
+
+function BlockSenderAction({
+  senderHash,
+  isSenderBlocked,
+}: BlockSenderActionProps): React.JSX.Element | null {
+  const [isOpen, setIsOpen] = useState(false);
+  const blockMutation = useBlockSenderMutation();
+  const unblockMutation = useUnblockSenderMutation();
+
+  if (!senderHash) {
+    return null;
+  }
+
+  const handleBlock = async (): Promise<void> => {
+    try {
+      await blockMutation.mutateAsync(senderHash);
+      setIsOpen(false);
+    } catch {
+      // Handled by toast
+    }
+  };
+
+  const handleUnblock = async (): Promise<void> => {
+    try {
+      await unblockMutation.mutateAsync(senderHash);
+      setIsOpen(false);
+    } catch {
+      // Handled by toast
+    }
+  };
+
+  const isPending = isSenderBlocked
+    ? unblockMutation.isPending
+    : blockMutation.isPending;
+
+  let buttonText = "Block Sender";
+  if (isPending) {
+    buttonText = isSenderBlocked ? "Unblocking..." : "Blocking...";
+  } else if (isSenderBlocked) {
+    buttonText = "Unblock Sender";
+  }
+
+  return (
+    <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <AlertDialogTrigger asChild>
+            <Button
+              className={`h-7 w-7 ${
+                isSenderBlocked
+                  ? "text-red-500 hover:text-red-600"
+                  : "text-muted-foreground hover:text-destructive"
+              }`}
+              size="icon"
+              variant="ghost"
+            >
+              {isSenderBlocked ? (
+                <ShieldOff className="h-3.5 w-3.5" />
+              ) : (
+                <Ban className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          </AlertDialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          {isSenderBlocked ? "Unblock this sender" : "Block this sender"}
+        </TooltipContent>
+      </Tooltip>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            {isSenderBlocked ? "Unblock this sender?" : "Block this sender?"}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {isSenderBlocked
+              ? "Future messages from this sender are currently being silently dropped. Unblocking will allow them to send messages to your profile again."
+              : "Future messages from this sender will be silently dropped. Their anonymity is preserved, and they will not be notified."}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <LiquidButton
+            disabled={isPending}
+            onClick={isSenderBlocked ? handleUnblock : handleBlock}
+            variant={isSenderBlocked ? "default" : "destructive"}
+          >
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {buttonText}
+          </LiquidButton>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+interface DeleteMessageActionProps {
+  message: Message;
+  onDelete?: (message: Message) => Promise<void>;
+}
+
+function DeleteMessageAction({
+  message,
+  onDelete,
+}: DeleteMessageActionProps): React.JSX.Element {
+  const [isOpen, setIsOpen] = useState(false);
+  const deleteMutation = useDeleteMessageMutation();
+  const isPending = deleteMutation.isPending;
+
+  const handleDeleteConfirm = async (
+    e: MouseEvent<HTMLButtonElement>
+  ): Promise<void> => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isPending) {
+      return;
+    }
+
+    try {
+      if (onDelete) {
+        await onDelete(message);
+      } else {
+        await deleteMutation.mutateAsync(String(message._id));
+      }
+      setIsOpen(false);
+    } catch {
+      // Handled by toast
+    }
+  };
+
+  return (
+    <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <AlertDialogTrigger asChild>
+            <Button
+              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+              size="icon"
+              variant="ghost"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </AlertDialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Delete message</TooltipContent>
+      </Tooltip>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Message?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This message will be permanently deleted from your inbox.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <LiquidButton
+            disabled={isPending}
+            onClick={handleDeleteConfirm}
+            variant="destructive"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
+              </>
+            ) : (
+              "Delete"
+            )}
+          </LiquidButton>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 const MessageCard = memo(
   ({
     message,
@@ -91,40 +275,17 @@ const MessageCard = memo(
     isSelected = false,
     onToggleSelect,
   }: MessageCardProps): React.JSX.Element => {
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
-
-    const deleteMutation = useDeleteMessageMutation();
+    const { data: blockedData } = useQuery(userQueries.blockedSenders());
     const updateMutation = useUpdateMessageMutation();
-    const blockMutation = useBlockSenderMutation();
 
-    const isPending = deleteMutation.isPending;
+    const isSenderBlocked = Boolean(
+      message.senderHash &&
+        blockedData?.blockedSenderHashes?.includes(message.senderHash)
+    );
 
     const sentiment =
       SENTIMENT_BADGES[message.sentimentTag || "neutral"] ||
       SENTIMENT_BADGES.neutral;
-
-    const handleDeleteConfirm = async (
-      e: MouseEvent<HTMLButtonElement>
-    ): Promise<void> => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      if (isPending) {
-        return;
-      }
-
-      try {
-        if (onDelete) {
-          await onDelete(message);
-        } else {
-          await deleteMutation.mutateAsync(String(message._id));
-        }
-        setIsDeleteDialogOpen(false);
-      } catch {
-        // Handled by toast
-      }
-    };
 
     const handleToggleStar = async () => {
       try {
@@ -137,18 +298,6 @@ const MessageCard = memo(
       }
     };
 
-    const handleBlockSender = async () => {
-      if (!message.senderHash) {
-        return;
-      }
-      try {
-        await blockMutation.mutateAsync(message.senderHash);
-        setIsBlockDialogOpen(false);
-      } catch {
-        // Handled by toast
-      }
-    };
-
     return (
       <Card
         className={`relative w-full rounded-xl transition-all duration-200 hover:shadow-md ${
@@ -156,9 +305,9 @@ const MessageCard = memo(
         } ${message.isQuarantined ? "border-red-500/50 bg-red-500/5" : ""}`}
       >
         <CardHeader className="pb-2">
-          {/* Header Row: Checkbox, Sentiment Badge, and Star */}
+          {/* Header Row: Checkbox, Sentiment Badge, Star, and Status Badges */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {onToggleSelect && (
                 <button
                   className="text-muted-foreground hover:text-foreground"
@@ -179,6 +328,12 @@ const MessageCard = memo(
                 <span>{sentiment.icon}</span>
                 {sentiment.label}
               </span>
+
+              {isSenderBlocked && (
+                <span className="inline-flex items-center rounded-full bg-red-500/10 px-2 py-0.5 font-semibold text-red-500 text-xs">
+                  🚫 Blocked Sender
+                </span>
+              )}
 
               {message.isQuarantined && (
                 <span className="inline-flex items-center rounded-full bg-red-500/10 px-2 py-0.5 font-semibold text-red-500 text-xs">
@@ -271,96 +426,11 @@ const MessageCard = memo(
           </div>
 
           <div className="flex items-center gap-1">
-            {/* Block Sender Dialog */}
-            {Boolean(message.senderHash) && (
-              <AlertDialog
-                onOpenChange={setIsBlockDialogOpen}
-                open={isBlockDialogOpen}
-              >
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                        size="icon"
-                        variant="ghost"
-                      >
-                        <Ban className="h-3.5 w-3.5" />
-                      </Button>
-                    </AlertDialogTrigger>
-                  </TooltipTrigger>
-                  <TooltipContent>Block this sender</TooltipContent>
-                </Tooltip>
-                <AlertDialogContent className="sm:max-w-md">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Block this sender?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Future messages from this sender will be silently dropped.
-                      Their anonymity is preserved, and they will not be
-                      notified.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <LiquidButton
-                      disabled={blockMutation.isPending}
-                      onClick={handleBlockSender}
-                      variant="destructive"
-                    >
-                      Block Sender
-                    </LiquidButton>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-
-            {/* Delete Message Dialog */}
-            <AlertDialog
-              onOpenChange={setIsDeleteDialogOpen}
-              open={isDeleteDialogOpen}
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                      size="icon"
-                      variant="ghost"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </AlertDialogTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Delete message</TooltipContent>
-              </Tooltip>
-              <AlertDialogContent className="sm:max-w-md">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Message?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This message will be permanently deleted from your inbox.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isPending}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <LiquidButton
-                    disabled={isPending}
-                    onClick={handleDeleteConfirm}
-                    variant="destructive"
-                  >
-                    {isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                        Deleting...
-                      </>
-                    ) : (
-                      "Delete"
-                    )}
-                  </LiquidButton>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <BlockSenderAction
+              isSenderBlocked={isSenderBlocked}
+              senderHash={message.senderHash}
+            />
+            <DeleteMessageAction message={message} onDelete={onDelete} />
           </div>
         </div>
       </Card>

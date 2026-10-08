@@ -14,6 +14,7 @@ export const queryKeys = {
     all: ["user"] as const,
     acceptance: () => [...queryKeys.user.all, "acceptance"] as const,
     notifications: () => [...queryKeys.user.all, "notifications"] as const,
+    blockedSenders: () => [...queryKeys.user.all, "blocked-senders"] as const,
   },
   auth: {
     all: ["auth"] as const,

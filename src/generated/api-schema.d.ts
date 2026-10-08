@@ -189,7 +189,44 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /**
+     * Get Blocked Sender Fingerprints
+     * @description Retrieve list of all blocked sender hashes for the authenticated recipient.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Blocked senders fetched successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GetBlockedSendersResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     put?: never;
     /**
      * Block Sender Fingerprint
@@ -233,7 +270,48 @@ export interface paths {
         };
       };
     };
-    delete?: never;
+    /**
+     * Unblock Sender Fingerprint
+     * @description Remove a cryptographic sender hash from the recipient's blocked list, or pass 'ALL' to clear all.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["BlockSenderRequest"];
+        };
+      };
+      responses: {
+        /** @description Sender unblocked successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     options?: never;
     head?: never;
     patch?: never;
@@ -1467,6 +1545,12 @@ export interface components {
         /** @description Authentication secret */
         auth: string;
       };
+    };
+    GetBlockedSendersResponse: {
+      /** @example true */
+      success: boolean;
+      /** @description List of blocked sender cryptographic hashes */
+      blockedSenderHashes: string[];
     };
     UsernameUniqueResponse: {
       /** @example true */

@@ -10,6 +10,7 @@ import {
   amaPromptResponseSchema,
   baseResponseSchema,
   errorResponseSchema,
+  getBlockedSendersResponseSchema,
   getMessagesResponseSchema,
   messageItemSchema,
   publicAnswersResponseSchema,
@@ -80,6 +81,7 @@ registry.register(
   updateNotificationsResponseSchema
 );
 registry.register("PushSubscriptionRequest", pushSubscriptionRequestSchema);
+registry.register("GetBlockedSendersResponse", getBlockedSendersResponseSchema);
 
 // Security Scheme for NextAuth session
 const bearerAuth = registry.registerComponent(
@@ -530,7 +532,30 @@ registry.registerPath({
   },
 });
 
-// 11. POST /api/block-sender
+// 11a. GET /api/block-sender
+registry.registerPath({
+  method: "get",
+  path: "/api/block-sender",
+  summary: "Get Blocked Sender Fingerprints",
+  description:
+    "Retrieve list of all blocked sender hashes for the authenticated recipient.",
+  tags: ["Abuse Prevention"],
+  security: [{ [bearerAuth.name]: [] }],
+  responses: {
+    200: {
+      description: "Blocked senders fetched successfully",
+      content: {
+        "application/json": {
+          schema: getBlockedSendersResponseSchema,
+        },
+      },
+    },
+    401: { description: "Unauthorized" },
+    500: { description: "Internal server error" },
+  },
+});
+
+// 11b. POST /api/block-sender
 registry.registerPath({
   method: "post",
   path: "/api/block-sender",
@@ -551,6 +576,38 @@ registry.registerPath({
   responses: {
     200: {
       description: "Sender blocked successfully",
+      content: {
+        "application/json": {
+          schema: baseResponseSchema,
+        },
+      },
+    },
+    401: { description: "Unauthorized" },
+    500: { description: "Internal server error" },
+  },
+});
+
+// 11c. DELETE /api/block-sender
+registry.registerPath({
+  method: "delete",
+  path: "/api/block-sender",
+  summary: "Unblock Sender Fingerprint",
+  description:
+    "Remove a cryptographic sender hash from the recipient's blocked list, or pass 'ALL' to clear all.",
+  tags: ["Abuse Prevention"],
+  security: [{ [bearerAuth.name]: [] }],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: blockSenderSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Sender unblocked successfully",
       content: {
         "application/json": {
           schema: baseResponseSchema,

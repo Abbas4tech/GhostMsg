@@ -138,3 +138,12 @@ export const amaPromptResponseSchema = z
       .openapi({ example: "AMA prompt updated successfully!" }),
   })
   .openapi("AmaPromptResponse");
+
+export const getBlockedSendersResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    blockedSenderHashes: z
+      .array(z.string())
+      .openapi({ description: "List of blocked sender cryptographic hashes" }),
+  })
+  .openapi("GetBlockedSendersResponse");

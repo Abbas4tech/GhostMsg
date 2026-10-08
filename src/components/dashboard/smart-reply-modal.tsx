@@ -188,7 +188,7 @@ export const SmartReplyModal = ({
 
         <DialogFooter className="gap-2 sm:gap-2">
           <Button onClick={onClose} variant="outline">
-            <X className="mr-2 h-4 w-4" /> Cancel
+            <X className="h-4 w-4" /> Cancel
           </Button>
           <LiquidButton
             disabled={!replyText.trim() || replyMutation.isPending}
@@ -196,11 +196,11 @@ export const SmartReplyModal = ({
           >
             {replyMutation.isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                <Loader2 className="h-4 w-4 animate-spin" /> Saving...
               </>
             ) : (
               <>
-                <Send className="mr-2 h-4 w-4" /> Save Reply
+                <Send className="h-4 w-4" /> Save Reply
               </>
             )}
           </LiquidButton>

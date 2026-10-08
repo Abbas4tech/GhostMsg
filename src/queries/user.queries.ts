@@ -18,4 +18,11 @@ export const userQueries = {
         clientFetch(api.GET("/api/user/notifications", { signal })),
       staleTime: 60 * 1000,
     }),
+  blockedSenders: () =>
+    queryOptions({
+      queryKey: queryKeys.user.blockedSenders(),
+      queryFn: ({ signal }) =>
+        clientFetch(api.GET("/api/block-sender", { signal })),
+      staleTime: 60 * 1000,
+    }),
 };

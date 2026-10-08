@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Bell, Mail, ShieldCheck } from "lucide-react";
+import { Bell, Mail, ShieldAlert, ShieldCheck } from "lucide-react";
 import type React from "react";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -16,6 +16,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
 import { useAcceptMessageMutation } from "@/hooks/mutations/use-accept-message-mutation";
+import { useUnblockSenderMutation } from "@/hooks/mutations/use-block-sender-mutation";
 import { useNotificationSettingsMutation } from "@/hooks/mutations/use-notification-settings-mutation";
 import { usePushSubscriptionMutation } from "@/hooks/mutations/use-push-subscription-mutation";
 import { userQueries } from "@/queries/user.queries";
@@ -113,10 +114,22 @@ export const SettingsTab = ({
 }: SettingsTabProps = {}): React.JSX.Element => {
   const { data: statusData } = useQuery(userQueries.acceptance());
   const { data: notifData } = useQuery(userQueries.notifications());
+  const { data: blockedData } = useQuery(userQueries.blockedSenders());
 
   const acceptMutation = useAcceptMessageMutation();
   const notifMutation = useNotificationSettingsMutation();
   const pushMutation = usePushSubscriptionMutation();
+  const unblockMutation = useUnblockSenderMutation();
+
+  const blockedHashes = blockedData?.blockedSenderHashes || [];
+
+  const handleUnblock = (senderHash: string) => {
+    unblockMutation.mutate(senderHash);
+  };
+
+  const handleUnblockAll = () => {
+    unblockMutation.mutate("ALL");
+  };
 
   const emailAlerts = notifData?.notificationSettings?.emailAlerts ?? "instant";
   const webPushEnabled = Boolean(
@@ -273,6 +286,67 @@ export const SettingsTab = ({
               onCheckedChange={handleToggleWebPush}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Blocked Senders Management Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5 text-red-500" />
+            Blocked Senders ({blockedHashes.length})
+          </CardTitle>
+          <CardDescription>
+            Manage anonymous sender fingerprints blocked from delivering
+            messages to your profile.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {blockedHashes.length === 0 ? (
+            <p className="text-muted-foreground text-xs">
+              No senders are currently blocked.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between pb-1">
+                <span className="font-medium text-muted-foreground text-xs">
+                  {blockedHashes.length} blocked{" "}
+                  {blockedHashes.length === 1 ? "sender" : "senders"}
+                </span>
+                <Button
+                  className="h-7 text-red-500 text-xs hover:text-red-600"
+                  disabled={unblockMutation.isPending}
+                  onClick={handleUnblockAll}
+                  size="sm"
+                  variant="outline"
+                >
+                  Unblock All Senders
+                </Button>
+              </div>
+
+              <div className="max-h-48 space-y-1.5 overflow-y-auto rounded-lg border p-2">
+                {blockedHashes.map((hash) => (
+                  <div
+                    className="flex items-center justify-between rounded bg-muted/40 px-3 py-1.5 text-xs"
+                    key={hash}
+                  >
+                    <span className="font-mono text-muted-foreground">
+                      {hash.slice(0, 8)}...{hash.slice(-8)}
+                    </span>
+                    <Button
+                      className="h-6 text-[11px]"
+                      disabled={unblockMutation.isPending}
+                      onClick={() => handleUnblock(hash)}
+                      size="sm"
+                      variant="ghost"
+                    >
+                      Unblock
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
