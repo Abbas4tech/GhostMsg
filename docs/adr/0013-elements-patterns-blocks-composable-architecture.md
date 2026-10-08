@@ -44,6 +44,19 @@ src/components/
 - **Patterns (`src/components/patterns/`)**: Composable combinations of elements with multi-variant layouts (e.g. `MessageCard`, `MessageFilterBar`, `BulkActionToolbar`, `SentimentTagBadge`).
 - **Blocks (`src/components/blocks/`)**: High-level composable section blocks with defined slots for titles, descriptions, controls, and action triggers (e.g., `SettingsSectionBlock`, `InboxBlock`, `AmaBannerBlock`, `PublicQaBlock`).
 
+#### Strict Unidirectional Dependency Rule (DAG)
+To maintain strict modular decoupling, component imports **MUST** follow a strict downward hierarchy:
+
+```
+Blocks  ──(can import)──▶  Patterns  ──(can import)──▶  Elements
+  │                                                        ▲
+  └─────────────────────(can import)───────────────────────┘
+```
+
+1. **Blocks** can import **Patterns**, **Elements**, or lower-level sub-blocks.
+2. **Patterns** can import **Elements** or other **Patterns**, but **CANNOT** import from **Blocks**.
+3. **Elements** can only import from other **Elements** (or external UI primitives like Radix), and **CANNOT** import from **Patterns** or **Blocks**.
+
 ---
 
 ### 2. Colocated Component Directory Layout

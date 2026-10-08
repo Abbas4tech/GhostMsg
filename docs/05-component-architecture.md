@@ -30,6 +30,12 @@ src/
 │       └── profile-block/
 ```
 
+### Strict Unidirectional Dependency Rule (DAG)
+Imports follow a strict top-down dependency hierarchy:
+- **Blocks** can import **Patterns**, **Elements**, or sub-blocks.
+- **Patterns** can import **Elements** or other **Patterns**, but **CANNOT** import **Blocks**.
+- **Elements** can only import other **Elements** (or external primitives like Radix), and **CANNOT** import **Patterns** or **Blocks**.
+
 ### Colocated Module Directory Standard
 Every component module contains its implementation, headless hook controller, test, story, and mock files colocated within its folder:
 
