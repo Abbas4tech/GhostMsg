@@ -12,7 +12,7 @@ flowchart LR
     B --> C["npm run typegen\n(scripts/generate-api-types.ts)"]
     C --> D["src/generated/api-schema.d.ts\n(Exported paths)"]
     D --> E["openapi-fetch client\n(src/lib/api-client.ts)"]
-    E --> F["React Query Hooks\n(useDashboard, useAcceptMessage)"]
+    E --> F["React Query (queryOptions & useMutation)"]
 ```
 
 ---
@@ -88,58 +88,14 @@ This generates [`src/generated/api-schema.d.ts`](file:///d:/Projects/GhostMsg/sr
 
 ---
 
-## 6. Client Transport: `openapi-fetch` + React Query
+## 6. Client Transport: `openapi-fetch` + React Query Architecture
 
-Axios is deprecated and uninstalled. GhostMsg uses `createClient<paths>()` from `openapi-fetch` in [`src/lib/api-client.ts`](file:///d:/Projects/GhostMsg/src/lib/api-client.ts):
+Axios is deprecated and uninstalled. GhostMsg uses `createClient<paths>()` from `openapi-fetch` wrapped in a throwing `clientFetch` helper in [`src/lib/api-client.ts`](file:///d:/Projects/GhostMsg/src/lib/api-client.ts) alongside domain `queryOptions` and custom mutation hooks as established in [ADR 0006](file:///d:/Projects/GhostMsg/docs/adr/0006-standardized-api-calling-and-react-query-architecture.md).
 
-```typescript
-import createClient from "openapi-fetch";
-import type { paths } from "@/generated/api-schema";
-
-export const api = createClient<paths>({
-  baseUrl: "",
-});
-
-export type ApiPaths = paths;
-```
-
-### Idiomatic React Query Patterns
-
-#### 1. Query with Native AbortSignal ([`src/hooks/use-dashboard.tsx`](file:///d:/Projects/GhostMsg/src/hooks/use-dashboard.tsx))
-```typescript
-const { data, isLoading, refetch } = useQuery({
-  queryKey: ["messages"],
-  queryFn: async ({ signal }) => {
-    const { data, error } = await api.GET("/api/get-messages", { signal });
-    if (error || !data) {
-      throw new Error(error?.message || "Failed to fetch messages");
-    }
-    return data;
-  },
-  enabled: status === "authenticated",
-});
-```
-
-#### 2. Mutation with Automated Invalidation
-```typescript
-const deleteMutation = useMutation({
-  mutationFn: async (messageId: string) => {
-    const { data, error } = await api.DELETE("/api/delete-message/{messageId}", {
-      params: { path: { messageId } },
-    });
-    if (error || !data) {
-      throw new Error(error?.message || "Failed to delete message");
-    }
-    return data;
-  },
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["messages"] });
-    toast.success("Message deleted successfully!");
-  },
-});
-```
+For complete implementation blueprints, query key hierarchies, and optimistic update recipes, see [API & React Query Architecture Blueprint](file:///d:/Projects/GhostMsg/docs/api-and-react-query-architecture.md).
 
 ---
 
 ## 7. Next Chapter
 Proceed to [Chapter 5: Component Architecture & UI](file:///d:/Projects/GhostMsg/docs/05-component-architecture.md).
+

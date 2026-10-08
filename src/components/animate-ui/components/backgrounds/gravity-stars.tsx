@@ -42,6 +42,137 @@ interface Particle {
   y: number;
 }
 
+function applyGlow(p: Particle, force: number, glowAnimation: GlowAnimation) {
+  const targetGlow = 1 + force * 2;
+  const currentGlow = p.glowMultiplier || 1;
+
+  if (glowAnimation === "instant") {
+    p.glowMultiplier = targetGlow;
+  } else if (glowAnimation === "ease") {
+    const ease = 0.15;
+    p.glowMultiplier = currentGlow + (targetGlow - currentGlow) * ease;
+  } else {
+    const spring = (targetGlow - currentGlow) * 0.2;
+    const damping = 0.85;
+    p.glowVelocity = (p.glowVelocity || 0) * damping + spring;
+    p.glowMultiplier = currentGlow + (p.glowVelocity || 0);
+  }
+}
+
+function applyRestGlow(p: Particle, glowAnimation: GlowAnimation) {
+  const targetGlow = 1;
+  const currentGlow = p.glowMultiplier || 1;
+  if (glowAnimation === "instant") {
+    p.glowMultiplier = targetGlow;
+  } else if (glowAnimation === "ease") {
+    const ease = 0.08;
+    p.glowMultiplier = Math.max(
+      1,
+      currentGlow + (targetGlow - currentGlow) * ease
+    );
+  } else {
+    const spring = (targetGlow - currentGlow) * 0.15;
+    const damping = 0.9;
+    p.glowVelocity = (p.glowVelocity || 0) * damping + spring;
+    p.glowMultiplier = Math.max(1, currentGlow + (p.glowVelocity || 0));
+  }
+}
+
+function resolveStarBounce(
+  p: Particle,
+  o: Particle,
+  dx: number,
+  dy: number,
+  d: number,
+  minD: number
+) {
+  const nx = dx / d;
+  const ny = dy / d;
+  const rvx = p.vx - o.vx;
+  const rvy = p.vy - o.vy;
+  const speed = rvx * nx + rvy * ny;
+  if (speed < 0) {
+    return;
+  }
+  const impulse = (2 * speed) / (p.mass + o.mass);
+  p.vx -= impulse * o.mass * nx;
+  p.vy -= impulse * o.mass * ny;
+  o.vx += impulse * p.mass * nx;
+  o.vy += impulse * p.mass * ny;
+  const overlap = minD - d;
+  const sx = nx * overlap * 0.5;
+  const sy = ny * overlap * 0.5;
+  p.x -= sx;
+  p.y -= sy;
+  o.x += sx;
+  o.y += sy;
+}
+
+function resolveStarMerge(
+  p: Particle,
+  o: Particle,
+  dx2: number,
+  dy2: number,
+  d: number,
+  minD: number
+) {
+  const mergeForce = (minD - d) / minD;
+  p.glowMultiplier = (p.glowMultiplier || 1) + mergeForce * 0.5;
+  o.glowMultiplier = (o.glowMultiplier || 1) + mergeForce * 0.5;
+  const af = mergeForce * 0.01;
+  p.vx += dx2 * af;
+  p.vy += dy2 * af;
+  o.vx -= dx2 * af;
+  o.vy -= dy2 * af;
+}
+
+function resolveStarInteractions(
+  stars: Particle[],
+  interactionType: StarsInteractionType
+) {
+  for (let i = 0; i < stars.length; i++) {
+    const p = stars[i];
+    for (let j = i + 1; j < stars.length; j++) {
+      const o = stars[j];
+      const dx2 = o.x - p.x;
+      const dy2 = o.y - p.y;
+      const d = Math.hypot(dx2, dy2);
+      const minD = p.size + o.size + 5;
+      if (d < minD && d > 0) {
+        if (interactionType === "bounce") {
+          resolveStarBounce(p, o, dx2, dy2, d, minD);
+        } else {
+          resolveStarMerge(p, o, dx2, dy2, d, minD);
+        }
+      }
+    }
+  }
+}
+
+function updateParticlePositions(stars: Particle[], w: number, h: number) {
+  for (const p of stars) {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vx += (Math.random() - 0.5) * 0.001;
+    p.vy += (Math.random() - 0.5) * 0.001;
+    p.vx *= 0.999;
+    p.vy *= 0.999;
+
+    if (p.x < 0) {
+      p.x = w;
+    }
+    if (p.x > w) {
+      p.x = 0;
+    }
+    if (p.y < 0) {
+      p.y = h;
+    }
+    if (p.y > h) {
+      p.y = 0;
+    }
+  }
+}
+
 function GravityStarsBackground({
   starsCount = 75,
   starsSize = 2,
@@ -149,15 +280,12 @@ function GravityStarsBackground({
     mouseRef.current = { x: clientX - rect.left, y: clientY - rect.top };
   }, []);
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: false
   const updateStars = useCallback(() => {
     const w = canvasSize.width;
     const h = canvasSize.height;
     const mouse = mouseRef.current;
 
-    for (let i = 0; i < starsRef.current.length; i++) {
-      const p = starsRef.current[i];
-
+    for (const p of starsRef.current) {
       const dx = mouse.x - p.x;
       const dy = mouse.y - p.y;
       const dist = Math.hypot(dx, dy);
@@ -177,106 +305,18 @@ function GravityStarsBackground({
         }
 
         p.opacity = Math.min(1, p.baseOpacity + force * 0.4);
-
-        const targetGlow = 1 + force * 2;
-        const currentGlow = p.glowMultiplier || 1;
-
-        if (glowAnimation === "instant") {
-          p.glowMultiplier = targetGlow;
-        } else if (glowAnimation === "ease") {
-          const ease = 0.15;
-          p.glowMultiplier = currentGlow + (targetGlow - currentGlow) * ease;
-        } else {
-          const spring = (targetGlow - currentGlow) * 0.2;
-          const damping = 0.85;
-          p.glowVelocity = (p.glowVelocity || 0) * damping + spring;
-          p.glowMultiplier = currentGlow + (p.glowVelocity || 0);
-        }
+        applyGlow(p, force, glowAnimation);
       } else {
         p.opacity = Math.max(p.baseOpacity * 0.3, p.opacity - 0.02);
-        const targetGlow = 1;
-        const currentGlow = p.glowMultiplier || 1;
-        if (glowAnimation === "instant") {
-          p.glowMultiplier = targetGlow;
-        } else if (glowAnimation === "ease") {
-          const ease = 0.08;
-          p.glowMultiplier = Math.max(
-            1,
-            currentGlow + (targetGlow - currentGlow) * ease
-          );
-        } else {
-          const spring = (targetGlow - currentGlow) * 0.15;
-          const damping = 0.9;
-          p.glowVelocity = (p.glowVelocity || 0) * damping + spring;
-          p.glowMultiplier = Math.max(1, currentGlow + (p.glowVelocity || 0));
-        }
-      }
-
-      if (starsInteraction) {
-        for (let j = i + 1; j < starsRef.current.length; j++) {
-          const o = starsRef.current[j];
-          const dx2 = o.x - p.x;
-          const dy2 = o.y - p.y;
-          const d = Math.hypot(dx2, dy2);
-          const minD = p.size + o.size + 5;
-          if (d < minD && d > 0) {
-            if (starsInteractionType === "bounce") {
-              const nx = dx2 / d;
-              const ny = dy2 / d;
-              const rvx = p.vx - o.vx;
-              const rvy = p.vy - o.vy;
-              const speed = rvx * nx + rvy * ny;
-              if (speed < 0) {
-                continue;
-              }
-              const impulse = (2 * speed) / (p.mass + o.mass);
-              p.vx -= impulse * o.mass * nx;
-              p.vy -= impulse * o.mass * ny;
-              o.vx += impulse * p.mass * nx;
-              o.vy += impulse * p.mass * ny;
-              const overlap = minD - d;
-              const sx = nx * overlap * 0.5;
-              const sy = ny * overlap * 0.5;
-              p.x -= sx;
-              p.y -= sy;
-              o.x += sx;
-              o.y += sy;
-            } else {
-              const mergeForce = (minD - d) / minD;
-              p.glowMultiplier = (p.glowMultiplier || 1) + mergeForce * 0.5;
-              o.glowMultiplier = (o.glowMultiplier || 1) + mergeForce * 0.5;
-              const af = mergeForce * 0.01;
-              p.vx += dx2 * af;
-              p.vy += dy2 * af;
-              o.vx -= dx2 * af;
-              o.vy -= dy2 * af;
-            }
-          }
-        }
-      }
-
-      p.x += p.vx;
-      p.y += p.vy;
-
-      p.vx += (Math.random() - 0.5) * 0.001;
-      p.vy += (Math.random() - 0.5) * 0.001;
-
-      p.vx *= 0.999;
-      p.vy *= 0.999;
-
-      if (p.x < 0) {
-        p.x = w;
-      }
-      if (p.x > w) {
-        p.x = 0;
-      }
-      if (p.y < 0) {
-        p.y = h;
-      }
-      if (p.y > h) {
-        p.y = 0;
+        applyRestGlow(p, glowAnimation);
       }
     }
+
+    if (starsInteraction) {
+      resolveStarInteractions(starsRef.current, starsInteractionType);
+    }
+
+    updateParticlePositions(starsRef.current, w, h);
   }, [
     canvasSize.width,
     canvasSize.height,
@@ -325,9 +365,9 @@ function GravityStarsBackground({
     resizeCanvas();
     const container = containerRef.current;
     const ro =
-      typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(resizeCanvas)
-        : null;
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(resizeCanvas);
     if (container && ro) {
       ro.observe(container);
     }
@@ -341,7 +381,6 @@ function GravityStarsBackground({
     };
   }, [resizeCanvas]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: false
   useEffect(() => {
     if (starsRef.current.length === 0) {
       initStars(canvasSize.width, canvasSize.height);
@@ -358,7 +397,6 @@ function GravityStarsBackground({
       }
     }
   }, [
-    starsCount,
     starsOpacity,
     movementSpeed,
     canvasSize.width,
@@ -380,13 +418,11 @@ function GravityStarsBackground({
   }, [animate]);
 
   return (
-    // biome-ignore lint/a11y/noNoninteractiveElementInteractions: false
-    // biome-ignore lint/a11y/noStaticElementInteractions: false
     <div
       className={cn("relative size-full overflow-hidden", className)}
       data-slot="gravity-stars-background"
-      onMouseMove={(e) => handlePointerMove(e)}
-      onTouchMove={(e) => handlePointerMove(e)}
+      onMouseMove={handlePointerMove}
+      onTouchMove={handlePointerMove}
       ref={containerRef}
       {...props}
     >

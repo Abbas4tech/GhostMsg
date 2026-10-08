@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/style/noNestedTernary: false */
 "use client";
 
 import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
@@ -73,6 +72,48 @@ type ParticlesEffectProps = Omit<HTMLMotionProps<"div">, "children"> & {
   delay?: number;
 };
 
+function getAlignPercent(align: Align): string {
+  if (align === "start") {
+    return "0%";
+  }
+  if (align === "end") {
+    return "100%";
+  }
+  return "50%";
+}
+
+function getTopOffset(
+  isVertical: boolean,
+  side: Side,
+  alignPct: string,
+  sideOffset: number,
+  alignOffset: number
+): string {
+  if (!isVertical) {
+    return `calc(${alignPct} + ${alignOffset}px)`;
+  }
+  if (side === "top") {
+    return `calc(0% - ${sideOffset}px)`;
+  }
+  return `calc(100% + ${sideOffset}px)`;
+}
+
+function getLeftOffset(
+  isVertical: boolean,
+  side: Side,
+  alignPct: string,
+  sideOffset: number,
+  alignOffset: number
+): string {
+  if (isVertical) {
+    return `calc(${alignPct} + ${alignOffset}px)`;
+  }
+  if (side === "left") {
+    return `calc(0% - ${sideOffset}px)`;
+  }
+  return `calc(100% + ${sideOffset}px)`;
+}
+
 function ParticlesEffect({
   side = "top",
   align = "center",
@@ -91,19 +132,15 @@ function ParticlesEffect({
   const { animate, isInView } = useParticles();
 
   const isVertical = side === "top" || side === "bottom";
-  const alignPct = align === "start" ? "0%" : align === "end" ? "100%" : "50%";
-
-  const top = isVertical
-    ? side === "top"
-      ? `calc(0% - ${sideOffset}px)`
-      : `calc(100% + ${sideOffset}px)`
-    : `calc(${alignPct} + ${alignOffset}px)`;
-
-  const left = isVertical
-    ? `calc(${alignPct} + ${alignOffset}px)`
-    : side === "left"
-      ? `calc(0% - ${sideOffset}px)`
-      : `calc(100% + ${sideOffset}px)`;
+  const alignPct = getAlignPercent(align);
+  const top = getTopOffset(isVertical, side, alignPct, sideOffset, alignOffset);
+  const left = getLeftOffset(
+    isVertical,
+    side,
+    alignPct,
+    sideOffset,
+    alignOffset
+  );
 
   const containerStyle: React.CSSProperties = {
     position: "absolute",
@@ -114,36 +151,42 @@ function ParticlesEffect({
 
   const angleStep = (spread * (Math.PI / 180)) / Math.max(1, count - 1);
 
+  const particles = Array.from({ length: count }, (_, index) => {
+    const angle = index * angleStep;
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius;
+    return {
+      id: `particle-angle-${angle.toFixed(4)}`,
+      x,
+      y,
+      itemDelay: delay + index * holdDelay,
+    };
+  });
+
   return (
     <AnimatePresence>
       {animate &&
         isInView &&
-        [new Array(count)].map((_, i) => {
-          const angle = i * angleStep;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
-
-          return (
-            <motion.div
-              animate={{
-                x: `${x}px`,
-                y: `${y}px`,
-                scale: [0, 1, 0],
-                opacity: [0, 1, 0],
-              }}
-              initial={{ scale: 0, opacity: 0 }}
-              key={`${i}-${_}`}
-              style={{ ...containerStyle, ...style }}
-              transition={{
-                duration,
-                delay: delay + i * holdDelay,
-                ease: "easeOut",
-                ...transition,
-              }}
-              {...props}
-            />
-          );
-        })}
+        particles.map((p) => (
+          <motion.div
+            animate={{
+              x: `${p.x}px`,
+              y: `${p.y}px`,
+              scale: [0, 1, 0],
+              opacity: [0, 1, 0],
+            }}
+            initial={{ scale: 0, opacity: 0 }}
+            key={p.id}
+            style={{ ...containerStyle, ...style }}
+            transition={{
+              duration,
+              delay: p.itemDelay,
+              ease: "easeOut",
+              ...transition,
+            }}
+            {...props}
+          />
+        ))}
     </AnimatePresence>
   );
 }
@@ -151,6 +194,6 @@ function ParticlesEffect({
 export {
   Particles,
   ParticlesEffect,
-  type ParticlesProps,
   type ParticlesEffectProps,
+  type ParticlesProps,
 };

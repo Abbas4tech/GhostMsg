@@ -1,4 +1,5 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter } from "next/navigation";
@@ -20,7 +21,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { api } from "@/lib/api-client";
+import { useVerifyCodeMutation } from "@/hooks/mutations/use-verify-code-mutation";
 import { verifySchema } from "@/schemas/verify-schema";
 import { Button } from "../animate-ui/components/buttons/button";
 
@@ -32,29 +33,7 @@ const VerifyCodeForm = ({
   username,
 }: VerifyCodeFormProps): React.JSX.Element => {
   const router = useRouter();
-
-  const onSubmit: SubmitHandler<z.infer<typeof verifySchema>> = async (
-    _data
-  ) => {
-    try {
-      const { data: res, error } = await api.POST("/api/verify-code", {
-        body: {
-          username,
-          code: _data.code,
-        },
-      });
-
-      if (res?.success) {
-        toast.success(res.message);
-        router.replace("/sign-in");
-      } else {
-        toast.error(error?.message || "Verification failed");
-      }
-    } catch (error) {
-      const err = error as Error;
-      toast.error(err.message || "Verification failed");
-    }
-  };
+  const verifyMutation = useVerifyCodeMutation();
 
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
@@ -63,6 +42,27 @@ const VerifyCodeForm = ({
     },
     mode: "onSubmit",
   });
+
+  const onSubmit: SubmitHandler<z.infer<typeof verifySchema>> = async (
+    data
+  ) => {
+    try {
+      const res = await verifyMutation.mutateAsync({
+        username,
+        code: data.code,
+      });
+
+      if (res?.success) {
+        toast.success(res.message);
+        router.replace("/sign-in");
+      }
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message || "Verification failed");
+    }
+  };
+
+  const isSubmitting = verifyMutation.isPending;
 
   return (
     <Form {...form}>
@@ -96,10 +96,10 @@ const VerifyCodeForm = ({
             )}
           />
           <Button
-            disabled={!form.formState.isValid || form.formState.isSubmitting}
+            disabled={!form.formState.isValid || isSubmitting}
             type="submit"
           >
-            {form.formState.isSubmitting ? "Checking your OTP..." : "Submit"}
+            {isSubmitting ? "Checking your OTP..." : "Submit"}
           </Button>
         </CardContent>
       </form>

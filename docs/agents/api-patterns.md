@@ -33,43 +33,55 @@ Step 1: Schemas (SSoT) ──▶ Step 2: Registry ──▶ Step 3: Typegen ─�
   ```
 - **Never edit `src/generated/api-schema.d.ts` manually.**
 
-### Step 4: Implement Route & Consume with `openapi-fetch` + React Query
+### Step 4: Implement Route & Consume with `clientFetch` + React Query
 - **Route Handler**: Implement `src/app/api/[endpoint]/route.ts` validating requests with Zod `safeParse` and returning structured `Response.json({...}, { status })`.
-- **Client Consumer**: Use `api.GET()`, `api.POST()`, `api.DELETE()` from [`@/lib/api-client`](file:///d:/Projects/GhostMsg/src/lib/api-client.ts) inside `@tanstack/react-query` hooks:
+- **Query Options**: Define query keys in `src/queries/query-keys.ts` and pure `queryOptions` in `src/queries/[domain].queries.ts` using `clientFetch` from `@/lib/api-client`.
+- **Custom Mutation Hooks**: Define mutations under `src/hooks/mutations/` using `useMutation` with standardized cache invalidation or optimistic rollback.
 
 ```typescript
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api-client";
+// 1. Define queryOptions in src/queries/resource.queries.ts
+import { queryOptions } from "@tanstack/react-query";
+import { api, clientFetch } from "@/lib/api-client";
+import { queryKeys } from "./query-keys";
 
-// Query pattern
-export function useResource() {
-  return useQuery({
-    queryKey: ["resource-key"],
-    queryFn: async ({ signal }) => {
-      const { data, error } = await api.GET("/api/resource-path", { signal });
-      if (error || !data) {
-        throw new Error(error?.message || "Failed to fetch");
-      }
-      return data;
-    },
-  });
-}
+export const resourceQueries = {
+  detail: (id: string) =>
+    queryOptions({
+      queryKey: queryKeys.resource.detail(id),
+      queryFn: ({ signal }) =>
+        clientFetch(
+          api.GET("/api/resource/{id}", {
+            params: { path: { id } },
+            signal,
+          })
+        ),
+      staleTime: 60 * 1000,
+    }),
+};
 
-// Mutation pattern
-export function useUpdateResource() {
+// 2. Define mutation hook in src/hooks/mutations/use-update-resource.ts
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { api, clientFetch } from "@/lib/api-client";
+import { queryKeys } from "@/queries/query-keys";
+
+export function useUpdateResourceMutation() {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (payload) => {
-      const { data, error } = await api.POST("/api/resource-path", {
-        body: payload,
-      });
-      if (error || !data) {
-        throw new Error(error?.message || "Failed to update");
-      }
-      return data;
+    mutationFn: (payload: { id: string; name: string }) =>
+      clientFetch(
+        api.POST("/api/resource/{id}", {
+          params: { path: { id: payload.id } },
+          body: { name: payload.name },
+        })
+      ),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.resource.all });
+      toast.success(data.message || "Updated successfully");
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resource-key"] });
+    onError: (error) => {
+      toast.error(error.message || "Update failed");
     },
   });
 }
@@ -81,9 +93,11 @@ export function useUpdateResource() {
 
 | Anti-Pattern | Why It's Banned | Correct Pattern |
 | :--- | :--- | :--- |
-| ❌ Using `axios` | Outdated, uninstalled, adds bundle bloat. | Use `api` (`openapi-fetch`) from `@/lib/api-client`. |
-| ❌ Untyped raw `fetch()` | Prone to runtime type errors and URL typos. | Use `api.GET()` / `api.POST()` / `api.DELETE()`. |
-| ❌ Manual cancel tokens / `isCancel` | Legacy pattern. | Pass native `{ signal }` from `useQuery`. |
+| ❌ Calling `api.*` directly in UI components | Bypasses caching, loading state lifecycle, and DevTools. | Use custom `useMutation` hooks and `useQuery(queryOptions)`. |
+| ❌ Manual `if (error \|\| !data)` in every hook | Verbose boilerplate and inconsistent error structures. | Use `clientFetch()` from `@/lib/api-client` which throws `ApiError`. |
+| ❌ Inline string array query keys (`["messages"]`) | Fragile, error-prone, hard to manage scoped invalidations. | Centralize in `queryKeys` factory (`src/queries/query-keys.ts`). |
+| ❌ Using `axios` or raw untyped `fetch()` | Outdated, uninstalled, adds bundle bloat, lacks schema typing. | Use `api` (`openapi-fetch`) + `clientFetch` from `@/lib/api-client`. |
 | ❌ Manual `useState` for loading/data in fetchers | Causes race conditions & cache desync. | Use `@tanstack/react-query` (`useQuery`, `useMutation`). |
 | ❌ Manually editing `src/generated/api-schema.d.ts` | Overwritten on build. | Run `npm run typegen`. |
 | ❌ Adding endpoints without OpenAPI registration | Breaks documentation & SDK type inference. | Register every route in `src/lib/openapi.ts`. |
+

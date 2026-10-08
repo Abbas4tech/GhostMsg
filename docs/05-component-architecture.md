@@ -49,13 +49,15 @@ GhostMsg uses Tailwind CSS v4 with custom CSS variable tokens defined in [`src/a
 
 ---
 
-## 4. State & Form Management
+## 4. State Management, Form Lifecycle & Render Boundaries
 
-- **Form Validation**: `react-hook-form` paired with `@hookform/resolvers/zod` for zero-lag client-side validation.
-- **Optimistic Updates**: React 19 `useOptimistic` and `useTransition` for instant UI toggling ([`useAcceptMessage`](file:///d:/Projects/GhostMsg/src/hooks/use-accept-message.tsx)).
-- **Debounced Validation**: `useDebounceValue` from `usehooks-ts` for real-time username availability checks in [`src/components/auth/auth-form.tsx`](file:///d:/Projects/GhostMsg/src/components/auth/auth-form.tsx#L64-L115).
+- **Component Segregation**: Heavy pages mixing independent async workflows are segregated into focused subcomponents (e.g. `SendMessageForm`, `SuggestedMessagesSection`, `UsernameField`, `MessageCard`) to isolate render boundaries. See [API & React Query Architecture Blueprint](file:///d:/Projects/GhostMsg/docs/api-and-react-query-architecture.md#5-layer-4-component-segregation--render-boundary-isolation).
+- **Form Validation**: `react-hook-form` paired with `@hookform/resolvers/zod` for zero-lag client-side validation bound directly to `mutation.isPending`.
+- **Deterministic Optimistic Updates**: Standardized on TanStack Query `onMutate` cache updates with context rollback in `onError` as specified in [ADR 0006](file:///d:/Projects/GhostMsg/docs/adr/0006-standardized-api-calling-and-react-query-architecture.md).
+- **Isolated Debounced Validation**: `useDebounceValue` coupled with cached `useQuery` in atomic field components (e.g. `UsernameField`) prevents whole-form re-rendering during keystrokes.
 
 ---
 
 ## 5. Next Chapter
 Proceed to [Chapter 6: Developer Workflow](file:///d:/Projects/GhostMsg/docs/06-dev-workflow.md).
+

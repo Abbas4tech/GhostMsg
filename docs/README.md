@@ -28,8 +28,17 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0003: Edge Runtime for AI Suggestions**](file:///d:/Projects/GhostMsg/docs/adr/0003-edge-runtime-for-ai-suggestions.md)
 - [**ADR 0004: Ultracite and Biome Tooling**](file:///d:/Projects/GhostMsg/docs/adr/0004-ultracite-and-biome-tooling.md)
 - [**ADR 0005: Type-Safe API Layer & Scalar Docs**](file:///d:/Projects/GhostMsg/docs/adr/0005-type-safe-api-and-scalar-documentation.md)
+- [**ADR 0006: Standardized API Client & React Query Architecture**](file:///d:/Projects/GhostMsg/docs/adr/0006-standardized-api-calling-and-react-query-architecture.md)
+- [**ADR 0007: Dependency Reclassification & Bundle Optimization**](file:///d:/Projects/GhostMsg/docs/adr/0007-dependency-reclassification-and-bundle-optimization.md)
+- [**ADR 0008: React Optimization & Dynamic Bundle Analysis**](file:///d:/Projects/GhostMsg/docs/adr/0008-react-optimization-and-bundle-analysis.md)
+- [**ADR 0009: Biome Suppression Elimination & Code Quality Remediation**](file:///d:/Projects/GhostMsg/docs/adr/0009-biome-suppression-elimination-and-lint-remediation.md)
 
 ---
+
+## 📐 Architecture Blueprints
+
+- [**API & React Query Architecture Blueprint**](file:///d:/Projects/GhostMsg/docs/api-and-react-query-architecture.md)
+
 
 ## 🤖 Agent Guidelines
 
