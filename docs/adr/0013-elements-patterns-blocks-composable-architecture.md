@@ -30,21 +30,34 @@ As GhostMsg grew, the `src/components/` directory suffered from three major arch
 src/components/
 ├── elements/                 # Tier 1: Smallest non-domain UI primitives
 │   ├── button/               # (Button, Input, Badge, Switch, Label, Spinner)
-│   └── input/
+│   ├── input/
+│   └── card/
 ├── patterns/                 # Tier 2: Multi-variant UI combinations & cards
-│   ├── message-card/         # (MessageCard, FilterBar, SentimentBadge, Toolbar)
-│   └── filter-bar/
+│   ├── message-card/         # (MessageCard, FilterBar, SentimentBadge, PromptCard)
+│   ├── filter-bar/
+│   └── modals/               # (BlockSenderModal, SmartReplyModal, StoryCardModal)
 └── blocks/                   # Tier 3: High-level section & page-builder blocks
-    ├── inbox-block/          # (SettingsSectionBlock, InboxListBlock, AmaBannerBlock)
-    ├── settings-block/
-    └── profile-block/
+    ├── inbox/                # (Inbox, SettingsSection, AmaBanner, SendMessageForm)
+    ├── settings-section/
+    └── ama-banner/
 ```
 
-- **Elements (`src/components/elements/`)**: Atomic, domain-agnostic UI primitives (Buttons, Inputs, Badges, Switches, Tooltips, Slotted OTP Inputs).
-- **Patterns (`src/components/patterns/`)**: Composable combinations of elements with multi-variant layouts (e.g. `MessageCard`, `MessageFilterBar`, `BulkActionToolbar`, `SentimentTagBadge`).
-- **Blocks (`src/components/blocks/`)**: High-level composable section blocks with defined slots for titles, descriptions, controls, and action triggers (e.g., `SettingsSectionBlock`, `InboxBlock`, `AmaBannerBlock`, `PublicQaBlock`).
+- **Elements (`src/components/elements/`)**: Atomic, domain-agnostic UI primitives with `cva` variant and size props (`variant: 'default' | 'primary' | 'secondary' | 'ghost' | 'glass'`, `size: 'sm' | 'md' | 'lg'`).
+- **Patterns (`src/components/patterns/`)**: Composable combinations of elements with multi-variant layouts (e.g., `MessageCard`, `MessageFilterBar`, `BulkActionToolbar`, `SentimentBadge`, `PromptCard`, `QaCard`). Decoupled from hardcoded data/actions.
+- **Blocks (`src/components/blocks/`)**: High-level page-builder section blocks with title, description, control slot, and custom action button compositions (e.g., `Inbox`, `SettingsSection`, `AmaBanner`, `SendMessageForm`, `PublicQaFeed`). Component names are clean and domain-focused (no `-block` suffix).
 
-#### Strict Unidirectional Dependency Rule (DAG)
+---
+
+### 2. Decoupled Presentational Contracts & Multi-Variant Composability
+
+To ensure maximum reusability across different pages and future Storybook cataloging:
+1. **Zero Hardcoded Data / Side-Effects**: Components in `elements`, `patterns`, and `blocks` MUST NOT directly invoke network calls, global data stores, or fixed hooks. They accept generic data payloads and action callbacks (`data`, `actions`, `slots`, `onAction`).
+2. **Class Variance Authority (CVA) Variants & Sizes**: Components support multi-variant styles (`primary`, `secondary`, `glass`, `ghost`) and sizes (`sm`, `md`, `lg`) so they can adapt to multiple UI contexts seamlessly.
+
+---
+
+### 3. Strict Unidirectional Dependency Rule (DAG)
+
 To maintain strict modular decoupling, component imports **MUST** follow a strict downward hierarchy:
 
 ```

@@ -17,17 +17,17 @@ src/
 │   │   └── (dashboard)/             # Authenticated Dashboard & Inbox
 │   └── u/[username]/page.tsx        # Public Profile Page (AMA Banner + Form + Q&A Feed)
 ├── components/
-│   ├── elements/                    # Tier 1: Smallest non-domain UI primitives
-│   │   ├── button/                  # Button, Input, Badge, Switch, Label, Spinner
+│   ├── elements/                    # Tier 1: Smallest non-domain UI primitives (CVA variants & sizes)
+│   │   ├── button/                  # Button, Input, Textarea, Badge, Switch, Label, Spinner
 │   │   ├── input/
 │   │   └── badge/
 │   ├── patterns/                    # Tier 2: Multi-variant UI combinations & cards
-│   │   ├── message-card/            # MessageCard, FilterBar, SentimentTag, BulkToolbar
+│   │   ├── message-card/            # MessageCard, FilterBar, SentimentBadge, PromptCard
 │   │   └── filter-bar/
-│   └── blocks/                      # Tier 3: High-level section & page-builder blocks
-│       ├── inbox-block/             # InboxBlock, SettingsSectionBlock, AmaBannerBlock
-│       ├── settings-block/
-│       └── profile-block/
+│   └── blocks/                      # Tier 3: High-level section & page-builder blocks (Clean names)
+│       ├── inbox/                   # Inbox, SettingsSection, AmaBanner, SendMessageForm
+│       ├── settings-section/
+│       └── ama-banner/
 ```
 
 ### Strict Unidirectional Dependency Rule (DAG)
