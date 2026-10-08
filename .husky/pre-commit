@@ -1,23 +1,18 @@
 #!/bin/sh
 set -e
 
-# Check staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx|js|jsx|json)$')
+# Check staged files (excluding deleted files)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=d | grep -E '\.(ts|tsx|js|jsx|json|jsonc|md|css)$' || true)
+
 if [ -z "$STAGED_FILES" ]; then
-  echo "No code files staged"
+  echo "No lintable files staged"
   exit 0
 fi
 
-# Run ultracite ONLY on staged files
+# Run ultracite on staged files
 echo "$STAGED_FILES" | xargs npx ultracite fix
-FORMAT_EXIT_CODE=$?
 
 # Re-stage fixed files
 echo "$STAGED_FILES" | xargs git add
 
-if [ $FORMAT_EXIT_CODE -ne 0 ]; then
-  echo "❌ Ultracite found unfixable issues"
-  exit 1
-fi
-
-echo "✨ Ultracite formatting complete"
+echo "✨ Ultracite checks complete"

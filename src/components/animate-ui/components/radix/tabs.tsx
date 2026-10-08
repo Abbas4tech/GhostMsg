@@ -76,13 +76,13 @@ function TabsContent({ className, ...props }: TabsContentProps) {
 
 export {
   Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContents,
   TabsContent,
-  type TabsProps,
-  type TabsListProps,
-  type TabsTriggerProps,
-  type TabsContentsProps,
   type TabsContentProps,
+  TabsContents,
+  type TabsContentsProps,
+  TabsList,
+  type TabsListProps,
+  type TabsProps,
+  TabsTrigger,
+  type TabsTriggerProps,
 };

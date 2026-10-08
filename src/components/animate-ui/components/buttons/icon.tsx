@@ -82,4 +82,4 @@ function IconButton({
   );
 }
 
-export { IconButton, buttonVariants, type IconButtonProps };
+export { buttonVariants, IconButton, type IconButtonProps };

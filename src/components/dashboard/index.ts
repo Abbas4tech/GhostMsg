@@ -16,4 +16,4 @@ const SettingsTab = dynamic(() =>
   import("./settings-tab").then((m) => m.SettingsTab)
 );
 
-export { DashboardSkeleton, ProfileTab, MessageTab, SettingsTab };
+export { DashboardSkeleton, MessageTab, ProfileTab, SettingsTab };

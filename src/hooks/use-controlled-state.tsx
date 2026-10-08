@@ -1,34 +1,35 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 interface CommonControlledStateProps<T> {
   defaultValue?: T;
   value?: T;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: false
-export function useControlledState<T, Rest extends any[] = []>(
+export function useControlledState<T, Rest extends unknown[] = []>(
   props: CommonControlledStateProps<T> & {
     onChange?: (value: T, ...args: Rest) => void;
   }
 ): readonly [T, (next: T, ...args: Rest) => void] {
   const { value, defaultValue, onChange } = props;
+  const isControlled = value !== undefined;
 
-  const [state, setInternalState] = useState<T>(
-    value !== undefined ? value : (defaultValue as T)
+  const [uncontrolledState, setUncontrolledState] = useState<T>(
+    defaultValue as T
   );
 
-  useEffect(() => {
-    if (value !== undefined) {
-      setInternalState(value);
-    }
-  }, [value]);
+  const state = isControlled ? value : uncontrolledState;
+
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   const setState = useCallback(
     (next: T, ...args: Rest) => {
-      setInternalState(next);
-      onChange?.(next, ...args);
+      if (!isControlled) {
+        setUncontrolledState(next);
+      }
+      onChangeRef.current?.(next, ...args);
     },
-    [onChange]
+    [isControlled]
   );
 
   return [state, setState] as const;

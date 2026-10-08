@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/a11y/useSemanticElements: false */
 "use client";
 
 import useEmblaCarousel, {
@@ -251,10 +250,10 @@ function CarouselNext({
 }
 
 export {
-  type CarouselApi,
   Carousel,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
-  CarouselPrevious,
   CarouselNext,
+  CarouselPrevious,
 };
