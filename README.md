@@ -21,7 +21,8 @@ GhostMsg is a modern, privacy-first anonymous messaging platform built with Next
 - 🎛️ **Message Acceptance Toggle**: Instantly switch message reception on or off at any time.
 - 📜 **Interactive Scalar Documentation**: OpenAPI 3.1 interactive API playground and reference hosted at `/docs` and `/api/docs`.
 - ⚡ **End-to-End Type Safety**: `openapi-fetch` SDK and `@tanstack/react-query` replacing Axios with compile-time checked routes, auto-invalidation, and native `AbortSignal`.
-- 📧 **Transactional Verification Emails**: Clean, responsive HTML emails delivered via Resend with React Email templates.
+- 📧 **Transactional Verification Emails**: Clean, responsive HTML emails delivered via Nodemailer & SMTP with React Email templates.
+- 🧪 **Vitest Unit & Component Testing**: 100% type-safe unit & React 19 component testing suite with Happy-DOM and Testing Library.
 - 🎨 **Modern Animated UI**: Rich aesthetic built with Tailwind CSS v4, Motion, Lucide icons, and Sonner toast notifications.
 - 🌓 **Theme Support**: Seamless Dark & Light mode toggle with persisted preferences.
 - ⚡ **Strict Code Standards**: Zero-config formatting and type safety enforced by Ultracite (Biome).
@@ -41,7 +42,8 @@ GhostMsg is a modern, privacy-first anonymous messaging platform built with Next
 | **Database & ODM** | [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/) |
 | **Authentication** | [NextAuth.js v4](https://next-auth.js.org/) (Credentials & Google Providers) |
 | **AI Integration** | [Vercel AI SDK](https://sdk.vercel.ai/) (`@ai-sdk/google`) + Google Gemini 2.5 Flash Lite |
-| **Email Service** | [Resend](https://resend.com/) + [@react-email/components](https://react.email/) |
+| **Email Service** | [Nodemailer](https://nodemailer.com/) (SMTP) + [@react-email/components](https://react.email/) |
+| **Testing Suite** | [Vitest](https://vitest.dev/) + [@testing-library/react](https://testing-library.com/) + Happy DOM |
 | **Linter & Formatter** | [Ultracite](https://github.com/ultracite/ultracite) (Biome) |
 
 ---
@@ -58,7 +60,7 @@ GhostMsg/
 │   ├── 04-api-and-type-safety.md# Chapter 4: OpenAPI 3.1, Scalar docs, & openapi-fetch
 │   ├── 05-component-architecture.md# Chapter 5: App Router & Tailwind CSS v4 design
 │   ├── 06-dev-workflow.md      # Chapter 6: Development lifecycle & Changesets
-│   ├── 07-testing-strategy.md  # Chapter 7: Testing hierarchy & Playwright E2E
+│   ├── 07-testing-strategy.md  # Chapter 7: Vitest unit & component test architecture
 │   ├── 08-code-quality.md      # Chapter 8: Ultracite (Biome) & TypeScript standards
 │   ├── 09-deployment-and-operations.md# Chapter 9: Vercel & MongoDB operations
 │   ├── 10-storybook-and-ui-catalog.md# Chapter 10: Component catalog & mock states
@@ -86,6 +88,7 @@ GhostMsg/
 │   ├── lib/                    # Database singleton, openapi-fetch client, OpenAPI registry
 │   ├── model/                  # Mongoose models & schemas (User, Message)
 │   ├── schemas/                # Zod validation schemas extended with OpenAPI metadata
+│   ├── test/                   # Vitest setup & custom React Query render utilities
 │   └── types/                  # TypeScript definitions & ambient declarations
 ├── AGENTS.md                   # Agent system guidelines
 ├── GLOSSARY.md                 # Domain model glossary
@@ -100,7 +103,7 @@ GhostMsg/
 
 - **Node.js** (v18.18+ or v20+)
 - **MongoDB** cluster URL (e.g. MongoDB Atlas)
-- **Resend** account for transactional emails
+- **SMTP Account** credentials for transactional email dispatch via Nodemailer
 - **Google AI Studio** API key for Gemini suggestions
 
 ### 1. Clone & Install Dependencies
@@ -123,8 +126,11 @@ MONGODB_URI=your_mongodb_connection_string
 NEXT_AUTH_SECRET=your_nextauth_secret_key
 NEXTAUTH_URL=http://localhost:3000
 
-# Resend Email
-RESEND_API_KEY=your_resend_api_key
+# Transactional Email (Nodemailer SMTP)
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=587
+SMTP_USER=your_smtp_username
+SMTP_PASS=your_smtp_password
 
 # Google AI Studio (Gemini)
 GOOGLE_AI_STUDIO_SECRET=your_google_ai_studio_api_key
@@ -157,6 +163,9 @@ Open [http://localhost:3000](http://localhost:3000) to view the application in y
 | `typegen` | `pnpm typegen` | Generates TypeScript definitions from OpenAPI 3.1 contracts |
 | `build` | `pnpm build` | Automatically generates API types and builds production bundle |
 | `start` | `pnpm start` | Runs the built production server |
+| `test` | `pnpm test` | Runs Vitest unit & component test suite once |
+| `test:watch` | `pnpm test:watch` | Runs Vitest test suite in interactive watch mode |
+| `test:coverage` | `pnpm test:coverage` | Generates Vitest code coverage report |
 | `check` | `pnpm check` | Runs Ultracite (Biome) type checks and linting |
 | `fix` | `pnpm fix` | Automatically fixes code style and lint issues |
 
@@ -168,13 +177,13 @@ Explore the numbered engineering chapters in [`docs/`](file:///docs/README.md):
 
 - [**Chapter 1: Project Overview**](file:///docs/01-overview.md) – Vision, ubiquitous language, and feature map.
 - [**Chapter 2: Getting Started & Local Setup**](file:///docs/02-getting-started.md) – Prerequisites, `.env.local` config, and setup.
-- [**Chapter 3: System Architecture**](file:///docs/03-system-architecture.md) – Topology, NextAuth flow, and embedded data model.
+- [**Chapter 3: System Architecture**](file:///docs/03-system-architecture.md) – Topology, NextAuth flow, and data modeling.
 - [**Chapter 4: API & Type-Safety Architecture**](file:///docs/04-api-and-type-safety.md) – OpenAPI 3.1 registry, Scalar UI (`/docs`), and `openapi-fetch`.
 - [**Chapter 5: Component Architecture & UI**](file:///docs/05-component-architecture.md) – App router structure, Tailwind CSS v4, and Radix primitives.
 - [**Chapter 6: Developer Workflow**](file:///docs/06-dev-workflow.md) – Daily commands, pre-commit hooks, and type generation.
-- [**Chapter 7: Testing Strategy**](file:///docs/07-testing-strategy.md) – Playwright E2E suite, mock states, and test fixtures.
+- [**Chapter 7: Testing Strategy**](file:///docs/07-testing-strategy.md) – Vitest unit & component test suite and Playwright E2E.
 - [**Chapter 8: Code Quality & Standards**](file:///docs/08-code-quality.md) – Ultracite (Biome) configuration and strict TypeScript rules.
-- [**Chapter 9: Deployment & Operations**](file:///docs/09-deployment-and-operations.md) – Vercel deployment, connection pooling, and Resend DNS.
+- [**Chapter 9: Deployment & Operations**](file:///docs/09-deployment-and-operations.md) – Vercel deployment, connection pooling, and SMTP configuration.
 - [**Chapter 10: Storybook & UI Catalog**](file:///docs/10-storybook-and-ui-catalog.md) – Component isolation and visual state preview.
 
 ### Architectural Decision Records (ADRs)
@@ -183,6 +192,14 @@ Explore the numbered engineering chapters in [`docs/`](file:///docs/README.md):
 - [`0003-edge-runtime-for-ai-suggestions.md`](file:///docs/adr/0003-edge-runtime-for-ai-suggestions.md): Edge Runtime with Gemini 2.5 Flash Lite.
 - [`0004-ultracite-and-biome-tooling.md`](file:///docs/adr/0004-ultracite-and-biome-tooling.md): Fast, strict code formatting via Biome.
 - [`0005-type-safe-api-and-scalar-documentation.md`](file:///docs/adr/0005-type-safe-api-and-scalar-documentation.md): OpenAPI 3.1 contracts, Scalar UI, and `openapi-fetch`.
+- [`0006-standardized-api-calling-and-react-query-architecture.md`](file:///docs/adr/0006-standardized-api-calling-and-react-query-architecture.md): `openapi-fetch` + `@tanstack/react-query` integration.
+- [`0007-dependency-reclassification-and-bundle-optimization.md`](file:///docs/adr/0007-dependency-reclassification-and-bundle-optimization.md): Moving dev tooling to `devDependencies`.
+- [`0008-react-optimization-and-bundle-analysis.md`](file:///docs/adr/0008-react-optimization-and-bundle-analysis.md): React 19 compiler & bundle size analysis.
+- [`0009-biome-suppression-elimination-and-lint-remediation.md`](file:///docs/adr/0009-biome-suppression-elimination-and-lint-remediation.md): Clean lint enforcement across codebase.
+- [`0010-standalone-messages-schema-and-feature-architecture.md`](file:///docs/adr/0010-standalone-messages-schema-and-feature-architecture.md): Standalone message collection and abuse prevention.
+- [`0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md`](file:///docs/adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md): OpenAPI SDK enforcement, Nodemailer SMTP mailer, & sender unblocking.
+- [`0012-vitest-unit-and-integration-testing-strategy.md`](file:///docs/adr/0012-vitest-unit-and-integration-testing-strategy.md): Vitest unit & component test architecture.
+- [`0013-elements-patterns-blocks-composable-architecture.md`](file:///docs/adr/0013-elements-patterns-blocks-composable-architecture.md): Elements ➔ Patterns ➔ Blocks composable architecture & colocated tooling.
 
 ---
 
@@ -199,3 +216,4 @@ Explore the numbered engineering chapters in [`docs/`](file:///docs/README.md):
 ## 📄 License
 
 This project is licensed under the MIT License.
+

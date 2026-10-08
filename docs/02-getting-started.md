@@ -10,7 +10,7 @@ Ensure you have the following installed and configured:
 - **Node.js**: `v18.18+` or `v20+` (LTS recommended)
 - **Package Manager**: `npm`, `pnpm`, or `bun`
 - **MongoDB Database**: Local MongoDB instance or free cloud cluster at [MongoDB Atlas](https://www.mongodb.com/atlas)
-- **Resend Account**: Free account at [Resend](https://resend.com) for sending verification emails
+- **SMTP Email Credentials**: Standard SMTP provider credentials (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) for sending OTP verification & alert emails via Nodemailer
 - **Google AI Studio Key**: API key from [Google AI Studio](https://aistudio.google.com/) for Gemini message prompt generation
 - **Google Cloud Console OAuth Credentials** *(optional)*: For Google OAuth 2.0 sign-in
 
@@ -39,9 +39,12 @@ GOOGLE_OAUTH_CLIENT_SECRET="GOCSPX-your-google-client-secret"
 GOOGLE_OAUTH_CALLBACK_URL="http://localhost:3000/api/auth/callback/google"
 
 # ==============================================================================
-# 3. Transactional Emails (Resend)
+# 3. Transactional Emails (Nodemailer + SMTP)
 # ==============================================================================
-RESEND_API_KEY="re_123456789abcdef"
+SMTP_HOST="smtp.mailtrap.io"
+SMTP_PORT="587"
+SMTP_USER="your-smtp-username"
+SMTP_PASS="your-smtp-password"
 
 # ==============================================================================
 # 4. Google AI Studio (Gemini 2.5 Flash Lite)

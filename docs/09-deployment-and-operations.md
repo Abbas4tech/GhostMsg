@@ -1,6 +1,6 @@
 # Chapter 9: Deployment & Operations
 
-This chapter covers deployment architecture on Vercel, MongoDB Atlas production clustering, Resend DNS configuration, and operational monitoring.
+This chapter covers deployment architecture on Vercel, MongoDB Atlas production clustering, SMTP email provider setup, and operational monitoring.
 
 ---
 
@@ -30,7 +30,10 @@ Ensure these variables are added in your Vercel Project Settings:
 | `MONGODB_URI` | Production MongoDB Atlas connection string with replica set. |
 | `NEXT_AUTH_SECRET` | 32-byte secure base64 secret (`openssl rand -base64 32`). |
 | `NEXTAUTH_URL` | Production public domain (e.g. `https://ghost-msg.vercel.app`). |
-| `RESEND_API_KEY` | Production Resend API key for verified sending domain. |
+| `SMTP_HOST` | Production SMTP host server. |
+| `SMTP_PORT` | Production SMTP port (e.g. 587 or 465). |
+| `SMTP_USER` | Production SMTP authentication username. |
+| `SMTP_PASS` | Production SMTP authentication password. |
 | `GOOGLE_AI_STUDIO_SECRET` | Google AI Studio Gemini API key. |
 | `GOOGLE_OAUTH_CLIENT_ID` | Google Cloud OAuth client ID (authorized redirect URI set to production domain). |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | Google Cloud OAuth client secret. |

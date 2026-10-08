@@ -16,7 +16,7 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 | **06** | [**Developer Workflow**](file:///d:/Projects/GhostMsg/docs/06-dev-workflow.md) | Daily commands, Husky pre-commit hooks, API typegen automation, and Changesets. |
 | **07** | [**Testing Strategy**](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md) | Testing hierarchy, Playwright multi-browser E2E suite, test fixtures, and mock states. |
 | **08** | [**Code Quality & Standards**](file:///d:/Projects/GhostMsg/docs/08-code-quality.md) | Ultracite (Biome) rules, TypeScript strict mode configuration, and anti-pattern bans. |
-| **09** | [**Deployment & Operations**](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md) | Vercel production deployment, MongoDB Atlas connection pooling, and Resend DNS settings. |
+| **09** | [**Deployment & Operations**](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md) | Vercel production deployment, MongoDB Atlas connection pooling, and SMTP email provider configuration. |
 | **10** | [**Storybook & UI Catalog**](file:///d:/Projects/GhostMsg/docs/10-storybook-and-ui-catalog.md) | Component isolation, provider wrapping, mock states, and visual preview workflows. |
 
 ---
@@ -32,11 +32,16 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0007: Dependency Reclassification & Bundle Optimization**](file:///d:/Projects/GhostMsg/docs/adr/0007-dependency-reclassification-and-bundle-optimization.md)
 - [**ADR 0008: React Optimization & Dynamic Bundle Analysis**](file:///d:/Projects/GhostMsg/docs/adr/0008-react-optimization-and-bundle-analysis.md)
 - [**ADR 0009: Biome Suppression Elimination & Code Quality Remediation**](file:///d:/Projects/GhostMsg/docs/adr/0009-biome-suppression-elimination-and-lint-remediation.md)
+- [**ADR 0010: Standalone Message Collection, Abuse Prevention & Public Q&A Architecture**](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md)
+- [**ADR 0011: Mandatory Type-Safe OpenAPI SDK, Nodemailer SMTP Mailer & Reversible Abuse Prevention**](file:///d:/Projects/GhostMsg/docs/adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md)
+- [**ADR 0012: Vitest Unit & Integration Testing Strategy for GhostMsg**](file:///d:/Projects/GhostMsg/docs/adr/0012-vitest-unit-and-integration-testing-strategy.md)
+- [**ADR 0013: Elements-Patterns-Blocks Composable Component Architecture & Colocated Tooling**](file:///d:/Projects/GhostMsg/docs/adr/0013-elements-patterns-blocks-composable-architecture.md)
 
 ---
 
 ## 📐 Architecture Blueprints
 
+- [**Feature & Implementation Master Blueprint**](file:///d:/Projects/GhostMsg/docs/feature-and-implementation-blueprint.md)
 - [**API & React Query Architecture Blueprint**](file:///d:/Projects/GhostMsg/docs/api-and-react-query-architecture.md)
 
 

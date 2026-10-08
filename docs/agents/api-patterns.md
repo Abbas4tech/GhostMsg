@@ -96,7 +96,7 @@ export function useUpdateResourceMutation() {
 | ❌ Calling `api.*` directly in UI components | Bypasses caching, loading state lifecycle, and DevTools. | Use custom `useMutation` hooks and `useQuery(queryOptions)`. |
 | ❌ Manual `if (error \|\| !data)` in every hook | Verbose boilerplate and inconsistent error structures. | Use `clientFetch()` from `@/lib/api-client` which throws `ApiError`. |
 | ❌ Inline string array query keys (`["messages"]`) | Fragile, error-prone, hard to manage scoped invalidations. | Centralize in `queryKeys` factory (`src/queries/query-keys.ts`). |
-| ❌ Using `axios` or raw untyped `fetch()` | Outdated, uninstalled, adds bundle bloat, lacks schema typing. | Use `api` (`openapi-fetch`) + `clientFetch` from `@/lib/api-client`. |
+| ❌ Using `axios` or raw native `fetch()` | Strictly forbidden! Bypasses OpenAPI type-checking, introduces type drift, breaks schema validation contract. | Use `api` (`openapi-fetch`) + `clientFetch` from `@/lib/api-client`. |
 | ❌ Manual `useState` for loading/data in fetchers | Causes race conditions & cache desync. | Use `@tanstack/react-query` (`useQuery`, `useMutation`). |
 | ❌ Manually editing `src/generated/api-schema.d.ts` | Overwritten on build. | Run `npm run typegen`. |
 | ❌ Adding endpoints without OpenAPI registration | Breaks documentation & SDK type inference. | Register every route in `src/lib/openapi.ts`. |
