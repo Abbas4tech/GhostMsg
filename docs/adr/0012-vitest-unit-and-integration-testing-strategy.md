@@ -1,7 +1,7 @@
 # ADR 0012: Vitest Unit & Integration Testing Strategy for GhostMsg
 
 ## Status
-**Proposed** (Awaiting alignment & stress-testing discussion)
+**Accepted** (Fully implemented & verified across 34 tests in 9 test suites)
 
 ---
 

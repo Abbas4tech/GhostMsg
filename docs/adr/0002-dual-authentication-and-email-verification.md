@@ -1,7 +1,7 @@
 # ADR 0002: Dual Authentication Strategy and Email Verification
 
 ## Status
-**Accepted**
+**Accepted** *(Email transport updated from Resend to Nodemailer SMTP via [ADR 0011](file:///d:/Projects/GhostMsg/docs/adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md))*
 
 ---
 

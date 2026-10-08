@@ -10,6 +10,9 @@ This chapter covers the daily development commands, typegen automation, git pre-
 | :--- | :--- | :--- |
 | `pnpm dev` | Start Dev Server | Next.js dev server with Turbopack at `http://localhost:3000`. |
 | `pnpm typegen` | Generate API Types | Runs `scripts/generate-api-types.ts` to sync `src/generated/api-schema.d.ts`. |
+| `pnpm test` | Run Unit & Component Tests | Executes Vitest unit and React 19 component testing suite once. |
+| `pnpm test:watch` | Test Watch Mode | Runs Vitest in interactive watch mode during active development. |
+| `pnpm test:coverage` | Generate Coverage Report | Generates V8 code coverage report in `coverage/`. |
 | `pnpm check` | Lint & Format Check | Ultracite / Biome validation across all 100+ files. |
 | `pnpm fix` | Auto-Fix Formatting | Automatically fixes all linting and style errors in sub-seconds. |
 | `pnpm build` | Production Build | Automatically runs `typegen` and builds production Turbopack bundle. |
