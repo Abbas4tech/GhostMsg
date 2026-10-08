@@ -79,7 +79,7 @@ export const messageSchema = z
 
 export const sendMessageSchema = z
   .object({
-    username: z.string().trim().openapi({
+    username: z.string().trim().min(1, "Username is required").openapi({
       description: "Recipient's public username",
       example: "johndoe",
     }),
