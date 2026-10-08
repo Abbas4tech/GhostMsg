@@ -36,7 +36,7 @@ flowchart TD
         E1["Upstash Redis Pub/Sub\nChannel: recipient:{userId}:messages"]
         E2["Next.js Route Handler SSE\n/api/messages/stream"]
         E3["Web Push Service Worker\n(VAPID Web Push)"]
-        E4["Resend Email Service\n(Instant Alerts & Daily Digests)"]
+        E4["Nodemailer SMTP Email Service\n(Instant Alerts & Daily Digests)"]
     end
 
     A1 -->|POST /api/send-message| B1
@@ -472,7 +472,7 @@ gantt
     HTML-to-Image 9:16 Social Story Designer    :p4_3, after p4_2, 2d
     section Phase 5: Real-Time & Notifications
     SSE Real-Time Feed Engine & Redis Pub/Sub   :p5_1, after p4_3, 2d
-    Web Push (VAPID) & Resend Email Digests     :p5_2, after p5_1, 2d
+    Web Push (VAPID) & SMTP Email Digests       :p5_2, after p5_1, 2d
 ```
 
 ### Quality Guardrails

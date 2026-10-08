@@ -16,7 +16,7 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 | **06** | [**Developer Workflow**](file:///d:/Projects/GhostMsg/docs/06-dev-workflow.md) | Daily commands, Husky pre-commit hooks, API typegen automation, and Changesets. |
 | **07** | [**Testing Strategy**](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md) | Testing hierarchy, Playwright multi-browser E2E suite, test fixtures, and mock states. |
 | **08** | [**Code Quality & Standards**](file:///d:/Projects/GhostMsg/docs/08-code-quality.md) | Ultracite (Biome) rules, TypeScript strict mode configuration, and anti-pattern bans. |
-| **09** | [**Deployment & Operations**](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md) | Vercel production deployment, MongoDB Atlas connection pooling, and Resend DNS settings. |
+| **09** | [**Deployment & Operations**](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md) | Vercel production deployment, MongoDB Atlas connection pooling, and SMTP email provider configuration. |
 | **10** | [**Storybook & UI Catalog**](file:///d:/Projects/GhostMsg/docs/10-storybook-and-ui-catalog.md) | Component isolation, provider wrapping, mock states, and visual preview workflows. |
 
 ---
