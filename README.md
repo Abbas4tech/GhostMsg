@@ -199,6 +199,7 @@ Explore the numbered engineering chapters in [`docs/`](file:///docs/README.md):
 - [`0010-standalone-messages-schema-and-feature-architecture.md`](file:///docs/adr/0010-standalone-messages-schema-and-feature-architecture.md): Standalone message collection and abuse prevention.
 - [`0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md`](file:///docs/adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md): OpenAPI SDK enforcement, Nodemailer SMTP mailer, & sender unblocking.
 - [`0012-vitest-unit-and-integration-testing-strategy.md`](file:///docs/adr/0012-vitest-unit-and-integration-testing-strategy.md): Vitest unit & component test architecture.
+- [`0013-elements-patterns-blocks-composable-architecture.md`](file:///docs/adr/0013-elements-patterns-blocks-composable-architecture.md): Elements ➔ Patterns ➔ Blocks composable architecture & colocated tooling.
 
 ---
 

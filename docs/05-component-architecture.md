@@ -1,10 +1,10 @@
 # Chapter 5: Component Architecture & UI Design System
 
-This chapter details GhostMsg's React 19 component hierarchy, Tailwind CSS v4 design tokens, micro-animations with Motion, and component state management.
+This chapter details GhostMsg's React 19 component hierarchy, Tailwind CSS v4 design tokens, micro-animations with Motion, and component state management based on the **Elements ➔ Patterns ➔ Blocks** architecture ([ADR 0013](file:///d:/Projects/GhostMsg/docs/adr/0013-elements-patterns-blocks-composable-architecture.md)).
 
 ---
 
-## 1. Component Hierarchy & Layout Structure
+## 1. 3-Tier Component Hierarchy (Elements ➔ Patterns ➔ Blocks)
 
 ```
 src/
@@ -13,28 +13,35 @@ src/
 │   ├── page.tsx                     # Landing / Hero Page
 │   ├── docs/route.ts                # Interactive Scalar API Reference UI
 │   ├── (app)/
-│   │   ├── (auth)/
-│   │   │   ├── sign-in/page.tsx     # Sign-In View
-│   │   │   ├── sign-up/page.tsx     # Sign-Up View
-│   │   │   └── verify/[username]/   # Verification Code OTP View
-│   │   └── (dashboard)/
-│   │       └── dashboard/page.tsx   # Authenticated Dashboard & Inbox
+│   │   ├── (auth)/                  # /sign-in, /sign-up, /verify
+│   │   └── (dashboard)/             # Authenticated Dashboard & Inbox
 │   └── u/[username]/page.tsx        # Public Profile Page (AMA Banner + Form + Q&A Feed)
 ├── components/
-│   ├── profile/
-│   │   ├── send-message-form.tsx    # Anonymous Message submission form with AMA Banner
-│   │   ├── suggested-messages-section.tsx # Gemini prompt ideas generator
-│   │   └── public-qa-feed.tsx       # Public answered Q&A showcase masonry feed
-│   ├── dashboard/
-│   │   ├── message-tab.tsx          # Real-time message list with live SSE, grid/list layout toggle & pagination
-│   │   ├── message-card.tsx         # Message card with sentiment badge, BlockSenderAction & DeleteMessageAction
-│   │   ├── message-filter-bar.tsx   # Full-width search input & filter chips (All/Unread/Starred/Quarantined)
-│   │   ├── bulk-action-toolbar.tsx  # Floating multi-select actions & export modal
-│   │   ├── smart-reply-modal.tsx    # Multi-tone Gemini AI smart reply assistant
-│   │   ├── story-card-modal.tsx     # 9:16 HTML-to-Image Instagram/Snapchat card designer
-│   │   ├── profile-tab.tsx          # Shareable link & AMA Banner settings
-│   │   └── settings-tab.tsx         # Message acceptance, email alerts, Web Push PWA, & Blocked Senders management
-│   └── ui/                          # Radix / Shadcn primitives & custom design components
+│   ├── elements/                    # Tier 1: Smallest non-domain UI primitives
+│   │   ├── button/                  # Button, Input, Badge, Switch, Label, Spinner
+│   │   ├── input/
+│   │   └── badge/
+│   ├── patterns/                    # Tier 2: Multi-variant UI combinations & cards
+│   │   ├── message-card/            # MessageCard, FilterBar, SentimentTag, BulkToolbar
+│   │   └── filter-bar/
+│   └── blocks/                      # Tier 3: High-level section & page-builder blocks
+│       ├── inbox-block/             # InboxBlock, SettingsSectionBlock, AmaBannerBlock
+│       ├── settings-block/
+│       └── profile-block/
+```
+
+### Colocated Module Directory Standard
+Every component module contains its implementation, headless hook controller, test, story, and mock files colocated within its folder:
+
+```
+src/components/patterns/message-card/
+├── index.ts                      # Barrel export
+├── message-card.tsx              # Pure presentational JSX component
+├── use-message-card.controller.ts# Headless hook for state & actions
+├── message-card.test.tsx         # Vitest component test
+├── message-card.stories.tsx      # Storybook story specification
+├── message-card.mock.ts          # Predefined test & story fixtures
+└── message-card.adapter.ts       # Optional prop transformer / adapter
 ```
 
 ---

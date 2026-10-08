@@ -35,6 +35,7 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0010: Standalone Message Collection, Abuse Prevention & Public Q&A Architecture**](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md)
 - [**ADR 0011: Mandatory Type-Safe OpenAPI SDK, Nodemailer SMTP Mailer & Reversible Abuse Prevention**](file:///d:/Projects/GhostMsg/docs/adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md)
 - [**ADR 0012: Vitest Unit & Integration Testing Strategy for GhostMsg**](file:///d:/Projects/GhostMsg/docs/adr/0012-vitest-unit-and-integration-testing-strategy.md)
+- [**ADR 0013: Elements-Patterns-Blocks Composable Component Architecture & Colocated Tooling**](file:///d:/Projects/GhostMsg/docs/adr/0013-elements-patterns-blocks-composable-architecture.md)
 
 ---
 
