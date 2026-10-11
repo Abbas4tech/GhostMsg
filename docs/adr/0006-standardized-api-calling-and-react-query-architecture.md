@@ -3,6 +3,8 @@
 ## Status
 **Accepted**
 
+> **Update (2026-10-12):** Component paths in this record (`src/components/auth/*`, `SendMessagePage`) are historical. Queries and mutations are now consumed only by page controllers in `src/components/pages/` ([ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
+
 ---
 
 ## Context & Problem Statement
