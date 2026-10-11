@@ -9,10 +9,11 @@ if [ -z "$STAGED_FILES" ]; then
   exit 0
 fi
 
-# Run ultracite on staged files
-echo "$STAGED_FILES" | xargs npx ultracite fix
+# Run ultracite on staged files (batched: large commits exceed the Windows
+# command-line length limit when every path is passed to one invocation)
+echo "$STAGED_FILES" | xargs -n 50 npx ultracite fix
 
 # Re-stage fixed files
-echo "$STAGED_FILES" | xargs git add
+echo "$STAGED_FILES" | xargs -n 50 git add
 
 echo "✨ Ultracite checks complete"
