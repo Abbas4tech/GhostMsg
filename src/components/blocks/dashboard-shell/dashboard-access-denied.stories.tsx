@@ -1,0 +1,28 @@
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, fn } from "storybook/test";
+import { DashboardAccessDenied } from "./dashboard-access-denied";
+import { defaultDashboardAccessDeniedArgs } from "./dashboard-shell.mock";
+
+const meta = {
+  title: "Blocks/DashboardShell/AccessDenied",
+  component: DashboardAccessDenied,
+  tags: ["autodocs"],
+  parameters: { layout: "fullscreen" },
+  args: { ...defaultDashboardAccessDeniedArgs, onGoToLogin: fn() },
+  argTypes: {
+    onGoToLogin: {
+      description: "Go to Login clicked (page navigates to /sign-in)",
+    },
+  },
+} satisfies Meta<typeof DashboardAccessDenied>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await expect(canvas.getByText("Access Denied")).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Go to Login" }));
+    await expect(args.onGoToLogin).toHaveBeenCalledOnce();
+  },
+};

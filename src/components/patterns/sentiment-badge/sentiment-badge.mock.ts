@@ -1,11 +1,16 @@
-import type { SentimentBadgeProps } from "./sentiment-badge";
+import type { SentimentBadgeProps, SentimentType } from "./sentiment-badge";
 
-export const sweetBadgeMockProps: SentimentBadgeProps = {
+export const SENTIMENTS: SentimentType[] = [
+  "sweet",
+  "curious",
+  "spicy",
+  "advice",
+  "neutral",
+];
+
+export const SENTIMENT_BADGE_SIZES = ["sm", "md", "lg"] as const;
+
+export const defaultSentimentBadgeArgs: SentimentBadgeProps = {
   sentiment: "sweet",
   size: "sm",
-};
-
-export const spicyBadgeMockProps: SentimentBadgeProps = {
-  sentiment: "spicy",
-  size: "md",
 };

@@ -1,5 +1,7 @@
 # API Calling & React Query Architecture Blueprint
 
+> **Note (2026-10-11):** File paths under `src/components/{auth,dashboard,profile}` in this blueprint are historical. Components now follow the four-tier layout in [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md): pure forms and cards live in `patterns/`, sections in `blocks/`, and every query and mutation lives in `pages/<route>/` controllers.
+
 This document specifies the standard architecture, patterns, performance optimizations, component segregation, and optimistic UI implementation guidelines for API consumption across GhostMsg.
 
 ---
