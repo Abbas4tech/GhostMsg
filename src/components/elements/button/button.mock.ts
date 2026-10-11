@@ -1,19 +1,30 @@
+import { noop } from "@/mock/noop";
 import type { ButtonProps } from "./button";
 
-export const defaultButtonMockProps: ButtonProps = {
-  children: "Click Me",
+export const BUTTON_VARIANTS = [
+  "default",
+  "primary",
+  "accent",
+  "secondary",
+  "destructive",
+  "outline",
+  "ghost",
+  "glass",
+  "link",
+] as const;
+
+export const BUTTON_SIZES = ["sm", "default", "lg"] as const;
+export const BUTTON_ICON_SIZES = ["icon-sm", "icon", "icon-lg"] as const;
+
+export const defaultButtonArgs: ButtonProps = {
+  children: "Send message",
   variant: "default",
   size: "default",
+  disabled: false,
+  onClick: noop,
 };
 
-export const primaryButtonMockProps: ButtonProps = {
-  children: "Primary Action",
-  variant: "primary",
-  size: "lg",
-};
-
-export const glassButtonMockProps: ButtonProps = {
-  children: "Glass Action",
-  variant: "glass",
-  size: "md",
-};
+export const destructiveButtonArgs = {
+  children: "Delete",
+  variant: "destructive",
+} satisfies Partial<ButtonProps>;

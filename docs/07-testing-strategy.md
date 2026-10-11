@@ -1,88 +1,90 @@
-# Chapter 7: Testing Strategy & Vitest Unit Test Architecture
+# Chapter 7: Testing Strategy & Test Architecture
 
-This chapter details GhostMsg's multi-tiered testing strategy: **Vitest Unit & Integration Tests** for fast feedback, **Playwright End-to-End Tests** for full browser flows, and **OpenAPI Contract Testing**.
+GhostMsg runs **two Vitest projects** from one `vitest.config.ts`:
+- **`unit`** (happy-dom, MSW-isolated) for logic, controllers and page integration.
+- **`storybook`** (Vitest browser mode, headless Chromium, axe) for every component and page story.
+
+Contracts are verified at compile time through Zod + OpenAPI typegen. Rationale: [ADR 0012](file:///d:/Projects/GhostMsg/docs/adr/0012-vitest-unit-and-integration-testing-strategy.md) (Vitest) and [ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md) (stories as tests, MSW).
 
 ---
 
-## 1. Multi-Tiered Testing Hierarchy
+## 1. Testing hierarchy
 
 ```mermaid
 flowchart TD
-    E2E["1. End-to-End Browser Tests (Playwright)\nFull multi-browser user journeys across Chromium, Firefox & WebKit"]
-    HOOKS["2. Component & Hook Integration Tests (Vitest + RTL)\nTanStack Query mutations, Web Push toggles, MessageCard block/unblock UI"]
-    UNIT["3. Unit & Domain Logic Tests (Vitest)\nSHA-256 sender hashing, AI sentiment classification, VAPID key conversion, Zod schemas"]
-    CONTRACT["4. Contract & Type-Safety Verification\nZod safeParse, openapi-fetch types, tsc --noEmit, pnpm check"]
+    CONTRACT["1. Contract & type safety<br/>Zod safeParse · openapi-fetch types · typed MSW handlers · tsc --noEmit · pnpm check"]
+    UNIT["2. Unit & domain logic (Vitest unit)<br/>sender hashing, AI moderation/smart-reply fallbacks, Zod schemas"]
+    INTEG["3. Controller & page integration (Vitest unit + msw/node)<br/>renderHook controllers, page wiring with React Query"]
+    STORIES["4. Story tests (Vitest storybook, Chromium)<br/>every element/pattern/block/page story: render smoke + play() + axe"]
+    E2E["5. End-to-end (not implemented yet)<br/>Playwright is installed only as the story-test browser provider"]
 
-    CONTRACT --> UNIT --> HOOKS --> E2E
+    CONTRACT --> UNIT --> INTEG --> STORIES -.-> E2E
 ```
+
+> **E2E status:** there is no E2E suite (`src/tests/` and `playwright.config.*` don't exist). `playwright` and `@vitest/browser-playwright` are dependencies only so story tests can drive Chromium. Adding E2E would need its own ADR.
 
 ---
 
-## 2. Vitest Unit & Integration Suite
+## 2. Projects, ownership and commands
 
-GhostMsg uses **Vitest** for fast unit and integration testing.
+| Project | Environment | Includes | Owns |
+| :--- | :--- | :--- | :--- |
+| `unit` | happy-dom at `http://localhost:3000` + `msw/node` (`onUnhandledRequest: "error"`) | `src/**/*.{test,spec}.{ts,tsx}` | `src/lib`, schemas, page controllers, page integration |
+| `storybook` | Chromium via `@vitest/browser-playwright`, `testTimeout: 30_000` | every `src/components/**/*.stories.tsx` (via `storybookTest({ configDir: ".storybook" })`) | All element, pattern, block and page UI behaviour + a11y |
 
-### Key Test Coverage Domains
+**Ownership rule (ADR 0016, Q9).** Component behaviour lives in story `play()` functions. A `*.test.tsx` next to an element, pattern or block is a duplicate: move its assertions into the story and delete it.
 
-1. **Security & Cryptography ([`src/lib/security.ts`](file:///d:/Projects/GhostMsg/src/lib/security.ts))**:
-   - Verification of `senderHash` HMAC SHA-256 calculation for recipient blocklists.
-   - Rate limit calculation algorithms.
-2. **AI Moderation & Smart Reply ([`src/lib/ai-moderation.ts`](file:///d:/Projects/GhostMsg/src/lib/ai-moderation.ts), [`src/lib/ai-smart-reply.ts`](file:///d:/Projects/GhostMsg/src/lib/ai-smart-reply.ts))**:
-   - Sentiment classification tagging (`sweet`, `curious`, `spicy`, `advice`, `neutral`).
-   - Toxicity quarantine detection rules.
-   - Multi-tone smart reply fallback generation on AI failure.
-3. **Email & Email Templates ([`src/lib/mailer.ts`](file:///d:/Projects/GhostMsg/src/lib/mailer.ts))**:
-   - Nodemailer transporter configuration.
-   - `@react-email/render` HTML compilation for OTP verification and new message alerts.
-4. **Browser Web Push Utilities ([`src/components/dashboard/settings-tab.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/settings-tab.tsx))**:
-   - `urlBase64ToUint8Array` VAPID public key conversion to `BufferSource` (`Uint8Array`).
-5. **OpenAPI & Zod Contracts ([`src/schemas/`](file:///d:/Projects/GhostMsg/src/schemas/))**:
-   - Validation contract tests for `sendMessageSchema`, `blockSenderSchema`, `notificationSettingsSchema`, and `publicAnswersResponseSchema`.
-6. **Custom Mutation Hooks ([`src/hooks/mutations/`](file:///d:/Projects/GhostMsg/src/hooks/mutations/))**:
-   - `useBlockSenderMutation` & `useUnblockSenderMutation` (query key invalidation on success).
-   - `useNotificationSettingsMutation` & `usePushSubscriptionMutation`.
+**Network rule (Q11).** No test may reach the real network. Both projects answer HTTP from the same handlers in `src/mock/handlers/`.
 
-### Running Vitest Unit Tests
 ```bash
-# Run unit tests once
-pnpm test
-
-# Run unit tests in watch mode
-pnpm test:watch
-
-# Generate code coverage report
-pnpm test:coverage
+pnpm test             # unit project (fast inner loop)
+pnpm test:watch       # unit project, watch mode
+pnpm test:coverage    # unit project + V8 coverage (excludes stories, mocks, src/mock, src/test, generated)
+pnpm test:stories     # storybook project (first time: pnpm exec playwright install chromium)
+pnpm test:all         # both projects — the pre-push gate
 ```
 
 ---
 
-## 3. Playwright E2E Testing
+## 3. Current unit test inventory
 
-GhostMsg uses **Playwright** for multi-browser end-to-end validation across Chromium, Firefox, and WebKit.
+| File | Covers |
+| :--- | :--- |
+| `src/lib/__tests__/security.test.ts` | HMAC-SHA256 `senderHash`, rate-limit helpers |
+| `src/lib/__tests__/ai-moderation.test.ts` | Sentiment tagging, toxicity quarantine rules |
+| `src/lib/__tests__/ai-smart-reply.test.ts` | Multi-tone smart reply + fallback on AI failure |
+| `src/schemas/__tests__/message-schema.test.ts` | Message/send/reply/bulk schemas |
+| `src/schemas/__tests__/notification-schema.test.ts` | Notification settings schemas |
+| `src/components/pages/dashboard/settings-tab.test.tsx` | Settings tab wiring through `useSettingsController` |
+| `src/components/pages/public-profile/public-profile-page.test.tsx` | Page wiring + `useSendMessageController` (`selectSuggestion` writes into form state) |
 
-### Test Structure ([`src/tests/`](file:///d:/Projects/GhostMsg/src/tests))
-- **Auth Flows**: Registration, duplicate username blocking, email code verification.
-- **Messaging Flow**: Submitting anonymous messages on `/u/[username]`, AI prompt clicks.
-- **Dashboard Flow**: Loading inbox messages, copying share link, deleting messages, toggling message acceptance.
-
-### Running Playwright Tests
-```bash
-# Run all Playwright tests
-npx playwright test
-
-# Run tests in interactive UI mode
-npx playwright test --ui
-
-# View HTML test execution report
-npx playwright show-report
-```
+Story-test inventory (all components and pages) is generated in [Chapter 11: Component Registry](file:///d:/Projects/GhostMsg/docs/11-component-registry.md).
 
 ---
 
-## 4. Architectural Decision Record
-For the full rationale, mocking strategy, and scope matrix, see [ADR 0012: Vitest Unit & Integration Testing Strategy](file:///d:/Projects/GhostMsg/docs/adr/0012-vitest-unit-and-integration-testing-strategy.md).
+## 4. Unit project internals (`src/test/`)
+
+| File | Role |
+| :--- | :--- |
+| `setup.ts` | jest-dom matchers. **`server.listen({ onUnhandledRequest: "error" })` runs at module load, not in `beforeAll`**, so `fetch` is patched before any app module (e.g. the openapi-fetch client) captures it. `afterEach` → `cleanup()` + `server.resetHandlers()`. `afterAll` → `server.close()`. Polyfills `atob`/`btoa`, `ResizeObserver`, `IntersectionObserver`, `Notification`, `serviceWorker` and `PushManager`. Wraps `Element.prototype.animate` so happy-dom's cancelled-animation rejections are handled. |
+| `msw-server.ts` | `setupServer(...defaultHandlers)`. Override per test with `server.use(...scenarios.inbox.empty)`. |
+| `test-utils.tsx` | `createTestQueryClient()` (retry off, infinite staleTime) and `renderWithProviders(ui, { queryClient? })`. |
+
+Gotchas already solved (don't reintroduce them):
+- **Don't import `motion/react` or `motion-utils` in `setup.ts`.** The first breaks Vitest's suite detection. The second resolves a different pnpm copy and doesn't affect Motion.
+- **Keep `environmentOptions.happyDOM.url`.** Without an origin, relative `/api/*` URLs resolve against a blank base and slip past MSW.
 
 ---
 
-## 5. Next Chapter
+## 5. Story tests (summary)
+
+Full rules: [Chapter 10](file:///d:/Projects/GhostMsg/docs/10-storybook-and-ui-catalog.md).
+- **Smoke tests:** every story renders as one, with axe checks at `a11y.test: "error"`.
+- **Interaction tests:** `play()` functions drive the UI with `userEvent` and assert both callbacks (`fn()` spies) and the visible result.
+- **No animation:** Motion and CSS animations are disabled in test mode, which keeps assertions deterministic.
+- **Pages:** they run real controllers against MSW handlers inside `SessionProvider` and a fresh `QueryClient`.
+
+---
+
+## 6. Next Chapter
 Proceed to [Chapter 8: Code Quality & Standards](file:///d:/Projects/GhostMsg/docs/08-code-quality.md).

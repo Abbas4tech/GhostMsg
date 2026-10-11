@@ -48,3 +48,56 @@ _Avoid_: Bio, status, custom headline, bio title
 A classification label representing the emotional tone of an anonymous message.
 _Avoid_: Vibe, mood score, AI emotion, category
 
+## Engineering Language (UI architecture)
+
+**Element**:
+A domain-agnostic UI primitive in `src/components/elements/` (Button, Card, Tabs, Dialog, motion effects). Its default variant reproduces the original design exactly.
+_Avoid_: UI component, atom, base component, shadcn component
+
+**Pattern**:
+A pure, domain-aware composition of elements in `src/components/patterns/` (MessageCard, SignInForm, FilterBar, modals).
+_Avoid_: Molecule, widget, feature component
+
+**Block**:
+A pure page section in `src/components/blocks/` that composes patterns, often with slots (Inbox, SettingsPanel, DashboardShell, SiteHeader).
+_Avoid_: Organism, section component, container
+
+**Page (component)**:
+A route-level component in `src/components/pages/<route>/` that owns all business logic through controllers and composes blocks. Rendered by a thin `src/app/**/page.tsx`.
+_Avoid_: View, screen, container, smart component
+
+**Controller**:
+A `use-*.controller.ts` hook inside `pages/` holding queries, mutations, session, router and side-effect toasts, returning values plus `handle*` callbacks.
+_Avoid_: Service hook, store, manager
+
+**Pure (component)**:
+Renders only from props and reports intent only through callbacks. Elements, patterns and blocks must be pure.
+_Avoid_: Dumb component, presentational-only
+
+**Fixture**:
+A typed builder or named scenario in `src/mock/fixtures/` that produces domain data (messages, sessions, answers). The single source of mock data for stories, MSW handlers and tests.
+_Avoid_: Fake data, dummy data, seed
+
+**Component mock (`*.mock.ts`)**:
+The args object(s) for one component, built from fixtures and colocated with it. Never imports another component's mock.
+_Avoid_: Fixture file, stub props
+
+**Handler (MSW)**:
+A network-level request handler in `src/mock/handlers/`, typed by OpenAPI paths, that answers page and controller HTTP calls in stories and unit tests.
+_Avoid_: Fake API, interceptor, mock server route
+
+**Story test**:
+A Storybook story executed by Vitest in headless Chromium: a smoke render plus its `play()` interactions and axe accessibility checks. The owner of component behaviour tests.
+_Avoid_: Visual test, snapshot test, component unit test
+
+**Scenario (MSW)**:
+A named set of handlers in `scenarios` (`src/mock/handlers/index.ts`), e.g. `scenarios.inbox.empty`, composed with `withScenario(...)`, most specific first.
+_Avoid_: Mock mode, fake state, stub set
+
+**Story harness**:
+A small component inside a stories file that supplies what a page controller would, typically a `useForm` with the real `zodResolver`, so a pure form pattern can be rendered and tested.
+_Avoid_: Wrapper story, test container
+
+**Component Registry**:
+The generated inventory `docs/11-component-registry.md` (`pnpm docs:registry`) of every module, story, mock, controller, fixture and scenario.
+_Avoid_: Component list, catalog doc

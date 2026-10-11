@@ -3,6 +3,8 @@
 ## Status
 **Accepted**
 
+> **Update (2026-10-12):** The `src/components/ui/**` and `src/components/animate-ui/**` overrides were retargeted to `src/components/elements/**` when vendor code moved into elements ([ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)). The current override map is in Chapter 8 §5.
+
 ---
 
 ## Context & Problem Statement

@@ -32,7 +32,7 @@ TypeScript is configured with strict compiler flags in [`tsconfig.json`](file://
 
 ### Type Checking
 ```bash
-npx tsc --noEmit
+pnpm exec tsc --noEmit
 ```
 
 ---
@@ -57,11 +57,39 @@ GhostMsg enforces a **zero-inline-suppression policy** and strict linter rules f
 - **No Interactive `<div>`s**: Interactive elements must use semantic `<button type="button">` with `aria-label` or `<input>` to satisfy `a11y` rules.
 - **No `any` Types**: Generic utility hooks and NextAuth callbacks must use `unknown`, strongly typed interfaces, or generic parameters.
 - **No Nested Ternaries**: Branching logic must use early returns, guard clauses, or isolated resolver functions.
-- **Scoped UI Overrides**: Framework conventions in third-party primitives (e.g. `src/components/ui/`) are configured centrally via `overrides` in [`biome.jsonc`](file:///d:/Projects/GhostMsg/biome.jsonc) rather than through ad-hoc inline comments.
+- **Scoped UI Overrides**: Framework conventions in vendored primitives (e.g. `src/components/elements/effects/`, `*.primitive.tsx`) are configured centrally via `overrides` in [`biome.jsonc`](file:///d:/Projects/GhostMsg/biome.jsonc) rather than through ad-hoc inline comments.
 
 ---
 
-## 5. Next Chapter
-Proceed to [Chapter 9: Deployment & Operations](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md).
+## 5. Biome configuration map (`biome.jsonc`)
 
+| Setting | Scope | Purpose |
+| :--- | :--- | :--- |
+| `files.includes` | `src/**`, `.storybook/**`, `emails/**`, `scripts/**`, `docs/**`, root configs | Lint and format targets (`src/types/api.ts`, `public/`, `.next/` excluded) |
+| `performance.noBarrelFile: off` | global | Module `index.ts` public APIs are allowed. Tier-level barrels are intentionally absent. |
+| `suspicious.noArrayIndexKey: error` | global | Stable React keys |
+| `style.noRestrictedImports` | global | Bans `@/components/ui/**` and `@/components/animate-ui/**` |
+| `style.noRestrictedImports` | `elements/**`, `patterns/**`, `blocks/**` | Tier DAG + bans data/logic modules (`@tanstack/react-query`, `@/queries/**`, `@/hooks/mutations/**`, `@/hooks/use-live-messages`, `next-auth/react`, `next/navigation`, `@/lib/push-notification-adapter`) |
+| `a11y.useSemanticElements: off` | `elements/carousel/**`, `elements/input-otp/**` | Radix `role="region"` / `role="separator"` |
+| `a11y.noNoninteractiveElementInteractions`, `noStaticElementInteractions: off` | `elements/effects/**`, `elements/**/*.primitive.tsx` | Vendored motion primitives |
+| `style.noExportedImports: off` | `src/lib/openapi-zod.ts` | Re-exported extended `z` |
+
+## 6. Story, mock and test conventions enforced by lint
+
+- **Regexes in stories and tests** are top-level constants (`performance/useTopLevelRegex`), e.g. `const SAVE_REGEX = /save/i;`.
+- **Hooks in story `render`** must live in a named PascalCase component (`useHookAtTopLevel`). Use `StatefulX` wrappers or `XHarness` components, never `render: function Render() { useState… }`.
+- **Empty callbacks** use `noop` from `@/mock/noop`, never `() => {}` (`noEmptyBlockStatements`).
+- **No non-null assertions** in stories (`noNonNullAssertion`). Build the value from a fixture instead.
+- **No inline suppressions**, consistent with ADR 0009. Fix the code or add a scoped override with a reason.
+
+---
+
+## 7. Tier Import Rules
+
+`noRestrictedImports` overrides enforce the Elements ➔ Patterns ➔ Blocks ➔ Pages DAG and keep data/logic modules inside `src/components/pages/` ([ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)). Each diagnostic message names the violated rule.
+
+---
+
+## 8. Next Chapter
+Proceed to [Chapter 9: Deployment & Operations](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md).
 
