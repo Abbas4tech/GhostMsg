@@ -1,65 +1,87 @@
 # Chapter 6: Developer Workflow & Tooling
 
-This chapter covers the daily development commands, typegen automation, git pre-commit hooks, and Changeset release workflows.
+Daily commands, the change workflows (API, component, story/mock, registry), git hooks, the pre-push gate and Changesets. **pnpm only** ([ADR 0016, Q1](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md)).
 
 ---
 
-## 1. Daily Development Commands
+## 1. Commands
 
-| Command | Action | Description |
-| :--- | :--- | :--- |
-| `pnpm dev` | Start Dev Server | Next.js dev server with Turbopack at `http://localhost:3000`. |
-| `pnpm typegen` | Generate API Types | Runs `scripts/generate-api-types.ts` to sync `src/generated/api-schema.d.ts`. |
-| `pnpm test` | Run Unit & Component Tests | Executes Vitest unit and React 19 component testing suite once. |
-| `pnpm test:watch` | Test Watch Mode | Runs Vitest in interactive watch mode during active development. |
-| `pnpm test:coverage` | Generate Coverage Report | Generates V8 code coverage report in `coverage/`. |
-| `pnpm check` | Lint & Format Check | Ultracite / Biome validation across all 100+ files. |
-| `pnpm fix` | Auto-Fix Formatting | Automatically fixes all linting and style errors in sub-seconds. |
-| `pnpm build` | Production Build | Automatically runs `typegen` and builds production Turbopack bundle. |
-| `pnpm start` | Start Production | Runs the built Next.js server locally. |
+| Command | Description |
+| :--- | :--- |
+| `pnpm dev` | Next.js dev server (Turbopack) at `http://localhost:3000` |
+| `pnpm typegen` | Regenerate `src/generated/api-schema.d.ts` from `src/lib/openapi.ts` |
+| `pnpm build` | `pnpm typegen && next build` |
+| `pnpm start` | Serve the production build |
+| `pnpm analyze` | Bundle analysis build (`ANALYZE=true`) |
+| `pnpm storybook` | Storybook 10 at `http://localhost:6006` |
+| `pnpm build-storybook` | Static Storybook in `storybook-static/` (git-ignored) |
+| `pnpm test` / `test:watch` / `test:coverage` | Vitest **unit** project |
+| `pnpm test:stories` | Vitest **storybook** project (headless Chromium + axe) |
+| `pnpm test:all` | Both projects |
+| `pnpm docs:registry` | Regenerate [Chapter 11: Component Registry](file:///d:/Projects/GhostMsg/docs/11-component-registry.md) |
+| `pnpm docs:registry:check` | Fail if the registry is stale |
+| `pnpm check` / `pnpm fix` | Ultracite (Biome) lint + format, check or fix |
+| `pnpm exec tsc --noEmit` | Type-check |
+
+First-time setup: `pnpm install`, then `pnpm exec playwright install chromium`.
 
 ---
 
-## 2. API Modification Workflow
+## 2. Change workflows
 
-When adding or updating any API endpoint, follow the standard workflow:
-
+### 2.1 API change
 ```mermaid
 flowchart LR
-    A["1. Update Schemas\n(src/schemas/)"] --> B["2. Register Route\n(src/lib/openapi.ts)"]
-    B --> C["3. Run pnpm typegen\n(src/generated/)"]
-    C --> D["4. Update Handler & Consumer\n(src/app/api & hooks)"]
-    D --> E["5. Run pnpm check\n(Ultracite check)"]
+    A["1. Schemas<br/>src/schemas/"] --> B["2. Register<br/>src/lib/openapi.ts"]
+    B --> C["3. pnpm typegen"]
+    C --> D["4. Route + query/mutation hook"]
+    D --> E["5. Update MSW handlers<br/>src/mock/handlers (types break on drift)"]
+    E --> F["6. Controller in pages/<route>/"]
 ```
+Typed handlers (`ok()` for 200 and `created()` for 201) fail compilation when the contract changes. Fix the handler and the fixture together. Details: [agents/api-patterns.md](file:///d:/Projects/GhostMsg/docs/agents/api-patterns.md).
+
+### 2.2 Component change
+1. **Place the code** with the decision procedure in [agents/component-architecture.md §2](file:///d:/Projects/GhostMsg/docs/agents/component-architecture.md).
+2. **Create the module folder:** `<name>.tsx`, `index.ts`, `<name>.mock.ts` (args from fixtures) and `<name>.stories.tsx` (five-point standard).
+3. **Run** `pnpm test:stories` for the new stories, then `pnpm docs:registry`.
+
+### 2.3 New mock data or API scenario
+1. Add a builder or named dataset to `src/mock/fixtures/<domain>.fixtures.ts`.
+2. Add a handler factory or scenario to `src/mock/handlers/<domain>.handlers.ts` and expose it in `scenarios` in `src/mock/handlers/index.ts`.
+3. Use it in a story with `parameters: { msw: { handlers: withScenario(scenarios.x.y) } }`, most specific override first.
+4. Run `pnpm docs:registry`, which lists fixtures and scenarios.
 
 ---
 
-## 3. Git Pre-Commit Automation (Husky)
+## 3. Git hooks (Husky)
 
-GhostMsg uses **Husky** with a custom pre-commit hook in [`.husky/pre-commit`](file:///d:/Projects/GhostMsg/.husky/pre-commit):
-- Scans all staged code, documentation, and stylesheet files.
-- Executes `npx ultracite fix` on staged files.
-- Automatically re-stages formatted files before commit.
-- Prevents unformatted code or syntax violations from entering git history.
+`.husky/pre-commit` runs `npx ultracite fix` on staged `ts, tsx, js, jsx, json, jsonc, md, css` files (deleted files are skipped) and re-stages them.
 
 ---
 
-## 4. Release Management with Changesets
+## 4. Pre-push gate
 
-GhostMsg uses **Changesets** (`@changesets/cli`) for versioning and automated changelog generation:
+[`.agents/rules/pre-push-quality-checks.md`](file:///d:/Projects/GhostMsg/.agents/rules/pre-push-quality-checks.md) requires, in order:
 
 ```bash
-# Document a change in your branch
-npx changeset
-
-# Bump version and update CHANGELOG.md
-npx changeset version
-
-# Publish / tag release
-npx changeset tag
+pnpm check
+pnpm exec tsc --noEmit
+pnpm build
+pnpm test:all
+pnpm docs:registry:check
 ```
 
 ---
 
-## 5. Next Chapter
+## 5. Releases (Changesets)
+
+```bash
+pnpm changeset          # describe a change (writes .changeset/*.md)
+pnpm changeset version  # bump version + CHANGELOG.md
+pnpm changeset tag      # tag the release
+```
+
+---
+
+## 6. Next Chapter
 Proceed to [Chapter 7: Testing Strategy](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md).

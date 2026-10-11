@@ -3,6 +3,8 @@
 ## Status
 **Accepted**
 
+> **Update (2026-10-12):** `urlBase64ToUint8Array` and the Web Push flow moved to `src/lib/push-notification-adapter.ts`, consumed by `src/components/pages/dashboard/use-settings.controller.ts` ([ADR 0014](file:///d:/Projects/GhostMsg/docs/adr/0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md), [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
+
 ---
 
 ## Context & Problem Statement

@@ -3,6 +3,8 @@
 ## Status
 **Accepted** (Fully implemented & verified across 34 tests in 9 test suites)
 
+> **Update (2026-10-12):** **Partially superseded by [ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md).** Component behaviour is now tested by Storybook story `play()` functions in Chromium. `*.test.tsx` covers logic and controllers only. All tests are network-isolated with MSW. `__tests__/` component folders no longer exist.
+
 ---
 
 ## Context & Problem Statement
