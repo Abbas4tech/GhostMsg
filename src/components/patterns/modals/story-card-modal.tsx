@@ -13,11 +13,11 @@ import {
   DialogTitle,
 } from "@/components/elements/dialog";
 import { LiquidButton } from "@/components/elements/liquid-button";
-import type { Message } from "@/model/user.model";
+import type { MessageDto } from "@/types/api";
 
 export interface StoryCardModalProps {
   isOpen: boolean;
-  message: Message | null;
+  message: MessageDto | null;
   onClose: () => void;
   username: string;
 }

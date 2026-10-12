@@ -61,7 +61,7 @@ flowchart TD
 
 ## 2. Data Models & Database Migration
 
-### 2.1 Standalone `Message` Model (`src/model/message.model.ts`)
+### 2.1 Standalone `Message` Model (`src/server/models/message.model.ts`)
 
 ```typescript
 import mongoose, { type Document, Schema, type Types } from "mongoose";
@@ -160,7 +160,7 @@ const MessageModel =
 export default MessageModel;
 ```
 
-### 2.2 `User` Model Updates (`src/model/user.model.ts`)
+### 2.2 `User` Model Updates (`src/server/models/user.model.ts`)
 
 ```typescript
 export interface IUser extends Document {
@@ -195,9 +195,9 @@ export interface IUser extends Document {
 To ensure backward compatibility without data loss:
 
 ```typescript
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
-import MessageModel from "@/model/message.model";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
+import MessageModel from "@/server/models/message.model";
 import crypto from "crypto";
 
 export async function migrateLegacyMessages() {

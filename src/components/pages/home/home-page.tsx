@@ -2,7 +2,7 @@ import type React from "react";
 import { Hero } from "@/components/blocks/hero";
 import { SiteLayout } from "@/components/pages/layouts/site-layout";
 import { MessagesCarousel } from "@/components/patterns/messages-carousel";
-import sampleMessages from "@/mock/messages.json";
+import sampleMessages from "@/content/landing-messages.json";
 
 /** Landing page: site header + hero with the sample-messages carousel. */
 export function HomePage(): React.JSX.Element {

@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 import type { NextRequest } from "next/server";
 import { getServerSession, type User } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import dbConnect from "@/lib/db-connect";
-import MessageModel from "@/model/message.model";
 import { bulkActionSchema } from "@/schemas/message-schema";
+import dbConnect from "@/server/db/db-connect";
+import MessageModel from "@/server/models/message.model";
 
 export async function POST(request: NextRequest): Promise<Response> {
   await dbConnect();

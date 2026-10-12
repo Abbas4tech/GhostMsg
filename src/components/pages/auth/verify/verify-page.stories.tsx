@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, screen, waitFor } from "storybook/test";
-import { authCredentials, authPageHandlers } from "../auth-pages.mock";
+import { authCredentials, authPageHandlers } from "../shared/auth-pages.mock";
 import { VerifyPage } from "./verify-page";
 
 /** Page stories chain MSW worker start → session → lazy chunk → query; allow realistic load time under parallel runs. */

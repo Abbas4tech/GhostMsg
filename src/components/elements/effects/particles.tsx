@@ -2,8 +2,8 @@
 
 import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
 import type * as React from "react";
+import { getStrictContext } from "@/hooks/get-strict-context";
 import { type UseIsInViewOptions, useIsInView } from "@/hooks/use-is-in-view";
-import { getStrictContext } from "@/lib/get-strict-context";
 import { Slot, type WithAsChild } from "./slot";
 
 type Side = "top" | "bottom" | "left" | "right";

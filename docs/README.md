@@ -10,11 +10,11 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 | :---: | :--- | :--- |
 | **01** | [**Project Overview**](file:///d:/Projects/GhostMsg/docs/01-overview.md) | Vision, philosophy, ubiquitous domain language, and feature mindmap. |
 | **02** | [**Getting Started & Setup**](file:///d:/Projects/GhostMsg/docs/02-getting-started.md) | Prerequisites, `.env.local` configuration, local installation, and running with Turbopack. |
-| **03** | [**System Architecture**](file:///d:/Projects/GhostMsg/docs/03-system-architecture.md) | High-level system diagram, NextAuth lifecycle, MongoDB embedded schema, and Edge AI pipeline. |
+| **03** | [**System Architecture**](file:///d:/Projects/GhostMsg/docs/03-system-architecture.md) | High-level system diagram, source layers & runtime boundaries (server / data / lib), NextAuth lifecycle, MongoDB schema, and Edge AI pipeline. |
 | **04** | [**API & Type Safety**](file:///d:/Projects/GhostMsg/docs/04-api-and-type-safety.md) | OpenAPI 3.1 contracts, Scalar UI (`/docs`), automated typegen, and `openapi-fetch` SDK. |
 | **05** | [**Component Architecture**](file:///d:/Projects/GhostMsg/docs/05-component-architecture.md) | Next.js App Router tree, Tailwind CSS v4 design tokens, Radix/Shadcn primitives, and Motion. |
 | **06** | [**Developer Workflow**](file:///d:/Projects/GhostMsg/docs/06-dev-workflow.md) | Daily commands, Husky pre-commit hooks, API typegen automation, and Changesets. |
-| **07** | [**Testing Strategy**](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md) | Unit + story Vitest projects, MSW-isolated tests, ownership rules, test inventory (no E2E suite yet). |
+| **07** | [**Testing Strategy**](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md) | Unit + story Vitest projects, MSW-isolated tests, colocated utils/controller tests, `renderHookWithProviders` harness, test inventory (no E2E suite yet). |
 | **08** | [**Code Quality & Standards**](file:///d:/Projects/GhostMsg/docs/08-code-quality.md) | Ultracite (Biome) rules, TypeScript strict mode configuration, and anti-pattern bans. |
 | **09** | [**Deployment & Operations**](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md) | Vercel production deployment, MongoDB Atlas connection pooling, and SMTP email provider configuration. |
 | **10** | [**Storybook & UI Catalog**](file:///d:/Projects/GhostMsg/docs/10-storybook-and-ui-catalog.md) | Storybook 10 (nextjs-vite), story standard, MSW page isolation, fixtures, and story tests in Chromium. |
@@ -41,6 +41,8 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0015: Four-Tier Components: Pages Layer, Logic Isolation & Vendor Consolidation**](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)
 - [**ADR 0016: Storybook 10, MSW Mocking & Story-Driven Component Testing**](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md)
 - [**ADR 0017: Generated Component Registry & Documentation Freshness Gate**](file:///d:/Projects/GhostMsg/docs/adr/0017-generated-component-registry-and-docs-freshness-gate.md)
+- [**ADR 0018: Source Structure: Server, Data, Lib, Utilities, Controllers & Tests**](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md)
+- [**ADR 0019: Controller Test Harness: renderHookWithProviders, Request Recording & Edge-Only Mocking**](file:///d:/Projects/GhostMsg/docs/adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md)
 
 ---
 
@@ -54,6 +56,7 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 
 - [**API & Client-Server Patterns**](file:///d:/Projects/GhostMsg/docs/agents/api-patterns.md)
 - [**Component Architecture (4 tiers, logic in pages)**](file:///d:/Projects/GhostMsg/docs/agents/component-architecture.md)
+- [**Source Structure (server / data / lib / utils / controllers / tests)**](file:///d:/Projects/GhostMsg/docs/agents/source-structure.md)
 - [**Domain Modeling Guidelines**](file:///d:/Projects/GhostMsg/docs/agents/domain.md)
 - [**Issue Tracker Integration**](file:///d:/Projects/GhostMsg/docs/agents/issue-tracker.md)
 - [**Triage Labels System**](file:///d:/Projects/GhostMsg/docs/agents/triage-labels.md)

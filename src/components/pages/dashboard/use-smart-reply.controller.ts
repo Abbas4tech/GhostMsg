@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { SmartReplyTone } from "@/components/patterns/modals";
-import { useReplyMessageMutation } from "@/hooks/mutations/use-reply-message-mutation";
-import { useSmartReplyMutation } from "@/hooks/mutations/use-smart-reply-mutation";
-import type { Message } from "@/model/user.model";
+import { useReplyMessageMutation } from "@/data/messages/use-reply-message-mutation";
+import { useSmartReplyMutation } from "@/data/messages/use-smart-reply-mutation";
+import type { MessageDto } from "@/types/api";
 
 export interface UseSmartReplyControllerOptions {
   isOpen: boolean;
-  message: Message | null;
+  message: MessageDto | null;
   onSaved: () => void;
 }
 

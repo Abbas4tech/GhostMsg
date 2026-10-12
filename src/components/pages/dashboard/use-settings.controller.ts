@@ -3,11 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import type { EmailAlertMode } from "@/components/blocks/settings-panel";
-import { useAcceptMessageMutation } from "@/hooks/mutations/use-accept-message-mutation";
-import { useUnblockSenderMutation } from "@/hooks/mutations/use-block-sender-mutation";
-import { useNotificationSettingsMutation } from "@/hooks/mutations/use-notification-settings-mutation";
-import { usePushNotification } from "@/lib/push-notification-adapter";
-import { userQueries } from "@/queries/user.queries";
+import { useAcceptMessageMutation } from "@/data/user/use-accept-message-mutation";
+import { useUnblockSenderMutation } from "@/data/user/use-block-sender-mutation";
+import { useNotificationSettingsMutation } from "@/data/user/use-notification-settings-mutation";
+import { usePushNotification } from "@/data/user/use-push-notification";
+import { userQueries } from "@/data/user/user.queries";
 
 export interface UseSettingsControllerOptions {
   acceptMessages?: boolean;

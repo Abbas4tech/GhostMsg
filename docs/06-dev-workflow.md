@@ -9,7 +9,7 @@ Daily commands, the change workflows (API, component, story/mock, registry), git
 | Command | Description |
 | :--- | :--- |
 | `pnpm dev` | Next.js dev server (Turbopack) at `http://localhost:3000` |
-| `pnpm typegen` | Regenerate `src/generated/api-schema.d.ts` from `src/lib/openapi.ts` |
+| `pnpm typegen` | Regenerate `src/generated/api-schema.d.ts` from `src/server/openapi/openapi.ts` |
 | `pnpm build` | `pnpm typegen && next build` |
 | `pnpm start` | Serve the production build |
 | `pnpm analyze` | Bundle analysis build (`ANALYZE=true`) |
@@ -32,7 +32,7 @@ First-time setup: `pnpm install`, then `pnpm exec playwright install chromium`.
 ### 2.1 API change
 ```mermaid
 flowchart LR
-    A["1. Schemas<br/>src/schemas/"] --> B["2. Register<br/>src/lib/openapi.ts"]
+    A["1. Schemas<br/>src/schemas/"] --> B["2. Register<br/>src/server/openapi/openapi.ts"]
     B --> C["3. pnpm typegen"]
     C --> D["4. Route + query/mutation hook"]
     D --> E["5. Update MSW handlers<br/>src/mock/handlers (types break on drift)"]

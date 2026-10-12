@@ -18,8 +18,8 @@ import {
   type HighlightItemProps,
   type HighlightProps,
 } from "@/components/elements/effects/highlight";
+import { getStrictContext } from "@/hooks/get-strict-context";
 import { useControlledState } from "@/hooks/use-controlled-state";
-import { getStrictContext } from "@/lib/get-strict-context";
 
 interface TabsContextType {
   setValue: TabsProps["onValueChange"];

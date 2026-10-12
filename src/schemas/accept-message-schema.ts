@@ -1,4 +1,4 @@
-import { z } from "@/lib/openapi-zod";
+import { z } from "@/schemas/zod";
 
 export const acceptMessageSchema = z
   .object({

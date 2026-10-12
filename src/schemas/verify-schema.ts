@@ -1,4 +1,4 @@
-import { z } from "@/lib/openapi-zod";
+import { z } from "@/schemas/zod";
 
 export const verifySchema = z
   .object({

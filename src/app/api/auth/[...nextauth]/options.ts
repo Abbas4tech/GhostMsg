@@ -3,8 +3,8 @@ import type { NextAuthOptions, User as NextAuthUser } from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
 
 import { controlGoogleSignInFlow } from "./controller/google-signin";
 

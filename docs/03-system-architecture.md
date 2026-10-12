@@ -30,6 +30,55 @@ GhostMsg is built on the **Next.js 15 App Router** using React 19, Tailwind CSS 
         └──────────────┘ └──────────────┘
 ```
 
+### Source layers & runtime boundaries ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md))
+
+Code is split by **where it runs**. Server-only code never reaches the client bundle (`import "server-only"` + Biome), the client reaches the server only over typed HTTP (`openapi-fetch`), and pure helpers have no runtime ties.
+
+```mermaid
+flowchart TB
+    subgraph Browser["Client bundle"]
+        direction TB
+        UI["components: elements → patterns → blocks<br/>(pure UI, props + callbacks)"]
+        PG["components/pages/**<br/>use-*.controller.ts"]
+        DL["src/data/**<br/>api-client · query-keys · queries · mutations · live/push hooks"]
+        HK["src/hooks · src/providers"]
+        PG --> UI
+        PG --> DL
+        PG --> HK
+    end
+    subgraph Shared["Universal"]
+        LIB["src/lib/**<br/>pure helpers"]
+        SCH["src/schemas/**<br/>Zod contracts"]
+        DTO["src/types/api.ts<br/>OpenAPI DTOs"]
+    end
+    subgraph Node["Server (Node / Edge)"]
+        direction TB
+        RT["src/app/api/**<br/>route handlers"]
+        SV["src/server/**  (server-only)<br/>db · models · email · ai · security · realtime · openapi"]
+        RT --> SV
+    end
+    DL -- "HTTP /api/* (openapi-fetch, typed by api-schema.d.ts)" --> RT
+    SV -- "EventSource /api/messages/stream" --> DL
+    PG --> LIB
+    UI --> LIB
+    DL --> DTO
+    RT --> SCH
+    PG --> SCH
+    SV --> DB[("MongoDB")]
+    SV --> SMTP["SMTP"]
+    SV --> AI["Gemini"]
+```
+
+| Layer | Folder | Imported by | Must not import |
+| :--- | :--- | :--- | :--- |
+| Server | `src/server/<capability>/` | `src/app/**`, other server modules | anything client |
+| Data | `src/data/<domain>/` | page controllers only | `@/server/**` |
+| Controllers | `src/components/pages/<route>/` | page components | `@/server/**` |
+| Pure UI | `elements` / `patterns` / `blocks` | higher tiers | `@/data/**`, `@/server/**`, router, session |
+| Lib | `src/lib/<domain>/` | anyone | React, Next, `@/data`, `@/server`, components |
+
+The full placement rules and recipes are in the [Source Structure Guide](file:///d:/Projects/GhostMsg/docs/agents/source-structure.md).
+
 ---
 
 ## 2. Authentication & Authorization Lifecycle
@@ -70,7 +119,7 @@ sequenceDiagram
 
 GhostMsg implements a decoupled relational document model using a dedicated `Message` collection and compound indexing as defined in [ADR 0010](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md) (superseding legacy embedded subdocuments).
 
-### Standalone Message Schema (`src/model/message.model.ts`)
+### Standalone Message Schema (`src/server/models/message.model.ts`)
 ```typescript
 interface IMessage {
   _id: Types.ObjectId;
@@ -91,7 +140,7 @@ interface IMessage {
 }
 ```
 
-### User Schema (`src/model/user.model.ts`)
+### User Schema (`src/server/models/user.model.ts`)
 ```typescript
 interface IUser {
   _id: Types.ObjectId;
@@ -135,7 +184,7 @@ interface IUser {
 - **In-Memory Rate Limiting**: Upstash Redis sliding window (5 messages per 10 minutes per IP). Raw IPs are never written to MongoDB.
 - **Cryptographic Sender Hash**: Computed as $\text{HMAC-SHA256}(\text{IP} + \text{RecipientId},\; \text{SECRET\_SALT})$. Allows recipients to shadowban abusive senders without compromising visitor anonymity.
 - **Server-Sent Events (SSE) Live Feed**: Backed by Upstash Redis Pub/Sub channel `recipient:{userId}:messages` streamed over `/api/messages/stream`.
-- **Password Hashing & Auth Security**: Bcrypt (rounds = 10), 6-digit verification codes (1-hour expiration), and cached MongoDB connection pooling via [`src/lib/db-connect.ts`](file:///d:/Projects/GhostMsg/src/lib/db-connect.ts).
+- **Password Hashing & Auth Security**: Bcrypt (rounds = 10), 6-digit verification codes (1-hour expiration), and cached MongoDB connection pooling via [`src/server/db/db-connect.ts`](file:///d:/Projects/GhostMsg/src/server/db/db-connect.ts).
 
 ---
 

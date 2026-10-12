@@ -101,3 +101,27 @@ _Avoid_: Wrapper story, test container
 **Component Registry**:
 The generated inventory `docs/11-component-registry.md` (`pnpm docs:registry`) of every module, story, mock, controller, fixture and scenario.
 _Avoid_: Component list, catalog doc
+
+**Server module**:
+Code under `src/server/` that may only run on the server (DB, mail, AI, secrets). Every file starts with `import "server-only"`.
+_Avoid_: Backend util, helper, lib function
+
+**Data layer**:
+`src/data/`: the client API client, query keys, `queryOptions` factories, mutation hooks and live-update hooks. Imported only by page controllers.
+_Avoid_: Services, API helpers, fetchers
+
+**Utility (`*.utils.ts`)**:
+A pure function colocated with the one module that uses it. Promoted to `src/lib/<domain>/` once two or more modules use it.
+_Avoid_: Helper file, misc, common
+
+**Controller test**:
+A colocated `use-*.controller.test.ts` that renders one page controller with `renderHookWithProviders` and drives it against MSW scenarios. Only edges (router, toasts, `signIn`, browser side effects) are mocked (ADR 0019).
+_Avoid_: Hook test, integration test (for this file type)
+
+**Request recording**:
+`recordRequests()` from `src/test/test-utils.tsx`: a per-test list of `"METHOD /path"` strings for every request MSW saw, used to assert that a controller did or did not call the API.
+_Avoid_: Spy on fetch, mock the mutation
+
+**DTO**:
+A client-facing data shape derived from the generated OpenAPI schema (`src/types/api.ts`), e.g. `MessageDto`. Distinct from the Mongoose model types on the server.
+_Avoid_: Model (on the client), entity

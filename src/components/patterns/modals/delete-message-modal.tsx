@@ -12,13 +12,13 @@ import {
   AlertDialogTitle,
 } from "@/components/elements/alert-dialog";
 import { LiquidButton } from "@/components/elements/liquid-button";
-import type { Message } from "@/model/user.model";
+import type { MessageDto } from "@/types/api";
 
 export interface DeleteMessageModalProps {
   isPending?: boolean;
-  message: Message | null;
+  message: MessageDto | null;
   onClose: () => void;
-  onConfirm: (message: Message) => Promise<void> | void;
+  onConfirm: (message: MessageDto) => Promise<void> | void;
   open: boolean;
 }
 

@@ -45,7 +45,7 @@ Ensure these variables are added in your Vercel Project Settings:
 
 ## 3. Database Operations & Connection Management
 
-To prevent database connection exhaustion across serverless lambdas, GhostMsg implements cached singleton connection pooling in [`src/lib/db-connect.ts`](file:///d:/Projects/GhostMsg/src/lib/db-connect.ts):
+To prevent database connection exhaustion across serverless lambdas, GhostMsg implements cached singleton connection pooling in [`src/server/db/db-connect.ts`](file:///d:/Projects/GhostMsg/src/server/db/db-connect.ts):
 
 ```typescript
 // Reuses global cached connection promise across warm lambda invocations

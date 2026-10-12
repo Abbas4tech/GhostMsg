@@ -12,12 +12,12 @@ import {
   AlertDialogTitle,
 } from "@/components/elements/alert-dialog";
 import { LiquidButton } from "@/components/elements/liquid-button";
-import type { Message } from "@/model/user.model";
+import type { MessageDto } from "@/types/api";
 
 export interface BlockSenderModalProps {
   isPending?: boolean;
   isSenderBlocked?: boolean;
-  message: Message | null;
+  message: MessageDto | null;
   onClose: () => void;
   onConfirm: (senderHash: string, isBlocked: boolean) => Promise<void> | void;
   open: boolean;

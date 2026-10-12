@@ -1,11 +1,11 @@
 import type { NextRequest } from "next/server";
-import { sendMessageAlertEmail } from "@/helpers/send-message-alert-email";
-import { moderateAndClassifyMessage } from "@/lib/ai-moderation";
-import dbConnect from "@/lib/db-connect";
-import { publishNewMessage } from "@/lib/event-bus";
-import { checkRateLimit, computeSenderHash } from "@/lib/security";
-import MessageModel from "@/model/message.model";
-import UserModel from "@/model/user.model";
+import { moderateAndClassifyMessage } from "@/server/ai/moderation";
+import dbConnect from "@/server/db/db-connect";
+import { sendMessageAlertEmail } from "@/server/email/send-message-alert-email";
+import MessageModel from "@/server/models/message.model";
+import UserModel from "@/server/models/user.model";
+import { publishNewMessage } from "@/server/realtime/event-bus";
+import { checkRateLimit, computeSenderHash } from "@/server/security/security";
 
 export async function POST(req: NextRequest): Promise<Response> {
   await dbConnect();

@@ -14,7 +14,7 @@ import {
 import { LiquidButton } from "@/components/elements/liquid-button";
 import { Switch } from "@/components/elements/switch";
 import { Textarea } from "@/components/elements/textarea";
-import type { Message } from "@/model/user.model";
+import type { MessageDto } from "@/types/api";
 
 export type SmartReplyTone = "witty" | "wholesome" | "thoughtful";
 
@@ -25,7 +25,7 @@ export interface SmartReplyModalProps {
   isOpen: boolean;
   isPublished: boolean;
   isSaving?: boolean;
-  message: Message | null;
+  message: MessageDto | null;
   onClose: () => void;
   onGenerate: (tone: SmartReplyTone) => void;
   onPublishedChange: (isPublished: boolean) => void;

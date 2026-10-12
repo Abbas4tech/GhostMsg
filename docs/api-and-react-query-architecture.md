@@ -12,17 +12,17 @@ GhostMsg standardizes on a **4-layer client architecture** connecting OpenAPI 3.
 
 ```mermaid
 flowchart TD
-    subgraph Layer1["1. Transport Layer (src/lib/api-client.ts)"]
+    subgraph Layer1["1. Transport Layer (src/data/api-client.ts)"]
         API["openapi-fetch client (api)"]
         ERR["ApiError & clientFetch helper"]
     end
 
-    subgraph Layer2["2. Query Definitions (src/queries/)"]
+    subgraph Layer2["2. Query Definitions (src/data/<domain>/*.queries.ts)"]
         KEYS["queryKeys (Hierarchical Key Factories)"]
         OPTS["queryOptions (Pure Query Configurations)"]
     end
 
-    subgraph Layer3["3. Granular Hooks (src/hooks/)"]
+    subgraph Layer3["3. Mutation & Live Hooks (src/data/<domain>/use-*.ts)"]
         QHOOKS["Query Hooks (useMessages, useUsernameCheck)"]
         MHOOKS["Mutation Hooks (useDeleteMessage, useAcceptMessage, useSignUp)"]
     end
@@ -60,7 +60,7 @@ flowchart TD
 
 ---
 
-## 2. Layer 1: Transport & Error Unwrapping (`src/lib/api-client.ts`)
+## 2. Layer 1: Transport & Error Unwrapping (`src/data/api-client.ts`)
 
 ### `ApiError` Class
 A structured error class capturing HTTP status code, server error message, and validation details:
@@ -112,9 +112,9 @@ export async function clientFetch<TData>(
 
 ---
 
-## 3. Layer 2: Query Key Factories & `queryOptions` (`src/queries/`)
+## 3. Layer 2: Query Key Factories & `queryOptions` (`src/data/`)
 
-### Hierarchical Query Key Factory (`src/queries/query-keys.ts`)
+### Hierarchical Query Key Factory (`src/data/query-keys.ts`)
 
 Centralizing all query keys prevents typos and enables fine-grained or broad cache invalidations:
 
@@ -136,13 +136,13 @@ export const queryKeys = {
 } as const;
 ```
 
-### Domain Query Options (`src/queries/messages.queries.ts`)
+### Domain Query Options (`src/data/messages/messages.queries.ts`)
 
 Query options define the fetch contract independently from React component lifecycle:
 
 ```typescript
 import { queryOptions } from "@tanstack/react-query";
-import { api, clientFetch } from "@/lib/api-client";
+import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "./query-keys";
 
 export const messagesQueries = {
@@ -156,11 +156,11 @@ export const messagesQueries = {
 };
 ```
 
-### User & Settings Query Options (`src/queries/user.queries.ts`)
+### User & Settings Query Options (`src/data/user/user.queries.ts`)
 
 ```typescript
 import { queryOptions } from "@tanstack/react-query";
-import { api, clientFetch } from "@/lib/api-client";
+import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "./query-keys";
 
 export const userQueries = {
@@ -174,11 +174,11 @@ export const userQueries = {
 };
 ```
 
-### Auth & Validation Query Options (`src/queries/auth.queries.ts`)
+### Auth & Validation Query Options (`src/data/auth/auth.queries.ts`)
 
 ```typescript
 import { queryOptions } from "@tanstack/react-query";
-import { api, clientFetch } from "@/lib/api-client";
+import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "./query-keys";
 
 export const authQueries = {
@@ -201,17 +201,17 @@ export const authQueries = {
 
 ---
 
-## 4. Layer 3: Optimistic Mutations & Granular Hooks (`src/hooks/`)
+## 4. Layer 3: Optimistic Mutations & Granular Hooks (`src/data/<domain>/`)
 
-### Optimistic Message Acceptance Toggle (`src/hooks/mutations/use-accept-message-mutation.ts`)
+### Optimistic Message Acceptance Toggle (`src/data/user/use-accept-message-mutation.ts`)
 
 Replaces React 19 `useOptimistic` + `useTransition` with TanStack Query cache-level optimistic updates:
 
 ```typescript
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { api, clientFetch } from "@/lib/api-client";
-import { queryKeys } from "@/queries/query-keys";
+import { api, clientFetch } from "@/data/api-client";
+import { queryKeys } from "@/data/query-keys";
 
 export function useAcceptMessageMutation() {
   const queryClient = useQueryClient();
@@ -258,16 +258,16 @@ export function useAcceptMessageMutation() {
 }
 ```
 
-### Optimistic Message Deletion (`src/hooks/mutations/use-delete-message-mutation.ts`)
+### Optimistic Message Deletion (`src/data/messages/use-delete-message-mutation.ts`)
 
 Instantly removes deleted messages from UI list and restores them if network fails:
 
 ```typescript
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { api, clientFetch } from "@/lib/api-client";
-import { queryKeys } from "@/queries/query-keys";
-import type { Message } from "@/model/user.model";
+import { api, clientFetch } from "@/data/api-client";
+import { queryKeys } from "@/data/query-keys";
+import type { Message } from "@/server/models/user.model";
 
 interface MessagesResponse {
   messages: Message[];
@@ -533,7 +533,7 @@ A lean container binding `SuggestedMessagesSection` selection into `SendMessageF
 
 ## 6. Performance & Rerender Mitigation Strategy
 
-### Global QueryClient Configuration (`src/context/query-provider.tsx`)
+### Global QueryClient Configuration (`src/providers/query-provider.tsx`)
 
 ```typescript
 export function makeQueryClient(): QueryClient {
@@ -594,19 +594,19 @@ export function makeQueryClient(): QueryClient {
 ## 7. Migration Checklist for Agents & Developers
 
 - [ ] **Milestone 1: Transport Helper**
-  - Update [`src/lib/api-client.ts`](file:///d:/Projects/GhostMsg/src/lib/api-client.ts) with `ApiError` and `clientFetch`.
+  - Update [`src/data/api-client.ts`](file:///d:/Projects/GhostMsg/src/data/api-client.ts) with `ApiError` and `clientFetch`.
 - [ ] **Milestone 2: Query Keys & Pure Options**
-  - Create `src/queries/query-keys.ts`.
-  - Create `src/queries/messages.queries.ts`, `src/queries/user.queries.ts`, `src/queries/auth.queries.ts`.
+  - Create `src/data/query-keys.ts`.
+  - Create `src/data/messages/messages.queries.ts`, `src/data/user/user.queries.ts`, `src/data/auth/auth.queries.ts`.
 - [ ] **Milestone 3: Mutation Hooks with Optimistic Rollback**
-  - Create `src/hooks/mutations/use-delete-message-mutation.ts` (with `onMutate` list filtering).
-  - Create `src/hooks/mutations/use-accept-message-mutation.ts` (with `onMutate` boolean toggle).
-  - Create `src/hooks/mutations/use-send-message-mutation.ts`.
-  - Create `src/hooks/mutations/use-sign-up-mutation.ts`.
-  - Create `src/hooks/mutations/use-verify-code-mutation.ts`.
-  - Create `src/hooks/mutations/use-suggest-messages-mutation.ts`.
+  - Create `src/data/messages/use-delete-message-mutation.ts` (with `onMutate` list filtering).
+  - Create `src/data/user/use-accept-message-mutation.ts` (with `onMutate` boolean toggle).
+  - Create `src/data/public/use-send-message-mutation.ts`.
+  - Create `src/data/auth/use-sign-up-mutation.ts`.
+  - Create `src/data/auth/use-verify-code-mutation.ts`.
+  - Create `src/data/public/use-suggest-messages-mutation.ts`.
 - [ ] **Milestone 4: Global Query Provider Configuration**
-  - Configure `QueryClient` defaults in [`src/context/query-provider.tsx`](file:///d:/Projects/GhostMsg/src/context/query-provider.tsx).
+  - Configure `QueryClient` defaults in [`src/providers/query-provider.tsx`](file:///d:/Projects/GhostMsg/src/providers/query-provider.tsx).
 - [ ] **Milestone 5: Public Profile Component Segregation**
   - Create `src/components/profile/send-message-form.tsx`.
   - Create `src/components/profile/suggested-messages-section.tsx`.

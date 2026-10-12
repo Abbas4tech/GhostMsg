@@ -41,7 +41,7 @@ Generated inventory of every component module, its public API, stories, interact
 | [`tabs`](../src/components/elements/tabs) | ✅ | 3 | 2 | 1 | 0 |
 | [`text`](../src/components/elements/text) | ✅ | 5 | 1 | 1 | 0 |
 | [`textarea`](../src/components/elements/textarea) | ✅ | 5 | 2 | 1 | 0 |
-| [`theme-toggler`](../src/components/elements/theme-toggler) | ✅ | 3 | 1 | 1 | 0 |
+| [`theme-toggler`](../src/components/elements/theme-toggler) | ✅ | 3 | 1 | 1 | 1 |
 | [`tooltip`](../src/components/elements/tooltip) | ✅ | 3 | 2 | 1 | 0 |
 
 #### `elements/alert-dialog`
@@ -169,6 +169,7 @@ Generated inventory of every component module, its public API, stories, interact
 - **Public API (index.ts):** `ThemeTogglerButton`, `ThemeTogglerButtonProps (type)`
 - **Stories** `theme-toggler.stories.tsx` → _Elements/ThemeToggler_: `LightDark`, `WithSystem`, `Ghost`
 - **Mocks:** `theme-toggler.mock.ts` → `defaultThemeTogglerArgs`, `withSystemThemeTogglerArgs`
+- **Unit tests:** `theme-toggler.utils.test.ts`
 
 #### `elements/tooltip`
 
@@ -392,33 +393,38 @@ Generated inventory of every component module, its public API, stories, interact
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| [`auth`](../src/components/pages/auth) | — | 0 | 0 | 1 | 0 |
-| [`auth/sign-in`](../src/components/pages/auth/sign-in) | ✅ | 4 | 3 | 0 | 0 |
-| [`auth/sign-up`](../src/components/pages/auth/sign-up) | ✅ | 5 | 4 | 0 | 0 |
-| [`auth/verify`](../src/components/pages/auth/verify) | ✅ | 3 | 3 | 0 | 0 |
-| [`dashboard`](../src/components/pages/dashboard) | ✅ | 12 | 12 | 1 | 1 |
+| [`auth/shared`](../src/components/pages/auth/shared) | — | 0 | 0 | 1 | 1 |
+| [`auth/sign-in`](../src/components/pages/auth/sign-in) | ✅ | 4 | 3 | 0 | 1 |
+| [`auth/sign-up`](../src/components/pages/auth/sign-up) | ✅ | 5 | 4 | 0 | 3 |
+| [`auth/verify`](../src/components/pages/auth/verify) | ✅ | 3 | 3 | 0 | 1 |
+| [`dashboard`](../src/components/pages/dashboard) | ✅ | 12 | 12 | 1 | 6 |
 | [`home`](../src/components/pages/home) | ✅ | 3 | 2 | 0 | 0 |
 | [`layouts/site-layout`](../src/components/pages/layouts/site-layout) | ✅ | 2 | 2 | 0 | 0 |
 | [`not-found`](../src/components/pages/not-found) | ✅ | 1 | 1 | 0 | 0 |
-| [`public-profile`](../src/components/pages/public-profile) | ✅ | 8 | 8 | 1 | 1 |
+| [`public-profile`](../src/components/pages/public-profile) | ✅ | 8 | 8 | 1 | 3 |
 
-#### `pages/auth`
+#### `pages/auth/shared`
 
 - **Public API (index.ts):** —
-- **Controllers:** `useSignInController`, `useSignUpController`
+- **Controllers:** `useGoogleSignInController`
 - **Mocks:** `auth-pages.mock.ts` → `authCredentials`, `authPageHandlers`
+- **Unit tests:** `use-google-sign-in.controller.test.ts`
 
 #### `pages/auth/sign-in`
 
 - **Public API (index.ts):** `SignInPage`, `SignInPageProps (type)`
+- **Controllers:** `useSignInController`
 - **Stories** `sign-in-page.stories.tsx` → _Pages/Auth/SignIn_: `Default`, `SignsIn`, `InvalidCredentials`, `Mobile`
 - **Mocks:** —
+- **Unit tests:** `use-sign-in.controller.test.ts`
 
 #### `pages/auth/sign-up`
 
 - **Public API (index.ts):** `SignUpPage`
+- **Controllers:** `useSignUpController`, `useUsernameAvailabilityController`
 - **Stories** `sign-up-page.stories.tsx` → _Pages/Auth/SignUp_: `Default`, `UsernameAvailable`, `UsernameTaken`, `SignsUp`, `Mobile`
 - **Mocks:** —
+- **Unit tests:** `use-sign-up.controller.test.ts`, `use-username-availability.controller.test.ts`, `username-availability.utils.test.ts`
 
 #### `pages/auth/verify`
 
@@ -426,6 +432,7 @@ Generated inventory of every component module, its public API, stories, interact
 - **Controllers:** `useVerifyController`
 - **Stories** `verify-page.stories.tsx` → _Pages/Auth/Verify_: `Default`, `Verifies`, `InvalidCode`
 - **Mocks:** —
+- **Unit tests:** `use-verify.controller.test.ts`
 
 #### `pages/dashboard`
 
@@ -433,7 +440,7 @@ Generated inventory of every component module, its public API, stories, interact
 - **Controllers:** `useInboxController`, `useProfileController`, `useSettingsController`, `useSmartReplyController`
 - **Stories** `dashboard-page.stories.tsx` → _Pages/Dashboard_: `Inbox`, `DeletesAMessage`, `RepliesWithAi`, `FiltersQuarantined`, `EmptyInbox`, `InboxError`, `InboxLoading`, `SettingsTab`, `ProfileTab`, `SessionLoading`, `SignedOut`, `Mobile`
 - **Mocks:** `dashboard-page.mock.ts` → `dashboardHandlers`
-- **Unit tests:** `settings-tab.test.tsx`
+- **Unit tests:** `inbox.utils.test.ts`, `profile.utils.test.ts`, `use-inbox.controller.test.ts`, `use-profile.controller.test.ts`, `use-settings.controller.test.ts`, `use-smart-reply.controller.test.ts`
 
 #### `pages/home`
 
@@ -459,7 +466,7 @@ Generated inventory of every component module, its public API, stories, interact
 - **Controllers:** `usePublicAnswersController`, `useSendMessageController`
 - **Stories** `public-profile-page.stories.tsx` → _Pages/PublicProfile_: `Default`, `SuggestionFillsForm`, `SendsMessage`, `NotAcceptingMessages`, `NoAnswersYet`, `AnswersLoading`, `SuggestionsUnavailable`, `Mobile`
 - **Mocks:** `public-profile-page.mock.ts` → `defaultPublicProfilePageArgs`, `publicProfileHandlers`
-- **Unit tests:** `public-profile-page.test.tsx`
+- **Unit tests:** `send-message.utils.test.ts`, `use-public-answers.controller.test.ts`, `use-send-message.controller.test.ts`
 
 ---
 

@@ -1,8 +1,8 @@
 import type { NextRequest } from "next/server";
 import { getServerSession, type User } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { generateSmartReply } from "@/lib/ai-smart-reply";
 import { smartReplySchema } from "@/schemas/message-schema";
+import { generateSmartReply } from "@/server/ai/smart-reply";
 
 export async function POST(request: NextRequest): Promise<Response> {
   try {

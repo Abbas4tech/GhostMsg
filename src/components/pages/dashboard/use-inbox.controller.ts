@@ -4,76 +4,34 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { BulkAction } from "@/components/patterns/bulk-action-toolbar";
-import type {
-  MessageFilterCounts,
-  MessageFilterStatus,
-} from "@/components/patterns/filter-bar";
+import type { MessageFilterStatus } from "@/components/patterns/filter-bar";
+import { messagesQueries } from "@/data/messages/messages.queries";
+import { useBulkActionMutation } from "@/data/messages/use-bulk-action-mutation";
+import { useDeleteMessageMutation } from "@/data/messages/use-delete-message-mutation";
+import { useLiveMessages } from "@/data/messages/use-live-messages";
+import { useUpdateMessageMutation } from "@/data/messages/use-update-message-mutation";
 import {
   useBlockSenderMutation,
   useUnblockSenderMutation,
-} from "@/hooks/mutations/use-block-sender-mutation";
-import { useBulkActionMutation } from "@/hooks/mutations/use-bulk-action-mutation";
-import { useDeleteMessageMutation } from "@/hooks/mutations/use-delete-message-mutation";
-import { useUpdateMessageMutation } from "@/hooks/mutations/use-update-message-mutation";
-import { useLiveMessages } from "@/hooks/use-live-messages";
+} from "@/data/user/use-block-sender-mutation";
+import { userQueries } from "@/data/user/user.queries";
+import { downloadTextFile } from "@/lib/browser/download";
 import {
-  downloadMessages,
+  buildMessagesExport,
   type MessageExportFormat,
-} from "@/lib/export-messages";
-import type { Message } from "@/model/user.model";
-import { messagesQueries } from "@/queries/messages.queries";
-import { userQueries } from "@/queries/user.queries";
+} from "@/lib/messages/export";
+import type { MessageDto } from "@/types/api";
+import { countByStatus, matchesSearch, matchesStatus } from "./inbox.utils";
 
 export type ActiveModalType = "block" | "delete" | "reply" | "story" | null;
 
 export type InboxViewMode = "grid" | "list";
 
 export interface UseInboxControllerOptions {
-  initialMessages?: Message[];
+  initialMessages?: MessageDto[];
   isRefreshing?: boolean;
-  onDelete?: (message: Message) => Promise<void>;
+  onDelete?: (message: MessageDto) => Promise<void>;
   onRefresh?: () => void;
-}
-
-const hasReplyText = (message: Message): boolean =>
-  Boolean(message.reply?.text && message.reply.text.trim().length > 0);
-
-export function matchesStatus(
-  message: Message,
-  status: MessageFilterStatus
-): boolean {
-  switch (status) {
-    case "unread":
-      return !(message.isQuarantined || message.isRead);
-    case "starred":
-      return Boolean(message.isPinned);
-    case "quarantined":
-      return Boolean(message.isQuarantined);
-    case "answered":
-      return hasReplyText(message);
-    default:
-      return !message.isQuarantined;
-  }
-}
-
-export function matchesSearch(message: Message, query: string): boolean {
-  if (!query.trim()) {
-    return true;
-  }
-  const q = query.toLowerCase();
-  const contentMatch = message.content.toLowerCase().includes(q);
-  const replyMatch = Boolean(message.reply?.text?.toLowerCase().includes(q));
-  return contentMatch || replyMatch;
-}
-
-export function countByStatus(messages: Message[]): MessageFilterCounts {
-  return {
-    all: messages.filter((m) => matchesStatus(m, "all")).length,
-    unread: messages.filter((m) => matchesStatus(m, "unread")).length,
-    starred: messages.filter((m) => matchesStatus(m, "starred")).length,
-    quarantined: messages.filter((m) => matchesStatus(m, "quarantined")).length,
-    answered: messages.filter((m) => matchesStatus(m, "answered")).length,
-  };
 }
 
 /**
@@ -97,7 +55,7 @@ export function useInboxController({
   // Centralized modal state. `activeMessage` is intentionally kept after close
   // so dialogs can play their exit animation with content still rendered.
   const [activeModal, setActiveModal] = useState<ActiveModalType>(null);
-  const [activeMessage, setActiveMessage] = useState<Message | null>(null);
+  const [activeMessage, setActiveMessage] = useState<MessageDto | null>(null);
 
   const {
     data: messagesResponse,
@@ -117,10 +75,8 @@ export function useInboxController({
   const unblockMutation = useUnblockSenderMutation();
   const bulkMutation = useBulkActionMutation();
 
-  const allMessages: Message[] = useMemo(
-    () =>
-      initialMessages ??
-      ((messagesResponse?.messages || []) as unknown as Message[]),
+  const allMessages: MessageDto[] = useMemo(
+    () => initialMessages ?? messagesResponse?.messages ?? [],
     [initialMessages, messagesResponse?.messages]
   );
 
@@ -169,26 +125,26 @@ export function useInboxController({
 
   // Modal triggers — stable references so memoized cards don't re-render.
   const openModal = useCallback(
-    (type: Exclude<ActiveModalType, null>, message: Message) => {
+    (type: Exclude<ActiveModalType, null>, message: MessageDto) => {
       setActiveMessage(message);
       setActiveModal(type);
     },
     []
   );
   const openBlockModal = useCallback(
-    (message: Message) => openModal("block", message),
+    (message: MessageDto) => openModal("block", message),
     [openModal]
   );
   const openDeleteModal = useCallback(
-    (message: Message) => openModal("delete", message),
+    (message: MessageDto) => openModal("delete", message),
     [openModal]
   );
   const openReplyModal = useCallback(
-    (message: Message) => openModal("reply", message),
+    (message: MessageDto) => openModal("reply", message),
     [openModal]
   );
   const openStoryModal = useCallback(
-    (message: Message) => openModal("story", message),
+    (message: MessageDto) => openModal("story", message),
     [openModal]
   );
   const closeModal = useCallback(() => {
@@ -197,7 +153,7 @@ export function useInboxController({
 
   // Inline actions
   const handleStarToggle = useCallback(
-    async (message: Message) => {
+    async (message: MessageDto) => {
       try {
         await updateMutation.mutateAsync({
           messageId: String(message._id),
@@ -227,7 +183,7 @@ export function useInboxController({
   );
 
   const handleDeleteConfirm = useCallback(
-    async (message: Message) => {
+    async (message: MessageDto) => {
       try {
         if (onDelete) {
           await onDelete(message);
@@ -260,7 +216,7 @@ export function useInboxController({
       const selected = allMessages.filter((m) =>
         selectedIds.includes(String(m._id))
       );
-      downloadMessages(selected, format);
+      downloadTextFile(buildMessagesExport(selected, format));
     },
     [allMessages, selectedIds]
   );

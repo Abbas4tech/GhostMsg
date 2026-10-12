@@ -8,10 +8,10 @@ This chapter details GhostMsg's type-safe API infrastructure, single-source-of-t
 
 ```mermaid
 flowchart LR
-    A["Zod Schemas\n(src/schemas/)"] --> B["OpenAPI 3.1 Registry\n(src/lib/openapi.ts)"]
+    A["Zod Schemas\n(src/schemas/)"] --> B["OpenAPI 3.1 Registry\n(src/server/openapi/openapi.ts)"]
     B --> C["pnpm typegen\n(scripts/generate-api-types.ts)"]
     C --> D["src/generated/api-schema.d.ts\n(Exported paths)"]
-    D --> E["openapi-fetch client\n(src/lib/api-client.ts)"]
+    D --> E["openapi-fetch client\n(src/data/api-client.ts)"]
     E --> F["React Query (queryOptions & useMutation)"]
     D --> G["Typed MSW handlers\n(src/mock/handlers — ok()/created())"]
     F --> H["Page controllers\n(src/components/pages/**/use-*.controller.ts)"]
@@ -48,7 +48,7 @@ export const signUpSchema = z
 
 ## 3. Registered Operations Matrix
 
-The OpenAPI registry in [`src/lib/openapi.ts`](file:///d:/Projects/GhostMsg/src/lib/openapi.ts) defines operations across auth, messaging, AI, moderation, and real-time streaming:
+The OpenAPI registry in [`src/server/openapi/openapi.ts`](file:///d:/Projects/GhostMsg/src/server/openapi/openapi.ts) defines operations across auth, messaging, AI, moderation, and real-time streaming:
 
 | Endpoint | Method | Auth Required | Request Payload / Params | Success Status | Error Statuses | Purpose |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -105,7 +105,7 @@ This generates [`src/generated/api-schema.d.ts`](file:///d:/Projects/GhostMsg/sr
 
 ## 6. Client Transport: `openapi-fetch` + React Query Architecture
 
-Axios is deprecated and uninstalled. GhostMsg uses `createClient<paths>()` from `openapi-fetch` wrapped in a throwing `clientFetch` helper in [`src/lib/api-client.ts`](file:///d:/Projects/GhostMsg/src/lib/api-client.ts) alongside domain `queryOptions` and custom mutation hooks as established in [ADR 0006](file:///d:/Projects/GhostMsg/docs/adr/0006-standardized-api-calling-and-react-query-architecture.md).
+Axios is deprecated and uninstalled. GhostMsg uses `createClient<paths>()` from `openapi-fetch` wrapped in a throwing `clientFetch` helper in [`src/data/api-client.ts`](file:///d:/Projects/GhostMsg/src/data/api-client.ts) alongside domain `queryOptions` and custom mutation hooks as established in [ADR 0006](file:///d:/Projects/GhostMsg/docs/adr/0006-standardized-api-calling-and-react-query-architecture.md).
 
 For complete implementation blueprints, query key hierarchies, and optimistic update recipes, see [API & React Query Architecture Blueprint](file:///d:/Projects/GhostMsg/docs/api-and-react-query-architecture.md).
 

@@ -4,9 +4,9 @@ import "./globals.css";
 import type React from "react";
 
 import { Toaster } from "@/components/elements/sonner";
-import AuthProvider from "@/context/auth-provider";
-import QueryProvider from "@/context/query-provider";
-import ThemeProvider from "@/context/theme-provider";
+import AuthProvider from "@/providers/auth-provider";
+import QueryProvider from "@/providers/query-provider";
+import ThemeProvider from "@/providers/theme-provider";
 
 const poppins = Poppins({
   variable: "--font-poppins",

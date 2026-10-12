@@ -1,7 +1,6 @@
-import type { components } from "@/generated/api-schema";
+import type { NotificationSettingsDto } from "@/types/api";
 
-export type NotificationSettingsFixture =
-  components["schemas"]["NotificationSettings"];
+export type NotificationSettingsFixture = NotificationSettingsDto;
 
 export function buildNotificationSettings(
   overrides: Partial<NotificationSettingsFixture> = {}

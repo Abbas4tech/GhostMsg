@@ -41,7 +41,7 @@ pnpm exec tsc --noEmit
 
 | Banned Practice | Enforced Alternative |
 | :--- | :--- |
-| `axios` imports | `api` (`openapi-fetch`) from [`@/lib/api-client`](file:///d:/Projects/GhostMsg/src/lib/api-client.ts) |
+| `axios` imports | `api` (`openapi-fetch`) from [`@/data/api-client`](file:///d:/Projects/GhostMsg/src/data/api-client.ts) |
 | Untyped raw `fetch()` calls | `api.GET()`, `api.POST()`, `api.DELETE()` |
 | Manual `useState` for API data | `@tanstack/react-query` (`useQuery`, `useMutation`) |
 | Untyped `any` casting | Strongly typed Zod schemas (`z.infer<typeof schema>`) |
@@ -65,14 +65,16 @@ GhostMsg enforces a **zero-inline-suppression policy** and strict linter rules f
 
 | Setting | Scope | Purpose |
 | :--- | :--- | :--- |
-| `files.includes` | `src/**`, `.storybook/**`, `emails/**`, `scripts/**`, `docs/**`, root configs | Lint and format targets (`src/types/api.ts`, `public/`, `.next/` excluded) |
+| `files.includes` | `src/**`, `.storybook/**`, `emails/**`, `scripts/**`, `docs/**`, root configs | Lint and format targets (`public/`, `.next/` excluded) |
 | `performance.noBarrelFile: off` | global | Module `index.ts` public APIs are allowed. Tier-level barrels are intentionally absent. |
 | `suspicious.noArrayIndexKey: error` | global | Stable React keys |
 | `style.noRestrictedImports` | global | Bans `@/components/ui/**` and `@/components/animate-ui/**` |
-| `style.noRestrictedImports` | `elements/**`, `patterns/**`, `blocks/**` | Tier DAG + bans data/logic modules (`@tanstack/react-query`, `@/queries/**`, `@/hooks/mutations/**`, `@/hooks/use-live-messages`, `next-auth/react`, `next/navigation`, `@/lib/push-notification-adapter`) |
+| `style.noRestrictedImports` | `elements/**`, `patterns/**`, `blocks/**` | Tier DAG + bans data/logic modules (`@tanstack/react-query`, `@/data/**`, `next-auth/react`, `next/navigation`) + bans `@/server/**` |
+| `style.noRestrictedImports` | `pages/**`, `src/data/**`, `src/hooks/**`, `src/providers/**`, `src/content/**`, `src/mock/**`, `src/types/**`, `.storybook/**` | Bans `@/server/**` and `server-only` (ADR 0018) |
+| `style.noRestrictedImports` | `src/lib/**` (not tests) | Bans `react`, `next/**`, `next-auth/**`, `@tanstack/**`, `@/data/**`, `@/components/**`, `@/server/**` (ADR 0018) |
 | `a11y.useSemanticElements: off` | `elements/carousel/**`, `elements/input-otp/**` | Radix `role="region"` / `role="separator"` |
 | `a11y.noNoninteractiveElementInteractions`, `noStaticElementInteractions: off` | `elements/effects/**`, `elements/**/*.primitive.tsx` | Vendored motion primitives |
-| `style.noExportedImports: off` | `src/lib/openapi-zod.ts` | Re-exported extended `z` |
+| `style.noExportedImports: off` | `src/schemas/zod.ts` | Re-exported extended `z` |
 
 ## 6. Story, mock and test conventions enforced by lint
 

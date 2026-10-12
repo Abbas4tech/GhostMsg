@@ -3,7 +3,7 @@
 import type React from "react";
 import { AuthPanel } from "@/components/blocks/auth-panel";
 import { SignUpForm } from "@/components/patterns/auth-form";
-import { useSignUpController } from "../use-auth-form.controller";
+import { useSignUpController } from "./use-sign-up.controller";
 
 export function SignUpPage(): React.JSX.Element {
   const signUpForm = useSignUpController();

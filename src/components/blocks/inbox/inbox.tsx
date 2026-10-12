@@ -28,9 +28,9 @@ import {
   MessageCard,
   type MessageCardProps,
 } from "@/components/patterns/message-card";
-import type { MessageExportFormat } from "@/lib/export-messages";
+import type { MessageExportFormat } from "@/lib/messages/export";
 import { cn } from "@/lib/utils";
-import type { Message } from "@/model/user.model";
+import type { MessageDto } from "@/types/api";
 
 export type InboxViewMode = "grid" | "list";
 
@@ -70,7 +70,7 @@ export interface InboxProps {
   isRefreshing?: boolean;
   isSenderBlocked?: (senderHash?: string) => boolean;
   /** Messages after filtering/search. */
-  messages: Message[];
+  messages: MessageDto[];
   onRefresh: () => void;
   onViewModeChange: (mode: InboxViewMode) => void;
   selection: InboxSelection;

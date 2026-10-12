@@ -5,7 +5,8 @@ import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useIsClient } from "usehooks-ts";
 import { DEFAULT_AMA_PROMPT } from "@/components/patterns/ama-banner";
-import { useAmaPromptMutation } from "@/hooks/mutations/use-ama-prompt-mutation";
+import { useAmaPromptMutation } from "@/data/user/use-ama-prompt-mutation";
+import { buildProfileUrl } from "./profile.utils";
 
 /** Profile tab state: shareable profile URL and the AMA banner editor. */
 export function useProfileController() {
@@ -14,10 +15,14 @@ export function useProfileController() {
   const [amaPrompt, setAmaPrompt] = useState(DEFAULT_AMA_PROMPT);
   const amaMutation = useAmaPromptMutation();
 
-  const profileUrl = useMemo(() => {
-    const origin = isClient ? window.location.origin : "";
-    return `${origin}/u/${session?.user?.username || ""}`;
-  }, [isClient, session?.user?.username]);
+  const profileUrl = useMemo(
+    () =>
+      buildProfileUrl(
+        isClient ? window.location.origin : "",
+        session?.user?.username
+      ),
+    [isClient, session?.user?.username]
+  );
 
   const handleCopyProfileUrl = useCallback(() => {
     toast.success("Profile link copied to clipboard!");

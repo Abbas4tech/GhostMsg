@@ -1,8 +1,8 @@
-import type { components } from "@/generated/api-schema";
+import type { PublicAnswerDto } from "@/types/api";
 import { fixtureDate } from "./messages.fixtures";
 
 /** Public Q&A item exactly as `GET /api/public/{username}/answers` returns it. */
-export type PublicAnswerFixture = components["schemas"]["PublicAnswerItem"];
+export type PublicAnswerFixture = PublicAnswerDto;
 
 export const FIXTURE_USERNAME = "johndoe";
 export const FIXTURE_AMA_PROMPT =

@@ -5,11 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { SendMessageValues } from "@/components/patterns/send-message-form";
-import { useSendMessageMutation } from "@/hooks/mutations/use-send-message-mutation";
-import { useSuggestMessagesMutation } from "@/hooks/mutations/use-suggest-messages-mutation";
+import { useSendMessageMutation } from "@/data/public/use-send-message-mutation";
+import { useSuggestMessagesMutation } from "@/data/public/use-suggest-messages-mutation";
 import { messageSchema } from "@/schemas/message-schema";
-
-const SUGGESTION_SEPARATOR = "||";
+import { parseSuggestions } from "./send-message.utils";
 
 export interface UseSendMessageControllerOptions {
   /** Fetch AI suggestions once on mount (default: true). */
@@ -59,12 +58,7 @@ export function useSendMessageController({
     try {
       const response = await suggestAsync();
       if (response?.success) {
-        setSuggestions(
-          (response.messages || "")
-            .split(SUGGESTION_SEPARATOR)
-            .map((m) => m.trim())
-            .filter(Boolean)
-        );
+        setSuggestions(parseSuggestions(response.messages));
       }
     } catch (error) {
       const message =

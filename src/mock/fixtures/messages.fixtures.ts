@@ -1,7 +1,7 @@
-import type { components } from "@/generated/api-schema";
+import type { MessageDto } from "@/types/api";
 
-/** Inbox message exactly as `GET /api/get-messages` returns it. Assignable to the `Message` model. */
-export type MessageFixture = components["schemas"]["MessageItem"];
+/** Inbox message exactly as `GET /api/get-messages` returns it. */
+export type MessageFixture = MessageDto;
 
 const BASE_DATE = Date.parse("2026-10-09T10:00:00.000Z");
 const HOUR_MS = 60 * 60 * 1000;

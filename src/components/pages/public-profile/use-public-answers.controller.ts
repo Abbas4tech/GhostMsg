@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { PublicQaItem } from "@/components/patterns/public-qa-feed";
-import { messagesQueries } from "@/queries/messages.queries";
+import { messagesQueries } from "@/data/messages/messages.queries";
 
 const EMPTY_ANSWERS: PublicQaItem[] = [];
 

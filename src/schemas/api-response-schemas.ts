@@ -1,4 +1,4 @@
-import { z } from "@/lib/openapi-zod";
+import { z } from "@/schemas/zod";
 import { messageReplySchema, sentimentTagEnum } from "./message-schema";
 
 export const baseResponseSchema = z

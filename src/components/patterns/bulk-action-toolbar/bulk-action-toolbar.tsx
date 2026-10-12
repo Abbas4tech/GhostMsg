@@ -3,7 +3,7 @@
 import { CheckCheck, Download, Star, Trash2, X } from "lucide-react";
 import type React from "react";
 import { Button } from "@/components/elements/button";
-import type { MessageExportFormat } from "@/lib/export-messages";
+import type { MessageExportFormat } from "@/lib/messages/export";
 
 export type BulkAction = "delete" | "read" | "star";
 

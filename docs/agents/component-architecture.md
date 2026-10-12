@@ -30,7 +30,7 @@ flowchart TD
         E["Button · Card · Tabs · Dialog · LiquidButton · effects/ …"]
     end
 
-    DATA[("@tanstack/react-query · @/queries · @/hooks/mutations<br/>next-auth/react · next/navigation<br/>@/lib/push-notification-adapter · @/hooks/use-live-messages")]
+    DATA[("@tanstack/react-query · @/queries · @/hooks/mutations<br/>next-auth/react · next/navigation<br/>@/data/user/use-push-notification · @/data/messages/use-live-messages")]
 
     R1 --> P
     P --> B & PT & E
@@ -70,7 +70,7 @@ Quick reference:
 | A page section with title/controls/list | **blocks** | `blocks/inbox/inbox.tsx` |
 | A form, card, modal, toolbar, badge with domain meaning | **patterns** | `patterns/auth-form/sign-in-form.tsx` |
 | A button, input, dialog, tabs, motion effect | **elements** | `elements/liquid-button/` |
-| A pure helper (formatting, export) | `src/lib/` | `src/lib/export-messages.ts` |
+| A pure helper (formatting, export) | `src/lib/` | `src/lib/messages/export.ts` |
 
 ---
 
@@ -157,20 +157,29 @@ pages/
 ├── layouts/site-layout/        ← app/(app)/layout.tsx, also used by home
 ├── home/                       ← app/page.tsx
 ├── auth/
-│   ├── use-auth-form.controller.ts   (shared: sign-in, sign-up, username availability, Google)
+│   ├── shared/                 (logic used by sibling pages)
+│   │   ├── use-google-sign-in.controller.ts (+ .test.ts)
+│   │   └── auth-pages.mock.ts
 │   ├── sign-in/                ← app/(app)/(auth)/sign-in/page.tsx
+│   │   └── use-sign-in.controller.ts (+ .test.ts)
 │   ├── sign-up/                ← app/(app)/(auth)/sign-up/page.tsx
+│   │   ├── use-sign-up.controller.ts (+ .test.ts)
+│   │   ├── use-username-availability.controller.ts (+ .test.ts)
+│   │   └── username-availability.utils.ts (+ .test.ts)
 │   └── verify/                 ← app/(app)/(auth)/verify/[username]/page.tsx
+│       └── use-verify.controller.ts (+ .test.ts)
 ├── dashboard/                  ← app/(app)/(dashboard)/dashboard/page.tsx
 │   ├── dashboard-page.tsx      (session gate + DashboardShell + lazy tabs)
 │   ├── inbox-tab.tsx  profile-tab.tsx  settings-tab.tsx
-│   └── use-{inbox,smart-reply,profile,settings}.controller.ts
+│   ├── use-{inbox,smart-reply,profile,settings}.controller.ts (+ .test.ts each)
+│   └── {inbox,profile}.utils.ts (+ .test.ts each)
 ├── public-profile/             ← app/u/[username]/page.tsx
 └── not-found/                  ← app/not-found.tsx
 ```
 
-- **One controller per concern**, named `use<Concern>Controller` in `use-<concern>.controller.ts`. It returns plain values plus `handle*` callbacks wrapped in `useCallback`, and `is*Pending` flags.
-- **Logic shared by sibling pages** lives one folder up (`pages/auth/use-auth-form.controller.ts`). It never moves down into a block.
+- **One controller hook per file**, named `use<Concern>Controller` in `use-<concern>.controller.ts`, with a colocated `use-<concern>.controller.test.ts` ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q5/Q7). It returns plain values plus `handle*` callbacks wrapped in `useCallback`, and `is*Pending` flags.
+- **Logic shared by sibling pages** lives in `pages/<group>/shared/` (e.g. `pages/auth/shared/use-google-sign-in.controller.ts`). It never moves down into a block.
+- **Pure logic inside a controller** (filters, parsers, status mapping) moves to a colocated `<module>.utils.ts` with a `.utils.test.ts`. Once two or more modules use it, it's promoted to `src/lib/<domain>/`.
 - **Toasts after a side effect belong in controllers.** Purely UI feedback inside a pattern (the story card's "downloaded" toast) is fine.
 
 ```tsx
@@ -214,7 +223,7 @@ export default VerifyUserPage;
 | **pages** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **app/** | — | — | — | ✅ | metadata only |
 
-¹ `@tanstack/react-query`, `@/queries/**`, `@/hooks/mutations/**`, `@/hooks/use-live-messages`, `next-auth/react`, `next/navigation`, `@/lib/push-notification-adapter`.
+¹ `@tanstack/react-query`, `@/queries/**`, `@/hooks/mutations/**`, `@/data/messages/use-live-messages`, `next-auth/react`, `next/navigation`, `@/data/user/use-push-notification`.
 
 Also:
 - **Use the module's folder** (`@/components/patterns/message-card`), which resolves to its `index.ts`. Inside a folder, sibling files use relative imports (`./button.primitive`).
@@ -274,17 +283,19 @@ Cross-field side effects stay in the controller and write back into form state:
 
 ### 5.4 Browser APIs
 
-Browser APIs go behind an adapter in `src/lib/` (e.g. `push-notification-adapter.ts`), consumed only by a page controller.
+Browser APIs that talk to the API go behind a hook in `src/data/<domain>/` (e.g. `src/data/user/use-push-notification.ts`), consumed only by a page controller. Pure browser side effects without React live in `src/lib/browser/` (e.g. `downloadTextFile`) and stay separate from the pure builders that feed them ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q4).
 
 ---
 
 ## 6. Enforcement: what fails and why
 
-`biome.jsonc` has `style/noRestrictedImports` overrides per tier. Each diagnostic message names the rule and ADR 0015:
+`biome.jsonc` has `style/noRestrictedImports` overrides per tier and per source folder. Each diagnostic message names the rule and its ADR (0015 or 0018):
 
 | Diagnostic message starts with | Cause | Fix |
 | :--- | :--- | :--- |
-| "Business logic (queries, mutations, …) belongs in @/components/pages" | Data/logic import below pages | Move the hook into a page controller. Pass data and callbacks down. |
+| "Business logic (queries, mutations, … in @/data) belongs in @/components/pages" | `@/data/**`, `@tanstack/react-query`, `next-auth/react` or `next/navigation` imported below pages | Move the hook into a page controller. Pass data and callbacks down. |
+| "Server-only code (@/server/**) is imported only by src/app/**" | A component, data, hook, provider, mock, type or Storybook file imports `@/server/**` or `server-only` | Call the API through `@/data`. For a type, use the OpenAPI DTO from `@/types/api`. |
+| "src/lib is framework-free" | `src/lib/**` imports React, Next, NextAuth, TanStack, `@/data` or `@/components` | Move a hook to `@/hooks` (generic) or `@/data/<domain>` (API). Keep only the pure part in `src/lib`. |
 | "Elements are Tier 1…" / "Patterns are Tier 2…" / "Blocks are Tier 3…" | Upward import | Invert it: pass the higher-tier piece in as a prop or slot, or move the component up a tier. |
 | "animate-ui and shadcn ui live in @/components/elements now" | Import from a deleted vendor path | Import from `@/components/elements/<name>`. If a registry install just created the folder, see section 7.4. |
 
@@ -313,14 +324,14 @@ Other overrides: a11y relaxations apply only to `elements/effects/**`, `elements
 1. Create `pages/<route>/<route>-page.tsx`, `index.ts` and any `use-*.controller.ts`.
 2. Compose it from existing blocks. Create a new block only if no existing block fits (section 2).
 3. Create a thin `app/**/page.tsx` (section 3.5).
-4. Add `<route>-page.stories.tsx` (title `Pages/…`, `parameters.pageProviders: true`, one story per MSW scenario: default, empty, error, signed-out, slow). Add controller tests in `*.test.tsx` via `renderHook`; the unit project's `msw/node` server answers their requests.
+4. Add `<route>-page.stories.tsx` (title `Pages/…`, `parameters.pageProviders: true`, one story per MSW scenario: default, empty, error, signed-out, slow). Add one `use-*.controller.test.ts` per controller via `renderHookWithProviders` (`src/test/test-utils.tsx`); the unit project's `msw/node` server answers their requests. Move pure helpers into `<route>.utils.ts` with a `.utils.test.ts`.
 
 **Done when** `app/**/page.tsx` contains only metadata, params and one JSX element.
 
 ### 7.4 Adding a shadcn or Animate UI registry component
 1. Run `npx shadcn add <name>`. `components.json` maps `ui` to `@/components/elements`. For Animate UI, run `npx shadcn add @animate-ui/<name>`; it writes to `src/components/animate-ui/...`.
 2. Move the styled file to `elements/<name>/<name>.tsx` and the motion primitive to `elements/<name>/<name>.primitive.tsx`. Merge new effects into `elements/effects/`. If the item ships its own Button, keep `elements/button` and merge only the new variants.
-3. Rewrite imports to `@/components/elements/...`. Generic hooks it brings (`@/hooks/use-*`) and `@/lib/get-strict-context` stay where they are.
+3. Rewrite imports to `@/components/elements/...`. Generic hooks it brings (`@/hooks/use-*`) and `@/hooks/get-strict-context` stay where they are.
 4. Delete the leftover `src/components/animate-ui/` (or `ui/`) folder. Add `index.ts`, `<name>.mock.ts` and `<name>.stories.tsx` (interactions in `play()`), then run `pnpm docs:registry`.
 
 **Done when** `rg "components/(animate-ui|ui)/" src` returns nothing and lint passes.
@@ -360,7 +371,7 @@ Owner of each kind of test ([ADR 0016](../adr/0016-storybook-msw-and-story-drive
 | :--- | :--- | :--- |
 | Element / pattern / block behaviour + a11y | `*.stories.tsx` (`play()`) | Vitest `storybook` project (Chromium) |
 | Page wiring under API scenarios | `Pages/*` stories with MSW handlers | Vitest `storybook` project |
-| Controllers, `src/lib`, schemas, page integration | `*.test.tsx` | Vitest `unit` project (happy-dom + `msw/node`) |
+| Controllers, `*.utils.ts`, `src/lib`, `src/server`, schemas | colocated `*.controller.test.ts` / `*.test.ts` | Vitest `unit` project (happy-dom + `msw/node`) |
 
 Rules:
 - **Mock data** comes from `src/mock/fixtures` builders and scenarios. A `*.mock.ts` only shapes args, and never imports another component's mock.

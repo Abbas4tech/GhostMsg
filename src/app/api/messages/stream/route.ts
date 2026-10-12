@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { getServerSession, type User } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { subscribeToMessages } from "@/lib/event-bus";
+import { subscribeToMessages } from "@/server/realtime/event-bus";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

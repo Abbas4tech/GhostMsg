@@ -33,20 +33,55 @@ src/
     └── pages/                        # Tier 4: route components + ALL business logic
         ├── layouts/site-layout/      # session → SiteHeader
         ├── home/
-        ├── auth/ (sign-in/, sign-up/, verify/, use-auth-form.controller.ts)
+        ├── auth/ (shared/use-google-sign-in, sign-in/use-sign-in, sign-up/use-sign-up + use-username-availability, verify/use-verify)
         ├── dashboard/ (dashboard-page, inbox-tab, profile-tab, settings-tab, use-*.controller.ts)
         ├── public-profile/ (public-profile-page, use-send-message / use-public-answers controllers)
         └── not-found/
 ```
 
 ### Strict Unidirectional Dependency Rule (DAG), lint-enforced
-- **Pages** may import blocks, patterns, elements, and every data/logic module (`@tanstack/react-query`, `@/hooks/mutations`, `@/queries`, `next-auth/react`, `next/navigation`, `@/lib/push-notification-adapter`, `@/hooks/use-live-messages`).
+- **Pages** may import blocks, patterns, elements, and every data/logic module (`@tanstack/react-query`, `@/data/**` (queries, mutations, live messages, push), `next-auth/react`, `next/navigation`).
 - **Blocks** may import patterns and elements. They may not import pages or any data/logic module.
 - **Patterns** may import elements and other patterns. They may not import blocks, pages or any data/logic module.
 - **Elements** may import other elements only (plus external primitives like Radix and Motion).
 - Nothing may import `@/components/ui` or `@/components/animate-ui`. Those folders no longer exist.
+- No component, data, hook, provider, mock or Storybook file may import `@/server/**` or `server-only` ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md)).
 
 Biome's `noRestrictedImports` overrides in [`biome.jsonc`](file:///d:/Projects/GhostMsg/biome.jsonc) enforce these rules, so `pnpm check` fails on a violation.
+
+### Controller composition (pages tier)
+
+Controllers are one hook per file. They compose shared controllers and pure `*.utils.ts`, and are the only components that reach `@/data` ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q5):
+
+```mermaid
+flowchart LR
+    subgraph Auth["pages/auth"]
+        SIP["SignInPage"] --> SI["useSignInController"]
+        SUP["SignUpPage"] --> SU["useSignUpController"]
+        VP["VerifyPage"] --> V["useVerifyController"]
+        SU --> UA["useUsernameAvailabilityController"]
+        SI --> G["shared/useGoogleSignInController"]
+        SU --> G
+        UA --> UAU["username-availability.utils"]
+    end
+    subgraph Dash["pages/dashboard"]
+        IT["InboxTab"] --> IC["useInboxController"]
+        IT --> SR["useSmartReplyController"]
+        PT["ProfileTab"] --> PC["useProfileController"]
+        ST["SettingsTab"] --> SC["useSettingsController"]
+        IC --> IU["inbox.utils"]
+        IC --> EX["lib/messages/export + lib/browser/download"]
+        PC --> PU["profile.utils"]
+    end
+    subgraph Pub["pages/public-profile"]
+        PPP["PublicProfilePage"] --> SMC["useSendMessageController"]
+        PPP --> PAC["usePublicAnswersController"]
+        SMC --> SMU["send-message.utils"]
+    end
+    Auth --> DATA["@/data/**"]
+    Dash --> DATA
+    Pub --> DATA
+```
 
 ### Adding Registry Components (shadcn / Animate UI)
 `components.json` maps the `ui` alias to `@/components/elements`. After `npx shadcn add @animate-ui/<name>`:
@@ -58,7 +93,7 @@ Biome's `noRestrictedImports` overrides in [`biome.jsonc`](file:///d:/Projects/G
 Every element's **default** variant and size reproduce the original shadcn primitive class-for-class (e.g. `Card` = `border bg-card py-4 shadow-sm`, `Switch` thumb dark-mode colors, `Input` selection/file styles). Extra variants (`glass`, `ghost`, `bordered`, `filled`, …) are strictly opt-in, so swapping `ui/*` for `elements/*` never changes existing screens. **The only approved exception is WCAG AA contrast** ([ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md) Q17/Q18): sentiment badge text `-600 → -700`, red status text `red-500 → red-700` (`dark:text-red-400`), destructive badge text `text-white`, and light-mode `--muted-foreground` `oklch(0.553 …) → oklch(0.5 …)`.
 
 ### Colocated Module Directory Standard
-Each module folder holds its implementation, public API, mock args and stories. Controllers exist **only** in `pages/`, and `*.test.tsx` only for controllers and integration ([ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md)):
+Each module folder holds its implementation, public API, mock args and stories. Controllers exist **only** in `pages/`, one hook per file, each with a colocated `*.controller.test.ts`. Pure helpers sit next to their consumer as `<module>.utils.ts` + `<module>.utils.test.ts` ([ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md), [ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md)):
 
 ```
 src/components/patterns/message-card/        # pure pattern
@@ -71,11 +106,14 @@ src/components/pages/dashboard/              # page (impure by design)
 ├── index.ts
 ├── dashboard-page.tsx        # session gate + DashboardShell + lazy tabs
 ├── inbox-tab.tsx  profile-tab.tsx  settings-tab.tsx
-├── use-inbox.controller.ts   use-smart-reply.controller.ts
-├── use-profile.controller.ts use-settings.controller.ts
+├── use-inbox.controller.ts        + use-inbox.controller.test.ts       # renderHook + MSW
+├── use-smart-reply.controller.ts  + use-smart-reply.controller.test.ts
+├── use-profile.controller.ts      + use-profile.controller.test.ts
+├── use-settings.controller.ts     + use-settings.controller.test.ts
+├── inbox.utils.ts   + inbox.utils.test.ts      # pure filter/count helpers
+├── profile.utils.ts + profile.utils.test.ts
 ├── dashboard-page.mock.ts    # MSW handler sets (withScenario…)
-├── dashboard-page.stories.tsx# real controllers against MSW
-└── settings-tab.test.tsx     # controller/integration test (unit project)
+└── dashboard-page.stories.tsx# real controllers against MSW
 ```
 
 ---
@@ -88,7 +126,7 @@ GhostMsg uses Tailwind CSS v4 with custom CSS variable tokens defined in [`src/a
 - **Background & Foreground**: Dynamic HSL tokens for light/dark mode adaptation.
 - **Primary / Accent**: Purple & Ghost vibrant hues for branding.
 - **Typography**: Google Font **Poppins** loaded via `next/font/google` in [`src/app/layout.tsx`](file:///d:/Projects/GhostMsg/src/app/layout.tsx#L9-L13).
-- **Theme Provider**: [`next-themes`](file:///d:/Projects/GhostMsg/src/context/theme-provider.tsx) supporting system, light, and dark modes with zero flash.
+- **Theme Provider**: [`next-themes`](file:///d:/Projects/GhostMsg/src/providers/theme-provider.tsx) supporting system, light, and dark modes with zero flash.
 
 ---
 
@@ -110,10 +148,10 @@ GhostMsg uses Tailwind CSS v4 with custom CSS variable tokens defined in [`src/a
 
 - **Component Segregation**: Pages are split into focused pure patterns (`SendMessageForm`, `SuggestedMessages`, `PublicQaFeed`, `MessageCard`, `StoryCardModal`). Dashboard tabs are separate page-level components (`inbox-tab`, `profile-tab`, `settings-tab`), each with its own controller, so render and query boundaries stay isolated.
 - **Hoisted Modal Overlays**: Each modal (`BlockSenderModal`, `DeleteMessageModal`, `SmartReplyModal`, `StoryCardModal`) is mounted **once**, as a sibling of the `Inbox` block, inside the page-level `inbox-tab.tsx`. `useInboxController` holds `activeModal` + `activeMessage`, and `closeModal` resets only `activeModal`, so dialogs animate out with their content ([ADR 0014](file:///d:/Projects/GhostMsg/docs/adr/0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md), [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
-- **Ports & Adapters for Browser Infrastructure**: External browser APIs (`PushManager`, ServiceWorker, Web Push) are encapsulated in dedicated adapters (`src/lib/push-notification-adapter.ts`) rather than leaking into React component trees.
+- **Ports & Adapters for Browser Infrastructure**: External browser APIs (`PushManager`, ServiceWorker, Web Push) are encapsulated in dedicated adapters (`src/data/user/use-push-notification.ts`) rather than leaking into React component trees.
 - **Form Validation**: Page controllers create the `react-hook-form` instance with `zodResolver(schema)` and `mode: "onChange"`. Form patterns receive it as `form: UseFormReturn<Values>`, render the fields and call `form.handleSubmit(onSubmit)`. Pending state comes from the controller (`isSubmitting`).
 - **Deterministic Optimistic Updates**: Standardized on TanStack Query `onMutate` cache updates with context rollback in `onError` as specified in [ADR 0006](file:///d:/Projects/GhostMsg/docs/adr/0006-standardized-api-calling-and-react-query-architecture.md).
-- **Debounced Username Availability**: `useSignUpController` (in `pages/auth/use-auth-form.controller.ts`) watches the username with `useWatch`, debounces it by 400 ms with `useDebounceValue`, queries `authQueries.checkUsername`, and writes the result back with `form.setError` / `clearErrors`. The pure `UsernameField` pattern only renders `availability: "idle" | "checking" | "available" | "taken"`.
+- **Debounced Username Availability**: `useUsernameAvailabilityController` (in `pages/auth/sign-up/use-username-availability.controller.ts`, composed by `useSignUpController`) watches the username with `useWatch`, debounces it by 400 ms with `useDebounceValue`, queries `authQueries.checkUsername`, and writes the result back with `form.setError` / `clearErrors`. The status mapping is the pure `deriveUsernameAvailability` in `username-availability.utils.ts`. The pure `UsernameField` pattern only renders `availability: "idle" | "checking" | "available" | "taken"`.
 - **Client-Side Story Card Engine**: `StoryCardModal` mounts an isolated offscreen/preview canvas node with CSS theme variables to generate PNG blobs without server roundtrips.
 
 ---
@@ -138,8 +176,8 @@ Folder contract per module:
 | `index.ts` (public API only, never mocks) | ✅ | ✅ | ✅ | ✅ |
 | `<name>.mock.ts` (args built from `src/mock/fixtures`) | ✅ | ✅ | ✅ | ✅ (MSW handler sets) |
 | `<name>.stories.tsx` (five-point standard) | ✅ | ✅ | ✅ | ✅ (`pageProviders: true`) |
-| `use-<concern>.controller.ts` | — | — | — | ✅ |
-| `*.test.tsx` | — | — | — | controllers / integration only |
+| `use-<concern>.controller.ts` + `.controller.test.ts` | — | — | — | ✅ (one hook per file) |
+| `<module>.utils.ts` + `.utils.test.ts` | optional | optional | optional | optional (pure logic only) |
 
 Shared callback stub: `src/mock/noop.ts`.
 

@@ -28,7 +28,7 @@ import {
 } from "@/components/elements/tooltip";
 import { SentimentBadge } from "@/components/patterns/sentiment-badge";
 import { cn } from "@/lib/utils";
-import type { Message } from "@/model/user.model";
+import type { MessageDto } from "@/types/api";
 
 const TIMESTAMP_FORMAT: Intl.DateTimeFormatOptions = {
   month: "short",
@@ -42,12 +42,12 @@ const TIMESTAMP_FORMAT: Intl.DateTimeFormatOptions = {
 export interface MessageCardProps extends Omit<CardProps, "children"> {
   isSelected?: boolean;
   isSenderBlocked?: boolean;
-  message: Message;
-  onOpenBlock?: (message: Message) => void;
-  onOpenDelete?: (message: Message) => void;
-  onOpenReply?: (message: Message) => void;
-  onOpenStoryCard?: (message: Message) => void;
-  onStarToggle?: (message: Message) => void;
+  message: MessageDto;
+  onOpenBlock?: (message: MessageDto) => void;
+  onOpenDelete?: (message: MessageDto) => void;
+  onOpenReply?: (message: MessageDto) => void;
+  onOpenStoryCard?: (message: MessageDto) => void;
+  onStarToggle?: (message: MessageDto) => void;
   onToggleSelect?: (messageId: string) => void;
 }
 

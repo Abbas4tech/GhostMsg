@@ -90,17 +90,17 @@ GhostMsg/
 │   │   ├── patterns/           # Tier 2: pure domain compositions (cards, forms, modals)
 │   │   ├── blocks/             # Tier 3: pure page sections
 │   │   └── pages/              # Tier 4: route components + controllers (all business logic)
-│   ├── context/                # Context providers (Auth, Query, Theme)
+│   ├── content/                # Static app content (landing carousel messages)
+│   ├── data/                   # Client data layer: api-client, query-keys, <domain>/{queries, use-*-mutation, live/push hooks}
 │   ├── generated/              # Auto-generated TypeScript API types
-│   ├── helpers/                # Email dispatchers & helpers
-│   ├── hooks/                  # Custom React hooks (dashboard, message toggles)
-│   ├── lib/                    # DB singleton, openapi-fetch client, OpenAPI registry, push adapter
+│   ├── hooks/                  # Generic React hooks only (get-strict-context, …)
+│   ├── lib/                    # Pure, framework-free helpers by domain (utils, messages/export, browser/download)
 │   ├── mock/                   # fixtures/ (domain builders), handlers/ (MSW scenarios), noop.ts
-│   ├── model/                  # Mongoose models & schemas (User, Message)
-│   ├── schemas/                # Zod validation schemas extended with OpenAPI metadata
-│   ├── queries/                # React Query keys + queryOptions
-│   ├── test/                   # Unit setup (msw/node server, polyfills) & render utilities
-│   └── types/                  # TypeScript definitions & ambient declarations
+│   ├── providers/              # Context providers (Auth, Query, Theme)
+│   ├── schemas/                # Universal Zod schemas + OpenAPI metadata (zod.ts)
+│   ├── server/                 # server-only: db/, models/, email/, ai/, security/, realtime/, openapi/
+│   ├── test/                   # Unit setup (msw/node server, polyfills), render + renderHook utilities
+│   └── types/                  # API DTOs (api.ts, from OpenAPI) & ambient declarations
 ├── AGENTS.md                   # Agent system guidelines
 ├── GLOSSARY.md                 # Domain model glossary
 └── package.json

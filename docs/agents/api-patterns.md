@@ -10,14 +10,14 @@ Whenever adding or modifying an API route, you **MUST** follow this exact 4-step
 
 ```
 Step 1: Schemas (SSoT) ──▶ Step 2: Registry ──▶ Step 3: Typegen ──▶ Step 4: Consumer
-  (src/schemas/)          (src/lib/openapi.ts)     (pnpm typegen)       (React Query + api.*)
+  (src/schemas/)          (src/server/openapi/openapi.ts)     (pnpm typegen)       (React Query + api.*)
 ```
 
 ### Step 1: Define Schemas in `src/schemas/`
 - Every request param, query param, request body, and status response schema must be defined using Zod and annotated with `.openapi(...)`.
 - Shared response schemas reside in [`src/schemas/api-response-schemas.ts`](file:///d:/Projects/GhostMsg/src/schemas/api-response-schemas.ts).
 
-### Step 2: Register in `src/lib/openapi.ts`
+### Step 2: Register in `src/server/openapi/openapi.ts`
 - Register the schema names using `registry.register(...)`.
 - Register the route operation via `registry.registerPath({...})` specifying:
   - `method`, `path`, `summary`, `description`, `tags`
@@ -33,8 +33,9 @@ Step 1: Schemas (SSoT) ──▶ Step 2: Registry ──▶ Step 3: Typegen ─�
 
 ### Step 4: Implement Route & Consume with `clientFetch` + React Query
 - **Route Handler**: Implement `src/app/api/[endpoint]/route.ts` validating requests with Zod `safeParse` and returning structured `Response.json({...}, { status })`.
-- **Query Options**: Define query keys in `src/queries/query-keys.ts` and pure `queryOptions` in `src/queries/[domain].queries.ts` using `clientFetch` from `@/lib/api-client`.
-- **Custom Mutation Hooks**: Define mutations under `src/hooks/mutations/` using `useMutation` with standardized cache invalidation or optimistic rollback.
+- **Query Options**: Define query keys in `src/data/query-keys.ts` and pure `queryOptions` in `src/data/<domain>/<domain>.queries.ts` using `clientFetch` from `@/data/api-client`.
+- **Custom Mutation Hooks**: One hook per file at `src/data/<domain>/use-<action>-mutation.ts`, using `useMutation` with standardized cache invalidation or optimistic rollback ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q11).
+- **Client types**: Response shapes on the client come from OpenAPI via `src/types/api.ts` (`MessageDto`, `PublicAnswerDto`, …). Never import a Mongoose model (`@/server/models/**`) into client code: Biome blocks `@/server/**` outside `src/app` and `src/server`.
 - **Consumer location**: Queries and mutations are consumed **only** in page controllers (`src/components/pages/<route>/use-*.controller.ts`). Elements, patterns and blocks never import them, and Biome enforces this ([ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
 
 ### Step 5: Update the MSW handlers and fixtures
@@ -43,10 +44,10 @@ Step 1: Schemas (SSoT) ──▶ Step 2: Registry ──▶ Step 3: Typegen ─�
 - Run `pnpm docs:registry` so the scenario appears in Chapter 11. See [ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md).
 
 ```typescript
-// 1. Define queryOptions in src/queries/resource.queries.ts
+// 1. Define queryOptions in src/data/resource/resource.queries.ts
 import { queryOptions } from "@tanstack/react-query";
-import { api, clientFetch } from "@/lib/api-client";
-import { queryKeys } from "./query-keys";
+import { api, clientFetch } from "@/data/api-client";
+import { queryKeys } from "@/data/query-keys";
 
 export const resourceQueries = {
   detail: (id: string) =>
@@ -63,11 +64,11 @@ export const resourceQueries = {
     }),
 };
 
-// 2. Define mutation hook in src/hooks/mutations/use-update-resource.ts
+// 2. Define mutation hook in src/data/resource/use-update-resource-mutation.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { api, clientFetch } from "@/lib/api-client";
-import { queryKeys } from "@/queries/query-keys";
+import { api, clientFetch } from "@/data/api-client";
+import { queryKeys } from "@/data/query-keys";
 
 export function useUpdateResourceMutation() {
   const queryClient = useQueryClient();
@@ -98,10 +99,10 @@ export function useUpdateResourceMutation() {
 | Anti-Pattern | Why It's Banned | Correct Pattern |
 | :--- | :--- | :--- |
 | ❌ Calling `api.*` directly in UI components | Bypasses caching, loading state lifecycle, and DevTools. | Use custom `useMutation` hooks and `useQuery(queryOptions)`. |
-| ❌ Manual `if (error \|\| !data)` in every hook | Verbose boilerplate and inconsistent error structures. | Use `clientFetch()` from `@/lib/api-client` which throws `ApiError`. |
-| ❌ Inline string array query keys (`["messages"]`) | Fragile, error-prone, hard to manage scoped invalidations. | Centralize in `queryKeys` factory (`src/queries/query-keys.ts`). |
-| ❌ Using `axios` or raw native `fetch()` | Strictly forbidden! Bypasses OpenAPI type-checking, introduces type drift, breaks schema validation contract. | Use `api` (`openapi-fetch`) + `clientFetch` from `@/lib/api-client`. |
+| ❌ Manual `if (error \|\| !data)` in every hook | Verbose boilerplate and inconsistent error structures. | Use `clientFetch()` from `@/data/api-client` which throws `ApiError`. |
+| ❌ Inline string array query keys (`["messages"]`) | Fragile, error-prone, hard to manage scoped invalidations. | Centralize in `queryKeys` factory (`src/data/query-keys.ts`). |
+| ❌ Using `axios` or raw native `fetch()` | Strictly forbidden! Bypasses OpenAPI type-checking, introduces type drift, breaks schema validation contract. | Use `api` (`openapi-fetch`) + `clientFetch` from `@/data/api-client`. |
 | ❌ Manual `useState` for loading/data in fetchers | Causes race conditions & cache desync. | Use `@tanstack/react-query` (`useQuery`, `useMutation`). |
 | ❌ Manually editing `src/generated/api-schema.d.ts` | Overwritten on build. | Run `pnpm typegen`. |
-| ❌ Adding endpoints without OpenAPI registration | Breaks documentation & SDK type inference. | Register every route in `src/lib/openapi.ts`. |
+| ❌ Adding endpoints without OpenAPI registration | Breaks documentation & SDK type inference. | Register every route in `src/server/openapi/openapi.ts`. |
 
