@@ -55,20 +55,21 @@ Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/`
 | `src/server/security/security.test.ts` | HMAC-SHA256 `senderHash`, rate-limit helpers |
 | `src/server/ai/moderation.test.ts` | Sentiment tagging, toxicity quarantine rules |
 | `src/server/ai/smart-reply.test.ts` | Multi-tone smart reply + fallback on AI failure |
+| `src/server/push/web-push.test.ts` | VAPID config, gone (404/410) detection, fan-out, pruning, unconfigured skip (ADR 0020) |
 | `src/schemas/message-schema.test.ts` | Message/send/reply/bulk schemas |
 | `src/schemas/notification-schema.test.ts` | Notification settings schemas |
 | `src/lib/messages/export.test.ts` | CSV/JSON export builders, quote escaping, filename + MIME |
 | `src/lib/browser/download.test.ts` | Anchor + data-URL download side effect |
-| `src/data/user/use-push-notification.utils.test.ts` | VAPID key base64url → `Uint8Array` |
+| `src/data/user/use-push-notification.utils.test.ts` | VAPID key base64url → `Uint8Array`, same-key detection, DOMException → user message |
 | `src/components/elements/theme-toggler/theme-toggler.utils.test.ts` | Theme cycling order |
 | `src/components/pages/dashboard/inbox.utils.test.ts` | Status filters, search, per-status counts |
 | `src/components/pages/dashboard/profile.utils.test.ts` | Public profile URL |
 | `src/components/pages/public-profile/send-message.utils.test.ts` | AI suggestion parsing (`||`-separated) |
 | `src/components/pages/auth/sign-up/username-availability.utils.test.ts` | Availability status mapping, min length |
-| `src/components/pages/dashboard/use-inbox.controller.test.ts` | Load, filter, search, selection, modals, bulk, export, delete, refresh errors, blocklist |
+| `src/components/pages/dashboard/use-inbox.controller.test.ts` | Load, filter, search, selection, modals, bulk, export, delete, refresh errors, blocklist, **optimistic delete/bulk before the response + rollback on failure** (ADR 0021) |
 | `src/components/pages/dashboard/use-smart-reply.controller.test.ts` | Draft seeding, AI generate, save / blank-draft guard |
 | `src/components/pages/dashboard/use-profile.controller.test.ts` | Profile URL from session, AMA prompt save / blank guard |
-| `src/components/pages/dashboard/use-settings.controller.test.ts` | Defaults, closed-inbox scenario, acceptance (API + controlled), alerts, unblock |
+| `src/components/pages/dashboard/use-settings.controller.test.ts` | Defaults, closed-inbox scenario, acceptance (API + controlled), alerts, unblock, web push (not configured / subscribe / off) |
 | `src/components/pages/public-profile/use-public-answers.controller.test.ts` | Answers + AMA prompt, error fallback |
 | `src/components/pages/public-profile/use-send-message.controller.test.ts` | Auto-fetch suggestions, errors, `selectSuggestion`, send + reset, not-accepting |
 | `src/components/pages/auth/shared/use-google-sign-in.controller.test.ts` | Stable Google OAuth callback |

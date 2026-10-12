@@ -258,64 +258,41 @@ export function useAcceptMessageMutation() {
 }
 ```
 
-### Optimistic Message Deletion (`src/data/messages/use-delete-message-mutation.ts`)
+### Optimistic Message Deletion & Bulk Actions ([ADR 0021](file:///d:/Projects/GhostMsg/docs/adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md))
 
-Instantly removes deleted messages from UI list and restores them if network fails:
+Every inbox mutation shares `src/data/messages/messages-cache.ts`, which snapshots and patches **all** cached inbox lists (any filter key) and restores them on failure. The controller closes the dialog *before* awaiting, so the card and the dialog disappear immediately.
 
 ```typescript
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { api, clientFetch } from "@/data/api-client";
-import { queryKeys } from "@/data/query-keys";
-import type { Message } from "@/server/models/user.model";
-
-interface MessagesResponse {
-  messages: Message[];
-  success: boolean;
-}
-
-export function useDeleteMessageMutation() {
+// src/data/messages/use-delete-message-mutation.ts
+export function useDeleteMessageMutation(options?: UseDeleteMessageMutationOptions) {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (messageId: string) =>
-      clientFetch(
-        api.DELETE("/api/delete-message/{messageId}", {
-          params: { path: { messageId } },
-        })
-      ),
-
-    onMutate: async (messageId: string) => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.messages.list() });
-      const previousData = queryClient.getQueryData<MessagesResponse>(queryKeys.messages.list());
-
-      if (previousData) {
-        queryClient.setQueryData<MessagesResponse>(queryKeys.messages.list(), {
-          ...previousData,
-          messages: previousData.messages.filter((msg) => String(msg._id) !== messageId),
-        });
-      }
-
-      return { previousData };
+      clientFetch(api.DELETE("/api/delete-message/{messageId}", { params: { path: { messageId } } })),
+    onMutate: async (messageId) => {
+      const snapshot = await updateCachedMessages(queryClient, (messages) =>
+        messages.filter((msg) => String(msg._id) !== messageId)
+      );
+      return { snapshot };
     },
-
     onError: (error, _id, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(queryKeys.messages.list(), context.previousData);
-      }
+      restoreCachedMessages(queryClient, context?.snapshot);
       toast.error(error.message || "Failed to delete message");
     },
-
-    onSuccess: (data) => {
-      toast.success(data.message || "Message deleted successfully");
-    },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.messages.list() });
-    },
+    onSuccess: (data) => toast.success(data.message || "Message deleted successfully!"),
+    onSettled: () => invalidateCachedMessages(queryClient),
   });
 }
+
+// src/components/pages/dashboard/use-inbox.controller.ts: close first, then mutate
+const handleDeleteConfirm = useCallback(async (message: MessageDto) => {
+  closeModal();
+  setSelectedIds((prev) => prev.filter((id) => id !== String(message._id)));
+  try { await deleteMutation.mutateAsync(String(message._id)); } catch { /* rolled back + toasted */ }
+}, [deleteMutation, closeModal]);
 ```
+
+`useBulkActionMutation` uses the same helpers: `delete` removes the selected ids, `read` sets `isRead: true` and `star` sets `isPinned: true`, mirroring `/api/messages/bulk`.
 
 ### Form Action Mutations (`useSignUpMutation`, `useVerifyCodeMutation`, `useSendMessageMutation`, `useSuggestMessagesMutation`)
 
@@ -560,7 +537,7 @@ export function makeQueryClient(): QueryClient {
 
 | Entity / Endpoint | Stale Time | GC Time | Invalidation Trigger | Optimistic UI |
 | :--- | :--- | :--- | :--- | :--- |
-| **Messages List** (`/api/get-messages`) | 30s | 5m | Message Deleted, Manual Refresh | Yes (`onMutate` delete) |
+| **Messages List** (`/api/get-messages`) | 10s | 5m | Delete, bulk action, SSE `new_message`, manual refresh | Yes: delete + bulk delete/read/star via `messages-cache.ts` (ADR 0021) |
 | **Acceptance Status** (`/api/accept-message`) | 60s | 5m | Status Toggled | Yes (`onMutate` toggle) |
 | **Username Uniqueness** (`/api/check-username-unique`) | 60s | 5m | N/A (Read Cache) | N/A (Debounced query) |
 | **Suggested Messages** (`/api/suggest-messages`) | 0s | 0s | On-Demand Generation | N/A (useMutation) |

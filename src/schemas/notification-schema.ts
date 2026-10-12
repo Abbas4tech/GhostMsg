@@ -62,11 +62,19 @@ export const pushSubscriptionRequestSchema = z
       description: "Push service endpoint URL provided by the browser",
       example: "https://fcm.googleapis.com/fcm/send/...",
     }),
-    keys: z
-      .object({
-        p256dh: z.string().openapi({ description: "ECDH public key" }),
-        auth: z.string().openapi({ description: "Authentication secret" }),
-      })
-      .optional(),
+    keys: z.object({
+      p256dh: z.string().min(1).openapi({ description: "ECDH public key" }),
+      auth: z.string().min(1).openapi({ description: "Authentication secret" }),
+    }),
   })
   .openapi("PushSubscriptionRequest");
+
+/** Removes one device's subscription (identified by its endpoint). */
+export const pushUnsubscribeRequestSchema = z
+  .object({
+    endpoint: z.string().url().openapi({
+      description: "Endpoint of the subscription to remove",
+      example: "https://fcm.googleapis.com/fcm/send/...",
+    }),
+  })
+  .openapi("PushUnsubscribeRequest");

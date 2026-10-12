@@ -43,6 +43,8 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0017: Generated Component Registry & Documentation Freshness Gate**](file:///d:/Projects/GhostMsg/docs/adr/0017-generated-component-registry-and-docs-freshness-gate.md)
 - [**ADR 0018: Source Structure: Server, Data, Lib, Utilities, Controllers & Tests**](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md)
 - [**ADR 0019: Controller Test Harness: renderHookWithProviders, Request Recording & Edge-Only Mocking**](file:///d:/Projects/GhostMsg/docs/adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md)
+- [**ADR 0020: Web Push Delivery: VAPID Keys, Server Push Capability & Subscription Lifecycle**](file:///d:/Projects/GhostMsg/docs/adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md)
+- [**ADR 0021: Optimistic Inbox Mutations: Close-First Dialogs & Shared Cache Helpers**](file:///d:/Projects/GhostMsg/docs/adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md)
 
 ---
 

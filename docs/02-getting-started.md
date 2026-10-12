@@ -50,7 +50,18 @@ SMTP_PASS="your-smtp-password"
 # 4. Google AI Studio (Gemini 2.5 Flash Lite)
 # ==============================================================================
 GOOGLE_AI_STUDIO_SECRET="AIzaSy..."
+
+# ==============================================================================
+# 5. Web Push (VAPID) — browser push notifications (ADR 0020)
+# ==============================================================================
+# Generate with: npx web-push generate-vapid-keys
+NEXT_PUBLIC_VAPID_PUBLIC_KEY="B..."
+VAPID_PRIVATE_KEY="..."
+# Optional contact sent to push services (default: mailto:support@ghostmsg.app)
+VAPID_SUBJECT="mailto:you@example.com"
 ```
+
+> Without the VAPID keys the app still runs. Settings then reports that push isn't configured, and the server skips sending pushes.
 
 ---
 

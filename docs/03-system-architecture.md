@@ -184,6 +184,19 @@ interface IUser {
 - **In-Memory Rate Limiting**: Upstash Redis sliding window (5 messages per 10 minutes per IP). Raw IPs are never written to MongoDB.
 - **Cryptographic Sender Hash**: Computed as $\text{HMAC-SHA256}(\text{IP} + \text{RecipientId},\; \text{SECRET\_SALT})$. Allows recipients to shadowban abusive senders without compromising visitor anonymity.
 - **Server-Sent Events (SSE) Live Feed**: Backed by Upstash Redis Pub/Sub channel `recipient:{userId}:messages` streamed over `/api/messages/stream`.
+- **Web Push** ([ADR 0020](file:///d:/Projects/GhostMsg/docs/adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md)): each device's `PushSubscription` is stored in `User.pushSubscriptions`. `POST /api/send-message` calls `sendPushToUser` (`src/server/push/web-push.ts`, VAPID-signed via `web-push`) for messages that aren't quarantined, without blocking the response. Endpoints that answer 404/410 are pruned.
+
+```mermaid
+flowchart LR
+    S["Sender<br/>/u/[username]"] -->|POST| SM["/api/send-message"]
+    SM --> DB[("MongoDB")]
+    SM -->|"SSE (Redis pub/sub)"| IN["Open dashboard tabs"]
+    SM -->|"email (instant)"| MAIL["SMTP"]
+    SM -->|"sendPushToUser (VAPID)"| PS["Browser push service"]
+    PS --> SW["/sw.js → showNotification"]
+    PS -. "404/410" .-> PR["$pull gone subscription"]
+```
+
 - **Password Hashing & Auth Security**: Bcrypt (rounds = 10), 6-digit verification codes (1-hour expiration), and cached MongoDB connection pooling via [`src/server/db/db-connect.ts`](file:///d:/Projects/GhostMsg/src/server/db/db-connect.ts).
 
 ---

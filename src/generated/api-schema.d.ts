@@ -1144,7 +1144,55 @@ export interface paths {
         };
       };
     };
-    delete?: never;
+    /**
+     * Remove Web Push Subscription
+     * @description Forget this device's PushSubscription so the server stops sending it notifications.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["PushUnsubscribeRequest"];
+        };
+      };
+      responses: {
+        /** @description Push subscription removed */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Invalid payload */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     options?: never;
     head?: never;
     patch?: never;
@@ -1539,12 +1587,20 @@ export interface components {
        * @example https://fcm.googleapis.com/fcm/send/...
        */
       endpoint: string;
-      keys?: {
+      keys: {
         /** @description ECDH public key */
         p256dh: string;
         /** @description Authentication secret */
         auth: string;
       };
+    };
+    PushUnsubscribeRequest: {
+      /**
+       * Format: uri
+       * @description Endpoint of the subscription to remove
+       * @example https://fcm.googleapis.com/fcm/send/...
+       */
+      endpoint: string;
     };
     GetBlockedSendersResponse: {
       /** @example true */

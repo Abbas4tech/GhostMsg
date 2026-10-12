@@ -8,6 +8,13 @@ export interface NotificationSettings {
   webPushEnabled: boolean;
 }
 
+/** A browser PushSubscription (one per device) used to deliver Web Push. */
+export interface PushSubscriptionRecord {
+  createdAt: Date;
+  endpoint: string;
+  keys: { auth: string; p256dh: string };
+}
+
 export interface User extends Document {
   _id: Types.ObjectId;
   amaPrompt?: string;
@@ -18,11 +25,24 @@ export interface User extends Document {
   isVerified: boolean;
   notificationSettings: NotificationSettings;
   password?: string;
+  pushSubscriptions: PushSubscriptionRecord[];
   updatedAt: Date;
   username: string;
   verifyCode: string;
   verifyCodeExpiry: Date;
 }
+
+const PushSubscriptionSchema = new Schema<PushSubscriptionRecord>(
+  {
+    endpoint: { type: String, required: true },
+    keys: {
+      p256dh: { type: String, required: true },
+      auth: { type: String, required: true },
+    },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
 
 const NotificationSettingsSchema = new Schema<NotificationSettings>(
   {
@@ -80,6 +100,10 @@ const UserSchema: Schema<User> = new Schema(
     },
     blockedSenderHashes: {
       type: [String],
+      default: [],
+    },
+    pushSubscriptions: {
+      type: [PushSubscriptionSchema],
       default: [],
     },
     notificationSettings: {

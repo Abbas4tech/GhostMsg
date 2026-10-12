@@ -40,6 +40,9 @@ Ensure these variables are added in your Vercel Project Settings:
 | `GOOGLE_OAUTH_CLIENT_ID` | Google Cloud OAuth client ID (authorized redirect URI set to production domain). |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | Google Cloud OAuth client secret. |
 | `GOOGLE_OAUTH_CALLBACK_URL` | `https://ghost-msg.vercel.app/api/auth/callback/google` |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Web Push VAPID public key (`npx web-push generate-vapid-keys`). Exposed to the browser ([ADR 0020](file:///d:/Projects/GhostMsg/docs/adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md)). |
+| `VAPID_PRIVATE_KEY` | Web Push VAPID private key. Server only; rotating it invalidates existing device subscriptions. |
+| `VAPID_SUBJECT` | Optional `mailto:`/`https:` contact for push services (default `mailto:support@ghostmsg.app`). |
 
 ---
 

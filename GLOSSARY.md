@@ -122,6 +122,14 @@ _Avoid_: Hook test, integration test (for this file type)
 `recordRequests()` from `src/test/test-utils.tsx`: a per-test list of `"METHOD /path"` strings for every request MSW saw, used to assert that a controller did or did not call the API.
 _Avoid_: Spy on fetch, mock the mutation
 
+**Push subscription**:
+One device's browser `PushSubscription` (`endpoint` + `keys`) stored in `User.pushSubscriptions`. Created when the recipient enables browser push, replaced on resubscribe, and pruned when the push service reports it gone (ADR 0020).
+_Avoid_: Device token, FCM token
+
+**Optimistic update**:
+A cache change applied in `onMutate` before the server answers, rolled back from a snapshot in `onError` (`src/data/messages/messages-cache.ts`, ADR 0021).
+_Avoid_: Fake update, local-only change
+
 **DTO**:
 A client-facing data shape derived from the generated OpenAPI schema (`src/types/api.ts`), e.g. `MessageDto`. Distinct from the Mongoose model types on the server.
 _Avoid_: Model (on the client), entity

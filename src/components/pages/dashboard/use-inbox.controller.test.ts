@@ -1,4 +1,5 @@
 import { act, waitFor } from "@testing-library/react";
+import { delay, http } from "msw";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { downloadTextFile } from "@/lib/browser/download";
@@ -10,6 +11,7 @@ import {
 } from "@/mock/fixtures/messages.fixtures";
 import { buildBlockedHashes } from "@/mock/fixtures/user.fixtures";
 import { scenarios } from "@/mock/handlers";
+import { apiError, mswPath } from "@/mock/handlers/utils";
 import { server } from "@/test/msw-server";
 import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
 import { useInboxController } from "./use-inbox.controller";
@@ -118,6 +120,77 @@ describe("useInboxController", () => {
       `DELETE /api/delete-message/${sweetMessage._id}`
     );
     expect(result.current.activeModal).toBeNull();
+  });
+
+  it("removes a deleted message before the server responds", async () => {
+    server.use(
+      http.delete(mswPath("/api/delete-message/{messageId}"), async () => {
+        await delay("infinite");
+      })
+    );
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.openDeleteModal(sweetMessage));
+    act(() => {
+      result.current.handleDeleteConfirm(sweetMessage);
+    });
+
+    expect(result.current.activeModal).toBeNull();
+    await waitFor(() =>
+      expect(result.current.allMessages).not.toContainEqual(sweetMessage)
+    );
+  });
+
+  it("restores a message and toasts when the delete fails", async () => {
+    server.use(
+      http.delete(mswPath("/api/delete-message/{messageId}"), () =>
+        apiError(500, "Could not delete")
+      )
+    );
+    const { result } = await renderLoadedInbox();
+
+    await act(() => result.current.handleDeleteConfirm(sweetMessage));
+
+    expect(toast.error).toHaveBeenCalledWith("Could not delete");
+    await waitFor(() =>
+      expect(result.current.allMessages).toContainEqual(sweetMessage)
+    );
+  });
+
+  it("applies bulk delete and read optimistically", async () => {
+    server.use(
+      http.post(mswPath("/api/messages/bulk"), async () => {
+        await delay("infinite");
+      })
+    );
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.handleToggleSelect(String(sweetMessage._id)));
+    act(() => {
+      result.current.handleBulkAction("delete");
+    });
+
+    expect(result.current.selectedIds).toEqual([]);
+    await waitFor(() =>
+      expect(result.current.allMessages).not.toContainEqual(sweetMessage)
+    );
+  });
+
+  it("rolls back a failed bulk action", async () => {
+    server.use(
+      http.post(mswPath("/api/messages/bulk"), () =>
+        apiError(500, "Bulk failed")
+      )
+    );
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.handleToggleSelect(String(sweetMessage._id)));
+    await act(() => result.current.handleBulkAction("delete"));
+
+    expect(toast.error).toHaveBeenCalledWith("Bulk failed");
+    await waitFor(() =>
+      expect(result.current.allMessages).toContainEqual(sweetMessage)
+    );
   });
 
   it("delegates deletes and refreshes to controlled callbacks", async () => {

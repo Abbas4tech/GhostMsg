@@ -18,11 +18,11 @@ src/
 │   ├── api-client.ts        # openapi-fetch `api`, `clientFetch`, `ApiError`
 │   ├── query-keys.ts        # every React Query key
 │   ├── auth/                # auth.queries.ts, use-sign-up-mutation.ts, use-verify-code-mutation.ts
-│   ├── messages/            # messages.queries.ts, use-{bulk-action,delete-message,reply-message,
+│   ├── messages/            # messages.queries.ts, messages-cache.ts (optimistic helpers), use-{bulk-action,delete-message,reply-message,
 │   │                        #   update-message,smart-reply}-mutation.ts, use-live-messages.ts
 │   ├── public/              # use-send-message-mutation.ts, use-suggest-messages-mutation.ts
 │   └── user/                # user.queries.ts, use-{accept-message,ama-prompt,block-sender,
-│                            #   notification-settings,push-subscription}-mutation.ts,
+│                            #   notification-settings,push-subscription,remove-push-subscription}-mutation.ts,
 │                            #   use-push-notification.ts (+ .utils.ts + .utils.test.ts)
 ├── generated/               # api-schema.d.ts (pnpm typegen, never edit)
 ├── hooks/                   # generic React hooks only (get-strict-context.tsx)
@@ -39,6 +39,7 @@ src/
 │   ├── email/               # mailer.ts, send-*-email.ts, email-result.ts
 │   ├── models/              # user.model.ts, message.model.ts
 │   ├── openapi/             # openapi.ts (registry → /api/openapi.json, typegen)
+│   ├── push/                # web-push.ts: VAPID config, sendPushToUser, gone-pruning (+ test)
 │   ├── realtime/            # event-bus.ts (SSE fan-out)
 │   └── security/            # security.ts (+ test)
 ├── test/                    # setup.ts, msw-server.ts, server-only-stub.ts, test-utils.tsx

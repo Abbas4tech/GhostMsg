@@ -15,13 +15,15 @@ import { api, clientFetch } from "@/data/api-client";
 export const usePushSubscriptionMutation = () => {
   return useMutation({
     mutationFn: (subscription: PushSubscription) => {
-      const json = subscription.toJSON();
+      const { endpoint, keys } = subscription.toJSON();
+      if (!(endpoint && keys?.p256dh && keys.auth)) {
+        throw new Error(
+          "The browser returned a push subscription without encryption keys"
+        );
+      }
       return clientFetch(
         api.POST("/api/user/push-subscription", {
-          body: {
-            endpoint: json.endpoint ?? "",
-            keys: json.keys as { p256dh: string; auth: string } | undefined,
-          },
+          body: { endpoint, keys: { p256dh: keys.p256dh, auth: keys.auth } },
         })
       );
     },

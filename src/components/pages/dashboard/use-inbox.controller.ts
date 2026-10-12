@@ -182,17 +182,21 @@ export function useInboxController({
     [blockMutation, unblockMutation, closeModal]
   );
 
+  // Optimistic: close the dialog and drop the card at once. The mutation
+  // removes it from the cache and rolls back with a toast if the server fails.
   const handleDeleteConfirm = useCallback(
     async (message: MessageDto) => {
+      const messageId = String(message._id);
+      closeModal();
+      setSelectedIds((prev) => prev.filter((id) => id !== messageId));
       try {
         if (onDelete) {
           await onDelete(message);
         } else {
-          await deleteMutation.mutateAsync(String(message._id));
+          await deleteMutation.mutateAsync(messageId);
         }
-        closeModal();
       } catch {
-        // Handled by mutation toast
+        // Rolled back + toasted by the mutation
       }
     },
     [onDelete, deleteMutation, closeModal]
@@ -201,11 +205,12 @@ export function useInboxController({
   // Bulk actions
   const handleBulkAction = useCallback(
     async (action: BulkAction) => {
+      const ids = selectedIds;
+      setSelectedIds([]);
       try {
-        await bulkMutation.mutateAsync({ action, ids: selectedIds });
-        setSelectedIds([]);
+        await bulkMutation.mutateAsync({ action, ids });
       } catch {
-        // Handled by mutation toast
+        // Rolled back + toasted by the mutation
       }
     },
     [bulkMutation, selectedIds]

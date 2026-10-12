@@ -98,7 +98,7 @@ GhostMsg/
 │   ├── mock/                   # fixtures/ (domain builders), handlers/ (MSW scenarios), noop.ts
 │   ├── providers/              # Context providers (Auth, Query, Theme)
 │   ├── schemas/                # Universal Zod schemas + OpenAPI metadata (zod.ts)
-│   ├── server/                 # server-only: db/, models/, email/, ai/, security/, realtime/, openapi/
+│   ├── server/                 # server-only: db/, models/, email/, ai/, push/, security/, realtime/, openapi/
 │   ├── test/                   # Unit setup (msw/node server, polyfills), render + renderHook utilities
 │   └── types/                  # API DTOs (api.ts, from OpenAPI) & ambient declarations
 ├── AGENTS.md                   # Agent system guidelines
@@ -151,6 +151,10 @@ GOOGLE_AI_STUDIO_SECRET=your_google_ai_studio_api_key
 GOOGLE_OAUTH_CLIENT_ID=your_google_client_id
 GOOGLE_OAUTH_CLIENT_SECRET=your_google_client_secret
 GOOGLE_OAUTH_CALLBACK_URL=http://localhost:3000/api/auth/callback/google
+
+# Web Push / VAPID (optional; npx web-push generate-vapid-keys)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_vapid_public_key
+VAPID_PRIVATE_KEY=your_vapid_private_key
 ```
 
 ### 3. Run Development Server
@@ -223,6 +227,10 @@ Explore the numbered engineering chapters in [`docs/`](file:///docs/README.md):
 - [`0015-four-tier-components-pages-layer-and-vendor-consolidation.md`](file:///docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md): Pages tier, logic only in controllers, vendor UI moved into elements, lint-enforced DAG.
 - [`0016-storybook-msw-and-story-driven-component-testing.md`](file:///docs/adr/0016-storybook-msw-and-story-driven-component-testing.md): Storybook 10, MSW, stories as component tests, fixtures, a11y gate, pnpm only.
 - [`0017-generated-component-registry-and-docs-freshness-gate.md`](file:///docs/adr/0017-generated-component-registry-and-docs-freshness-gate.md): Generated Chapter 11 registry + `docs:registry:check` pre-push gate.
+- [`0018-source-structure-server-data-lib-utils-controllers-tests.md`](file:///docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md): `src/server` (server-only), `src/data`, pure `src/lib`, colocated utils and tests.
+- [`0019-controller-test-harness-renderhook-msw-and-edge-mocking.md`](file:///docs/adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md): `renderHookWithProviders`, `recordRequests`, edge-only mocking.
+- [`0020-web-push-delivery-vapid-and-subscription-lifecycle.md`](file:///docs/adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md): VAPID keys, `web-push` sender, per-device subscriptions, gone-pruning.
+- [`0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md`](file:///docs/adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md): Close-first dialogs, optimistic delete + bulk with rollback.
 
 ---
 

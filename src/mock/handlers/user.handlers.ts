@@ -52,6 +52,9 @@ export const settingsHandlers = (scenario: SettingsScenario) => [
   http.post(mswPath("/api/user/push-subscription"), () =>
     HttpResponse.json({ success: true, message: "Subscribed" })
   ),
+  http.delete(mswPath("/api/user/push-subscription"), () =>
+    HttpResponse.json({ success: true, message: "Push subscription removed" })
+  ),
 ];
 
 export const userHandlers = {

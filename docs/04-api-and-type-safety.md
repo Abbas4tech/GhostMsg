@@ -67,7 +67,8 @@ The OpenAPI registry in [`src/server/openapi/openapi.ts`](file:///d:/Projects/Gh
 | `/api/block-sender` | `DELETE` | Yes (Session) | Body: `{ senderHash }` | `200 OK` | `401`, `500` | Unblock sender fingerprint or clear all |
 | `/api/user/notifications` | `GET` | Yes (Session) | None | `200 OK` | `401`, `500` | Get notification & email alert preferences |
 | `/api/user/notifications` | `PATCH` | Yes (Session) | Body: `{ emailAlerts, webPushEnabled }` | `200 OK` | `401`, `500` | Update notification preferences |
-| `/api/user/push-subscription` | `POST` | Yes (Session) | Body: `PushSubscriptionRequest` | `200 OK` | `401`, `500` | Register Web Push device subscription |
+| `/api/user/push-subscription` | `POST` | Yes (Session) | Body: `PushSubscriptionRequest` (`endpoint`, `keys` required) | `200 OK` | `400`, `401`, `500` | Register (or replace) this device's Web Push subscription |
+| `/api/user/push-subscription` | `DELETE` | Yes (Session) | Body: `PushUnsubscribeRequest` (`endpoint`) | `200 OK` | `400`, `401`, `500` | Remove this device's Web Push subscription |
 | `/api/public/{username}/answers` | `GET` | No | Query: `cursor`, `limit` | `200 OK` | `404`, `500` | Public Q&A feed |
 | `/api/ai/smart-reply` | `POST` | Yes (Session) | Body: `{ content, tone }` | `200 OK` | `401`, `500` | Multi-tone AI smart reply generator |
 | `/api/user/ama-prompt` | `PATCH` | Yes (Session) | Body: `{ amaPrompt }` | `200 OK` | `401`, `500` | Customize profile banner prompt |

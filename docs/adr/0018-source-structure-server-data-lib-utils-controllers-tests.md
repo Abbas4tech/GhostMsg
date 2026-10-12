@@ -68,7 +68,7 @@ src/
 ├── providers/               # Auth, Query, Theme providers
 ├── schemas/                 # universal Zod contracts (+ zod.ts OpenAPI extension)
 ├── server/                  # SERVER ONLY (`import "server-only"`)
-│   ├── ai/  db/  email/  models/  openapi/  realtime/  security/
+│   ├── ai/  db/  email/  models/  openapi/  push/  realtime/  security/
 ├── test/                    # unit setup, msw-server, server-only-stub, render + renderHook utils
 └── types/                   # api.ts (OpenAPI-derived DTOs), next-auth.d.ts
 ```

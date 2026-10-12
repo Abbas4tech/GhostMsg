@@ -35,6 +35,7 @@ import {
   getNotificationsResponseSchema,
   notificationSettingsSchema,
   pushSubscriptionRequestSchema,
+  pushUnsubscribeRequestSchema,
   updateNotificationsRequestSchema,
   updateNotificationsResponseSchema,
 } from "@/schemas/notification-schema";
@@ -82,6 +83,7 @@ registry.register(
   updateNotificationsResponseSchema
 );
 registry.register("PushSubscriptionRequest", pushSubscriptionRequestSchema);
+registry.register("PushUnsubscribeRequest", pushUnsubscribeRequestSchema);
 registry.register("GetBlockedSendersResponse", getBlockedSendersResponseSchema);
 
 // Security Scheme for NextAuth session
@@ -892,6 +894,39 @@ registry.registerPath({
         },
       },
     },
+    401: { description: "Unauthorized" },
+    500: { description: "Internal server error" },
+  },
+});
+
+// 20. DELETE /api/user/push-subscription
+registry.registerPath({
+  method: "delete",
+  path: "/api/user/push-subscription",
+  summary: "Remove Web Push Subscription",
+  description:
+    "Forget this device's PushSubscription so the server stops sending it notifications.",
+  tags: ["Dashboard & Inbox"],
+  security: [{ [bearerAuth.name]: [] }],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: pushUnsubscribeRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Push subscription removed",
+      content: {
+        "application/json": {
+          schema: baseResponseSchema,
+        },
+      },
+    },
+    400: { description: "Invalid payload" },
     401: { description: "Unauthorized" },
     500: { description: "Internal server error" },
   },

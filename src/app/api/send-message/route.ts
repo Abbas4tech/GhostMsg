@@ -4,8 +4,17 @@ import dbConnect from "@/server/db/db-connect";
 import { sendMessageAlertEmail } from "@/server/email/send-message-alert-email";
 import MessageModel from "@/server/models/message.model";
 import UserModel from "@/server/models/user.model";
+import { sendPushToUser } from "@/server/push/web-push";
 import { publishNewMessage } from "@/server/realtime/event-bus";
 import { checkRateLimit, computeSenderHash } from "@/server/security/security";
+
+const PUSH_PREVIEW_LENGTH = 80;
+
+/** Short notification body: lock screens show it, so keep it brief. */
+const buildPushPreview = (content: string): string =>
+  content.length > PUSH_PREVIEW_LENGTH
+    ? `${content.slice(0, PUSH_PREVIEW_LENGTH)}…`
+    : content;
 
 export async function POST(req: NextRequest): Promise<Response> {
   await dbConnect();
@@ -115,6 +124,19 @@ export async function POST(req: NextRequest): Promise<Response> {
         messageDoc.content,
         messageDoc.sentimentTag
       ).catch((e) => console.warn("Email alert error:", e));
+    }
+
+    // 8. Web Push to every subscribed device (best effort, never blocks)
+    if (
+      user.notificationSettings?.webPushEnabled &&
+      user.pushSubscriptions?.length &&
+      !moderation.isToxic
+    ) {
+      sendPushToUser(String(user._id), user.pushSubscriptions, {
+        title: "New anonymous message 👻",
+        body: buildPushPreview(messageDoc.content),
+        url: "/dashboard",
+      }).catch((e) => console.warn("Web push error:", e));
     }
 
     return Response.json(
