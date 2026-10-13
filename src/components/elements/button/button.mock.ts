@@ -11,9 +11,10 @@ export const BUTTON_VARIANTS = [
   "ghost",
   "glass",
   "link",
+  "brand",
 ] as const;
 
-export const BUTTON_SIZES = ["sm", "default", "lg"] as const;
+export const BUTTON_SIZES = ["sm", "default", "lg", "xl"] as const;
 export const BUTTON_ICON_SIZES = ["icon-sm", "icon", "icon-lg"] as const;
 
 export const defaultButtonArgs: ButtonProps = {

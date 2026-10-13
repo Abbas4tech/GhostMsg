@@ -1,11 +1,16 @@
 import {
   answeredSpicyMessage,
+  quarantinedMessage,
   sweetMessage,
 } from "@/mock/fixtures/messages.fixtures";
 import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
 import { noop } from "@/mock/noop";
 import type { BlockSenderModalProps } from "./block-sender-modal";
+import type { ChangeUsernameModalProps } from "./change-username-modal";
+import type { DeleteAccountModalProps } from "./delete-account-modal";
+import type { DeleteAllMessagesModalProps } from "./delete-all-messages-modal";
 import type { DeleteMessageModalProps } from "./delete-message-modal";
+import type { RevealMessageModalProps } from "./reveal-message-modal";
 import type { SmartReplyModalProps } from "./smart-reply-modal";
 import type { StoryCardModalProps } from "./story-card-modal";
 
@@ -38,6 +43,7 @@ export const defaultSmartReplyModalArgs: SmartReplyModalProps = {
   onPublishedChange: noop,
   onReplyTextChange: noop,
   onSave: noop,
+  onSaveAndShare: noop,
 };
 
 export const editingSmartReplyModalArgs = {
@@ -50,4 +56,39 @@ export const defaultStoryCardModalArgs: StoryCardModalProps = {
   message: answeredSpicyMessage,
   username: FIXTURE_USERNAME,
   onClose: noop,
+};
+
+export const defaultRevealMessageModalArgs: RevealMessageModalProps = {
+  open: true,
+  message: quarantinedMessage,
+  onClose: noop,
+  onConfirm: noop,
+};
+
+export const defaultChangeUsernameModalArgs: ChangeUsernameModalProps = {
+  open: true,
+  value: "maya_writes",
+  availability: "available",
+  linkPrefix: "ghostmsg.app/u/",
+  isSaving: false,
+  onOpenChange: noop,
+  onSubmit: noop,
+  onValueChange: noop,
+};
+
+export const defaultDeleteAllMessagesModalArgs: DeleteAllMessagesModalProps = {
+  open: true,
+  total: 6,
+  onConfirm: noop,
+  onOpenChange: noop,
+};
+
+export const defaultDeleteAccountModalArgs: DeleteAccountModalProps = {
+  open: true,
+  username: FIXTURE_USERNAME,
+  confirmValue: "",
+  isPending: false,
+  onConfirm: noop,
+  onConfirmValueChange: noop,
+  onOpenChange: noop,
 };

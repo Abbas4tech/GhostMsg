@@ -1,30 +1,39 @@
 import type React from "react";
-import { Text } from "@/components/elements/text";
 
 export interface AuthPanelProps {
-  /** The auth form pattern (sign-in or sign-up). */
+  /** The auth form pattern (sign-in, sign-up or verify). */
   children: React.ReactNode;
-  description: React.ReactNode;
+  description?: React.ReactNode;
+  /** Optional icon tile above the heading (e.g. a mail icon on /verify). */
+  icon?: React.ReactNode;
   title: React.ReactNode;
 }
 
-/** Centered auth layout: heading, muted subtitle and the form. */
+/** One centred card at every width: optional icon, heading, subtitle, form. */
 export function AuthPanel({
   title,
   description,
+  icon,
   children,
 }: AuthPanelProps): React.JSX.Element {
   return (
     <main
-      className="flex items-center justify-center bg-background p-4"
+      className="flex justify-center px-4 pt-4 pb-16 sm:pt-10"
       data-slot="auth-panel"
     >
-      <section className="mt-8 w-full max-w-sm">
-        <header className="mb-6 flex flex-col gap-2">
-          <Text as="h2" variant="h2">
+      <section className="flex w-full max-w-[440px] flex-col gap-5 rounded-xl border bg-card p-6 text-card-foreground shadow-soft sm:p-7">
+        <header className="flex flex-col gap-3">
+          {icon ? (
+            <span className="grid size-12 place-items-center rounded-2xl bg-accent text-accent-foreground [&_svg]:size-6">
+              {icon}
+            </span>
+          ) : null}
+          <h1 className="font-bold text-[28px] leading-tight tracking-tight">
             {title}
-          </Text>
-          <Text variant="muted">{description}</Text>
+          </h1>
+          {description ? (
+            <p className="text-muted-foreground">{description}</p>
+          ) : null}
         </header>
         {children}
       </section>

@@ -3,6 +3,7 @@ import { delay, http } from "msw";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { downloadTextFile } from "@/lib/browser/download";
+import { buildMessagesJson } from "@/lib/messages/export";
 import {
   answeredSpicyMessage,
   mixedMessageCounts,
@@ -103,7 +104,7 @@ describe("useInboxController", () => {
 
     expect(downloadTextFile).toHaveBeenCalledWith(
       expect.objectContaining({
-        content: JSON.stringify([sweetMessage], null, 2),
+        content: buildMessagesJson([sweetMessage]),
         mimeType: "text/json",
       })
     );

@@ -2,17 +2,35 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { PublicQaItem } from "@/components/patterns/public-qa-feed";
+import { ApiError } from "@/data/api-client";
 import { messagesQueries } from "@/data/messages/messages.queries";
 
 const EMPTY_ANSWERS: PublicQaItem[] = [];
+const MAX_RETRIES = 2;
 
-/** Public AMA prompt + published Q&A for a recipient's profile. */
+const isNotFound = (error: unknown): boolean =>
+  error instanceof ApiError && error.status === 404;
+
+/**
+ * Public profile data: AMA Prompt, published Q&A, Message Acceptance and
+ * whether the username exists at all (404 → not-found state, no retries).
+ */
 export function usePublicAnswersController(username: string) {
-  const { data, isLoading } = useQuery(messagesQueries.publicAnswers(username));
+  const { data, error, isLoading } = useQuery({
+    ...messagesQueries.publicAnswers(username),
+    retry: (failureCount, queryError) =>
+      !isNotFound(queryError) && failureCount < MAX_RETRIES,
+  });
 
   return {
     amaPrompt: data?.amaPrompt,
     answers: data?.answers ?? EMPTY_ANSWERS,
+    isAccepting: data?.isAcceptingMessages ?? true,
+    displayName: data?.displayName,
+    avatarUrl: data?.avatarUrl ?? null,
+    showAmaBanner: data?.showAmaBanner ?? true,
+    offerSuggestions: data?.offerSuggestions ?? true,
+    isNotFound: isNotFound(error),
     isLoading,
   };
 }

@@ -54,12 +54,33 @@
     {
       "includes": [
         "src/components/elements/carousel/**",
-        "src/components/elements/input-otp/**"
+        "src/components/elements/input-otp/**",
+        "src/components/elements/breadcrumb/**",
+        "src/components/elements/field/**",
+        "src/components/elements/input-group/**",
+        "src/components/elements/item/**"
       ],
       "linter": {
         "rules": {
           "a11y": {
             "useSemanticElements": "off"
+          }
+        }
+      }
+    },
+    {
+      // Upstream shadcn: the current-page crumb is a non-focusable role="link"
+      // and the InputGroupAddon click only forwards focus to its input.
+      "includes": [
+        "src/components/elements/breadcrumb/**",
+        "src/components/elements/input-group/**"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useFocusableInteractive": "off",
+            "useKeyWithClickEvents": "off",
+            "noNoninteractiveElementInteractions": "off"
           }
         }
       }

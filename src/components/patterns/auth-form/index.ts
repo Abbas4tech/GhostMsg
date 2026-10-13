@@ -1,4 +1,9 @@
-export { AuthFormFooter, type AuthFormFooterProps } from "./auth-form-footer";
+export {
+  AuthFormFooter,
+  type AuthFormFooterProps,
+  AuthOAuthHeader,
+  type AuthOAuthHeaderProps,
+} from "./auth-form-footer";
 export { PasswordField, type PasswordFieldProps } from "./password-field";
 export {
   SignInForm,

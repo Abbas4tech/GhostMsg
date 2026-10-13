@@ -5,16 +5,6 @@ import Link from "next/link";
 import type React from "react";
 import { Button } from "@/components/elements/button";
 
-export interface AuthFormFooterProps {
-  alternateHref: string;
-  alternateLabel: string;
-  isSubmitDisabled: boolean;
-  isSubmitting: boolean;
-  onGoogleSignIn: () => void;
-  submitLabel: string;
-  submittingLabel: string;
-}
-
 function GoogleIcon(): React.JSX.Element {
   return (
     <svg
@@ -30,22 +20,71 @@ function GoogleIcon(): React.JSX.Element {
   );
 }
 
-/** Submit button, "Or" divider, Google sign-in and alternate-mode link. */
+export interface AuthOAuthHeaderProps {
+  onGoogleSignIn: () => void;
+}
+
+/** "Continue with Google" first, then the "or with email" divider. */
+export function AuthOAuthHeader({
+  onGoogleSignIn,
+}: AuthOAuthHeaderProps): React.JSX.Element {
+  return (
+    <div className="flex flex-col gap-4" data-slot="auth-oauth-header">
+      <Button
+        className="w-full rounded-full"
+        onClick={onGoogleSignIn}
+        size="xl"
+        type="button"
+        variant="outline"
+      >
+        <GoogleIcon />
+        Continue with Google
+      </Button>
+      <div className="flex items-center gap-3 text-muted-foreground text-sm">
+        <hr className="flex-1 border-border" />
+        or with email
+        <hr className="flex-1 border-border" />
+      </div>
+    </div>
+  );
+}
+
+export interface AuthFormFooterProps {
+  alternateHref: string;
+  alternateLabel: string;
+  /** Text before the alternate link, e.g. "Already have a link?". */
+  alternatePrompt: string;
+  isSubmitDisabled: boolean;
+  isSubmitting: boolean;
+  submitLabel: string;
+  submittingLabel: string;
+  /** Brand gradient for sign-up's primary action. */
+  submitVariant?: "default" | "brand";
+}
+
+/** Full-width submit button and the "switch to sign in / sign up" prompt. */
 export function AuthFormFooter({
   isSubmitting,
   isSubmitDisabled,
   submitLabel,
   submittingLabel,
-  onGoogleSignIn,
+  submitVariant = "default",
+  alternatePrompt,
   alternateHref,
   alternateLabel,
 }: AuthFormFooterProps): React.JSX.Element {
   return (
-    <footer className="flex flex-col items-center gap-2 md:gap-4">
-      <Button className="w-full" disabled={isSubmitDisabled} type="submit">
+    <footer className="flex flex-col gap-4">
+      <Button
+        className="w-full rounded-full"
+        disabled={isSubmitDisabled}
+        size="xl"
+        type="submit"
+        variant={submitVariant}
+      >
         {isSubmitting ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 aria-hidden="true" className="animate-spin" />
             {submittingLabel}
           </>
         ) : (
@@ -53,25 +92,15 @@ export function AuthFormFooter({
         )}
       </Button>
 
-      <div className="relative w-full text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-border after:border-t">
-        <span className="relative z-10 bg-background px-2 text-muted-foreground text-sm capitalize">
-          Or
-        </span>
-      </div>
-
-      <Button
-        className="w-full"
-        onClick={onGoogleSignIn}
-        type="button"
-        variant="outline"
-      >
-        <GoogleIcon />
-        Continue with Google
-      </Button>
-
-      <Button asChild className="text-xs" variant="link">
-        <Link href={alternateHref}>{alternateLabel}</Link>
-      </Button>
+      <p className="text-center text-muted-foreground text-sm">
+        {alternatePrompt}{" "}
+        <Link
+          className="font-semibold text-primary underline-offset-4 hover:underline"
+          href={alternateHref}
+        >
+          {alternateLabel}
+        </Link>
+      </p>
     </footer>
   );
 }

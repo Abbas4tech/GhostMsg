@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { BulkAction } from "@/components/patterns/bulk-action-toolbar";
 import type { MessageFilterStatus } from "@/components/patterns/filter-bar";
@@ -23,12 +23,20 @@ import {
 import type { MessageDto } from "@/types/api";
 import { countByStatus, matchesSearch, matchesStatus } from "./inbox.utils";
 
-export type ActiveModalType = "block" | "delete" | "reply" | "story" | null;
+export type ActiveModalType =
+  | "block"
+  | "delete"
+  | "reply"
+  | "reveal"
+  | "story"
+  | null;
 
 export type InboxViewMode = "grid" | "list";
 
 export interface UseInboxControllerOptions {
   initialMessages?: MessageDto[];
+  /** Filter from `/dashboard?filter=…` (command palette shortcuts). */
+  initialStatus?: MessageFilterStatus;
   isRefreshing?: boolean;
   onDelete?: (message: MessageDto) => Promise<void>;
   onRefresh?: () => void;
@@ -40,17 +48,32 @@ export interface UseInboxControllerOptions {
  * state. The Inbox block renders; this hook decides.
  */
 export function useInboxController({
+  initialStatus,
   initialMessages,
   isRefreshing: controlledIsRefreshing,
   onDelete,
   onRefresh,
 }: UseInboxControllerOptions = {}) {
-  useLiveMessages();
+  const { data: notificationsData } = useQuery(userQueries.notifications());
+  useLiveMessages({
+    hideMessageText:
+      notificationsData?.notificationSettings.hideMessageText ?? true,
+  });
 
-  const [activeStatus, setActiveStatus] = useState<MessageFilterStatus>("all");
+  const [activeStatus, setActiveStatus] = useState<MessageFilterStatus>(
+    initialStatus ?? "all"
+  );
+  // Follow ?filter= when it changes while the inbox is already mounted.
+  useEffect(() => {
+    if (initialStatus) {
+      setActiveStatus(initialStatus);
+    }
+  }, [initialStatus]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<InboxViewMode>("grid");
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [revealedIds, setRevealedIds] = useState<string[]>([]);
 
   // Centralized modal state. `activeMessage` is intentionally kept after close
   // so dialogs can play their exit animation with content still rendered.
@@ -59,11 +82,14 @@ export function useInboxController({
 
   const {
     data: messagesResponse,
+    isLoading: isQueryLoading,
     isRefetching,
     refetch,
   } = useQuery(messagesQueries.list());
 
   const { data: blockedSendersData } = useQuery(userQueries.blockedSenders());
+  const { data: preferencesData } = useQuery(userQueries.preferences());
+  const concealSpicy = Boolean(preferencesData?.preferences.safety.blurSpicy);
   const blockedSenderHashes = useMemo(
     () => new Set(blockedSendersData?.blockedSenderHashes || []),
     [blockedSendersData?.blockedSenderHashes]
@@ -147,6 +173,20 @@ export function useInboxController({
     (message: MessageDto) => openModal("story", message),
     [openModal]
   );
+  // Quarantined text asks first; a blurred Spicy message just opens.
+  const openRevealModal = useCallback(
+    (message: MessageDto) => {
+      if (message.isQuarantined) {
+        openModal("reveal", message);
+        return;
+      }
+      const messageId = String(message._id);
+      setRevealedIds((prev) =>
+        prev.includes(messageId) ? prev : [...prev, messageId]
+      );
+    },
+    [openModal]
+  );
   const closeModal = useCallback(() => {
     setActiveModal(null);
   }, []);
@@ -166,8 +206,19 @@ export function useInboxController({
     [updateMutation]
   );
 
+  const handleRevealConfirm = useCallback(
+    (message: MessageDto) => {
+      const messageId = String(message._id);
+      setRevealedIds((prev) =>
+        prev.includes(messageId) ? prev : [...prev, messageId]
+      );
+      closeModal();
+    },
+    [closeModal]
+  );
+
   const handleBlockConfirm = useCallback(
-    async (senderHash: string, isBlocked: boolean) => {
+    async (senderHash: string, isBlocked: boolean, alsoDelete = false) => {
       try {
         if (isBlocked) {
           await unblockMutation.mutateAsync(senderHash);
@@ -175,11 +226,14 @@ export function useInboxController({
           await blockMutation.mutateAsync(senderHash);
         }
         closeModal();
+        if (alsoDelete && activeMessage) {
+          await deleteMutation.mutateAsync(String(activeMessage._id));
+        }
       } catch {
         // Handled by mutation toast
       }
     },
-    [blockMutation, unblockMutation, closeModal]
+    [blockMutation, unblockMutation, deleteMutation, activeMessage, closeModal]
   );
 
   // Optimistic: close the dialog and drop the card at once. The mutation
@@ -245,13 +299,23 @@ export function useInboxController({
     openDeleteModal,
     openReplyModal,
     openStoryModal,
+    openRevealModal,
     closeModal,
+    handleRevealConfirm,
+    revealedIds,
+    focusedId,
+    setFocusedId,
     handleStarToggle,
     handleBlockConfirm,
     handleDeleteConfirm,
     handleBulkAction,
     handleExport,
     handleRefresh,
+    concealSpicy,
+    publishByDefault: Boolean(
+      preferencesData?.preferences.messages.publishByDefault
+    ),
+    isLoading: !initialMessages && isQueryLoading,
     isRefreshing: controlledIsRefreshing ?? isRefetching,
     isBlockPending: blockMutation.isPending || unblockMutation.isPending,
     isDeletePending: deleteMutation.isPending,

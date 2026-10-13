@@ -13,7 +13,7 @@ src/
 ├── app/                     # routes (thin pages) + API route handlers → may import @/server
 ├── components/              # elements → patterns → blocks → pages (ADR 0015)
 │   └── pages/<route>/       # use-*.controller.ts (+ .test.ts), <route>.utils.ts (+ .test.ts)
-├── content/                 # static app content (landing-messages.json)
+├── content/                 # static app content (landing.ts: landing example copy)
 ├── data/                    # CLIENT data layer, imported only by page controllers
 │   ├── api-client.ts        # openapi-fetch `api`, `clientFetch`, `ApiError`
 │   ├── query-keys.ts        # every React Query key
@@ -52,17 +52,17 @@ src/
 
 ```mermaid
 flowchart TD
-    A{"Runs only on the server?<br/>(DB, secrets, mail, AI, Node APIs)"} -- yes --> S["src/server/&lt;capability&gt;/<br/>+ import 'server-only'"]
+    A{"Runs only on the server?<br/>(DB, secrets, mail, AI, Node APIs)"} -- yes --> S["src/server/#lt;capability#gt;/<br/>+ import 'server-only'"]
     A -- no --> B{"Talks to the API,<br/>React Query or SSE?"}
-    B -- yes --> D["src/data/&lt;domain&gt;/<br/>queries · use-*-mutation · use-live-*"]
+    B -- yes --> D["src/data/#lt;domain#gt;/<br/>queries · use-*-mutation · use-live-*"]
     B -- no --> C{"React hook or helper,<br/>not tied to a domain?"}
     C -- yes --> H["src/hooks/"]
     C -- no --> P0{"Context provider?"}
     P0 -- yes --> PR["src/providers/"]
     P0 -- no --> E{"Pure function?"}
-    E -- "used by 1 module" --> U["&lt;module&gt;.utils.ts<br/>(colocated, + .utils.test.ts)"]
-    E -- "used by ≥ 2 modules" --> L["src/lib/&lt;domain&gt;/<br/>(+ .test.ts)"]
-    E -- "no: page state / effects" --> P["pages/&lt;route&gt;/use-*.controller.ts<br/>(+ .controller.test.ts)"]
+    E -- "used by 1 module" --> U["#lt;module#gt;.utils.ts<br/>(colocated, + .utils.test.ts)"]
+    E -- "used by ≥ 2 modules" --> L["src/lib/#lt;domain#gt;/<br/>(+ .test.ts)"]
+    E -- "no: page state / effects" --> P["pages/#lt;route#gt;/use-*.controller.ts<br/>(+ .controller.test.ts)"]
     E -- "browser side effect, no React" --> LB["src/lib/browser/"]
 ```
 

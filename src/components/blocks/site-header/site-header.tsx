@@ -1,51 +1,71 @@
 "use client";
 
-import { GhostIcon, LogOut, User2 } from "lucide-react";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { Button } from "@/components/elements/button";
+import { PalettePickerButton } from "@/components/elements/palette-picker";
 import { ThemeTogglerButton } from "@/components/elements/theme-toggler";
+import { BrandMark } from "@/components/patterns/brand-mark";
 
 export interface SiteHeaderProps {
   isAuthenticated: boolean;
   onSignOut: () => void;
 }
 
-/** Global header: brand link, auth action (logout / sign up) and theme toggle. */
+/**
+ * Global header: brand, primary nav (Safety / Sign in / Get your link, or
+ * Dashboard / Log out when signed in), palette picker and theme toggle.
+ */
 export function SiteHeader({
   isAuthenticated,
   onSignOut,
 }: SiteHeaderProps): React.JSX.Element {
   return (
-    <header className="flex w-full items-center justify-center bg-primary-foreground p-4 md:h-20">
-      <section className="container flex items-center justify-between">
-        <Button
-          asChild
-          className="!pl-0 scroll-m-20 text-balance text-center font-extrabold text-xl tracking-tight hover:no-underline md:text-3xl"
-          variant="link"
-        >
-          <Link href="/">
-            <GhostIcon className="size-7 font-bold" /> GhostMsg{" "}
-          </Link>
-        </Button>
+    <header
+      className="mx-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-5 sm:px-6"
+      data-slot="site-header"
+    >
+      <BrandMark href="/" />
 
-        <nav className="flex items-center gap-2">
-          {isAuthenticated ? (
-            <Button onClick={onSignOut}>
-              <LogOut />
-              Logout
+      <nav
+        aria-label="Primary"
+        className="flex flex-wrap items-center gap-1 sm:gap-2"
+      >
+        {isAuthenticated ? (
+          <>
+            <Button asChild className="rounded-full" variant="ghost">
+              <Link href="/dashboard">Dashboard</Link>
             </Button>
-          ) : (
-            <Button asChild>
-              <Link href="/sign-up">
-                <User2 />
-                Sign Up
-              </Link>
+            <Button
+              className="rounded-full"
+              onClick={onSignOut}
+              variant="outline"
+            >
+              <LogOut aria-hidden="true" />
+              Log out
             </Button>
-          )}
-          <ThemeTogglerButton modes={["dark", "light"]} />
-        </nav>
-      </section>
+          </>
+        ) : (
+          <>
+            <Button
+              asChild
+              className="hidden rounded-full sm:inline-flex"
+              variant="ghost"
+            >
+              <Link href="/#safety">Safety</Link>
+            </Button>
+            <Button asChild className="rounded-full" variant="ghost">
+              <Link href="/sign-in">Sign in</Link>
+            </Button>
+            <Button asChild className="rounded-full">
+              <Link href="/sign-up">Get your link</Link>
+            </Button>
+          </>
+        )}
+        <PalettePickerButton />
+        <ThemeTogglerButton modes={["dark", "light"]} variant="ghost" />
+      </nav>
     </header>
   );
 }

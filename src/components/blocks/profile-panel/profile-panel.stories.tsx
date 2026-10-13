@@ -1,31 +1,38 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn } from "storybook/test";
-import { ProfilePanel } from "./profile-panel";
-import { defaultProfilePanelArgs } from "./profile-panel.mock";
+import { FIXTURE_AMA_PROMPT } from "@/mock/fixtures/public-profile.fixtures";
+import { ProfilePanel, type ProfilePanelProps } from "./profile-panel";
+import {
+  defaultProfilePanelArgs,
+  dirtyProfilePanelArgs,
+} from "./profile-panel.mock";
 
-const SAVE_REGEX = /save topic banner/i;
-const SAVING_REGEX = /saving/i;
+const withSpies = (args: ProfilePanelProps): ProfilePanelProps => ({
+  ...args,
+  identity: {
+    ...args.identity,
+    onChangeUsername: fn(),
+    onDisplayNameChange: fn(),
+  },
+  link: { ...args.link, onCopy: fn(), onShare: fn() },
+  ama: { ...args.ama, onChange: fn(), onSuggest: fn() },
+  unsaved: { ...args.unsaved, onDiscard: fn(), onSave: fn() },
+});
 
 const meta = {
   title: "Blocks/ProfilePanel",
   component: ProfilePanel,
   tags: ["autodocs"],
-  args: {
-    ...defaultProfilePanelArgs,
-    onAmaPromptChange: fn(),
-    onCopyProfileUrl: fn(),
-    onSaveAmaPrompt: fn(),
-  },
+  args: withSpies(defaultProfilePanelArgs),
   argTypes: {
-    profileUrl: { control: "text", description: "Shareable public URL" },
-    amaPrompt: { control: "text", description: "Controlled AMA prompt" },
-    isSavingAmaPrompt: {
+    identity: { control: "object", description: "Identity card props" },
+    link: { control: "object", description: "Share link card props" },
+    ama: { control: "object", description: "AMA Prompt editor props" },
+    isAccepting: {
       control: "boolean",
-      description: "Saving state of the editor",
+      description: "Message Acceptance shown in the preview",
     },
-    onCopyProfileUrl: { description: "Copy clicked" },
-    onAmaPromptChange: { description: "Prompt edited → text" },
-    onSaveAmaPrompt: { description: "Save Topic Banner clicked" },
+    unsaved: { control: "object", description: "Unsaved changes bar props" },
   },
 } satisfies Meta<typeof ProfilePanel>;
 
@@ -34,33 +41,47 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    await expect(canvas.getByLabelText("Your profile link")).toHaveValue(
-      defaultProfilePanelArgs.profileUrl
-    );
-    await expect(canvas.getByLabelText("AMA prompt")).toHaveValue(
-      defaultProfilePanelArgs.amaPrompt
-    );
-
-    await userEvent.click(
-      canvas.getByRole("button", { name: "Copy to clipboard" })
-    );
-    await expect(args.onCopyProfileUrl).toHaveBeenCalledOnce();
-
-    await userEvent.click(canvas.getByRole("button", { name: SAVE_REGEX }));
-    await expect(args.onSaveAmaPrompt).toHaveBeenCalledOnce();
-  },
-};
-
-export const Saving: Story = {
-  args: { isSavingAmaPrompt: true },
-  play: async ({ canvas }) => {
     await expect(
-      canvas.getByRole("button", { name: SAVING_REGEX })
-    ).toBeDisabled();
+      canvas.getByRole("heading", { level: 1, name: "Profile" })
+    ).toBeVisible();
+    await expect(canvas.getByLabelText("Your profile link")).toHaveValue(
+      "ghostmsg.app/u/johndoe"
+    );
+    await expect(
+      canvas.getByLabelText("What do you want people to ask?")
+    ).toHaveValue(FIXTURE_AMA_PROMPT);
+    await expect(
+      canvas.getByRole("complementary", { name: "Preview" })
+    ).toHaveTextContent(FIXTURE_AMA_PROMPT);
+    await userEvent.click(canvas.getByRole("button", { name: "Copy" }));
+    await expect(args.link.onCopy).toHaveBeenCalledOnce();
+    await userEvent.click(canvas.getByRole("button", { name: "Change" }));
+    await expect(args.identity.onChangeUsername).toHaveBeenCalledOnce();
+    await expect(
+      canvas.queryByRole("region", { name: "Unsaved changes" })
+    ).not.toBeInTheDocument();
   },
 };
 
-export const BlankPrompt: Story = { args: { amaPrompt: "" } };
+export const UnsavedChanges: Story = {
+  args: {
+    unsaved: {
+      ...dirtyProfilePanelArgs.unsaved,
+      onDiscard: fn(),
+      onSave: fn(),
+    },
+  },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole("button", { name: "Save changes" }));
+    await expect(args.unsaved.onSave).toHaveBeenCalledOnce();
+  },
+};
+
+export const BannerHidden: Story = {
+  args: { ama: { ...defaultProfilePanelArgs.ama, showBanner: false } },
+};
+
+export const Paused: Story = { args: { isAccepting: false } };
 
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile1", isRotated: false } },

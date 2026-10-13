@@ -15,5 +15,15 @@ export type MessageReplyDto = Schemas["MessageReply"];
 export type PublicAnswerDto = Schemas["PublicAnswerItem"];
 /** Recipient notification preferences. */
 export type NotificationSettingsDto = Schemas["NotificationSettings"];
+/** Notification quiet-hours window. */
+export type QuietHoursDto = Schemas["QuietHours"];
+/** Identity card + AMA banner switch (`GET /api/user/profile`). */
+export type UserProfileDto = Schemas["UserProfile"];
+/** Messages + Safety settings (`GET /api/user/preferences`). */
+export type UserPreferencesDto = Schemas["UserPreferences"];
+/** A blocked Sender Hash with its block date (when known). */
+export type BlockedSenderDto = Schemas["BlockedSender"];
+/** Quarantine strictness. */
+export type QuarantineSensitivity = UserPreferencesDto["safety"]["sensitivity"];
 /** AI sentiment classification of a message. */
 export type SentimentTag = MessageDto["sentimentTag"];

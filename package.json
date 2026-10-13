@@ -21,7 +21,9 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "docs:registry": "tsx scripts/generate-component-registry.ts",
-    "docs:registry:check": "tsx scripts/generate-component-registry.ts --check"
+    "docs:registry:check": "tsx scripts/generate-component-registry.ts --check",
+    "docs:screenshots": "tsx scripts/capture-doc-screenshots.ts",
+    "theme:contrast": "tsx scripts/check-theme-contrast.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.14",
@@ -36,6 +38,7 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",

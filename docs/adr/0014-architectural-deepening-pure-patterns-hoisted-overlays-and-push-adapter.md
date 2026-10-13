@@ -3,13 +3,13 @@
 ## Status
 **Accepted**
 
-> **Update (2026-10-12):** **Extended by [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md).** Controllers such as `useInboxController` moved from `blocks/` to `src/components/pages/dashboard/`. Hoisted modals are rendered by the page-level `inbox-tab.tsx`.
+> **Update (2026-10-12):** **Extended by [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md).** Controllers such as `useInboxController` moved from `blocks/` to `src/components/pages/dashboard/`. Hoisted modals are rendered by the page-level `inbox-tab.tsx`.
 
 ---
 
 ## Context & Problem Statement
 
-Following the initial component taxonomy defined in [ADR 0013](file:///d:/Projects/GhostMsg/docs/adr/0013-elements-patterns-blocks-composable-architecture.md), an architectural review identified critical structural friction across several core subsystems in GhostMsg:
+Following the initial component taxonomy defined in [ADR 0013](0013-elements-patterns-blocks-composable-architecture.md), an architectural review identified critical structural friction across several core subsystems in GhostMsg:
 
 1. **Leaky Inbox Seams & DOM Duplication**:
    - `MessageCard` (`src/components/dashboard/message-card.tsx`) acted as a monolithic module combining presentation, 4 independent mutation hooks (`useBlockSenderMutation`, `useUnblockSenderMutation`, `useDeleteMessageMutation`, `useUpdateMessageMutation`), and inline `AlertDialog` overlays.
@@ -145,6 +145,6 @@ The first pass of this refactor changed visuals along with structure. The follow
 
 ## References & Code Pointers
 - Architectural Review Report: `file:///C:/Users/Abbas/AppData/Local/Temp/architecture-review-20261010-005400.html`
-- Component Architecture Guide: [`docs/05-component-architecture.md`](file:///d:/Projects/GhostMsg/docs/05-component-architecture.md)
-- Foundational Taxonomy: [`docs/adr/0013-elements-patterns-blocks-composable-architecture.md`](file:///d:/Projects/GhostMsg/docs/adr/0013-elements-patterns-blocks-composable-architecture.md)
-- Codebase Design Principles: [`.agents/skills/codebase-design/SKILL.md`](file:///d:/Projects/GhostMsg/.agents/skills/codebase-design/SKILL.md)
+- Component Architecture Guide: [`docs/05-component-architecture.md`](../05-component-architecture.md)
+- Foundational Taxonomy: [`docs/adr/0013-elements-patterns-blocks-composable-architecture.md`](0013-elements-patterns-blocks-composable-architecture.md)
+- Codebase Design Principles: [`.agents/skills/codebase-design/SKILL.md`](../../.agents/skills/codebase-design/SKILL.md)

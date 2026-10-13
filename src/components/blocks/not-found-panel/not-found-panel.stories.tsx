@@ -25,7 +25,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByText("404")).toBeVisible();
-    await expect(canvas.getByText("page not found")).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { name: "This page vanished like a ghost." })
+    ).toBeVisible();
     await expect(
       canvas.getByRole("link", { name: HOME_REGEX })
     ).toHaveAttribute("href", "/");

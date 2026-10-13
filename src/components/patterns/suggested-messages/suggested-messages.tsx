@@ -1,7 +1,7 @@
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Sparkles } from "lucide-react";
 import type React from "react";
 import { Button } from "@/components/elements/button";
-import { Card, CardContent } from "@/components/elements/card";
+import { Skeleton } from "@/components/elements/skeleton";
 import { cn } from "@/lib/utils";
 
 export interface SuggestedMessagesProps {
@@ -11,7 +11,9 @@ export interface SuggestedMessagesProps {
   suggestions: string[];
 }
 
-/** AI-suggested message prompts; clicking one hands the text to the parent. */
+const SKELETON_KEYS = ["a", "b", "c"] as const;
+
+/** "Need a nudge?": AI Suggested Messages that fill the box when tapped. */
 export function SuggestedMessages({
   suggestions,
   isLoading = false,
@@ -19,38 +21,50 @@ export function SuggestedMessages({
   onSelect,
 }: SuggestedMessagesProps): React.JSX.Element {
   return (
-    <div
-      className="mx-auto flex w-full max-w-2xl flex-col items-center"
-      data-slot="suggested-messages"
-    >
-      <Button
-        className="my-4"
-        disabled={isLoading}
-        onClick={onRefresh}
-        size="lg"
-      >
-        <RefreshCw
-          className={cn("mr-2 h-4 w-4", isLoading && "animate-spin")}
-        />
-        Suggest Messages
-      </Button>
+    <div className="flex flex-col gap-2" data-slot="suggested-messages">
+      <div className="flex items-center justify-between gap-2">
+        <span className="flex items-center gap-1.5 font-semibold text-sm">
+          <Sparkles aria-hidden="true" className="size-4 text-primary" />
+          Need a nudge?
+        </span>
+        <Button
+          className="min-h-11 rounded-full"
+          disabled={isLoading}
+          onClick={onRefresh}
+          size="sm"
+          type="button"
+          variant="ghost"
+        >
+          <RefreshCw
+            aria-hidden="true"
+            className={cn(isLoading && "animate-spin")}
+          />
+          New ideas
+        </Button>
+      </div>
 
-      {suggestions.length > 0 && (
-        <Card className="w-full">
-          <CardContent className="flex flex-col gap-4 p-6">
-            {suggestions.map((suggestion) => (
-              <Button
-                className="h-auto justify-start whitespace-normal py-3 text-left"
-                key={suggestion}
-                onClick={() => onSelect(suggestion)}
-                variant="outline"
-              >
-                {suggestion}
-              </Button>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+      {isLoading && suggestions.length === 0 ? (
+        <div
+          aria-label="Loading ideas"
+          className="flex flex-col gap-2"
+          role="status"
+        >
+          {SKELETON_KEYS.map((key) => (
+            <Skeleton className="h-11 rounded-2xl" key={key} />
+          ))}
+        </div>
+      ) : null}
+
+      {suggestions.map((suggestion) => (
+        <button
+          className="flex min-h-11 items-center rounded-2xl border border-input border-dashed bg-card px-3.5 py-2 text-left font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring"
+          key={suggestion}
+          onClick={() => onSelect(suggestion)}
+          type="button"
+        >
+          {suggestion}
+        </button>
+      ))}
     </div>
   );
 }

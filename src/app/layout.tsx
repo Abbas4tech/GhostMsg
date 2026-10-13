@@ -1,18 +1,62 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  DM_Sans,
+  Figtree,
+  Gabarito,
+  Geist,
+  Instrument_Serif,
+} from "next/font/google";
 import "./globals.css";
 import type React from "react";
 
 import { Toaster } from "@/components/elements/sonner";
+import { DEFAULT_PALETTE, PALETTE_BOOT_SCRIPT } from "@/lib/theme/palette";
 import AuthProvider from "@/providers/auth-provider";
+import PaletteProvider from "@/providers/palette-provider";
 import QueryProvider from "@/providers/query-provider";
 import ThemeProvider from "@/providers/theme-provider";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+// Every palette's fonts (src/app/globals.css). Only Soft spectral, the
+// default, preloads; the others download when their palette is applied.
+const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"] });
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
+const geist = Geist({
+  variable: "--font-geist",
+  subsets: ["latin"],
+  preload: false,
+});
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  preload: false,
+});
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+  preload: false,
+});
+const gabarito = Gabarito({
+  variable: "--font-gabarito",
+  subsets: ["latin"],
+  preload: false,
+});
+
+const fontVariables = [
+  figtree,
+  bricolage,
+  geist,
+  instrumentSerif,
+  dmSans,
+  gabarito,
+]
+  .map((font) => font.variable)
+  .join(" ");
 
 export const metadata: Metadata = {
   title: {
@@ -60,8 +104,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>): React.JSX.Element {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${poppins.variable} antialiased`}>
+    // Font variables sit on <html> so the palette tokens on :root can resolve them.
+    <html
+      className={fontVariables}
+      data-palette={DEFAULT_PALETTE}
+      lang="en"
+      suppressHydrationWarning
+    >
+      <head>
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: constant boot script (no user input) that applies the stored palette before first paint
+          dangerouslySetInnerHTML={{ __html: PALETTE_BOOT_SCRIPT }}
+        />
+      </head>
+      <body className="antialiased">
         <AuthProvider>
           <QueryProvider>
             <ThemeProvider
@@ -70,8 +126,10 @@ export default function RootLayout({
               disableTransitionOnChange
               enableSystem
             >
-              {children}
-              <Toaster />
+              <PaletteProvider>
+                {children}
+                <Toaster />
+              </PaletteProvider>
             </ThemeProvider>
           </QueryProvider>
         </AuthProvider>

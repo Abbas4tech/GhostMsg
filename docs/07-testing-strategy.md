@@ -4,7 +4,7 @@ GhostMsg runs **two Vitest projects** from one `vitest.config.ts`:
 - **`unit`** (happy-dom, MSW-isolated) for logic, controllers and page integration.
 - **`storybook`** (Vitest browser mode, headless Chromium, axe) for every component and page story.
 
-Contracts are verified at compile time through Zod + OpenAPI typegen. Rationale: [ADR 0012](file:///d:/Projects/GhostMsg/docs/adr/0012-vitest-unit-and-integration-testing-strategy.md) (Vitest) and [ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md) (stories as tests, MSW).
+Contracts are verified at compile time through Zod + OpenAPI typegen. Rationale: [ADR 0012](adr/0012-vitest-unit-and-integration-testing-strategy.md) (Vitest) and [ADR 0016](adr/0016-storybook-msw-and-story-driven-component-testing.md) (stories as tests, MSW).
 
 ---
 
@@ -48,29 +48,55 @@ pnpm test:all         # both projects — the pre-push gate
 
 ## 3. Current unit test inventory
 
-Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/` folders ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q6). Required coverage (Q7): every `*.utils.ts`, every `src/lib` / `src/server` module with logic, and every page controller.
+Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/` folders ([ADR 0018](adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q6). Required coverage (Q7): every `*.utils.ts`, every `src/lib` / `src/server` module with logic, and every page controller.
 
 | File | Covers |
 | :--- | :--- |
-| `src/server/security/security.test.ts` | HMAC-SHA256 `senderHash`, rate-limit helpers |
-| `src/server/ai/moderation.test.ts` | Sentiment tagging, toxicity quarantine rules |
+| **Server** | |
+| `src/server/security/security.test.ts` | HMAC-SHA256 `senderHash`, rate-limit helpers, constant-time cron bearer check |
+| `src/server/ai/moderation.test.ts` | Graded toxicity levels and `isToxic`, code-fence stripping, legacy `{ isToxic }` mapping, unknown values, fail-open without a key / on invalid JSON / on AI errors (AI SDK mocked, no network) |
+| `src/server/ai/quarantine-policy.test.ts` | Relaxed/Balanced/Strict thresholds, quarantine off, missing settings (ADR 0025) |
 | `src/server/ai/smart-reply.test.ts` | Multi-tone smart reply + fallback on AI failure |
+| `src/server/ai/ama-suggestions.test.ts` | `||` parsing, length filter, fixed fallbacks |
+| `src/server/notifications/delivery-policy.test.ts` | Quiet hours (midnight crossing, zones, zero-length), hidden previews, truncation (ADR 0026) |
+| `src/server/notifications/daily-digest.test.ts` | Digest window (first, since last, 7-day cap), hidden vs shown previews, quiet-hours skip, empty, failed send keeps the window, per-recipient error isolation (ADR 0029) |
+| `src/server/email/send-message-alert-email.test.ts` | Preview + tone when shown; neutral email without text or tone when hidden; `APP_URL` link; failed send |
+| `src/server/email/send-daily-digest-email.test.ts` | Previews + "more in your inbox", count-only when hidden, subject pluralisation |
+| `src/server/users/user-dto.test.ts` | Profile/preferences/notification defaults for old documents, blocked-sender date join (ADR 0024) |
 | `src/server/push/web-push.test.ts` | VAPID config, gone (404/410) detection, fan-out, pruning, unconfigured skip (ADR 0020) |
+| **Schemas** | |
 | `src/schemas/message-schema.test.ts` | Message/send/reply/bulk schemas |
-| `src/schemas/notification-schema.test.ts` | Notification settings schemas |
-| `src/lib/messages/export.test.ts` | CSV/JSON export builders, quote escaping, filename + MIME |
+| `src/schemas/notification-schema.test.ts` | Notification settings, `HH:MM` clock, quiet hours |
+| `src/schemas/user-settings-schema.test.ts` | Display name trim/cap, avatar data URLs, `null` removal, username rules, preference partials + sensitivity enum, delete-account confirmation |
+| **Lib & data** | |
+| `src/lib/messages/export.test.ts` | CSV/JSON export builders, allow-listed JSON records (never `senderHash`), quote escaping, filename + MIME |
 | `src/lib/browser/download.test.ts` | Anchor + data-URL download side effect |
+| `src/lib/browser/resize-image.test.ts` | `fitWithin` downscaling, never upscales |
+| `src/lib/format/relative-time.test.ts` | now / minutes / hours / days, short date after a week, future dates |
+| `src/lib/theme/palette.test.ts` | Palette guard, boot script (stored, invalid, blocked storage) |
+| `src/lib/users/username-availability.test.ts` | Availability status mapping, min length (shared by sign-up and Change username) |
+| `src/data/messages/use-live-messages.utils.test.ts` | Live toast: silent for quarantined, text-free when hidden, 40-char preview |
 | `src/data/user/use-push-notification.utils.test.ts` | VAPID key base64url → `Uint8Array`, same-key detection, DOMException → user message |
+| **Component utils** | |
 | `src/components/elements/theme-toggler/theme-toggler.utils.test.ts` | Theme cycling order |
-| `src/components/pages/dashboard/inbox.utils.test.ts` | Status filters, search, per-status counts |
+| `src/components/pages/dashboard/inbox.utils.test.ts` | Status filters, search, per-status counts, shortcut keys, focus movement |
+| `src/components/pages/dashboard/dashboard.utils.test.ts` | Active nav from pathname, `stripProtocol`, `toLinkPrefix` |
 | `src/components/pages/dashboard/profile.utils.test.ts` | Public profile URL |
+| `src/components/pages/home/home.utils.test.ts` | Claim href (trim, encode, empty), link prefix fallback |
 | `src/components/pages/public-profile/send-message.utils.test.ts` | AI suggestion parsing (`||`-separated) |
-| `src/components/pages/auth/sign-up/username-availability.utils.test.ts` | Availability status mapping, min length |
+| **Controllers** | |
 | `src/components/pages/dashboard/use-inbox.controller.test.ts` | Load, filter, search, selection, modals, bulk, export, delete, refresh errors, blocklist, **optimistic delete/bulk before the response + rollback on failure** (ADR 0021) |
+| `src/components/pages/dashboard/use-dashboard-shell.controller.test.ts` | Session + active nav + unread count, acceptance toggle and paused label, ⌘K/Ctrl+K, command routing, sign-out, go to sign-in |
+| `src/components/pages/dashboard/use-profile-link.controller.test.ts` | Link + label from the session, copy + toast, blocked clipboard, share sheet only when supported |
+| `src/components/pages/dashboard/use-inbox-keyboard.controller.test.ts` | `j`/`k` cursor, select/star/reply on the focused card, `/` focuses search, ignored while a dialog is open |
 | `src/components/pages/dashboard/use-smart-reply.controller.test.ts` | Draft seeding, AI generate, save / blank-draft guard |
-| `src/components/pages/dashboard/use-profile.controller.test.ts` | Profile URL from session, AMA prompt save / blank guard |
+| `src/components/pages/dashboard/use-profile.controller.test.ts` | Profile URL from session, draft + discard, save profile and trimmed AMA prompt together, blank-prompt guard, AI ideas |
+| `src/components/pages/dashboard/use-change-username.controller.test.ts` | Opens idle with the current name, debounced available/taken, save → session `update` + `router.refresh` |
 | `src/components/pages/dashboard/use-settings.controller.test.ts` | Defaults, closed-inbox scenario, acceptance (API + controlled), alerts, unblock, web push (not configured / subscribe / off) |
-| `src/components/pages/public-profile/use-public-answers.controller.test.ts` | Answers + AMA prompt, error fallback |
+| `src/components/pages/dashboard/use-danger-zone.controller.test.ts` | Delete all behind the undo toast, Undo cancels, unmount commits, typed account deletion → `signOut`, wrong confirmation |
+| `src/components/pages/dashboard/use-appearance.controller.test.ts` | Mode/palette exposure, system fallback, unknown palette ignored, `setTheme` |
+| `src/components/pages/home/use-claim-link.controller.test.ts` | Submit opens `/sign-up?username=`, host as link prefix |
+| `src/components/pages/public-profile/use-public-answers.controller.test.ts` | Answers + AMA prompt, Message Acceptance, error fallback |
 | `src/components/pages/public-profile/use-send-message.controller.test.ts` | Auto-fetch suggestions, errors, `selectSuggestion`, send + reset, not-accepting |
 | `src/components/pages/auth/shared/use-google-sign-in.controller.test.ts` | Stable Google OAuth callback |
 | `src/components/pages/auth/sign-in/use-sign-in.controller.test.ts` | Credentials success/redirect, custom redirect, NextAuth error, thrown error |
@@ -78,7 +104,16 @@ Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/`
 | `src/components/pages/auth/sign-up/use-username-availability.controller.test.ts` | Short-name skip, available clears error, taken writes form error |
 | `src/components/pages/auth/verify/use-verify.controller.test.ts` | Verify + redirect, incorrect code |
 
-**Where each kind of logic is tested** ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md) Q6/Q7, [ADR 0019](file:///d:/Projects/GhostMsg/docs/adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md)):
+**Totals (2026-10-14):** 46 unit test files + 102 story files = 148 files, 610 tests (`pnpm test:all`).
+
+**Coverage:** every page controller now has a colocated `*.controller.test.ts`.
+
+**Story-test conventions introduced by the shadcn migration:**
+- `ToggleGroup type="single"` items have `role="radio"`: query filters, view switches, sensitivity and idea chips with `getByRole("radio", { name })`.
+- A button that shows a `Spinner` is named "Loading <label>": match pending buttons with a regex (`/save changes/i`).
+- cmdk keeps an empty `role="listbox"` in its empty state; only the `NoMatches` palette story disables `aria-required-children`.
+
+**Where each kind of logic is tested** ([ADR 0018](adr/0018-source-structure-server-data-lib-utils-controllers-tests.md) Q6/Q7, [ADR 0019](adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md)):
 
 ```mermaid
 flowchart LR
@@ -98,9 +133,9 @@ flowchart LR
     HD --> PS
 ```
 
-**Controller test recipe** ([ADR 0019](file:///d:/Projects/GhostMsg/docs/adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md)). `renderHookWithProviders(() => useXController(), { session? })` from `src/test/test-utils.tsx` wraps the hook in `SessionProvider` (session passed directly, default `null`, so no session fetch and no SSE) and a fresh `QueryClient`. Network goes to the shared MSW handlers; override with `server.use(...scenarios.x.y)`. Assert endpoints with `recordRequests()`. Mock only the edges MSW can't see: `vi.mock("next/navigation")` for `useRouter`, `vi.mock("sonner")` for toasts, `vi.mock("next-auth/react")` for `signIn`, and browser side effects like `@/lib/browser/download`.
+**Controller test recipe** ([ADR 0019](adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md)). `renderHookWithProviders(() => useXController(), { session? })` from `src/test/test-utils.tsx` wraps the hook in `SessionProvider` (session passed directly, default `null`, so no session fetch and no SSE) and a fresh `QueryClient`. Network goes to the shared MSW handlers; override with `server.use(...scenarios.x.y)`. Assert endpoints with `recordRequests()`. Mock only the edges MSW can't see: `vi.mock("next/navigation")` for `useRouter`, `vi.mock("sonner")` for toasts, `vi.mock("next-auth/react")` for `signIn`, and browser side effects like `@/lib/browser/download`.
 
-Story-test inventory (all components and pages) is generated in [Chapter 11: Component Registry](file:///d:/Projects/GhostMsg/docs/11-component-registry.md).
+Story-test inventory (all components and pages) is generated in [Chapter 11: Component Registry](11-component-registry.md).
 
 ---
 
@@ -121,7 +156,7 @@ Gotchas already solved (don't reintroduce them):
 
 ## 5. Story tests (summary)
 
-Full rules: [Chapter 10](file:///d:/Projects/GhostMsg/docs/10-storybook-and-ui-catalog.md).
+Full rules: [Chapter 10](10-storybook-and-ui-catalog.md).
 - **Smoke tests:** every story renders as one, with axe checks at `a11y.test: "error"`.
 - **Interaction tests:** `play()` functions drive the UI with `userEvent` and assert both callbacks (`fn()` spies) and the visible result.
 - **No animation:** Motion and CSS animations are disabled in test mode, which keeps assertions deterministic.
@@ -130,4 +165,4 @@ Full rules: [Chapter 10](file:///d:/Projects/GhostMsg/docs/10-storybook-and-ui-c
 ---
 
 ## 6. Next Chapter
-Proceed to [Chapter 8: Code Quality & Standards](file:///d:/Projects/GhostMsg/docs/08-code-quality.md).
+Proceed to [Chapter 8: Code Quality & Standards](08-code-quality.md).

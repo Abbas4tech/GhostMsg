@@ -5,7 +5,10 @@ import { useForm } from "react-hook-form";
 import { expect, fn } from "storybook/test";
 import { DEFAULT_AMA_PROMPT } from "@/components/patterns/ama-banner";
 import type { SendMessageValues } from "@/components/patterns/send-message-form";
-import { suggestionScenarios } from "@/mock/fixtures/public-profile.fixtures";
+import {
+  FIXTURE_AMA_PROMPT,
+  suggestionScenarios,
+} from "@/mock/fixtures/public-profile.fixtures";
 import { messageSchema } from "@/schemas/message-schema";
 import { PublicProfile } from "./public-profile";
 import {
@@ -25,9 +28,13 @@ function PublicProfileHarness(args: PublicProfileStoryArgs): React.JSX.Element {
     <PublicProfile
       amaPrompt={args.amaPrompt}
       answers={{ items: args.answers, isLoading: args.isLoadingAnswers }}
+      isAccepting={args.isAccepting}
+      isNotFound={args.isNotFound}
       sendForm={{
         form,
+        isSent: args.isSent,
         isSubmitting: args.isSubmitting,
+        onSendAnother: args.onSendAnother,
         onSubmit: args.onSubmit,
       }}
       suggestions={{
@@ -45,60 +52,109 @@ const meta = {
   title: "Blocks/PublicProfile",
   component: PublicProfileHarness,
   tags: ["autodocs"],
+  parameters: { layout: "fullscreen" },
   args: {
     ...defaultPublicProfileArgs,
     onRefreshSuggestions: fn(),
     onSelectSuggestion: fn(),
+    onSendAnother: fn(),
     onSubmit: fn(),
   },
   argTypes: {
     username: { control: "text", description: "Recipient handle" },
     amaPrompt: {
       control: "text",
-      description: "AMA banner prompt (null → default prompt)",
+      description: "AMA Prompt (null → default prompt)",
     },
     answers: { control: "object", description: "Published Q&A" },
-    suggestions: { control: "object", description: "AI suggestions" },
-    isLoadingAnswers: { control: "boolean", description: "Q&A feed spinner" },
+    suggestions: { control: "object", description: "Suggested Messages" },
+    isAccepting: { control: "boolean", description: "Message Acceptance" },
+    isNotFound: { control: "boolean", description: "Unknown username" },
+    isSent: { control: "boolean", description: "Just sent a message" },
+    isLoadingAnswers: { control: "boolean", description: "Q&A skeleton" },
     isLoadingSuggestions: {
       control: "boolean",
-      description: "Suggest button spinner",
+      description: "Suggestions loading",
     },
-    isSubmitting: {
-      control: "boolean",
-      description: "Send button pending state",
-    },
+    isSubmitting: { control: "boolean", description: "Send pending" },
     onSubmit: { description: "Valid message submitted" },
     onSelectSuggestion: {
-      description: "Suggestion clicked (page writes it into the form)",
+      description: "Suggestion tapped (page writes it into the form)",
     },
-    onRefreshSuggestions: { description: "Suggest Messages clicked" },
+    onRefreshSuggestions: { description: "New ideas clicked" },
+    onSendAnother: { description: "Send another clicked" },
   },
 } satisfies Meta<typeof PublicProfileHarness>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const Accepting: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await expect(
-      canvas.getByRole("heading", { level: 1, name: "@johndoe" })
+      canvas.getByRole("heading", { level: 1, name: "johndoe" })
     ).toBeVisible();
     await expect(
-      canvas.getByText("Public Answers & Confessions")
+      canvas.getByText("Accepting Anonymous Messages")
+    ).toBeVisible();
+    await expect(canvas.getByText(FIXTURE_AMA_PROMPT)).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { name: "Public Q&A" })
     ).toBeVisible();
     const suggestion = suggestionScenarios.default[2];
     await userEvent.click(canvas.getByRole("button", { name: suggestion }));
     await expect(args.onSelectSuggestion).toHaveBeenCalledWith(suggestion);
+    await expect(
+      canvas.getByRole("button", { name: "Send anonymously" })
+    ).toBeDisabled();
+  },
+};
+
+export const Sent: Story = {
+  args: { isSent: true },
+  play: async ({ args, canvas, userEvent }) => {
+    await expect(
+      canvas.getByText("Sent. johndoe will never know it was you.")
+    ).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Send another" }));
+    await expect(args.onSendAnother).toHaveBeenCalledOnce();
+  },
+};
+
+export const Paused: Story = {
+  args: { isAccepting: false },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Messages paused")).toBeVisible();
+    await expect(
+      canvas.getByText("johndoe is taking a breather.")
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Sending is paused" })
+    ).toBeDisabled();
+    await expect(
+      canvas.queryByRole("form", { name: "Send an Anonymous Message" })
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const NotFound: Story = {
+  args: { isNotFound: true },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("heading", { name: "Nobody's home at this link." })
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("link", { name: "Claim /u/johndoe" })
+    ).toHaveAttribute("href", "/sign-up?username=johndoe");
   },
 };
 
 export const NewProfile: Story = {
   args: newProfilePublicProfileArgs,
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(`✨ ${DEFAULT_AMA_PROMPT}`)).toBeVisible();
+    await expect(canvas.getByText(DEFAULT_AMA_PROMPT)).toBeVisible();
     await expect(
-      canvas.queryByText("Public Answers & Confessions")
+      canvas.queryByRole("heading", { name: "Public Q&A" })
     ).not.toBeInTheDocument();
   },
 };

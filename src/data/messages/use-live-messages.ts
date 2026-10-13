@@ -2,13 +2,31 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { queryKeys } from "@/data/query-keys";
+import { buildLiveMessageToast } from "./use-live-messages.utils";
 
-export const useLiveMessages = () => {
+export interface UseLiveMessagesOptions {
+  /** Recipient's "Hide message text in notifications" (default on). */
+  hideMessageText?: boolean;
+}
+
+/**
+ * Listens to `/api/messages/stream` (SSE): refreshes the inbox on every new
+ * message and toasts only what the recipient's settings allow (never the
+ * text of a quarantined message).
+ */
+export const useLiveMessages = ({
+  hideMessageText = true,
+}: UseLiveMessagesOptions = {}) => {
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
+  // Read inside the listener so a settings change doesn't reconnect the stream.
+  const hideTextRef = useRef(hideMessageText);
+  useEffect(() => {
+    hideTextRef.current = hideMessageText;
+  }, [hideMessageText]);
 
   useEffect(() => {
     if (status !== "authenticated" || !session?.user) {
@@ -23,13 +41,13 @@ export const useLiveMessages = () => {
 
       eventSource.addEventListener("new_message", (event) => {
         try {
-          const data = JSON.parse(event.data);
-          toast.info("New anonymous message received! 👻", {
-            description:
-              data.content?.length > 40
-                ? `${data.content.slice(0, 40)}...`
-                : data.content,
-          });
+          const notice = buildLiveMessageToast(
+            JSON.parse(event.data),
+            hideTextRef.current
+          );
+          if (notice) {
+            toast.info(notice.title, { description: notice.description });
+          }
 
           // Invalidate message list to refresh inbox
           queryClient.invalidateQueries({ queryKey: queryKeys.messages.all });

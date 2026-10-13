@@ -4,16 +4,14 @@ import type { FilterBarProps } from "./filter-bar";
 
 export const defaultFilterBarArgs: FilterBarProps = {
   activeStatus: "all",
-  searchQuery: "",
   counts: mixedMessageCounts,
   onStatusChange: noop,
-  onSearchChange: noop,
 };
 
 export const noQuarantineFilterBarArgs = {
   counts: { ...mixedMessageCounts, quarantined: 0 },
 } satisfies Partial<FilterBarProps>;
 
-export const searchingFilterBarArgs = {
-  searchQuery: "design",
+export const quarantinedActiveFilterBarArgs = {
+  activeStatus: "quarantined",
 } satisfies Partial<FilterBarProps>;

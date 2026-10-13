@@ -52,12 +52,12 @@ Answer the questions in order. The first "yes" decides the tier.
 ```mermaid
 flowchart TD
     Q1{"Does it read/write server data, session,<br/>router, browser APIs, or fire<br/>side-effect toasts?"}
-    Q1 -- yes --> PG["pages/&lt;route&gt;/use-*.controller.ts<br/>(+ the page component that wires it)"]
+    Q1 -- yes --> PG["pages/#lt;route#gt;/use-*.controller.ts<br/>(+ the page component that wires it)"]
     Q1 -- no --> Q2{"Is it a full section of a page<br/>(owns a layout region, composes<br/>several patterns)?"}
-    Q2 -- yes --> BL["blocks/&lt;name&gt;/"]
+    Q2 -- yes --> BL["blocks/#lt;name#gt;/"]
     Q2 -- no --> Q3{"Does it combine elements into a<br/>domain-aware UI unit<br/>(card, form, toolbar, modal)?"}
-    Q3 -- yes --> PA["patterns/&lt;name&gt;/"]
-    Q3 -- no --> EL["elements/&lt;name&gt;/<br/>(domain-agnostic primitive)"]
+    Q3 -- yes --> PA["patterns/#lt;name#gt;/"]
+    Q3 -- no --> EL["elements/#lt;name#gt;/<br/>(domain-agnostic primitive)"]
 ```
 
 Quick reference:
@@ -65,8 +65,8 @@ Quick reference:
 | You are adding… | Tier | Example in repo |
 | :--- | :--- | :--- |
 | A `useQuery`, `useMutation`, `signIn`, `router.replace`, `toast.success` after a mutation | **pages** controller | `pages/dashboard/use-inbox.controller.ts` |
-| A route-level component that wires controllers into blocks | **pages** | `pages/dashboard/dashboard-page.tsx` |
-| A dashboard tab that owns data | **pages** (`*-tab.tsx`) | `pages/dashboard/settings-tab.tsx` |
+| A route-level component that wires controllers into blocks | **pages** | `pages/dashboard/inbox-page.tsx` |
+| A layout shared by several routes (session gate, shell) | **pages** (`*-layout.tsx`) | `pages/dashboard/dashboard-layout.tsx` |
 | A page section with title/controls/list | **blocks** | `blocks/inbox/inbox.tsx` |
 | A form, card, modal, toolbar, badge with domain meaning | **patterns** | `patterns/auth-form/sign-in-form.tsx` |
 | A button, input, dialog, tabs, motion effect | **elements** | `elements/liquid-button/` |
@@ -168,23 +168,23 @@ pages/
 │   │   └── username-availability.utils.ts (+ .test.ts)
 │   └── verify/                 ← app/(app)/(auth)/verify/[username]/page.tsx
 │       └── use-verify.controller.ts (+ .test.ts)
-├── dashboard/                  ← app/(app)/(dashboard)/dashboard/page.tsx
-│   ├── dashboard-page.tsx      (session gate + DashboardShell + lazy tabs)
-│   ├── inbox-tab.tsx  profile-tab.tsx  settings-tab.tsx
-│   ├── use-{inbox,smart-reply,profile,settings}.controller.ts (+ .test.ts each)
-│   └── {inbox,profile}.utils.ts (+ .test.ts each)
+├── dashboard/                  ← app/(dashboard)/dashboard/{layout,page,profile/page,settings/page}.tsx
+│   ├── dashboard-layout.tsx    (session gate + DashboardShell sidebar + ⌘K palette)
+│   ├── inbox-page.tsx  profile-page.tsx  settings-page.tsx
+│   ├── use-{dashboard-shell,profile-link,inbox,inbox-keyboard,smart-reply,profile,settings}.controller.ts
+│   └── {inbox,dashboard,profile}.utils.ts (+ .test.ts each)
 ├── public-profile/             ← app/u/[username]/page.tsx
 └── not-found/                  ← app/not-found.tsx
 ```
 
-- **One controller hook per file**, named `use<Concern>Controller` in `use-<concern>.controller.ts`, with a colocated `use-<concern>.controller.test.ts` ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q5/Q7). It returns plain values plus `handle*` callbacks wrapped in `useCallback`, and `is*Pending` flags.
+- **One controller hook per file**, named `use<Concern>Controller` in `use-<concern>.controller.ts`, with a colocated `use-<concern>.controller.test.ts` ([ADR 0018](../adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q5/Q7). It returns plain values plus `handle*` callbacks wrapped in `useCallback`, and `is*Pending` flags.
 - **Logic shared by sibling pages** lives in `pages/<group>/shared/` (e.g. `pages/auth/shared/use-google-sign-in.controller.ts`). It never moves down into a block.
 - **Pure logic inside a controller** (filters, parsers, status mapping) moves to a colocated `<module>.utils.ts` with a `.utils.test.ts`. Once two or more modules use it, it's promoted to `src/lib/<domain>/`.
 - **Toasts after a side effect belong in controllers.** Purely UI feedback inside a pattern (the story card's "downloaded" toast) is fine.
 
 ```tsx
-// pages/dashboard/settings-tab.tsx: the page-level wiring shape
-export function SettingsTab(props: SettingsTabProps = {}) {
+// pages/dashboard/settings-page.tsx: the page-level wiring shape
+export function SettingsPage(props: SettingsPageProps = {}) {
   const settings = useSettingsController(props);
   return (
     <SettingsPanel
@@ -238,17 +238,17 @@ Also:
 
 ```mermaid
 sequenceDiagram
-    participant Route as app/(dashboard)/dashboard/page.tsx
-    participant Page as pages/dashboard/DashboardPage
-    participant Tab as pages/dashboard/InboxTab
+    participant Route as app/(dashboard)/dashboard/{layout,page}.tsx
+    participant Page as pages/dashboard/DashboardLayout
+    participant Tab as pages/dashboard/InboxPage
     participant Ctl as useInboxController
     participant Block as blocks/Inbox
     participant Card as patterns/MessageCard
     participant API as React Query + api.*
 
     Route->>Page: render
-    Page->>Page: useSession() → skeleton / access denied / shell
-    Page->>Tab: DashboardShell messages={<InboxTab/>} (next/dynamic)
+    Page->>Page: useDashboardShellController() → skeleton / access denied / shell
+    Page->>Tab: <DashboardShell>{children = <InboxPage/>}</DashboardShell>
     Tab->>Ctl: useInboxController()
     Ctl->>API: messagesQueries.list(), mutations, useLiveMessages()
     Tab->>Block: messages, filters, selection, cardActions…
@@ -283,7 +283,7 @@ Cross-field side effects stay in the controller and write back into form state:
 
 ### 5.4 Browser APIs
 
-Browser APIs that talk to the API go behind a hook in `src/data/<domain>/` (e.g. `src/data/user/use-push-notification.ts`), consumed only by a page controller. Pure browser side effects without React live in `src/lib/browser/` (e.g. `downloadTextFile`) and stay separate from the pure builders that feed them ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q4).
+Browser APIs that talk to the API go behind a hook in `src/data/<domain>/` (e.g. `src/data/user/use-push-notification.ts`), consumed only by a page controller. Pure browser side effects without React live in `src/lib/browser/` (e.g. `downloadTextFile`) and stay separate from the pure builders that feed them ([ADR 0018](../adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q4).
 
 ---
 
@@ -333,6 +333,8 @@ Other overrides: a11y relaxations apply only to `elements/effects/**`, `elements
 2. Move the styled file to `elements/<name>/<name>.tsx` and the motion primitive to `elements/<name>/<name>.primitive.tsx`. Merge new effects into `elements/effects/`. If the item ships its own Button, keep `elements/button` and merge only the new variants.
 3. Rewrite imports to `@/components/elements/...`. Generic hooks it brings (`@/hooks/use-*`) and `@/hooks/get-strict-context` stay where they are.
 4. Delete the leftover `src/components/animate-ui/` (or `ui/`) folder. Add `index.ts`, `<name>.mock.ts` and `<name>.stories.tsx` (interactions in `play()`), then run `pnpm docs:registry`.
+5. The shadcn CLI adds a bogus `cn` npm dependency on every run: `pnpm remove cn`. With `--path <scratch>` it also leaves imports unrewritten (`"cn"`, `@/components/<scratch>/x`, `use-mobile`); point them at `@/lib/utils`, `@/components/elements/x` and `@/hooks/use-mobile`.
+6. **shadcn first** ([ADR 0023](../adr/0023-shadcn-first-elements-and-profile-settings-backend.md)): build structure from the shadcn component (Sidebar, ToggleGroup, Field, Empty, Item, Command, …), never a hand-made copy. Design looks are opt-in CVA variants in the element; `className` is for layout only.
 
 **Done when** `rg "components/(animate-ui|ui)/" src` returns nothing and lint passes.
 

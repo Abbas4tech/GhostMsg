@@ -12,7 +12,10 @@ import {
 import type React from "react";
 
 interface NewMessageAlertEmailProps {
-  messagePreview: string;
+  /** Link to the inbox. */
+  dashboardUrl?: string;
+  /** Message text preview; `null` when the recipient hides message text. */
+  messagePreview: string | null;
   sentimentTag?: string;
   username: string;
 }
@@ -21,6 +24,7 @@ export default function NewMessageAlertEmail({
   username,
   messagePreview,
   sentimentTag = "neutral",
+  dashboardUrl = "https://ghost-msg.vercel.app/dashboard",
 }: NewMessageAlertEmailProps): React.JSX.Element {
   return (
     <Html dir="ltr" lang="en">
@@ -42,34 +46,50 @@ export default function NewMessageAlertEmail({
         <Row>
           <Heading as="h2">Hey @{username}! 👻</Heading>
         </Row>
-        <Row>
-          <Text style={{ fontSize: "16px", color: "#4b5563" }}>
-            Someone just sent you an anonymous message on your public profile:
-          </Text>
-        </Row>
-        <Row>
-          <Section
-            style={{
-              backgroundColor: "#f3f4f6",
-              padding: "16px",
-              borderRadius: "12px",
-              margin: "12px 0",
-              borderLeft: "4px solid #9333ea",
-            }}
-          >
-            <Text
-              style={{ fontSize: "18px", fontWeight: 500, color: "#111827" }}
-            >
-              "{messagePreview}"
+        {messagePreview === null ? (
+          <Row>
+            <Text style={{ fontSize: "16px", color: "#4b5563" }}>
+              Someone sent you a new anonymous message. Open your inbox to read
+              it. (You chose to keep message text out of notifications.)
             </Text>
-            <Text style={{ fontSize: "12px", color: "#6b7280" }}>
-              Tone: {sentimentTag.toUpperCase()}
-            </Text>
-          </Section>
-        </Row>
+          </Row>
+        ) : (
+          <>
+            <Row>
+              <Text style={{ fontSize: "16px", color: "#4b5563" }}>
+                Someone just sent you an anonymous message on your public
+                profile:
+              </Text>
+            </Row>
+            <Row>
+              <Section
+                style={{
+                  backgroundColor: "#f3f4f6",
+                  padding: "16px",
+                  borderRadius: "12px",
+                  margin: "12px 0",
+                  borderLeft: "4px solid #9333ea",
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: 500,
+                    color: "#111827",
+                  }}
+                >
+                  "{messagePreview}"
+                </Text>
+                <Text style={{ fontSize: "12px", color: "#6b7280" }}>
+                  Tone: {sentimentTag.toUpperCase()}
+                </Text>
+              </Section>
+            </Row>
+          </>
+        )}
         <Row>
           <Button
-            href="https://ghostmsg.app/dashboard"
+            href={dashboardUrl}
             style={{
               backgroundColor: "#9333ea",
               color: "#ffffff",

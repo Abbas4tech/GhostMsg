@@ -1,52 +1,144 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useIsClient } from "usehooks-ts";
-import { DEFAULT_AMA_PROMPT } from "@/components/patterns/ama-banner";
 import { useAmaPromptMutation } from "@/data/user/use-ama-prompt-mutation";
-import { buildProfileUrl } from "./profile.utils";
+import { useAmaSuggestionsMutation } from "@/data/user/use-ama-suggestions-mutation";
+import { useUpdateProfileMutation } from "@/data/user/use-update-profile-mutation";
+import { userQueries } from "@/data/user/user.queries";
+import { resizeImageToDataUrl } from "@/lib/browser/resize-image";
+import { toLinkPrefix } from "./dashboard.utils";
+import { useProfileLinkController } from "./use-profile-link.controller";
 
-/** Profile tab state: shareable profile URL and the AMA banner editor. */
+/** Unsaved edits; `undefined` means "unchanged from the server". */
+interface ProfileDraft {
+  amaPrompt?: string;
+  /** `null` removes the photo. */
+  avatarUrl?: string | null;
+  displayName?: string;
+  showAmaBanner?: boolean;
+}
+
+const EMPTY_DRAFT: ProfileDraft = {};
+
+/**
+ * Profile page: identity, link, AMA Prompt and the live preview. Edits stay
+ * a local draft (shown in the preview) until "Save changes".
+ */
 export function useProfileController() {
-  const { data: session } = useSession();
-  const isClient = useIsClient();
-  const [amaPrompt, setAmaPrompt] = useState(DEFAULT_AMA_PROMPT);
+  const link = useProfileLinkController();
+  const { data: profileData } = useQuery(userQueries.profile());
+  const { data: acceptanceData } = useQuery(userQueries.acceptance());
+  const profileMutation = useUpdateProfileMutation();
   const amaMutation = useAmaPromptMutation();
+  const suggestMutation = useAmaSuggestionsMutation();
 
-  const profileUrl = useMemo(
+  const saved = profileData?.profile;
+  const [draft, setDraft] = useState<ProfileDraft>(EMPTY_DRAFT);
+  const [isPhotoProcessing, setIsPhotoProcessing] = useState(false);
+  const [aiIdeas, setAiIdeas] = useState<string[]>([]);
+
+  const values = {
+    username: saved?.username ?? link.username,
+    displayName: draft.displayName ?? saved?.displayName ?? "",
+    avatarUrl:
+      draft.avatarUrl === undefined
+        ? (saved?.avatarUrl ?? null)
+        : draft.avatarUrl,
+    amaPrompt: draft.amaPrompt ?? saved?.amaPrompt ?? "",
+    showAmaBanner: draft.showAmaBanner ?? saved?.showAmaBanner ?? true,
+  };
+
+  const isDirty = useMemo(
     () =>
-      buildProfileUrl(
-        isClient ? window.location.origin : "",
-        session?.user?.username
-      ),
-    [isClient, session?.user?.username]
+      (draft.displayName !== undefined &&
+        draft.displayName.trim() !== (saved?.displayName ?? "")) ||
+      (draft.avatarUrl !== undefined &&
+        draft.avatarUrl !== (saved?.avatarUrl ?? null)) ||
+      (draft.amaPrompt !== undefined &&
+        draft.amaPrompt.trim() !== (saved?.amaPrompt ?? "")) ||
+      (draft.showAmaBanner !== undefined &&
+        draft.showAmaBanner !== (saved?.showAmaBanner ?? true)),
+    [draft, saved]
   );
 
-  const handleCopyProfileUrl = useCallback(() => {
-    toast.success("Profile link copied to clipboard!");
-  }, []);
+  const update = useCallback(
+    (patch: ProfileDraft) => setDraft((prev) => ({ ...prev, ...patch })),
+    []
+  );
 
-  const { mutateAsync } = amaMutation;
-  const handleSaveAmaPrompt = useCallback(async () => {
-    const trimmed = amaPrompt.trim();
-    if (!trimmed) {
-      return;
-    }
+  const handlePhotoSelect = useCallback(
+    async (file: File) => {
+      setIsPhotoProcessing(true);
+      try {
+        update({ avatarUrl: await resizeImageToDataUrl(file) });
+      } catch {
+        toast.error("Couldn't read that image. Try a PNG, JPEG or WebP.");
+      } finally {
+        setIsPhotoProcessing(false);
+      }
+    },
+    [update]
+  );
+
+  const handleDiscard = useCallback(() => setDraft(EMPTY_DRAFT), []);
+
+  const { mutateAsync: saveProfile } = profileMutation;
+  const { mutateAsync: saveAmaPrompt } = amaMutation;
+  const handleSave = useCallback(async () => {
+    const amaPrompt = draft.amaPrompt?.trim();
     try {
-      await mutateAsync(trimmed);
+      const profilePatch = {
+        displayName: draft.displayName?.trim(),
+        avatarUrl: draft.avatarUrl,
+        showAmaBanner: draft.showAmaBanner,
+      };
+      const hasProfileChange = Object.values(profilePatch).some(
+        (value) => value !== undefined
+      );
+      await Promise.all([
+        hasProfileChange ? saveProfile(profilePatch) : undefined,
+        amaPrompt && amaPrompt !== saved?.amaPrompt
+          ? saveAmaPrompt(amaPrompt)
+          : undefined,
+      ]);
+      setDraft(EMPTY_DRAFT);
+      toast.success("Profile saved");
     } catch {
-      // Handled by mutation toast
+      // Each mutation toasts and rolls back its own failure.
     }
-  }, [amaPrompt, mutateAsync]);
+  }, [draft, saved?.amaPrompt, saveProfile, saveAmaPrompt]);
+
+  const { mutateAsync: suggest } = suggestMutation;
+  const handleSuggest = useCallback(async () => {
+    try {
+      const result = await suggest(values.amaPrompt || undefined);
+      setAiIdeas(result.suggestions);
+    } catch {
+      // Toasted by the mutation
+    }
+  }, [suggest, values.amaPrompt]);
 
   return {
-    profileUrl,
-    handleCopyProfileUrl,
-    amaPrompt,
-    setAmaPrompt,
-    handleSaveAmaPrompt,
-    isSavingAmaPrompt: amaMutation.isPending,
+    ...values,
+    profileUrl: link.profileUrl,
+    linkPrefix: toLinkPrefix(link.profileLabel),
+    isAccepting: Boolean(acceptanceData?.isAcceptingMessage ?? true),
+    setDisplayName: (displayName: string) => update({ displayName }),
+    setAmaPrompt: (amaPrompt: string) => update({ amaPrompt }),
+    setShowAmaBanner: (showAmaBanner: boolean) => update({ showAmaBanner }),
+    handlePhotoSelect,
+    handlePhotoRemove: () => update({ avatarUrl: null }),
+    isPhotoProcessing,
+    aiIdeas,
+    handleSuggest,
+    isSuggesting: suggestMutation.isPending,
+    handleCopyProfileUrl: link.handleCopy,
+    handleShareProfileUrl: link.handleShare,
+    isDirty,
+    isSaving: profileMutation.isPending || amaMutation.isPending,
+    handleDiscard,
+    handleSave,
   };
 }

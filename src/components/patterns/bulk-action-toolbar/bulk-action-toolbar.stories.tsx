@@ -1,27 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, fn } from "storybook/test";
+import { expect, fn, screen } from "storybook/test";
 import { BulkActionToolbar } from "./bulk-action-toolbar";
 import { defaultBulkActionToolbarArgs } from "./bulk-action-toolbar.mock";
 
-const READ_REGEX = /^read$/i;
-const STAR_REGEX = /^star$/i;
-const DELETE_REGEX = /^delete$/i;
-const CSV_REGEX = /csv/i;
-const JSON_REGEX = /json/i;
-
-/** Floating, fixed-position toolbar shown while messages are selected. */
+/** Dark pill shown above the cards while messages are selected. */
 const meta = {
   title: "Patterns/BulkActionToolbar",
   component: BulkActionToolbar,
   tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
-  decorators: [
-    (Story) => (
-      <div className="h-40">
-        <Story />
-      </div>
-    ),
-  ],
+  parameters: { layout: "padded" },
   args: {
     ...defaultBulkActionToolbarArgs,
     onAction: fn(),
@@ -48,19 +35,22 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    await expect(canvas.getByText("3 selected")).toBeVisible();
+    await expect(
+      canvas.getByRole("toolbar", { name: "Bulk actions" })
+    ).toHaveTextContent("3 selected");
 
-    await userEvent.click(canvas.getByRole("button", { name: READ_REGEX }));
+    await userEvent.click(canvas.getByRole("button", { name: "Mark read" }));
     await expect(args.onAction).toHaveBeenCalledWith("read");
-    await userEvent.click(canvas.getByRole("button", { name: STAR_REGEX }));
+    await userEvent.click(canvas.getByRole("button", { name: "Star" }));
     await expect(args.onAction).toHaveBeenCalledWith("star");
-    await userEvent.click(canvas.getByRole("button", { name: DELETE_REGEX }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "Delete selected" })
+    );
     await expect(args.onAction).toHaveBeenCalledWith("delete");
 
-    await userEvent.click(canvas.getByRole("button", { name: CSV_REGEX }));
+    await userEvent.click(canvas.getByRole("button", { name: "Export" }));
+    await userEvent.click(await screen.findByRole("menuitem", { name: "CSV" }));
     await expect(args.onExport).toHaveBeenCalledWith("csv");
-    await userEvent.click(canvas.getByRole("button", { name: JSON_REGEX }));
-    await expect(args.onExport).toHaveBeenCalledWith("json");
 
     await userEvent.click(
       canvas.getByRole("button", { name: "Clear selection" })
@@ -75,10 +65,10 @@ export const Pending: Story = {
   args: { isPending: true },
   play: async ({ canvas }) => {
     await expect(
-      canvas.getByRole("button", { name: DELETE_REGEX })
+      canvas.getByRole("button", { name: "Delete selected" })
     ).toBeDisabled();
     // Exports are local and stay available.
-    await expect(canvas.getByRole("button", { name: CSV_REGEX })).toBeEnabled();
+    await expect(canvas.getByRole("button", { name: "Export" })).toBeEnabled();
   },
 };
 

@@ -32,6 +32,7 @@ import {
   updateMessageSchema,
 } from "@/schemas/message-schema";
 import {
+  dailyDigestRunResponseSchema,
   getNotificationsResponseSchema,
   notificationSettingsSchema,
   pushSubscriptionRequestSchema,
@@ -40,6 +41,21 @@ import {
   updateNotificationsResponseSchema,
 } from "@/schemas/notification-schema";
 import { signUpSchema, usernameQuerySchema } from "@/schemas/sign-up-schema";
+import {
+  amaSuggestionsRequestSchema,
+  amaSuggestionsResponseSchema,
+  changeUsernameRequestSchema,
+  changeUsernameResponseSchema,
+  deleteAccountRequestSchema,
+  deleteAccountResponseSchema,
+  deleteAllMessagesResponseSchema,
+  getUserPreferencesResponseSchema,
+  getUserProfileResponseSchema,
+  updateUserPreferencesRequestSchema,
+  updateUserPreferencesResponseSchema,
+  updateUserProfileRequestSchema,
+  updateUserProfileResponseSchema,
+} from "@/schemas/user-settings-schema";
 import { verifyCodeRequestSchema, verifySchema } from "@/schemas/verify-schema";
 import { z } from "@/schemas/zod";
 
@@ -929,6 +945,187 @@ registry.registerPath({
     400: { description: "Invalid payload" },
     401: { description: "Unauthorized" },
     500: { description: "Internal server error" },
+  },
+});
+
+// ── Profile & Settings (ADR 0022) ────────────────────────────────────────────
+
+const authed = { security: [{ [bearerAuth.name]: [] }] };
+const json = <T extends z.ZodType>(schema: T) => ({
+  content: { "application/json": { schema } },
+});
+const AUTH_ERRORS = {
+  401: { description: "Unauthorized" },
+  500: { description: "Internal server error" },
+};
+
+// 21. GET /api/user/profile
+registry.registerPath({
+  method: "get",
+  path: "/api/user/profile",
+  summary: "Get Profile",
+  description: "Identity card fields and the AMA banner switch.",
+  tags: ["Profile & Settings"],
+  ...authed,
+  responses: {
+    200: { description: "Profile", ...json(getUserProfileResponseSchema) },
+    404: { description: "User not found" },
+    ...AUTH_ERRORS,
+  },
+});
+
+// 22. PATCH /api/user/profile
+registry.registerPath({
+  method: "patch",
+  path: "/api/user/profile",
+  summary: "Update Profile",
+  description:
+    "Display name, photo (data URL, or null to remove) and AMA banner switch.",
+  tags: ["Profile & Settings"],
+  ...authed,
+  request: { body: json(updateUserProfileRequestSchema) },
+  responses: {
+    200: {
+      description: "Profile updated",
+      ...json(updateUserProfileResponseSchema),
+    },
+    400: { description: "Invalid payload" },
+    ...AUTH_ERRORS,
+  },
+});
+
+// 23. PATCH /api/user/username
+registry.registerPath({
+  method: "patch",
+  path: "/api/user/username",
+  summary: "Change Username",
+  description: "Changes the username and so the Public Profile Link.",
+  tags: ["Profile & Settings"],
+  ...authed,
+  request: { body: json(changeUsernameRequestSchema) },
+  responses: {
+    200: {
+      description: "Username updated",
+      ...json(changeUsernameResponseSchema),
+    },
+    400: { description: "Invalid username" },
+    409: { description: "Username already taken" },
+    ...AUTH_ERRORS,
+  },
+});
+
+// 24. GET /api/user/preferences
+registry.registerPath({
+  method: "get",
+  path: "/api/user/preferences",
+  summary: "Get Preferences",
+  description: "Messages and Safety settings.",
+  tags: ["Profile & Settings"],
+  ...authed,
+  responses: {
+    200: {
+      description: "Preferences",
+      ...json(getUserPreferencesResponseSchema),
+    },
+    ...AUTH_ERRORS,
+  },
+});
+
+// 25. PATCH /api/user/preferences
+registry.registerPath({
+  method: "patch",
+  path: "/api/user/preferences",
+  summary: "Update Preferences",
+  description: "Partial update of Messages and Safety settings.",
+  tags: ["Profile & Settings"],
+  ...authed,
+  request: { body: json(updateUserPreferencesRequestSchema) },
+  responses: {
+    200: {
+      description: "Preferences updated",
+      ...json(updateUserPreferencesResponseSchema),
+    },
+    400: { description: "Invalid payload" },
+    ...AUTH_ERRORS,
+  },
+});
+
+// 26. DELETE /api/messages
+registry.registerPath({
+  method: "delete",
+  path: "/api/messages",
+  summary: "Delete All Messages",
+  description: "Danger zone: deletes every message and so every public answer.",
+  tags: ["Profile & Settings"],
+  ...authed,
+  responses: {
+    200: {
+      description: "Messages deleted",
+      ...json(deleteAllMessagesResponseSchema),
+    },
+    ...AUTH_ERRORS,
+  },
+});
+
+// 27. DELETE /api/user
+registry.registerPath({
+  method: "delete",
+  path: "/api/user",
+  summary: "Delete Account",
+  description:
+    "Deletes the account, its link and messages. Requires the typed username.",
+  tags: ["Profile & Settings"],
+  ...authed,
+  request: { body: json(deleteAccountRequestSchema) },
+  responses: {
+    200: {
+      description: "Account deleted",
+      ...json(deleteAccountResponseSchema),
+    },
+    400: { description: "Username did not match" },
+    404: { description: "User not found" },
+    ...AUTH_ERRORS,
+  },
+});
+
+// 28. POST /api/ai/ama-suggestions
+registry.registerPath({
+  method: "post",
+  path: "/api/ai/ama-suggestions",
+  summary: "Suggest AMA Prompts",
+  description:
+    "Three short AMA Prompt ideas from Gemini (fixed ideas without a key).",
+  tags: ["AI Assistant"],
+  ...authed,
+  request: { body: json(amaSuggestionsRequestSchema) },
+  responses: {
+    200: { description: "Suggestions", ...json(amaSuggestionsResponseSchema) },
+    ...AUTH_ERRORS,
+  },
+});
+
+// ── Operations (scheduler only, ADR 0029) ────────────────────────────────────
+
+const cronAuth = registry.registerComponent("securitySchemes", "CronSecret", {
+  type: "http",
+  scheme: "bearer",
+  description: "`Authorization: Bearer <CRON_SECRET>` (sent by Vercel Cron)",
+});
+
+// 29. GET /api/cron/daily-digest
+registry.registerPath({
+  method: "get",
+  path: "/api/cron/daily-digest",
+  summary: "Run Daily Digest",
+  description:
+    "Emails a summary to every recipient with emailAlerts = daily: new non-quarantined messages since their last digest, text only when they show message text. Skips recipients inside quiet hours. Scheduler only.",
+  tags: ["Operations"],
+  security: [{ [cronAuth.name]: [] }],
+  responses: {
+    200: { description: "Run summary", ...json(dailyDigestRunResponseSchema) },
+    401: { description: "Missing or wrong bearer secret" },
+    500: { description: "Internal server error" },
+    503: { description: "CRON_SECRET is not configured" },
   },
 });
 

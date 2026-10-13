@@ -39,11 +39,11 @@ export const WithAnswers: Story = {
   play: async ({ canvas }) => {
     const answers = publicAnswerScenarios.some;
     await expect(
-      canvas.getByText("Public Answers & Confessions")
+      canvas.getByRole("heading", { name: "Public Q&A" })
     ).toBeVisible();
-    await expect(canvas.getByText(String(answers.length))).toBeVisible();
+    await expect(canvas.getAllByRole("article")).toHaveLength(answers.length);
     await expect(
-      canvas.getAllByText(`@${FIXTURE_USERNAME}'s Answer:`)
+      canvas.getAllByText(`${FIXTURE_USERNAME} answered:`)
     ).toHaveLength(answers.length);
     await expect(canvas.getByText(answers[0].reply.text)).toBeVisible();
     await expect(canvas.getByText("Curious")).toBeVisible();

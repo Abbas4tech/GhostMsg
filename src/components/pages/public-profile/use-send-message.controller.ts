@@ -34,6 +34,8 @@ export function useSendMessageController({
   const sendMutation = useSendMessageMutation();
   const suggestMutation = useSuggestMessagesMutation();
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  // After a successful send the form gives way to a reassurance card.
+  const [isSent, setIsSent] = useState(false);
   const hasAutoFetchedRef = useRef(false);
 
   const handleSubmit = useCallback(
@@ -43,6 +45,7 @@ export function useSendMessageController({
         if (response?.success) {
           toast.success(response.message);
           form.reset({ content: "" });
+          setIsSent(true);
         }
       } catch (error) {
         const message =
@@ -81,9 +84,15 @@ export function useSendMessageController({
     [form]
   );
 
+  const handleSendAnother = useCallback(() => {
+    setIsSent(false);
+  }, []);
+
   return {
     form,
     handleSubmit,
+    isSent,
+    handleSendAnother,
     isSubmitting: sendMutation.isPending,
     suggestions,
     fetchSuggestions,

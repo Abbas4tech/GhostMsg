@@ -1,4 +1,5 @@
 export {
+  INBOX_SEARCH_INPUT_ID,
   Inbox,
   type InboxBulkActions,
   type InboxCardActions,

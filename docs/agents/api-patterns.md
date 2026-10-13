@@ -15,7 +15,7 @@ Step 1: Schemas (SSoT) ──▶ Step 2: Registry ──▶ Step 3: Typegen ─�
 
 ### Step 1: Define Schemas in `src/schemas/`
 - Every request param, query param, request body, and status response schema must be defined using Zod and annotated with `.openapi(...)`.
-- Shared response schemas reside in [`src/schemas/api-response-schemas.ts`](file:///d:/Projects/GhostMsg/src/schemas/api-response-schemas.ts).
+- Shared response schemas reside in [`src/schemas/api-response-schemas.ts`](../../src/schemas/api-response-schemas.ts).
 
 ### Step 2: Register in `src/server/openapi/openapi.ts`
 - Register the schema names using `registry.register(...)`.
@@ -25,7 +25,7 @@ Step 1: Schemas (SSoT) ──▶ Step 2: Registry ──▶ Step 3: Typegen ─�
   - `responses` (`200`, `400`, `401`, `404`, `500`) with appropriate schema references.
 
 ### Step 3: Regenerate TypeScript Definitions
-- Run the typegen command to update [`src/generated/api-schema.d.ts`](file:///d:/Projects/GhostMsg/src/generated/api-schema.d.ts):
+- Run the typegen command to update [`src/generated/api-schema.d.ts`](../../src/generated/api-schema.d.ts):
   ```bash
   pnpm typegen
   ```
@@ -34,14 +34,14 @@ Step 1: Schemas (SSoT) ──▶ Step 2: Registry ──▶ Step 3: Typegen ─�
 ### Step 4: Implement Route & Consume with `clientFetch` + React Query
 - **Route Handler**: Implement `src/app/api/[endpoint]/route.ts` validating requests with Zod `safeParse` and returning structured `Response.json({...}, { status })`.
 - **Query Options**: Define query keys in `src/data/query-keys.ts` and pure `queryOptions` in `src/data/<domain>/<domain>.queries.ts` using `clientFetch` from `@/data/api-client`.
-- **Custom Mutation Hooks**: One hook per file at `src/data/<domain>/use-<action>-mutation.ts`, using `useMutation` with standardized cache invalidation or optimistic rollback ([ADR 0018](file:///d:/Projects/GhostMsg/docs/adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q11).
+- **Custom Mutation Hooks**: One hook per file at `src/data/<domain>/use-<action>-mutation.ts`, using `useMutation` with standardized cache invalidation or optimistic rollback ([ADR 0018](../adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q11).
 - **Client types**: Response shapes on the client come from OpenAPI via `src/types/api.ts` (`MessageDto`, `PublicAnswerDto`, …). Never import a Mongoose model (`@/server/models/**`) into client code: Biome blocks `@/server/**` outside `src/app` and `src/server`.
-- **Consumer location**: Queries and mutations are consumed **only** in page controllers (`src/components/pages/<route>/use-*.controller.ts`). Elements, patterns and blocks never import them, and Biome enforces this ([ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
+- **Consumer location**: Queries and mutations are consumed **only** in page controllers (`src/components/pages/<route>/use-*.controller.ts`). Elements, patterns and blocks never import them, and Biome enforces this ([ADR 0015](../adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
 
 ### Step 5: Update the MSW handlers and fixtures
 - Every endpoint used by a page needs a handler in `src/mock/handlers/<domain>.handlers.ts`, typed with `ok(path, method, body)` (200) or `created(path, method, body)` (201). A contract change then breaks the handler at compile time.
 - Response data comes from `src/mock/fixtures`. Add a named scenario (e.g. `error`, `empty`, `loading`) and expose it in `scenarios` (`src/mock/handlers/index.ts`).
-- Run `pnpm docs:registry` so the scenario appears in Chapter 11. See [ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md).
+- Run `pnpm docs:registry` so the scenario appears in Chapter 11. See [ADR 0016](../adr/0016-storybook-msw-and-story-driven-component-testing.md).
 
 ```typescript
 // 1. Define queryOptions in src/data/resource/resource.queries.ts

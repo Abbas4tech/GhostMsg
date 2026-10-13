@@ -18,7 +18,7 @@ import {
 export const publicAnswersHandlers = (
   answers: PublicAnswerFixture[],
   amaPrompt: string | undefined = FIXTURE_AMA_PROMPT,
-  options: ScenarioOptions = {}
+  options: ScenarioOptions & { isAcceptingMessages?: boolean } = {}
 ) => [
   http.get(mswPath("/api/public/{username}/answers"), async ({ params }) => {
     await applyLatency(options);
@@ -26,6 +26,7 @@ export const publicAnswersHandlers = (
       success: true,
       username: String(params.username),
       amaPrompt,
+      isAcceptingMessages: options.isAcceptingMessages ?? true,
       answers,
     });
   }),
@@ -71,6 +72,13 @@ export const publicHandlers = {
   answers: {
     some: publicAnswersHandlers(publicAnswerScenarios.some),
     none: publicAnswersHandlers(publicAnswerScenarios.none, undefined),
+    paused: publicAnswersHandlers(
+      publicAnswerScenarios.some,
+      FIXTURE_AMA_PROMPT,
+      {
+        isAcceptingMessages: false,
+      }
+    ),
     loading: publicAnswersHandlers(
       publicAnswerScenarios.some,
       FIXTURE_AMA_PROMPT,

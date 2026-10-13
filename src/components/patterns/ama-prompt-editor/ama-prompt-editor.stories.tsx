@@ -8,16 +8,17 @@ import {
   type AmaPromptEditorProps,
 } from "./ama-prompt-editor";
 import {
+  aiIdeasAmaPromptEditorArgs,
   atLimitAmaPromptEditorArgs,
   defaultAmaPromptEditorArgs,
 } from "./ama-prompt-editor.mock";
 
-const SAVE_REGEX = /save topic banner/i;
-const SAVING_REGEX = /saving/i;
+const SUGGEST_REGEX = /suggest with ai/i;
 
-/** Local state keeps the controlled input interactive (Storybook UI and tests). */
+/** Local state keeps the controlled inputs interactive (Storybook UI and tests). */
 function StatefulAmaPromptEditor(args: AmaPromptEditorProps) {
   const [value, setValue] = useState(args.value);
+  const [showBanner, setShowBanner] = useState(args.showBanner);
   return (
     <AmaPromptEditor
       {...args}
@@ -25,6 +26,11 @@ function StatefulAmaPromptEditor(args: AmaPromptEditorProps) {
         args.onChange(next);
         setValue(next);
       }}
+      onShowBannerChange={(next) => {
+        args.onShowBannerChange(next);
+        setShowBanner(next);
+      }}
+      showBanner={showBanner}
       value={value}
     />
   );
@@ -41,18 +47,26 @@ const meta = {
       </div>
     ),
   ],
-  args: { ...defaultAmaPromptEditorArgs, onChange: fn(), onSave: fn() },
+  args: {
+    ...defaultAmaPromptEditorArgs,
+    onChange: fn(),
+    onShowBannerChange: fn(),
+    onSuggest: fn(),
+  },
   argTypes: {
     value: {
       control: "text",
       description: `Controlled prompt (max ${AMA_PROMPT_MAX_LENGTH} chars)`,
     },
-    isSaving: {
+    showBanner: { control: "boolean", description: "Show the AMA banner" },
+    isSuggesting: {
       control: "boolean",
-      description: "Shows the saving spinner and disables Save",
+      description: "AI ideas loading (spinner, disabled)",
     },
-    onChange: { description: "Input changed → new value" },
-    onSave: { description: "Save Topic Banner clicked" },
+    aiIdeas: { control: "object", description: "Ideas from Suggest with AI" },
+    onChange: { description: "Prompt changed → new value" },
+    onShowBannerChange: { description: "Banner switch toggled" },
+    onSuggest: { description: "Suggest with AI clicked" },
   },
   render: (args) => <StatefulAmaPromptEditor {...args} />,
 } satisfies Meta<typeof AmaPromptEditor>;
@@ -67,29 +81,49 @@ export const Default: Story = {
         `${FIXTURE_AMA_PROMPT.length} / ${AMA_PROMPT_MAX_LENGTH}`
       )
     ).toBeVisible();
-    await userEvent.type(canvas.getByLabelText("AMA prompt"), "!");
+    await userEvent.type(
+      canvas.getByLabelText("What do you want people to ask?"),
+      "!"
+    );
     await expect(args.onChange).toHaveBeenCalledWith(`${FIXTURE_AMA_PROMPT}!`);
-    await userEvent.click(canvas.getByRole("button", { name: SAVE_REGEX }));
-    await expect(args.onSave).toHaveBeenCalledOnce();
+    await userEvent.click(canvas.getByRole("button", { name: SUGGEST_REGEX }));
+    await expect(args.onSuggest).toHaveBeenCalledOnce();
   },
 };
 
-export const Saving: Story = {
-  args: { isSaving: true },
+export const PicksAnIdea: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(
+      canvas.getByRole("radio", { name: "Be honest with me" })
+    );
+    await expect(args.onChange).toHaveBeenCalledWith("Be honest with me");
+  },
+};
+
+export const TogglesBanner: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(
+      canvas.getByRole("switch", { name: "Show the AMA banner" })
+    );
+    await expect(args.onShowBannerChange).toHaveBeenCalledWith(false);
+  },
+};
+
+export const WithAiIdeas: Story = {
+  args: aiIdeasAmaPromptEditorArgs,
   play: async ({ canvas }) => {
     await expect(
-      canvas.getByRole("button", { name: SAVING_REGEX })
-    ).toBeDisabled();
+      canvas.getByRole("radio", { name: "Roast my portfolio" })
+    ).toBeVisible();
   },
 };
 
-export const Blank: Story = {
-  args: { value: "   " },
-  play: async ({ args, canvas }) => {
+export const Suggesting: Story = {
+  args: { isSuggesting: true },
+  play: async ({ canvas }) => {
     await expect(
-      canvas.getByRole("button", { name: SAVE_REGEX })
+      canvas.getByRole("button", { name: SUGGEST_REGEX })
     ).toBeDisabled();
-    await expect(args.onSave).not.toHaveBeenCalled();
   },
 };
 

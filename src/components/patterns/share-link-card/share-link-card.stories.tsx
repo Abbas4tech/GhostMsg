@@ -17,13 +17,14 @@ const meta = {
       </div>
     ),
   ],
-  args: { ...defaultShareLinkCardArgs, onCopy: fn() },
+  args: { ...defaultShareLinkCardArgs, onCopy: fn(), onShare: fn() },
   argTypes: {
     profileUrl: {
       control: "text",
-      description: "Read-only public profile URL",
+      description: "Public profile URL (shown without protocol)",
     },
-    onCopy: { description: "Copy button clicked (page shows a toast)" },
+    onCopy: { description: "Copy clicked (page copies + toasts)" },
+    onShare: { description: "Share sheet clicked" },
   },
 } satisfies Meta<typeof ShareLinkCard>;
 
@@ -33,12 +34,21 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ args, canvas, userEvent }) => {
     const input = canvas.getByLabelText("Your profile link");
-    await expect(input).toHaveValue(defaultShareLinkCardArgs.profileUrl);
-    await expect(input).toBeDisabled();
-    await userEvent.click(
-      canvas.getByRole("button", { name: "Copy to clipboard" })
-    );
+    await expect(input).toHaveValue("ghostmsg.app/u/johndoe");
+    await expect(input).toHaveAttribute("readonly");
+    await userEvent.click(canvas.getByRole("button", { name: "Copy" }));
     await expect(args.onCopy).toHaveBeenCalledOnce();
+    await userEvent.click(canvas.getByRole("button", { name: "Share…" }));
+    await expect(args.onShare).toHaveBeenCalledOnce();
+  },
+};
+
+export const WithoutShare: Story = {
+  args: { onShare: undefined },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.queryByRole("button", { name: "Share…" })
+    ).not.toBeInTheDocument();
   },
 };
 

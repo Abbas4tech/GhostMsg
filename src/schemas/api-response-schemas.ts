@@ -125,6 +125,14 @@ export const publicAnswersResponseSchema = z
     success: z.boolean().openapi({ example: true }),
     username: z.string(),
     amaPrompt: z.string().optional(),
+    displayName: z.string().optional().openapi({ example: "Maya" }),
+    avatarUrl: z.string().nullable().optional().openapi({ example: null }),
+    showAmaBanner: z.boolean().optional().openapi({ example: true }),
+    offerSuggestions: z.boolean().optional().openapi({ example: true }),
+    isAcceptingMessages: z.boolean().optional().openapi({
+      description: "Message Acceptance: false shows the profile's paused state",
+      example: true,
+    }),
     answers: z.array(publicAnswerItemSchema),
   })
   .openapi("PublicAnswersResponse");
@@ -145,5 +153,18 @@ export const getBlockedSendersResponseSchema = z
     blockedSenderHashes: z
       .array(z.string())
       .openapi({ description: "List of blocked sender cryptographic hashes" }),
+    blockedSenders: z
+      .array(
+        z
+          .object({
+            hash: z.string(),
+            blockedAt: z.string().optional().openapi({
+              description:
+                "ISO date (missing for blocks made before dates were kept)",
+            }),
+          })
+          .openapi("BlockedSender")
+      )
+      .optional(),
   })
   .openapi("GetBlockedSendersResponse");

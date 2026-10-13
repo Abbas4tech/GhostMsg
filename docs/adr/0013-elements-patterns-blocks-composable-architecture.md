@@ -3,7 +3,7 @@
 ## Status
 **Accepted**
 
-> **Update (2026-10-12):** **Extended by [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md).** A fourth tier (`pages/`) now owns all controllers, and vendor `ui/` and `animate-ui/` moved into `elements/`. Testing moved to stories ([ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md)).
+> **Update (2026-10-12):** **Extended by [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md).** A fourth tier (`pages/`) now owns all controllers, and vendor `ui/` and `animate-ui/` moved into `elements/`. Testing moved to stories ([ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md)).
 
 ---
 
@@ -180,5 +180,5 @@ The following component modules have been migrated and implemented with colocate
 ---
 
 ## References & Code Pointers
-- Engineering Docs: [`docs/05-component-architecture.md`](file:///d:/Projects/GhostMsg/docs/05-component-architecture.md)
-- Testing Strategy: [`docs/07-testing-strategy.md`](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md)
+- Engineering Docs: [`docs/05-component-architecture.md`](../05-component-architecture.md)
+- Testing Strategy: [`docs/07-testing-strategy.md`](../07-testing-strategy.md)

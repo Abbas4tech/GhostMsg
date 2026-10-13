@@ -3,13 +3,13 @@
 ## Status
 **Accepted**
 
-> **Update (2026-10-12):** The `src/components/ui/**` and `src/components/animate-ui/**` overrides were retargeted to `src/components/elements/**` when vendor code moved into elements ([ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)). The current override map is in Chapter 8 §5.
+> **Update (2026-10-12):** The `src/components/ui/**` and `src/components/animate-ui/**` overrides were retargeted to `src/components/elements/**` when vendor code moved into elements ([ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md)). The current override map is in Chapter 8 §5.
 
 ---
 
 ## Context & Problem Statement
 
-Following the adoption of Ultracite and Biome in [ADR 0004](file:///d:/Projects/GhostMsg/docs/adr/0004-ultracite-and-biome-tooling.md), 25 inline suppression comments (`// biome-ignore` and `/** biome-ignore-all */`) accumulated across 13 files in the repository.
+Following the adoption of Ultracite and Biome in [ADR 0004](0004-ultracite-and-biome-tooling.md), 25 inline suppression comments (`// biome-ignore` and `/** biome-ignore-all */`) accumulated across 13 files in the repository.
 
 An audit revealed that the vast majority of these suppressions were masking refactorable code smells rather than addressing true framework limitations:
 1. **Interactive Element Accessibility Violations**: Password visibility toggle buttons and clickable cards were written as `<div>` tags with `onClick` handlers, requiring 4 separate accessibility suppression comments (`noNoninteractiveElementInteractions`, `noStaticElementInteractions`, `useKeyWithClickEvents`, `noSvgWithoutTitle`) instead of using semantic `<button type="button">` and accessible SVGs.
@@ -26,7 +26,7 @@ An audit revealed that the vast majority of these suppressions were masking refa
 2. **True WCAG Accessibility (a11y)**: Replace interactive `<div>` hacks with semantic, keyboard-accessible `<button>` elements with proper `aria-label` and SVG metadata.
 3. **Strict TypeScript Type Safety**: Remove all `any` usages and replace them with strong generic constraints and Zod-inferred interfaces.
 4. **Readability & Cyclomatic Simplicity**: Replace nested ternaries with self-documenting guard clauses and pure math resolver functions.
-5. **Centralized Configuration Overrides**: For external UI primitives (shadcn UI / Radix primitives and synthetic animation nodes), declare explicit overrides in [`biome.jsonc`](file:///d:/Projects/GhostMsg/biome.jsonc) rather than polluting source files.
+5. **Centralized Configuration Overrides**: For external UI primitives (shadcn UI / Radix primitives and synthetic animation nodes), declare explicit overrides in [`biome.jsonc`](../../biome.jsonc) rather than polluting source files.
 
 ---
 
@@ -63,7 +63,7 @@ flowchart TD
 
 ### Remediation Blueprint by Domain
 
-#### 1. Accessibility Remediation ([`src/components/auth/auth-form.tsx`](file:///d:/Projects/GhostMsg/src/components/auth/auth-form.tsx))
+#### 1. Accessibility Remediation ([`src/components/auth/auth-form.tsx`](../../src/components/patterns/auth-form/sign-in-form.tsx))
 - Replace clickable `div` password toggle with:
   ```tsx
   <button
@@ -79,18 +79,18 @@ flowchart TD
 - **Eliminates**: 4 inline suppressions (`noNoninteractiveElementInteractions`, `noStaticElementInteractions`, `useKeyWithClickEvents`, `noSvgWithoutTitle`).
 
 #### 2. Type System Hardening
-- **NextAuth Options ([`src/app/api/auth/[...nextauth]/options.ts`](file:///d:/Projects/GhostMsg/src/app/api/auth/%5B...nextauth%5D/options.ts))**:
+- **NextAuth Options ([`src/app/api/auth/[...nextauth]/options.ts`](../../src/app/api/auth/[...nextauth]/options.ts))**:
   Type credentials explicitly as `Record<"identifier" | "password", string> | undefined`, remove redundant `async` from synchronous callbacks, and eliminate `/** biome-ignore-all */`.
-- **Controlled State Hook ([`src/hooks/use-controlled-state.tsx`](file:///d:/Projects/GhostMsg/src/hooks/use-controlled-state.tsx))**:
+- **Controlled State Hook ([`src/hooks/use-controlled-state.tsx`](../../src/hooks/use-controlled-state.tsx))**:
   Change `Rest extends any[] = []` to `Rest extends unknown[] = []`.
-- **Animate Slot ([`src/components/animate-ui/primitives/animate/slot.tsx`](file:///d:/Projects/GhostMsg/src/components/animate-ui/primitives/animate/slot.tsx))**:
+- **Animate Slot ([`src/components/animate-ui/primitives/animate/slot.tsx`](../../src/components/elements/effects/slot.tsx))**:
   Change `children?: any` to `children?: ReactNode`.
-- **Highlight Effect ([`src/components/animate-ui/primitives/effects/highlight.tsx`](file:///d:/Projects/GhostMsg/src/components/animate-ui/primitives/effects/highlight.tsx))**:
+- **Highlight Effect ([`src/components/animate-ui/primitives/effects/highlight.tsx`](../../src/components/elements/effects/highlight.tsx))**:
   Use `HighlightContextType<string>` in `createContext`.
 - **Eliminates**: 5 inline suppressions (`noExplicitAny`, `useAwait`).
 
 #### 3. Control Flow & Ternary Simplification
-- **Theme Toggler ([`src/components/animate-ui/components/buttons/theme-toggler.tsx`](file:///d:/Projects/GhostMsg/src/components/animate-ui/components/buttons/theme-toggler.tsx))**:
+- **Theme Toggler ([`src/components/animate-ui/components/buttons/theme-toggler.tsx`](../../src/components/elements/theme-toggler/theme-toggler.tsx))**:
   ```tsx
   const getIcon = (effective: ThemeSelection, resolved: Resolved, modes: ThemeSelection[]) => {
     const theme = modes.includes("system") ? effective : resolved;
@@ -99,21 +99,21 @@ flowchart TD
     return <Sun />;
   };
   ```
-- **Particles Coordinate Math ([`src/components/animate-ui/primitives/effects/particles.tsx`](file:///d:/Projects/GhostMsg/src/components/animate-ui/primitives/effects/particles.tsx))**:
+- **Particles Coordinate Math ([`src/components/animate-ui/primitives/effects/particles.tsx`](../../src/components/elements/effects/particles.tsx))**:
   Extract coordinate resolution into pure helper functions (`getParticleOffset()`) eliminating `/** biome-ignore-all lint/style/noNestedTernary */`.
 - **Eliminates**: 3 inline suppressions (`noNestedTernary`).
 
 #### 4. Clean Exports & Middleware Standardization
-- **Middleware ([`src/middleware.ts`](file:///d:/Projects/GhostMsg/src/middleware.ts))**:
+- **Middleware ([`src/middleware.ts`](../../src/middleware.ts))**:
   Remove redundant `export { default } from "next-auth/middleware"` which conflicted with the custom `middleware(request)` function.
-- **Context Barrel ([`src/context/index.ts`](file:///d:/Projects/GhostMsg/src/context/index.ts))**:
+- **Context Barrel ([`src/context/index.ts`](../../src/providers/query-provider.tsx))**:
   Standardize direct exports, eliminating `/** biome-ignore-all lint/style/noExportedImports */`.
 - **Eliminates**: 2 inline suppressions.
 
 #### 5. React Array-Index Key Elimination & Enforcement (`noArrayIndexKey`)
-- **Particles Effect ([`src/components/animate-ui/primitives/effects/particles.tsx`](file:///d:/Projects/GhostMsg/src/components/animate-ui/primitives/effects/particles.tsx))**:
+- **Particles Effect ([`src/components/animate-ui/primitives/effects/particles.tsx`](../../src/components/elements/effects/particles.tsx))**:
   Pre-generate particle objects with stable deterministic IDs (`id: `particle-angle-${angle}``) rather than assigning loop indices during JSX mapping.
-- **Highlight Effect ([`src/components/animate-ui/primitives/effects/highlight.tsx`](file:///d:/Projects/GhostMsg/src/components/animate-ui/primitives/effects/highlight.tsx))**:
+- **Highlight Effect ([`src/components/animate-ui/primitives/effects/highlight.tsx`](../../src/components/elements/effects/highlight.tsx))**:
   Derive stable keys from child element keys, `id` props, or `data-value` attributes in `Children.map`.
 - **Enforcement**: Explicitly enabled in `biome.jsonc` under `linter.rules.suspicious.noArrayIndexKey: "error"`.
 
@@ -207,7 +207,7 @@ For framework/library conventions where modifying source violates shadcn upstrea
 ---
 
 ## References & Code Pointers
-- Configuration: [`biome.jsonc`](file:///d:/Projects/GhostMsg/biome.jsonc)
-- Code Quality Guide: [`docs/08-code-quality.md`](file:///d:/Projects/GhostMsg/docs/08-code-quality.md)
-- Tooling ADR: [`docs/adr/0004-ultracite-and-biome-tooling.md`](file:///d:/Projects/GhostMsg/docs/adr/0004-ultracite-and-biome-tooling.md)
+- Configuration: [`biome.jsonc`](../../biome.jsonc)
+- Code Quality Guide: [`docs/08-code-quality.md`](../08-code-quality.md)
+- Tooling ADR: [`docs/adr/0004-ultracite-and-biome-tooling.md`](0004-ultracite-and-biome-tooling.md)
 

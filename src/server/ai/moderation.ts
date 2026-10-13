@@ -2,15 +2,22 @@ import "server-only";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
 import type { SentimentTag } from "@/server/models/message.model";
+import { isToxicityLevel, type ToxicityLevel } from "./quarantine-policy";
 
 export interface ModerationResult {
+  /** Kept for callers that only need a yes/no (hurtful or worse). */
   isToxic: boolean;
   sentimentTag: SentimentTag;
+  toxicity: ToxicityLevel;
 }
 
 const MODERATION_PROMPT = `Analyze the following anonymous message submitted to a social platform:
 Evaluate carefully:
-1. isToxic: Set to true if the text contains severe harassment, violent threats, doxxing, hate speech, or explicit abuse. Otherwise false.
+1. toxicity: Choose exactly ONE level:
+   - "severe": violent threats, doxxing, hate speech, sexual harassment, explicit abuse.
+   - "hurtful": insults, demeaning or bullying language, spam or scam links.
+   - "borderline": rude, mean-spirited or crude but not clearly abusive.
+   - "none": everything else, including playful teasing.
 2. sentimentTag: Choose exactly ONE label from:
    - "sweet": Compliments, gratitude, kindness, heartfelt appreciation.
    - "curious": Questions, inquiries, asking about opinions, thoughts, or life.
@@ -19,14 +26,14 @@ Evaluate carefully:
    - "neutral": Plain greetings or casual statements.
 
 Respond ONLY with valid JSON in this exact structure without markdown or explanation:
-{"isToxic": false, "sentimentTag": "neutral"}`;
+{"toxicity": "none", "sentimentTag": "neutral"}`;
 
 export async function moderateAndClassifyMessage(
   content: string
 ): Promise<ModerationResult> {
   const apiKey = process.env.GOOGLE_AI_STUDIO_SECRET;
   if (!apiKey) {
-    return { isToxic: false, sentimentTag: "neutral" };
+    return { isToxic: false, toxicity: "none", sentimentTag: "neutral" };
   }
 
   try {
@@ -60,14 +67,24 @@ export async function moderateAndClassifyMessage(
       ? parsed.sentimentTag
       : "neutral";
 
+    // Older prompt shape ({ isToxic }) still maps onto a level.
+    let toxicity: ToxicityLevel = "none";
+    if (isToxicityLevel(parsed.toxicity)) {
+      toxicity = parsed.toxicity;
+    } else if (parsed.isToxic) {
+      toxicity = "severe";
+    }
+
     return {
-      isToxic: Boolean(parsed.isToxic),
+      isToxic: toxicity === "hurtful" || toxicity === "severe",
+      toxicity,
       sentimentTag,
     };
   } catch (err) {
     console.warn("AI moderation/sentiment fallback used due to error:", err);
     return {
       isToxic: false,
+      toxicity: "none",
       sentimentTag: "neutral",
     };
   }

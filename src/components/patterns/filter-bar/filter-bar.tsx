@@ -1,9 +1,12 @@
 "use client";
 
-import { MessageSquare, Search, ShieldAlert, Star } from "lucide-react";
 import type React from "react";
-import { Button } from "@/components/elements/button";
-import { Input } from "@/components/elements/input";
+import { Badge } from "@/components/elements/badge";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/elements/toggle-group";
+import { cn } from "@/lib/utils";
 
 export type MessageFilterStatus =
   | "all"
@@ -20,83 +23,69 @@ export interface MessageFilterCounts {
   unread: number;
 }
 
+const FILTERS: { label: string; status: MessageFilterStatus }[] = [
+  { status: "all", label: "All" },
+  { status: "unread", label: "Unread" },
+  { status: "starred", label: "Starred" },
+  { status: "answered", label: "Answered" },
+];
+
+const isFilterStatus = (value: string): value is MessageFilterStatus =>
+  value === "quarantined" || FILTERS.some((f) => f.status === value);
+
 export interface FilterBarProps {
   activeStatus: MessageFilterStatus;
+  className?: string;
   counts?: MessageFilterCounts;
-  onSearchChange: (search: string) => void;
   onStatusChange: (status: MessageFilterStatus) => void;
-  searchQuery: string;
 }
 
+/**
+ * Inbox filter chips (single-select ToggleGroup) with counts. Quarantined
+ * only appears when something is in it, so the main view never advertises
+ * abuse.
+ */
 export function FilterBar({
   activeStatus,
   onStatusChange,
-  searchQuery,
-  onSearchChange,
   counts,
+  className,
 }: FilterBarProps): React.JSX.Element {
-  return (
-    <div className="flex flex-col gap-3 py-2" data-slot="filter-bar">
-      {/* Full-width Search Input */}
-      <div className="relative w-full">
-        <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          className="h-9 w-full pl-8 text-sm"
-          onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search messages..."
-          value={searchQuery}
-        />
-      </div>
+  const showQuarantined = Boolean(counts?.quarantined);
 
-      {/* Filter Status Chips */}
-      <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto">
-        <Button
-          className="h-7 rounded-full text-xs"
-          onClick={() => onStatusChange("all")}
-          size="sm"
-          variant={activeStatus === "all" ? "default" : "outline"}
-        >
-          All {counts ? `(${counts.all})` : ""}
-        </Button>
-        <Button
-          className="h-7 rounded-full text-xs"
-          onClick={() => onStatusChange("unread")}
-          size="sm"
-          variant={activeStatus === "unread" ? "default" : "outline"}
-        >
-          Unread {counts ? `(${counts.unread})` : ""}
-        </Button>
-        <Button
-          className="h-7 rounded-full text-xs"
-          onClick={() => onStatusChange("starred")}
-          size="sm"
-          variant={activeStatus === "starred" ? "default" : "outline"}
-        >
-          <Star className="mr-1 h-3.5 w-3.5 fill-yellow-400 text-yellow-500" />
-          Starred {counts ? `(${counts.starred})` : ""}
-        </Button>
-        <Button
-          className="h-7 rounded-full text-xs"
-          onClick={() => onStatusChange("answered")}
-          size="sm"
-          variant={activeStatus === "answered" ? "default" : "outline"}
-        >
-          <MessageSquare className="mr-1 h-3.5 w-3.5 text-purple-400" />
-          Answered {counts ? `(${counts.answered})` : ""}
-        </Button>
-        {Boolean(counts?.quarantined) && (
-          <Button
-            className="h-7 rounded-full text-xs"
-            onClick={() => onStatusChange("quarantined")}
-            size="sm"
-            variant={activeStatus === "quarantined" ? "destructive" : "outline"}
-          >
-            <ShieldAlert className="mr-1 h-3.5 w-3.5" />
-            Quarantined ({counts?.quarantined})
-          </Button>
-        )}
-      </div>
-    </div>
+  return (
+    <ToggleGroup
+      aria-label="Filter messages"
+      className={cn(
+        "-mx-4 w-auto flex-nowrap overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0",
+        className
+      )}
+      data-slot="filter-bar"
+      // Radix allows deselecting a single toggle; keep one chip on.
+      onValueChange={(value) => {
+        if (isFilterStatus(value)) {
+          onStatusChange(value);
+        }
+      }}
+      size="touch"
+      spacing={2}
+      type="single"
+      value={activeStatus}
+      variant="chip"
+    >
+      {FILTERS.map(({ status, label }) => (
+        <ToggleGroupItem key={status} value={status}>
+          {label}
+          {counts ? <Badge variant="count">{counts[status]}</Badge> : null}
+        </ToggleGroupItem>
+      ))}
+      {showQuarantined ? (
+        <ToggleGroupItem value="quarantined">
+          Quarantined
+          <Badge variant="attention">{counts?.quarantined}</Badge>
+        </ToggleGroupItem>
+      ) : null}
+    </ToggleGroup>
   );
 }
 

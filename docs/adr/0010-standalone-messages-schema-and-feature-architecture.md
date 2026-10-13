@@ -1,12 +1,12 @@
 # ADR 0010: Standalone Message Collection, Privacy-First Abuse Prevention & Public Q&A Architecture
 
 ## Status
-**Accepted** (Supersedes [ADR 0001: Embedded Messages in User Document](file:///d:/Projects/GhostMsg/docs/adr/0001-embedded-messages-schema.md))
+**Accepted** (Supersedes [ADR 0001: Embedded Messages in User Document](0001-embedded-messages-schema.md))
 
 ---
 
 ## Context & Problem Statement
-In [ADR 0001](file:///d:/Projects/GhostMsg/docs/adr/0001-embedded-messages-schema.md), messages were modeled as embedded subdocuments within `UserModel.messages`. While effective for simple single-message appending and deleting, this design creates severe bottlenecks when introducing advanced platform capabilities:
+In [ADR 0001](0001-embedded-messages-schema.md), messages were modeled as embedded subdocuments within `UserModel.messages`. While effective for simple single-message appending and deleting, this design creates severe bottlenecks when introducing advanced platform capabilities:
 
 1. **Inbox Scalability & Pagination**: Pinned messages, read/unread states, sentiment classification tags, and cursor pagination require independent compound indexing.
 2. **Abuse Prevention & Privacy**: Enabling recipients to block abusive senders without tracking raw IP addresses or requiring sender logins.
@@ -79,7 +79,10 @@ export interface IMessage extends Document {
 ---
 
 ## References & Code Pointers
-- User Model: [`src/model/user.model.ts`](file:///d:/Projects/GhostMsg/src/model/user.model.ts)
+- User Model: [`src/model/user.model.ts`](../../src/server/models/user.model.ts)
 - Message Model: `src/model/message.model.ts`
-- Domain Glossary: [`GLOSSARY.md`](file:///d:/Projects/GhostMsg/GLOSSARY.md)
-- Superseded ADR: [`docs/adr/0001-embedded-messages-schema.md`](file:///d:/Projects/GhostMsg/docs/adr/0001-embedded-messages-schema.md)
+- Domain Glossary: [`GLOSSARY.md`](../../GLOSSARY.md)
+- Superseded ADR: [`docs/adr/0001-embedded-messages-schema.md`](0001-embedded-messages-schema.md)
+
+## Implementation Note (2026-10-14)
+As built, rate limiting is an in-process sliding window (`src/server/security/security.ts`) and the SSE feed uses an in-process `EventEmitter` (`src/server/realtime/event-bus.ts`), not Upstash Redis. Both sit behind small functions so a shared store can replace them for multi-instance deployments ([Chapter 9 §4](../09-deployment-and-operations.md#4-process-local-state-scaling-note), [Chapter 18](../18-notifications-and-realtime.md)). Models moved to `src/server/models/`. The binary toxicity check was replaced by graded toxicity and a Recipient-controlled quarantine policy ([ADR 0025](0025-graded-toxicity-and-recipient-controlled-quarantine.md)).

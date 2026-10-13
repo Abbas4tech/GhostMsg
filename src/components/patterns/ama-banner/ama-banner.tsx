@@ -1,51 +1,78 @@
-import { MessageCircleHeart } from "lucide-react";
+import { cva, type VariantProps } from "class-variance-authority";
 import type React from "react";
-import { Text } from "@/components/elements/text";
 import { cn } from "@/lib/utils";
 
 export const DEFAULT_AMA_PROMPT =
   "Send me an anonymous message, confession, or question!";
 
-export interface AmaBannerProps extends React.HTMLAttributes<HTMLDivElement> {
+const amaBannerVariants = cva(
+  "relative flex flex-col gap-1.5 overflow-hidden rounded-[calc(var(--radius)+6px)]",
+  {
+    variants: {
+      tone: {
+        /** Accepting: the loud one. */
+        brand: "bg-brand-gradient text-brand-foreground",
+        /** Dashboard preview, Q&A header. */
+        soft: "bg-accent text-accent-foreground",
+        /** Paused / not found. */
+        quiet: "border border-input border-dashed bg-muted text-foreground",
+      },
+      size: { sm: "px-4 py-3.5", md: "p-5", lg: "p-7" },
+    },
+    defaultVariants: { tone: "brand", size: "md" },
+  }
+);
+
+const promptVariants = cva(
+  "text-balance font-bold font-display leading-[1.1]",
+  {
+    variants: {
+      size: { sm: "text-base", md: "text-[22px]", lg: "text-[26px]" },
+    },
+    defaultVariants: { size: "md" },
+  }
+);
+
+export interface AmaBannerProps
+  extends React.HTMLAttributes<HTMLElement>,
+    VariantProps<typeof amaBannerVariants> {
+  /** Custom body (e.g. the paused note); replaces the prompt. */
+  children?: React.ReactNode;
+  /** Small uppercase line above the prompt, e.g. "AMA · maya". */
+  eyebrow?: React.ReactNode;
+  /** The recipient's AMA Prompt (falls back to the default prompt). */
   prompt?: string | null;
-  username: string;
 }
 
-/** Recipient header with avatar mark, @handle and the AMA prompt bubble. */
+/** The recipient's AMA Prompt on the brand gradient (or soft / quiet tones). */
 export function AmaBanner({
-  username,
   prompt,
+  eyebrow,
+  tone,
+  size,
+  children,
   className,
   ...props
 }: AmaBannerProps): React.JSX.Element {
   return (
-    <div
-      className={cn(
-        "mx-auto flex w-full max-w-2xl flex-col items-center text-center",
-        className
-      )}
+    <section
+      className={cn(amaBannerVariants({ tone, size }), className)}
       data-slot="ama-banner"
       {...props}
     >
-      <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 text-white shadow-lg">
-        <MessageCircleHeart className="h-7 w-7" />
-      </div>
-
-      <Text
-        as="h1"
-        className="font-bold text-2xl tracking-tight sm:text-3xl"
-        variant="h1"
-      >
-        @{username}
-      </Text>
-
-      <div className="mt-3 rounded-xl border border-purple-500/20 bg-purple-500/5 px-4 py-2.5 shadow-xs backdrop-blur-xs">
-        <p className="font-medium text-foreground text-sm sm:text-base">
-          ✨ {prompt || DEFAULT_AMA_PROMPT}
+      {eyebrow ? (
+        <span className="font-bold text-xs uppercase tracking-[0.08em] opacity-90">
+          {eyebrow}
+        </span>
+      ) : null}
+      {children ?? (
+        <p className={promptVariants({ size })}>
+          {prompt || DEFAULT_AMA_PROMPT}
         </p>
-      </div>
-    </div>
+      )}
+    </section>
   );
 }
 
+export { amaBannerVariants };
 export default AmaBanner;

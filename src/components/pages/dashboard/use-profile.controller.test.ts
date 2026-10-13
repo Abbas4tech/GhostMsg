@@ -1,4 +1,4 @@
-import { act } from "@testing-library/react";
+import { act, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
@@ -23,24 +23,50 @@ describe("useProfileController", () => {
     );
   });
 
-  it("saves a trimmed AMA prompt", async () => {
+  it("keeps edits as a dirty draft until discarded", () => {
+    const { result } = renderHookWithProviders(() => useProfileController());
+
+    act(() => result.current.setDisplayName("Maya R."));
+    expect(result.current.displayName).toBe("Maya R.");
+    expect(result.current.isDirty).toBe(true);
+
+    act(() => result.current.handleDiscard());
+    expect(result.current.isDirty).toBe(false);
+  });
+
+  it("saves the profile and the trimmed AMA prompt together", async () => {
     const requests = recordRequests();
     const { result } = renderHookWithProviders(() => useProfileController());
 
-    act(() => result.current.setAmaPrompt("  Ask me about design  "));
-    await act(() => result.current.handleSaveAmaPrompt());
+    act(() => {
+      result.current.setDisplayName("Maya R.");
+      result.current.setAmaPrompt("  Ask me about design  ");
+    });
+    await act(() => result.current.handleSave());
 
+    expect(requests).toContain("PATCH /api/user/profile");
     expect(requests).toContain("PATCH /api/user/ama-prompt");
-    expect(toast.success).toHaveBeenCalled();
+    expect(toast.success).toHaveBeenCalledWith("Profile saved");
+    expect(result.current.isDirty).toBe(false);
   });
 
-  it("ignores a blank AMA prompt", async () => {
+  it("does not send a blank AMA prompt", async () => {
     const requests = recordRequests();
     const { result } = renderHookWithProviders(() => useProfileController());
 
     act(() => result.current.setAmaPrompt("   "));
-    await act(() => result.current.handleSaveAmaPrompt());
+    await act(() => result.current.handleSave());
 
     expect(requests).not.toContain("PATCH /api/user/ama-prompt");
+  });
+
+  it("loads AI prompt ideas", async () => {
+    const { result } = renderHookWithProviders(() => useProfileController());
+
+    await act(() => result.current.handleSuggest());
+
+    await waitFor(() =>
+      expect(result.current.aiIdeas.length).toBeGreaterThan(0)
+    );
   });
 });

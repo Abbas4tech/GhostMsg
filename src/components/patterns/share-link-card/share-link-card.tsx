@@ -1,7 +1,8 @@
 "use client";
 
-import { LinkIcon } from "lucide-react";
+import { CopyIcon, Link2Icon, Share2Icon } from "lucide-react";
 import type React from "react";
+import { Button } from "@/components/elements/button";
 import {
   Card,
   CardContent,
@@ -9,43 +10,78 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/elements/card";
-import { CopyButton } from "@/components/elements/copy-button";
-import { Input } from "@/components/elements/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/elements/input-group";
 
 export interface ShareLinkCardProps {
+  /** Copy clicked (the page writes the clipboard and toasts). */
   onCopy?: () => void;
+  /** Native share sheet (hidden when not provided). */
+  onShare?: () => void;
   profileUrl: string;
 }
 
-/** Read-only public profile URL with a copy-to-clipboard button. */
+const PROTOCOL_PATTERN = /^https?:\/\//;
+
+const withoutProtocol = (url: string): string =>
+  url.replace(PROTOCOL_PATTERN, "");
+
+/** The Public Profile Link with Copy and the native Share sheet. */
 export function ShareLinkCard({
   profileUrl,
   onCopy,
+  onShare,
 }: ShareLinkCardProps): React.JSX.Element {
   return (
-    <Card data-slot="share-link-card">
+    <Card data-slot="share-link-card" variant="elevated">
       <CardHeader>
-        <CardTitle>Your Profile Link</CardTitle>
-        <CardDescription>
-          Share this link on Instagram, Snapchat, WhatsApp, or X to receive
-          anonymous messages.
-        </CardDescription>
+        <CardTitle>
+          <h2 className="font-bold text-xl">Your Public Profile Link</h2>
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
-          <Input
+      <CardContent className="flex flex-col gap-4">
+        <InputGroup className="h-14" shape="pill" size="lg">
+          <InputGroupAddon>
+            <Link2Icon />
+          </InputGroupAddon>
+          <InputGroupInput
             aria-label="Your profile link"
-            className="flex-grow"
-            disabled
-            value={profileUrl}
+            className="font-semibold"
+            readOnly
+            value={withoutProtocol(profileUrl)}
           />
-          <CopyButton content={profileUrl} onClick={onCopy} />
-        </div>
-        <div className="flex items-center text-muted-foreground text-sm">
-          <LinkIcon className="mr-2 h-4 w-4" />
-          Anyone with this link can send you anonymous messages without
-          registering.
-        </div>
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              className="rounded-full"
+              onClick={onCopy}
+              size="sm"
+              variant="default"
+            >
+              <CopyIcon data-icon="inline-start" />
+              Copy
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
+        {onShare ? (
+          <div>
+            <Button
+              className="rounded-full"
+              onClick={onShare}
+              size="sm"
+              variant="secondary"
+            >
+              <Share2Icon data-icon="inline-start" />
+              Share…
+            </Button>
+          </div>
+        ) : null}
+        <CardDescription>
+          Paste it in your Instagram or Snapchat bio. Senders never sign in.
+        </CardDescription>
       </CardContent>
     </Card>
   );

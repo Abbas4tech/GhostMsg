@@ -10,7 +10,7 @@ import {
   deriveUsernameAvailability,
   isCheckableUsername,
   USERNAME_DEBOUNCE_MS,
-} from "./username-availability.utils";
+} from "@/lib/users/username-availability";
 
 /**
  * Debounced server-side username availability check. Writes the result back

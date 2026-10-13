@@ -12,9 +12,9 @@ import {
   VALID_MESSAGE,
 } from "./send-message-form.mock";
 
-const SEND_REGEX = /^send$/i;
+const SEND_REGEX = /^send anonymously$/i;
 const SENDING_REGEX = /sending/i;
-const TEXTAREA_REGEX = /type your message here/i;
+const TEXTAREA_LABEL = "Your Anonymous Message";
 
 /** Creates the form with the real schema, as `useSendMessageController` does. */
 function SendMessageFormHarness({
@@ -62,7 +62,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvas }) => {
     await expect(
-      canvas.getByText("Send your Anonymous Message to @johndoe")
+      canvas.getByText("johndoe can't see who you are")
     ).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: SEND_REGEX })
@@ -72,10 +72,7 @@ export const Default: Story = {
 
 export const SubmitsValidMessage: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    await userEvent.type(
-      canvas.getByPlaceholderText(TEXTAREA_REGEX),
-      VALID_MESSAGE
-    );
+    await userEvent.type(canvas.getByLabelText(TEXTAREA_LABEL), VALID_MESSAGE);
     await userEvent.click(canvas.getByRole("button", { name: SEND_REGEX }));
     await waitFor(() => expect(args.onSubmit).toHaveBeenCalled());
     await expect(args.onSubmit.mock.calls[0][0]).toEqual({
@@ -87,7 +84,7 @@ export const SubmitsValidMessage: Story = {
 export const TooShort: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.type(
-      canvas.getByPlaceholderText(TEXTAREA_REGEX),
+      canvas.getByLabelText(TEXTAREA_LABEL),
       TOO_SHORT_MESSAGE
     );
     await expect(

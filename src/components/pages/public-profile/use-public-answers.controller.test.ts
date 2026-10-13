@@ -19,6 +19,7 @@ describe("usePublicAnswersController", () => {
     expect(result.current.isLoading).toBe(true);
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.amaPrompt).toBe(FIXTURE_AMA_PROMPT);
+    expect(result.current.isAccepting).toBe(true);
     expect(result.current.answers).toHaveLength(
       publicAnswerScenarios.some.length
     );
@@ -33,5 +34,17 @@ describe("usePublicAnswersController", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.answers).toEqual([]);
     expect(result.current.amaPrompt).toBeUndefined();
+    expect(result.current.isNotFound).toBe(true);
+  });
+
+  it("reports Message Acceptance from the profile", async () => {
+    server.use(...scenarios.answers.paused);
+    const { result } = renderHookWithProviders(() =>
+      usePublicAnswersController(FIXTURE_USERNAME)
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.isAccepting).toBe(false);
+    expect(result.current.isNotFound).toBe(false);
   });
 });

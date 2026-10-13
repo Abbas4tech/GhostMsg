@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { blockSenderSchema } from "@/schemas/message-schema";
 import dbConnect from "@/server/db/db-connect";
 import UserModel from "@/server/models/user.model";
+import { toBlockedSenders } from "@/server/users/user-dto";
 
 export async function GET(): Promise<Response> {
   await dbConnect();
@@ -20,13 +21,15 @@ export async function GET(): Promise<Response> {
     }
 
     const userDoc = await UserModel.findById(user._id).select(
-      "blockedSenderHashes"
+      "blockedSenderHashes blockedSenders"
     );
+    const hashes = userDoc?.blockedSenderHashes || [];
 
     return Response.json(
       {
         success: true,
-        blockedSenderHashes: userDoc?.blockedSenderHashes || [],
+        blockedSenderHashes: hashes,
+        blockedSenders: toBlockedSenders(hashes, userDoc?.blockedSenders),
       },
       { status: 200 }
     );
@@ -65,6 +68,11 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     const { senderHash } = parseResult.data;
 
+    // Record the date once; re-blocking keeps the original date.
+    await UserModel.updateOne(
+      { _id: user._id, "blockedSenders.hash": { $ne: senderHash } },
+      { $push: { blockedSenders: { hash: senderHash, blockedAt: new Date() } } }
+    );
     await UserModel.updateOne(
       { _id: user._id },
       { $addToSet: { blockedSenderHashes: senderHash } }
@@ -103,7 +111,7 @@ export async function DELETE(request: NextRequest): Promise<Response> {
     if (senderHash === "ALL") {
       await UserModel.updateOne(
         { _id: user._id },
-        { $set: { blockedSenderHashes: [] } }
+        { $set: { blockedSenderHashes: [], blockedSenders: [] } }
       );
       return Response.json(
         { success: true, message: "All blocked senders cleared successfully" },
@@ -122,7 +130,12 @@ export async function DELETE(request: NextRequest): Promise<Response> {
 
     await UserModel.updateOne(
       { _id: user._id },
-      { $pull: { blockedSenderHashes: parseResult.data.senderHash } }
+      {
+        $pull: {
+          blockedSenderHashes: parseResult.data.senderHash,
+          blockedSenders: { hash: parseResult.data.senderHash },
+        },
+      }
     );
 
     return Response.json(

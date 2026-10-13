@@ -1,6 +1,8 @@
 # API Calling & React Query Architecture Blueprint
 
-> **Note (2026-10-11):** File paths under `src/components/{auth,dashboard,profile}` in this blueprint are historical. Components now follow the four-tier layout in [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md): pure forms and cards live in `patterns/`, sections in `blocks/`, and every query and mutation lives in `pages/<route>/` controllers.
+> **Current endpoint and hook map (2026-10-14):** [Chapter 16 §10: Client data-layer map](16-api-reference.md#11-client-data-layer-map) lists every query key, query/mutation hook and the controllers that use them, including the Profile & Settings hooks added in the redesign.
+
+> **Note (2026-10-11):** File paths under `src/components/{auth,dashboard,profile}` in this blueprint are historical. Components now follow the four-tier layout in [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md): pure forms and cards live in `patterns/`, sections in `blocks/`, and every query and mutation lives in `pages/<route>/` controllers.
 
 This document specifies the standard architecture, patterns, performance optimizations, component segregation, and optimistic UI implementation guidelines for API consumption across GhostMsg.
 
@@ -55,7 +57,7 @@ flowchart TD
 1. **Zero Direct `api.*` in UI**: All API operations are consumed via React Query hooks (`useQuery`, `useMutation`).
 2. **Throwing Transport Unwrapper**: Transport calls unpack `data` and throw typed `ApiError` instances so React Query error handling is seamless and consistent.
 3. **Pure Query Options (`queryOptions`)**: Query definitions are pure objects decoupled from React hooks, enabling reuse across client hooks, prefetching, and cache invalidators.
-4. **Deterministic Cache-Level Optimism**: Stateful interactions ([`Message Acceptance`](file:///d:/Projects/GhostMsg/GLOSSARY.md#L19-L22), [`Anonymous Message`](file:///d:/Projects/GhostMsg/GLOSSARY.md#L7-L10) deletion) execute optimistic cache transformations with automated rollback on failure.
+4. **Deterministic Cache-Level Optimism**: Stateful interactions ([`Message Acceptance`](../GLOSSARY.md), [`Anonymous Message`](../GLOSSARY.md) deletion) execute optimistic cache transformations with automated rollback on failure.
 5. **Component Segregation & Render Boundary Isolation**: Heavy pages and multi-state forms are split into focused single-responsibility components so state changes (e.g. typing or spinners) never re-render unrelated siblings.
 
 ---
@@ -258,7 +260,7 @@ export function useAcceptMessageMutation() {
 }
 ```
 
-### Optimistic Message Deletion & Bulk Actions ([ADR 0021](file:///d:/Projects/GhostMsg/docs/adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md))
+### Optimistic Message Deletion & Bulk Actions ([ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md))
 
 Every inbox mutation shares `src/data/messages/messages-cache.ts`, which snapshots and patches **all** cached inbox lists (any filter key) and restores them on failure. The controller closes the dialog *before* awaiting, so the card and the dialog disappear immediately.
 
@@ -571,7 +573,7 @@ export function makeQueryClient(): QueryClient {
 ## 7. Migration Checklist for Agents & Developers
 
 - [ ] **Milestone 1: Transport Helper**
-  - Update [`src/data/api-client.ts`](file:///d:/Projects/GhostMsg/src/data/api-client.ts) with `ApiError` and `clientFetch`.
+  - Update [`src/data/api-client.ts`](../src/data/api-client.ts) with `ApiError` and `clientFetch`.
 - [ ] **Milestone 2: Query Keys & Pure Options**
   - Create `src/data/query-keys.ts`.
   - Create `src/data/messages/messages.queries.ts`, `src/data/user/user.queries.ts`, `src/data/auth/auth.queries.ts`.
@@ -583,15 +585,15 @@ export function makeQueryClient(): QueryClient {
   - Create `src/data/auth/use-verify-code-mutation.ts`.
   - Create `src/data/public/use-suggest-messages-mutation.ts`.
 - [ ] **Milestone 4: Global Query Provider Configuration**
-  - Configure `QueryClient` defaults in [`src/providers/query-provider.tsx`](file:///d:/Projects/GhostMsg/src/providers/query-provider.tsx).
+  - Configure `QueryClient` defaults in [`src/providers/query-provider.tsx`](../src/providers/query-provider.tsx).
 - [ ] **Milestone 5: Public Profile Component Segregation**
   - Create `src/components/profile/send-message-form.tsx`.
   - Create `src/components/profile/suggested-messages-section.tsx`.
-  - Refactor [`src/app/u/[username]/page.tsx`](file:///d:/Projects/GhostMsg/src/app/u/[username]/page.tsx) to assemble the segregated components.
+  - Refactor [`src/app/u/[username]/page.tsx`](../src/app/u/[username]/page.tsx) to assemble the segregated components.
 - [ ] **Milestone 6: Auth Component Segregation**
   - Create `src/components/auth/username-field.tsx` with isolated debounced query.
   - Create `src/components/auth/sign-in-form.tsx` and `src/components/auth/sign-up-form.tsx`.
-  - Refactor [`src/components/auth/verify-code-form.tsx`](file:///d:/Projects/GhostMsg/src/components/auth/verify-code-form.tsx) to consume `useVerifyCodeMutation`.
+  - Refactor [`src/components/auth/verify-code-form.tsx`](../src/components/patterns/verify-code-form/verify-code-form.tsx) to consume `useVerifyCodeMutation`.
 - [ ] **Milestone 7: Dashboard Decoupling & Optimistic Delete**
-  - Refactor [`src/components/dashboard/message-tab.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/message-tab.tsx) and [`src/components/dashboard/message-card.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/message-card.tsx) to subscribe directly to queries and mutations.
-  - Refactor [`src/components/dashboard/settings-tab.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/settings-tab.tsx) for direct acceptance state subscription.
+  - Refactor [`src/components/dashboard/message-tab.tsx`](../src/components/pages/dashboard/inbox-page.tsx) and [`src/components/dashboard/message-card.tsx`](../src/components/patterns/message-card/message-card.tsx) to subscribe directly to queries and mutations.
+  - Refactor [`src/components/dashboard/settings-tab.tsx`](../src/components/pages/dashboard/settings-page.tsx) for direct acceptance state subscription.

@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { Check, Link2, X } from "lucide-react";
 import type React from "react";
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 import {
@@ -10,89 +10,125 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/elements/form";
-import { Input } from "@/components/elements/input";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/elements/tooltip";
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/elements/input-group";
+import { cn } from "@/lib/utils";
 
 export type UsernameAvailability = "idle" | "checking" | "available" | "taken";
+
+const DEFAULT_LINK_PREFIX = "ghostmsg.app/u/";
 
 export interface UsernameFieldProps<TFieldValues extends FieldValues> {
   /** Availability state computed by the page controller. */
   availability?: UsernameAvailability;
-  /** Tooltip text shown when the username is taken. */
+  /** Shown when the username is taken. */
   availabilityMessage?: string;
   control: Control<TFieldValues>;
+  /** Host + path the username is appended to in the link preview. */
+  linkPrefix?: string;
   name: FieldPath<TFieldValues>;
 }
 
-function AvailabilityIndicator({
+function AvailabilityStatus({
   availability,
-  message,
 }: {
   availability: UsernameAvailability;
-  message?: string;
 }): React.JSX.Element | null {
   if (availability === "checking") {
-    return <Loader2 className="h-5 w-5 animate-spin text-blue-500" />;
+    return (
+      <InputGroupAddon align="inline-end" role="status">
+        Checking…
+      </InputGroupAddon>
+    );
   }
-
-  if (availability === "idle") {
-    return null;
+  if (availability === "available") {
+    return (
+      <InputGroupAddon align="inline-end" className="text-success">
+        <Check aria-label="Username is available" role="img" />
+      </InputGroupAddon>
+    );
   }
-
-  const isAvailable = availability === "available";
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span>
-          {isAvailable ? (
-            <CheckCircle2 className="h-5 w-5 cursor-pointer text-green-500" />
-          ) : (
-            <XCircle className="h-5 w-5 cursor-pointer text-red-500" />
-          )}
-        </span>
-      </TooltipTrigger>
-      <TooltipContent>
-        {isAvailable
-          ? "Username is available"
-          : message || "Username is not available"}
-      </TooltipContent>
-    </Tooltip>
-  );
+  if (availability === "taken") {
+    return (
+      <InputGroupAddon align="inline-end" className="text-destructive">
+        <X aria-label="Username is taken" role="img" />
+      </InputGroupAddon>
+    );
+  }
+  return null;
 }
 
-/** Username input with a live availability indicator. Owns no queries. */
+/**
+ * Username input with "@" prefix, live availability and a preview of the
+ * Public Profile Link it creates. Owns no queries.
+ */
 export function UsernameField<TFieldValues extends FieldValues>({
   control,
   name,
   availability = "idle",
   availabilityMessage,
+  linkPrefix = DEFAULT_LINK_PREFIX,
 }: UsernameFieldProps<TFieldValues>): React.JSX.Element {
   return (
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Username *</FormLabel>
-          <div className="relative">
-            <FormControl>
-              <Input placeholder="Choose a username.." {...field} />
-            </FormControl>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <AvailabilityIndicator
-                availability={availability}
-                message={availabilityMessage}
-              />
-            </div>
-          </div>
-          <FormMessage />
-        </FormItem>
-      )}
+      render={({ field, fieldState }) => {
+        const value = String(field.value ?? "");
+        const link = `${linkPrefix}${value || "yourname"}`;
+        const isTaken = availability === "taken";
+        const showPreview = !(fieldState.error || isTaken);
+
+        return (
+          <FormItem>
+            <FormLabel>Username</FormLabel>
+            <InputGroup
+              size="lg"
+              tone={availability === "available" ? "success" : "default"}
+            >
+              <InputGroupAddon aria-hidden="true">@</InputGroupAddon>
+              <FormControl>
+                <InputGroupInput
+                  aria-invalid={isTaken || undefined}
+                  autoCapitalize="none"
+                  autoComplete="username"
+                  placeholder="yourname"
+                  spellCheck={false}
+                  {...field}
+                />
+              </FormControl>
+              <AvailabilityStatus availability={availability} />
+            </InputGroup>
+            {showPreview ? (
+              <p
+                className={cn(
+                  "flex items-center gap-1.5 text-sm",
+                  availability === "available"
+                    ? "text-success"
+                    : "text-muted-foreground"
+                )}
+                data-slot="username-link-preview"
+              >
+                <Link2 aria-hidden="true" className="size-4 shrink-0" />
+                <span className="min-w-0 break-all">
+                  Your link:{" "}
+                  <b className="font-semibold text-foreground">{link}</b>
+                  {availability === "available" ? " is available" : null}
+                </span>
+              </p>
+            ) : null}
+            {isTaken && !fieldState.error ? (
+              <p className="text-destructive text-sm" role="alert">
+                {availabilityMessage || "Username is already taken"}
+              </p>
+            ) : null}
+            <FormMessage />
+          </FormItem>
+        );
+      }}
     />
   );
 }

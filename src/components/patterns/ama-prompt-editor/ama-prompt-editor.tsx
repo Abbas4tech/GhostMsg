@@ -1,74 +1,162 @@
 "use client";
 
-import { Loader2, Sparkles } from "lucide-react";
+import { SparklesIcon } from "lucide-react";
 import type React from "react";
+import { useId } from "react";
+import { Button } from "@/components/elements/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/elements/card";
-import { Input } from "@/components/elements/input";
-import { LiquidButton } from "@/components/elements/liquid-button";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/elements/field";
+import { Separator } from "@/components/elements/separator";
+import { Spinner } from "@/components/elements/spinner";
+import { Switch } from "@/components/elements/switch";
+import { Textarea } from "@/components/elements/textarea";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/elements/toggle-group";
+import { cn } from "@/lib/utils";
 
 export const AMA_PROMPT_MAX_LENGTH = 120;
 
+/** Counter turns to a warning past this many characters. */
+const AMA_PROMPT_WARN_AT = 100;
+
+export const AMA_PROMPT_IDEAS = [
+  "Ask me anything",
+  "Be honest with me",
+] as const;
+
 export interface AmaPromptEditorProps {
-  isSaving?: boolean;
+  /** Extra ideas from "Suggest with AI". */
+  aiIdeas?: string[];
+  isSuggesting?: boolean;
   onChange: (value: string) => void;
-  onSave: () => void;
+  onShowBannerChange: (show: boolean) => void;
+  /** "Suggest with AI" (hidden when not provided). */
+  onSuggest?: () => void;
+  showBanner: boolean;
   value: string;
 }
 
-/** Editor card for the custom AMA banner shown on the public profile. */
+/** AMA Prompt card: text, quick ideas, AI ideas and "Show the AMA banner". */
 export function AmaPromptEditor({
   value,
-  isSaving = false,
+  aiIdeas = [],
+  isSuggesting = false,
+  showBanner,
   onChange,
-  onSave,
+  onSuggest,
+  onShowBannerChange,
 }: AmaPromptEditorProps): React.JSX.Element {
-  return (
-    <Card data-slot="ama-prompt-editor">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-purple-500" />
-          Custom Profile Topic / AMA Banner
-        </CardTitle>
-        <CardDescription>
-          Set a custom prompt or question displayed at the top of your public
-          profile to inspire visitors.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Input
-            aria-label="AMA prompt"
-            maxLength={AMA_PROMPT_MAX_LENGTH}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="e.g., Ask me anything about my job, roast me, or share a secret!"
-            value={value}
-          />
-          <div className="flex justify-between text-muted-foreground text-xs">
-            <span>
-              Try prompts like: &quot;Compliment or roast me&quot;, &quot;Ask me
-              anything about tech&quot;
-            </span>
-            <span>
-              {value.length} / {AMA_PROMPT_MAX_LENGTH}
-            </span>
-          </div>
-        </div>
+  const fieldId = useId();
+  const counterId = useId();
+  const switchId = useId();
+  const ideas = [...AMA_PROMPT_IDEAS, ...aiIdeas];
 
-        <LiquidButton disabled={!value.trim() || isSaving} onClick={onSave}>
-          {isSaving ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
-            </>
-          ) : (
-            "Save Topic Banner"
-          )}
-        </LiquidButton>
+  return (
+    <Card data-slot="ama-prompt-editor" variant="elevated">
+      <CardHeader>
+        <CardTitle>
+          <h2 className="font-bold text-xl">AMA Prompt</h2>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <FieldGroup>
+          <Field>
+            <div className="flex items-center justify-between">
+              <FieldLabel htmlFor={fieldId}>
+                What do you want people to ask?
+              </FieldLabel>
+              <span
+                className={cn(
+                  "text-xs tabular-nums",
+                  value.length >= AMA_PROMPT_WARN_AT
+                    ? "font-semibold text-destructive"
+                    : "text-muted-foreground"
+                )}
+                id={counterId}
+              >
+                {value.length} / {AMA_PROMPT_MAX_LENGTH}
+              </span>
+            </div>
+            <Textarea
+              aria-describedby={counterId}
+              className="min-h-24 resize-none bg-card text-base"
+              id={fieldId}
+              maxLength={AMA_PROMPT_MAX_LENGTH}
+              onChange={(event) => onChange(event.target.value)}
+              placeholder="Ask me anything about…"
+              rows={3}
+              value={value}
+            />
+          </Field>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <ToggleGroup
+              aria-label="Prompt ideas"
+              onValueChange={(idea) => {
+                if (idea) {
+                  onChange(idea);
+                }
+              }}
+              size="sm"
+              spacing={2}
+              type="single"
+              value={ideas.includes(value) ? value : ""}
+              variant="chip"
+            >
+              {ideas.map((idea) => (
+                <ToggleGroupItem key={idea} value={idea}>
+                  {idea}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+            {onSuggest ? (
+              <Button
+                className="rounded-full"
+                disabled={isSuggesting}
+                onClick={onSuggest}
+                size="sm"
+                variant="outline"
+              >
+                {isSuggesting ? (
+                  <Spinner data-icon="inline-start" />
+                ) : (
+                  <SparklesIcon data-icon="inline-start" />
+                )}
+                Suggest with AI
+              </Button>
+            ) : null}
+          </div>
+
+          <Separator />
+
+          <Field orientation="horizontal">
+            <FieldContent>
+              <FieldLabel htmlFor={switchId}>Show the AMA banner</FieldLabel>
+              <FieldDescription>
+                Off = your page shows only your name.
+              </FieldDescription>
+            </FieldContent>
+            <Switch
+              checked={showBanner}
+              id={switchId}
+              onCheckedChange={onShowBannerChange}
+              size="xl"
+            />
+          </Field>
+        </FieldGroup>
       </CardContent>
     </Card>
   );

@@ -7,7 +7,7 @@
 
 ## Context & Problem Statement
 
-GhostMsg's [`package.json`](file:///d:/Projects/GhostMsg/package.json) previously had build-time CLI tools (`@biomejs/biome`, `shadcn`) grouped under production `dependencies`. 
+GhostMsg's [`package.json`](../../package.json) previously had build-time CLI tools (`@biomejs/biome`, `shadcn`) grouped under production `dependencies`. 
 
 Additionally, large UI libraries with extensive barrel exports (such as `lucide-react`, `motion`, `radix-ui`, `@tanstack/react-query`, and `usehooks-ts`) were imported without Next.js import optimization, resulting in larger initial client chunk sizes and slower cold-start compilation.
 
@@ -19,7 +19,7 @@ In Next.js (Webpack / Turbopack), moving a package from `dependencies` to `devDe
 1. **Reduces production Docker / serverless container artifact sizes** by preventing CLI tools from being installed in production-only node environments.
 2. **Does NOT automatically shrink client browser JavaScript**, because Next.js constructs client bundles strictly from the static `import` dependency graph of client components (`"use client"`).
 
-To achieve real browser bundle reductions, compiler-level tree-shaking optimizations and import path rewrites must be configured in [`next.config.ts`](file:///d:/Projects/GhostMsg/next.config.ts).
+To achieve real browser bundle reductions, compiler-level tree-shaking optimizations and import path rewrites must be configured in [`next.config.ts`](../../next.config.ts).
 
 ---
 
@@ -34,9 +34,9 @@ To achieve real browser bundle reductions, compiler-level tree-shaking optimizat
 ## The Decision
 
 1. **Reclassify CLI Utilities**:
-   Move `@biomejs/biome` and `shadcn` to `devDependencies` in [`package.json`](file:///d:/Projects/GhostMsg/package.json).
+   Move `@biomejs/biome` and `shadcn` to `devDependencies` in [`package.json`](../../package.json).
 2. **Enable Next.js Package Import Optimization**:
-   Configure `experimental.optimizePackageImports` in [`next.config.ts`](file:///d:/Projects/GhostMsg/next.config.ts) for:
+   Configure `experimental.optimizePackageImports` in [`next.config.ts`](../../next.config.ts) for:
    - `lucide-react`
    - `@tanstack/react-query`
    - `motion`
@@ -79,6 +79,6 @@ export default nextConfig;
 ---
 
 ## References & Code Pointers
-- Next.js Config: [`next.config.ts`](file:///d:/Projects/GhostMsg/next.config.ts)
-- Package Manifest: [`package.json`](file:///d:/Projects/GhostMsg/package.json)
-- Documentation Index: [`docs/README.md`](file:///d:/Projects/GhostMsg/docs/README.md)
+- Next.js Config: [`next.config.ts`](../../next.config.ts)
+- Package Manifest: [`package.json`](../../package.json)
+- Documentation Index: [`docs/README.md`](../README.md)

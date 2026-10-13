@@ -74,3 +74,22 @@ export async function checkRateLimit(
     resetTime: now + windowMs,
   };
 }
+
+/**
+ * Constant-time check of an `Authorization: Bearer <secret>` header, used by
+ * scheduler-only routes (Vercel Cron sends `Bearer ${CRON_SECRET}`).
+ */
+export function isBearerTokenValid(
+  authorizationHeader: string | null,
+  secret: string | undefined
+): boolean {
+  if (!(secret && authorizationHeader)) {
+    return false;
+  }
+  const expected = Buffer.from(`Bearer ${secret}`);
+  const received = Buffer.from(authorizationHeader);
+  return (
+    expected.length === received.length &&
+    crypto.timingSafeEqual(expected, received)
+  );
+}

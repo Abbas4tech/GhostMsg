@@ -24,6 +24,31 @@ describe("notification-schema.ts", () => {
       expect(r3.success).toBe(true);
     });
 
+    it("accepts quiet hours and hide-text toggles", () => {
+      const result = updateNotificationsRequestSchema.safeParse({
+        hideMessageText: false,
+        quietHours: {
+          enabled: true,
+          start: "22:00",
+          end: "08:00",
+          timeZone: "Europe/London",
+        },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects malformed quiet-hour times", () => {
+      const result = updateNotificationsRequestSchema.safeParse({
+        quietHours: {
+          enabled: true,
+          start: "25:00",
+          end: "8am",
+          timeZone: "UTC",
+        },
+      });
+      expect(result.success).toBe(false);
+    });
+
     it("should reject invalid emailAlerts enum values", () => {
       const result = updateNotificationsRequestSchema.safeParse({
         emailAlerts: "hourly",

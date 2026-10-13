@@ -1,0 +1,144 @@
+# Chapter 19: Redesign Change Summary (October 2026)
+
+Everything the Claude Design redesign changed, in one place: features, UI, API, database, code structure, tests and docs. Use it to review the release, write release notes, or find out why something moved. Detailed reasoning is in [ADR 0022](adr/0022-palette-theming-and-claude-design-redesign.md)–[ADR 0028](adr/0028-agent-first-documentation-system-and-generated-screenshots.md).
+
+**Baseline:** commit `74479d9` (optimistic inbox + Web Push, ADR 0020/0021). **Scope:** branch `feat/as/source-structure-and-utilities`.
+
+---
+
+## 1. Timeline
+
+```mermaid
+timeline
+    title Redesign phases
+    Palettes and layouts : 3 palettes × light/dark (ADR 0022) : Landing, auth, dashboard routes, inbox triage, public profile states, Story Card
+    shadcn-first rebuild : 21 shadcn components installed into elements (ADR 0023) : Sidebar shell, ToggleGroup filters, CommandDialog, Field/InputGroup forms
+    Profile and Settings : New Profile and Settings pages per the updated canvas : 6 new endpoints, User model fields, policies (ADR 0024–0027)
+    Hardening : Story and controller tests for every new module : a11y fixes (landmarks, labels, focusable scroll) : Docs + generated screenshots (ADR 0028)
+    Fixes from documenting : Export allow-list, safe live toast, hidden-text email : Daily digest via Vercel Cron (ADR 0029)
+```
+
+## 2. For users: what's new
+
+| Area | Before | After |
+| :--- | :--- | :--- |
+| **Look** | Stock shadcn stone, Poppins, one theme | 3 palettes (Soft spectral, Midnight confessional, Playful paper) × Light/Dark/System, brand fonts and gradients ([Chapter 13](13-design-system-and-theming.md)) |
+| **Landing** | Heading + carousel | Claim-your-link hero, How it works, Trust, Q&A showcase, CTA, footer |
+| **Dashboard** | One page with 3 tabs | Routes `/dashboard`, `/dashboard/profile`, `/dashboard/settings` in a sidebar shell; phone top bar + tab bar; ⌘K command palette |
+| **Inbox** | Tabular list | Card grid/list, filter chips with counts, search with `/`, keyboard triage (`j k x s r`), bulk toolbar, sentiment badges, concealed quarantined cards with a Reveal dialog, optional Spicy blur |
+| **Public profile** | Basic form | Display name + photo, optional AMA banner, optional Suggested Messages, sent/paused/not-found states, palette + theme switchers |
+| **Profile page** | AMA prompt field | Identity (photo, display name, change username), share card, AMA editor with ideas + **Suggest with AI** + banner switch, live visitor preview, unsaved-changes bar |
+| **Settings** | Acceptance, email alerts, push, blocklist | + Suggested Messages toggle, publish-by-default, quarantine on/off + **Relaxed/Balanced/Strict**, blur Spicy, blocked-senders table with dates, **hide message text**, **quiet hours**, appearance, export, **delete all (10 s undo)**, **delete account** |
+| **Answers** | Reply + publish | Smart Reply tones, publish default from Settings, Story Card 9:16/1:1 gradient/plain with native share |
+
+## 3. API changes
+
+### 3.1 New endpoints
+
+| Endpoint | Purpose |
+| :--- | :--- |
+| `GET/PATCH /api/user/profile` | Display name, avatar (data URL), AMA banner switch |
+| `PATCH /api/user/username` | Change username (409 if taken) |
+| `GET/PATCH /api/user/preferences` | Messages + Safety preferences |
+| `DELETE /api/messages` | Delete every message |
+| `DELETE /api/user` | Delete account (typed confirmation) |
+| `POST /api/ai/ama-suggestions` | AI AMA Prompt ideas |
+| `GET /api/cron/daily-digest` | Daily digest emails (scheduler only, `CRON_SECRET`) |
+
+### 3.2 Changed endpoints (backwards compatible: additive)
+
+| Endpoint | Change |
+| :--- | :--- |
+| `GET/PATCH /api/user/notifications` | + `hideMessageText`, `quietHours`; PATCH now Zod-validated and writes dot paths (no sibling resets) |
+| `GET /api/block-sender` | + `blockedSenders: { hash, blockedAt? }[]` |
+| `POST/DELETE /api/block-sender` | Record / remove block dates |
+| `GET /api/public/{username}/answers` | + `isAcceptingMessages`, `displayName`, `avatarUrl`, `showAmaBanner`, `offerSuggestions` |
+| `POST /api/send-message` | Quarantine via the Recipient's sensitivity; alerts respect quiet hours and hidden text |
+| NextAuth `jwt` callback | Handles `trigger === "update"` to refresh `username` |
+
+OpenAPI paths are registered under the new **Profile & Settings** tag; `pnpm typegen` regenerated `src/generated/api-schema.d.ts`. Reference: [Chapter 16](16-api-reference.md).
+
+## 4. Database changes
+
+All additive on `users`, with schema defaults and read-side defaults (`src/server/users/user-dto.ts`), so **no migration is required** ([Chapter 15 §4](15-data-model-and-database.md#4-compatibility-documents-older-than-a-field)).
+
+| Field | Default |
+| :--- | :--- |
+| `displayName` | `""` |
+| `avatarUrl` | `null` |
+| `showAmaBanner` | `true` |
+| `messagePreferences.{offerSuggestions, publishByDefault}` | `true`, `false` |
+| `safetySettings.{quarantineEnabled, sensitivity, blurSpicy}` | `true`, `"balanced"`, `false` |
+| `notificationSettings.hideMessageText` | `true` |
+| `notificationSettings.quietHours.{enabled,start,end,timeZone}` | `false`, `"22:00"`, `"08:00"`, `"UTC"` |
+| `blockedSenders[{hash, blockedAt}]` | `[]` (legacy hashes show no date) |
+| `lastDigestSentAt` | `null` (server-only; set after each daily digest) |
+
+`messages` is unchanged. Moderation now returns a graded `toxicity` (stored only as the resulting `isQuarantined`).
+
+**Behaviour change to note:** existing users get `hideMessageText: true` by default, so their alerts stop showing message text until they turn it off. This is intended (privacy by default, [ADR 0026](adr/0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md)).
+
+## 5. Code changes
+
+### 5.1 Structure
+
+| Area | Added | Removed / renamed |
+| :--- | :--- | :--- |
+| Routes | `src/app/(dashboard)/dashboard/{page,profile/page,settings/page,layout}.tsx` | `src/app/(app)/(dashboard)/dashboard/*` (dashboard left the `(app)` group: no site header) |
+| Elements | alert, avatar, breadcrumb, checkbox, command, dropdown-menu, empty, field, input-group, item, kbd, palette-picker, radio-group, scroll-area, select, separator, sheet, sidebar, spinner, table, toggle, toggle-group | custom `chip` (replaced by Toggle `chip`) |
+| Patterns | brand-mark, claim-link-form, command-palette, how-it-works, identity-card, page-heading, section-nav, story-card-preview, unsaved-changes-bar, visitor-preview, modals: change-username, delete-account, delete-all-messages, reveal-message (+ `story-card.canvas.ts`) | messages-carousel |
+| Blocks | cta-banner, qa-showcase, site-footer, trust-section; settings-panel split into section files | settings-section (folded into settings-panel) |
+| Pages | dashboard-layout, inbox-page, profile-page, settings-page; controllers: dashboard-shell, inbox-keyboard, profile-link, change-username, danger-zone, appearance, claim-link | dashboard-page, inbox/profile/settings tabs |
+| Server | `ai/quarantine-policy`, `ai/ama-suggestions`, `notifications/delivery-policy`, `notifications/daily-digest` (+ `-store`), `email/send-daily-digest-email`, `users/user-dto`; `isBearerTokenValid` in `security` | — |
+| Data | `use-update-profile`, `use-change-username`, `use-update-preferences`, `use-delete-all-messages`, `use-delete-account`, `use-ama-suggestions` mutations; `user.profile`/`user.preferences` queries | — |
+| Lib / hooks / providers | `lib/theme/palette`, `lib/browser/resize-image`, `lib/format/relative-time`, `lib/users/username-availability` (promoted from sign-up), `hooks/use-active-section`, `hooks/use-mobile`, `providers/palette-provider` | `content/landing-messages.json`, `mock/fixtures/carousel.fixtures.ts` |
+| Scripts & config | `check-theme-contrast.ts` (`pnpm theme:contrast`), `capture-doc-screenshots.ts` (`pnpm docs:screenshots`), `vercel.json` (daily digest cron), `emails/daily-digest.tsx` | — |
+
+### 5.2 Component API changes (breaking for internal callers)
+
+| Component | Change |
+| :--- | :--- |
+| `Button` | Stock shadcn v4 (Slot `asChild`) + GhostMsg variants; the motion version lives on in `IconButton`/`CopyButton` |
+| `Badge` | `size` removed; new variants `glass/success/warning/neutral/count/attention` |
+| `Avatar`, `Kbd`, `Sheet`, `DropdownMenu`, `InputGroup` | Replaced by shadcn versions (`InputGroup` uses `size/shape/tone`; old `state` prop gone) |
+| `CommandPalette` | Built on `CommandDialog`; types renamed `CommandGroupDefinition`/`CommandItemDefinition` |
+| `FilterBar`, view toggle | ToggleGroup items are `role="radio"` (tests query radios) |
+| `AmaPromptEditor` | Props: `value, aiIdeas, isSuggesting, onChange, onSuggest, showBanner, onShowBannerChange` (save moved to the page's unsaved bar) |
+| `ShareLinkCard` | Props: `profileUrl, onCopy, onShare` |
+| `ProfilePanel` | Props: `{ identity, link, ama, isAccepting, unsaved }` |
+| `SettingsPanel` | Props: `{ messages, safety, notifications, appearance, data, danger }` |
+| `MessageCard` / `Inbox` | + `concealSpicy`; checkbox is shadcn `Checkbox size="lg"` |
+| `Dialog` | + `showCloseButton` |
+| `Sidebar` (element) | Desktop container is `<aside>`; cookie persistence removed |
+| `ScrollArea` | Viewport focusable (`tabIndex=0`) |
+
+### 5.3 Tooling
+
+- `biome.jsonc`: `useSemanticElements` off for upstream breadcrumb/field/input-group/item; focus/click rules off for breadcrumb/input-group (upstream ARIA patterns only).
+- shadcn CLI quirk documented: `pnpm remove cn` after every `shadcn add`.
+
+## 6. Quality gates at release
+
+| Gate | Result (2026-10-14) |
+| :--- | :--- |
+| `pnpm check` (Ultracite/Biome) | ✓ 0 errors |
+| `pnpm exec tsc --noEmit` | ✓ |
+| `pnpm build` | ✓ |
+| `pnpm test:all` | ✓ 610 tests in 148 files (unit + story) |
+| `pnpm theme:contrast` | ✓ all 6 palette × mode pairs AA |
+| `pnpm docs:registry:check` | ✓ |
+
+## 7. Issues found while documenting, and fixed
+
+Writing chapters 12–18 against the code surfaced four places where behaviour broke the product's own rules. All are fixed in this release ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md), [Chapter 17 §10](17-trust-safety-and-privacy.md#10-known-issues-code-that-does-not-yet-meet-these-rules)):
+
+| # | Problem | Fix |
+| :--- | :--- | :--- |
+| K1 | JSON export contained Sender Hashes. | Allow-listed export records. |
+| K2 | The live toast previewed quarantined messages and ignored hidden text. | `buildLiveMessageToast`. |
+| K3 | "Daily digest" was never sent. | `GET /api/cron/daily-digest` + Vercel Cron + digest email. |
+| K4 | Hidden-text alert emails quoted the placeholder as if it were the message and linked to a hard-coded domain. | Neutral hidden-text email; `APP_URL` links. |
+
+Also added: controller tests for `use-dashboard-shell` and `use-profile-link`, and graded-moderation parsing tests with the AI SDK mocked.
+
+**Still deliberate (not bugs):** no "Unblock all" button (design), the in-memory rate limiter and live-event bus (need shared infrastructure and a privacy decision before moving off-process), avatars stored in MongoDB ([Chapter 12 §6](12-product-guide-and-features.md#6-known-gaps-and-non-goals)).

@@ -14,6 +14,22 @@ Canonical five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`,
 
 Single-context (`GLOSSARY.md` and `docs/adr/` at root). See `docs/agents/domain.md`.
 
+### Agent guide index
+
+`docs/agents/README.md` maps each kind of task to its guide and to reference chapters 12–19 (product, design system, screens, data model, API, trust & safety, notifications, release summary).
+
+### Product rules & safety
+
+Before changing user-facing behaviour, settings, copy, moderation, notifications, or anything that stores or shows sender data, read `docs/agents/product-rules.md` (invariants S1–S10, recipient-control and copy rules). Depth: `docs/17-trust-safety-and-privacy.md`.
+
+### Design system
+
+shadcn (Radix) components first; the design is applied through opt-in CVA variants inside `src/components/elements/*`, semantic tokens only, every screen in 3 palettes × light/dark. Before adding a token, variant, palette or element, read `docs/13-design-system-and-theming.md`.
+
+### Documentation
+
+Every change updates the docs it affects (`docs/agents/documentation-maintenance.md` maps changes to chapters, glossary, ADRs and screenshots). Screenshots are generated: `pnpm build-storybook && pnpm docs:screenshots`.
+
 ### API & client-server patterns
 
 OpenAPI 3.1 Zod registry (`src/server/openapi/openapi.ts`), automated typegen (`pnpm typegen`), `openapi-fetch` (`api` from `@/data/api-client`), and `@tanstack/react-query`. 

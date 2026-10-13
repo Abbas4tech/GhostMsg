@@ -1,7 +1,8 @@
 "use client";
 
-import { Loader2, MessageSquare, Send, Sparkles, X } from "lucide-react";
+import { Loader2, Share2, Sparkles } from "lucide-react";
 import type React from "react";
+import { useId } from "react";
 import { Button } from "@/components/elements/button";
 import {
   Dialog,
@@ -11,9 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/elements/dialog";
-import { LiquidButton } from "@/components/elements/liquid-button";
 import { Switch } from "@/components/elements/switch";
 import { Textarea } from "@/components/elements/textarea";
+import { SentimentBadge } from "@/components/patterns/sentiment-badge";
 import type { MessageDto } from "@/types/api";
 
 export type SmartReplyTone = "witty" | "wholesome" | "thoughtful";
@@ -31,15 +32,18 @@ export interface SmartReplyModalProps {
   onPublishedChange: (isPublished: boolean) => void;
   onReplyTextChange: (text: string) => void;
   onSave: () => void;
+  /** "Answer + Story Card": save, then open the Story Card export. */
+  onSaveAndShare?: () => void;
   replyText: string;
 }
 
-const TONE_OPTIONS: { label: string; tone: SmartReplyTone }[] = [
-  { tone: "witty", label: "🔥 Witty Roast" },
-  { tone: "wholesome", label: "💖 Wholesome" },
-  { tone: "thoughtful", label: "🤔 Thoughtful" },
+const TONE_IDEAS: { hint: string; label: string; tone: SmartReplyTone }[] = [
+  { tone: "witty", label: "🔥 Witty", hint: "Playful, a little cheeky" },
+  { tone: "wholesome", label: "💖 Wholesome", hint: "Warm and kind" },
+  { tone: "thoughtful", label: "🤔 Thoughtful", hint: "Honest and considered" },
 ];
 
+/** Answer an Anonymous Message: draft, AI Smart Reply ideas, Public Q&A switch. */
 export const SmartReplyModal = ({
   isOpen,
   message,
@@ -52,121 +56,129 @@ export const SmartReplyModal = ({
   onReplyTextChange,
   onPublishedChange,
   onSave,
+  onSaveAndShare,
 }: SmartReplyModalProps): React.JSX.Element | null => {
+  const answerId = useId();
+  const publishId = useId();
+
   if (!message) {
     return null;
   }
 
+  const canSave = Boolean(replyText.trim()) && !isSaving;
+
   return (
     <Dialog onOpenChange={(open: boolean) => !open && onClose()} open={isOpen}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-purple-500" />
-            Reply &amp; Public Q&amp;A
+      <DialogContent className="max-h-[92vh] gap-4 overflow-y-auto rounded-2xl shadow-lift sm:max-w-lg">
+        <DialogHeader className="text-left">
+          <DialogTitle className="font-bold text-[22px]">
+            Answer this message
           </DialogTitle>
-          <DialogDescription>
-            Author a reply to this anonymous confession or question.
+          <DialogDescription className="sr-only">
+            Write an answer, optionally publish it as a Public Q&amp;A.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Original Anonymous Message Box */}
-        <div className="rounded-lg border bg-muted/40 p-4">
-          <p className="font-medium text-foreground text-sm">
-            &ldquo;{message.content}&rdquo;
+        <div className="flex flex-col gap-2 rounded-xl border bg-muted p-4">
+          <SentimentBadge
+            className="self-start"
+            sentiment={message.sentimentTag}
+            size="md"
+          />
+          <p className="font-message text-base leading-relaxed">
+            {message.content}
           </p>
-          <span className="mt-1 block text-muted-foreground text-xs">
-            Received{" "}
-            {new Date(message.createdAt).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="font-semibold text-sm" htmlFor={answerId}>
+            Your answer
+          </label>
+          <Textarea
+            className="min-h-28 resize-none rounded-md text-base"
+            id={answerId}
+            maxLength={REPLY_MAX_LENGTH}
+            onChange={(e) => onReplyTextChange(e.target.value)}
+            placeholder="Write your answer…"
+            value={replyText}
+          />
+          <span className="self-end text-muted-foreground text-sm tabular-nums">
+            {replyText.length} / {REPLY_MAX_LENGTH}
           </span>
         </div>
 
-        {/* AI Tone Generation Bar */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1 font-medium text-xs">
-              <Sparkles className="h-3.5 w-3.5 text-purple-500" /> AI
-              Suggestions:
-            </span>
-            {isGenerating && (
-              <span className="flex items-center gap-1 text-purple-700 text-xs dark:text-purple-400">
-                <Loader2 className="h-3 w-3 animate-spin" /> Thinking...
+        <div className="flex flex-col gap-2">
+          <span className="flex items-center gap-1.5 font-semibold text-sm">
+            <Sparkles aria-hidden="true" className="size-4 text-primary" />
+            Smart Reply ideas
+            {isGenerating ? (
+              <span className="ml-auto flex items-center gap-1 font-normal text-muted-foreground text-sm">
+                <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
+                Thinking…
               </span>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {TONE_OPTIONS.map(({ tone, label }) => (
-              <Button
-                className="text-xs"
-                disabled={isGenerating}
-                key={tone}
-                onClick={() => onGenerate(tone)}
-                size="sm"
-                variant="outline"
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Reply Textarea */}
-        <div className="space-y-2">
-          <Textarea
-            className="min-h-[110px] resize-none"
-            maxLength={REPLY_MAX_LENGTH}
-            onChange={(e) => onReplyTextChange(e.target.value)}
-            placeholder="Type your reply here..."
-            value={replyText}
-          />
-          <div className="flex justify-end text-muted-foreground text-xs">
-            {replyText.length} / {REPLY_MAX_LENGTH}
-          </div>
-        </div>
-
-        {/* Public Showcase Switch */}
-        <div className="flex items-center justify-between rounded-lg border p-3">
-          <div className="space-y-0.5">
-            <label
-              className="cursor-pointer font-medium text-sm"
-              htmlFor="publish-switch"
+            ) : null}
+          </span>
+          {TONE_IDEAS.map(({ tone, label, hint }) => (
+            <button
+              className="flex min-h-11 items-center justify-between gap-2 rounded-2xl border border-input border-dashed bg-card px-3.5 py-2 text-left font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
+              disabled={isGenerating}
+              key={tone}
+              onClick={() => onGenerate(tone)}
+              type="button"
             >
-              Publish to Public Profile Showcase
+              <span>{label}</span>
+              <span className="text-muted-foreground text-xs">{hint}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col">
+            <label
+              className="cursor-pointer font-semibold text-[15px]"
+              htmlFor={publishId}
+            >
+              Show in my Public Q&amp;A
             </label>
-            <p className="text-muted-foreground text-xs">
-              Visitors on your public profile link will be able to read this
-              Q&amp;A.
+            <p
+              className="text-muted-foreground text-sm"
+              id={`${publishId}-hint`}
+            >
+              Off = private reply only
             </p>
           </div>
           <Switch
+            aria-describedby={`${publishId}-hint`}
             checked={isPublished}
-            id="publish-switch"
+            id={publishId}
             onCheckedChange={onPublishedChange}
+            size="xl"
           />
         </div>
 
-        <DialogFooter className="gap-2 sm:gap-2">
-          <Button onClick={onClose} variant="outline">
-            <X className="h-4 w-4" /> Cancel
-          </Button>
-          <LiquidButton
-            disabled={!replyText.trim() || isSaving}
+        <DialogFooter className="flex-wrap gap-2 sm:gap-2">
+          <Button
+            className="rounded-full"
+            disabled={!canSave}
             onClick={onSave}
+            variant="outline"
           >
             {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Saving...
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4" /> Save Reply
-              </>
-            )}
-          </LiquidButton>
+              <Loader2 aria-hidden="true" className="animate-spin" />
+            ) : null}
+            {isSaving ? "Saving..." : "Save answer"}
+          </Button>
+          {onSaveAndShare ? (
+            <Button
+              className="rounded-full"
+              disabled={!canSave}
+              onClick={onSaveAndShare}
+              variant="brand"
+            >
+              <Share2 aria-hidden="true" />
+              Answer + Story Card
+            </Button>
+          ) : null}
         </DialogFooter>
       </DialogContent>
     </Dialog>

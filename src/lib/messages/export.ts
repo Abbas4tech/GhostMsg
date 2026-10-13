@@ -25,9 +25,43 @@ export function buildMessagesCsv(messages: MessageDto[]): string {
   return [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
 }
 
-/** Pretty-printed JSON array. */
+/**
+ * One exported message. Deliberately an allow-list: the Sender Hash and any
+ * future server-only field never reach a file the recipient might share.
+ */
+export interface MessageExportRecord {
+  content: string;
+  createdAt: string;
+  id: string;
+  isPinned: boolean;
+  isQuarantined: boolean;
+  isRead: boolean;
+  reply: { isPublished: boolean; publishedAt?: string; text: string } | null;
+  sentimentTag: string;
+}
+
+export function toMessageExportRecord(m: MessageDto): MessageExportRecord {
+  return {
+    id: String(m._id),
+    content: m.content,
+    sentimentTag: m.sentimentTag || "neutral",
+    createdAt: new Date(m.createdAt).toISOString(),
+    isRead: Boolean(m.isRead),
+    isPinned: Boolean(m.isPinned),
+    isQuarantined: Boolean(m.isQuarantined),
+    reply: m.reply?.text
+      ? {
+          text: m.reply.text,
+          isPublished: Boolean(m.reply.isPublished),
+          ...(m.reply.publishedAt ? { publishedAt: m.reply.publishedAt } : {}),
+        }
+      : null,
+  };
+}
+
+/** Pretty-printed JSON array of export records (no Sender Hashes). */
 export function buildMessagesJson(messages: MessageDto[]): string {
-  return JSON.stringify(messages, null, 2);
+  return JSON.stringify(messages.map(toMessageExportRecord), null, 2);
 }
 
 export interface MessageExportFile {

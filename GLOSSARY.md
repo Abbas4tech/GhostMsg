@@ -48,6 +48,50 @@ _Avoid_: Bio, status, custom headline, bio title
 A classification label representing the emotional tone of an anonymous message.
 _Avoid_: Vibe, mood score, AI emotion, category
 
+**Display Name**:
+The optional name a recipient shows on their public profile instead of their username (max 40 characters; empty means the username).
+_Avoid_: Nickname, full name, screen name
+
+**Toxicity Level**:
+The graded moderation verdict for an anonymous message: `none`, `borderline`, `hurtful` or `severe`. Decides quarantine together with the recipient's Quarantine Sensitivity.
+_Avoid_: Toxicity score, spam score, abuse flag
+
+**Quarantine Sensitivity**:
+A recipient's chosen threshold for holding messages back: Relaxed (severe only), Balanced (hurtful and up, default) or Strict (borderline and up).
+_Avoid_: Filter level, strictness, moderation mode
+
+**Spicy Blur**:
+A recipient preference that conceals messages tagged Spicy until the recipient taps to reveal them. A presentation choice, not moderation.
+_Avoid_: NSFW filter, spicy quarantine
+
+**Quiet Hours**:
+A daily window, in the recipient's time zone, during which no email or push alerts are sent. Messages still arrive in the inbox.
+_Avoid_: Do not disturb, mute, snooze
+
+**Daily Digest**:
+A once-a-day email (for recipients whose email alerts are set to "Daily digest") summarising new non-quarantined messages since the previous digest: a count, plus up to three previews unless message text is hidden.
+_Avoid_: Newsletter, summary email, batch alert
+
+**Hidden Preview**:
+An alert that says "New Anonymous Message" instead of showing the message text. The default for every recipient.
+_Avoid_: Private notification, redacted alert
+
+**Smart Reply**:
+An AI-drafted answer to an anonymous message in a chosen tone (witty, wholesome or thoughtful) that the recipient edits before saving.
+_Avoid_: Auto-reply, AI answer, canned response
+
+**Story Card**:
+A shareable PNG image (9:16 or 1:1) of an anonymous message and optionally its answer and the recipient's link, rendered from the live palette. Never shows the sender.
+_Avoid_: Screenshot, share image, social card
+
+**Blocked Sender**:
+A Sender Hash on the recipient's blocklist, with the date it was blocked. Messages from it are silently dropped.
+_Avoid_: Banned user, blocked account, blocked IP
+
+**Danger Zone**:
+The Settings section for irreversible actions: deleting all messages (with a 10-second undo) and deleting the account (typed username confirmation).
+_Avoid_: Account deletion page, advanced settings
+
 ## Engineering Language (UI architecture)
 
 **Element**:
@@ -133,3 +177,41 @@ _Avoid_: Fake update, local-only change
 **DTO**:
 A client-facing data shape derived from the generated OpenAPI schema (`src/types/api.ts`), e.g. `MessageDto`. Distinct from the Mongoose model types on the server.
 _Avoid_: Model (on the client), entity
+
+**DTO mapper**:
+A pure server function in `src/server/users/user-dto.ts` (`toUserProfile`, `toUserPreferences`, `toNotificationSettings`, `toBlockedSenders`) that turns a user document into an API shape and fills defaults for fields older documents lack.
+_Avoid_: Serializer, transformer, presenter
+
+**Policy (server)**:
+A pure, unit-tested decision function used by a route: `shouldQuarantine` (quarantine policy) and `isWithinQuietHours` / `buildAlertPreview` (delivery policy).
+_Avoid_: Rule engine, service, helper
+
+## Design Language
+
+**Palette**:
+One of three colour, font, radius and shadow systems (`spectral` Soft spectral, `midnight` Midnight confessional, `paper` Playful paper), set as `data-palette` on `<html>` and stored per device.
+_Avoid_: Theme (alone), skin, colour scheme
+
+**Mode**:
+Light, dark or system, owned by `next-themes` through the `.dark` class. Independent of the palette.
+_Avoid_: Theme (alone), appearance
+
+**Design token**:
+A CSS variable in `src/app/globals.css` defined for all six palette × mode combinations and exposed as a Tailwind utility (`bg-primary`, `shadow-soft`, `font-display`).
+_Avoid_: Hard-coded colour, Tailwind palette colour
+
+**Variant (element)**:
+An opt-in CVA option inside an element (`Badge variant="count"`, `ToggleGroup variant="segment"`) that carries a design look. The default variant always stays identical to upstream shadcn.
+_Avoid_: Custom class, override, skin
+
+**Draft (profile)**:
+Unsaved Profile page edits held in the page controller and shown in the live preview until Save changes or Discard.
+_Avoid_: Pending state, dirty form
+
+**Undo window**:
+The 10-second delay, with an Undo toast, between confirming Delete all and the request being sent. Leaving the page commits it.
+_Avoid_: Soft delete, trash
+
+**Documentation screenshot**:
+A PNG in `docs/assets/screenshots/` generated from a Storybook story by `pnpm docs:screenshots`. Never hand-made.
+_Avoid_: Mockup, hand-captured image

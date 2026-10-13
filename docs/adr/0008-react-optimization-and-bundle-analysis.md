@@ -3,7 +3,7 @@
 ## Status
 **Accepted**
 
-> **Update (2026-10-12):** `MessageCard` now lives in `src/components/patterns/message-card/` and `MessagesCarousel` in `src/components/patterns/messages-carousel/`. Dashboard tabs are lazy page-level components in `src/components/pages/dashboard/` ([ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
+> **Update (2026-10-12):** `MessageCard` now lives in `src/components/patterns/message-card/` and `MessagesCarousel` in `src/components/patterns/messages-carousel/`. Dashboard tabs are lazy page-level components in `src/components/pages/dashboard/` ([ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
 
 ---
 
@@ -31,20 +31,20 @@ As GhostMsg scaled its UI features (interactive animated cards, real-time messag
 ## The Decision
 
 ### 1. Fine-Grained Component & Hook Memoization
-- Wrapped [`MessageCard`](file:///d:/Projects/GhostMsg/src/components/dashboard/message-card.tsx) with `React.memo` and explicit `displayName`.
-- Memoized mutation triggers (`deleteMessage`) and extracted arrays (`messages`) inside [`useDashboard`](file:///d:/Projects/GhostMsg/src/hooks/use-dashboard.tsx) using `useCallback` and `useMemo`.
+- Wrapped [`MessageCard`](../../src/components/patterns/message-card/message-card.tsx) with `React.memo` and explicit `displayName`.
+- Memoized mutation triggers (`deleteMessage`) and extracted arrays (`messages`) inside [`useDashboard`](../../src/components/pages/dashboard/use-inbox.controller.ts) using `useCallback` and `useMemo`.
 
 ### 2. Server Component Extraction for Landing Page
-- Extracted Embla carousel interactivity to [`MessagesCarousel`](file:///d:/Projects/GhostMsg/src/components/home/messages-carousel.tsx) (`"use client"`).
-- Converted [`src/app/page.tsx`](file:///d:/Projects/GhostMsg/src/app/page.tsx) into a pure React Server Component, removing `"use client"` from the page root and eliminating static hero text from the client JS bundle.
+- Extracted Embla carousel interactivity to `MessagesCarousel` (removed) (`"use client"`).
+- Converted [`src/app/page.tsx`](../../src/app/page.tsx) into a pure React Server Component, removing `"use client"` from the page root and eliminating static hero text from the client JS bundle.
 
 ### 3. Code Splitting Secondary Dashboard Tabs
 - Maintained on-demand dynamic imports (`next/dynamic`) for secondary tabs (`ProfileTab`, `SettingsTab`) to keep initial dashboard execution fast.
 
 ### 4. Automated Bundle Analysis Toolchain
 - Installed `@next/bundle-analyzer` and `cross-env` under `devDependencies`.
-- Wrapped Next.js config in [`next.config.ts`](file:///d:/Projects/GhostMsg/next.config.ts) with `withBundleAnalyzer({ enabled: process.env.ANALYZE === "true" })`.
-- Added `"analyze": "cross-env ANALYZE=true next build"` to [`package.json`](file:///d:/Projects/GhostMsg/package.json).
+- Wrapped Next.js config in [`next.config.ts`](../../next.config.ts) with `withBundleAnalyzer({ enabled: process.env.ANALYZE === "true" })`.
+- Added `"analyze": "cross-env ANALYZE=true next build"` to [`package.json`](../../package.json).
 
 ---
 
@@ -61,9 +61,9 @@ As GhostMsg scaled its UI features (interactive animated cards, real-time messag
 ---
 
 ## References & Code Pointers
-- Server Page: [`src/app/page.tsx`](file:///d:/Projects/GhostMsg/src/app/page.tsx)
-- Client Carousel: [`src/components/home/messages-carousel.tsx`](file:///d:/Projects/GhostMsg/src/components/home/messages-carousel.tsx)
-- Memoized Card: [`src/components/dashboard/message-card.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/message-card.tsx)
-- Memoized Hook: [`src/hooks/use-dashboard.tsx`](file:///d:/Projects/GhostMsg/src/hooks/use-dashboard.tsx)
-- Next Config: [`next.config.ts`](file:///d:/Projects/GhostMsg/next.config.ts)
-- Documentation Index: [`docs/README.md`](file:///d:/Projects/GhostMsg/docs/README.md)
+- Server Page: [`src/app/page.tsx`](../../src/app/page.tsx)
+- Client Carousel: `src/components/home/messages-carousel.tsx` (removed)
+- Memoized Card: [`src/components/dashboard/message-card.tsx`](../../src/components/patterns/message-card/message-card.tsx)
+- Memoized Hook: [`src/hooks/use-dashboard.tsx`](../../src/components/pages/dashboard/use-inbox.controller.ts)
+- Next Config: [`next.config.ts`](../../next.config.ts)
+- Documentation Index: [`docs/README.md`](../README.md)

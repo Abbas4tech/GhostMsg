@@ -6,8 +6,7 @@ import {
   signedInSiteHeaderArgs,
 } from "./site-header.mock";
 
-const SIGN_UP_REGEX = /sign up/i;
-const LOGOUT_REGEX = /logout/i;
+const LOG_OUT_REGEX = /log out/i;
 const BRAND_REGEX = /ghostmsg/i;
 
 const meta = {
@@ -19,10 +18,10 @@ const meta = {
   argTypes: {
     isAuthenticated: {
       control: "boolean",
-      description: "Switches the auth action between Sign Up and Logout",
+      description: "Switches the nav between guest and signed-in links",
     },
     onSignOut: {
-      description: "Logout clicked (the page calls next-auth `signOut`)",
+      description: "Log out clicked (the page calls next-auth `signOut`)",
     },
   },
 } satisfies Meta<typeof SiteHeader>;
@@ -36,10 +35,17 @@ export const Guest: Story = {
       canvas.getByRole("link", { name: BRAND_REGEX })
     ).toHaveAttribute("href", "/");
     await expect(
-      canvas.getByRole("link", { name: SIGN_UP_REGEX })
+      canvas.getByRole("link", { name: "Get your link" })
     ).toHaveAttribute("href", "/sign-up");
+    await expect(canvas.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+      "href",
+      "/sign-in"
+    );
     await expect(
       canvas.getByRole("button", { name: "Toggle theme" })
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "Color theme" })
     ).toBeVisible();
   },
 };
@@ -47,10 +53,13 @@ export const Guest: Story = {
 export const SignedIn: Story = {
   args: signedInSiteHeaderArgs,
   play: async ({ args, canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole("button", { name: LOGOUT_REGEX }));
+    await expect(
+      canvas.getByRole("link", { name: "Dashboard" })
+    ).toHaveAttribute("href", "/dashboard");
+    await userEvent.click(canvas.getByRole("button", { name: LOG_OUT_REGEX }));
     await expect(args.onSignOut).toHaveBeenCalledOnce();
     await expect(
-      canvas.queryByRole("link", { name: SIGN_UP_REGEX })
+      canvas.queryByRole("link", { name: "Get your link" })
     ).not.toBeInTheDocument();
   },
 };

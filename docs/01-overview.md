@@ -12,7 +12,12 @@ In traditional social media platforms, communication is constrained by social an
 1. **Privacy-First**: No sender IP address, device fingerprints, or account information is stored with submitted messages.
 2. **Type Safety & Reliability**: End-to-end type safety from server schemas to client components via Zod, OpenAPI 3.1, and `openapi-fetch`.
 3. **Speed & Sub-Second Latency**: Edge runtime execution for AI prompts and cached serverless connections for MongoDB.
-4. **Delightful Aesthetics**: Modern dark/light theme, micro-animations via Motion, and responsive layouts built with Tailwind CSS v4.
+4. **Delightful Aesthetics**: Three palettes (Soft spectral, Midnight confessional, Playful paper) × light/dark, shadcn components with GhostMsg variants, micro-animations via Motion, and responsive layouts built with Tailwind CSS v4 ([Chapter 13](13-design-system-and-theming.md)).
+5. **Recipient in Control, Calm Safety**: Graded moderation with a Recipient-chosen quarantine sensitivity, silent blocking, private notifications by default (hidden text, quiet hours), and undoable or typed-to-confirm destructive actions ([Chapter 17](17-trust-safety-and-privacy.md)).
+
+![GhostMsg inbox](assets/screenshots/dashboard-inbox.png)
+
+The full product walkthrough (personas, routes, journeys, every feature) is in [Chapter 12: Product Guide](12-product-guide-and-features.md).
 
 ---
 
@@ -33,6 +38,14 @@ GhostMsg adheres strictly to a standardized domain vocabulary:
 | **Quarantined Message** | An anonymous message flagged by content moderation as toxic, abusive, or spam, isolated into a separate inbox view rather than delivered to the primary inbox. | *Spam, deleted message, hidden feedback* |
 | **AMA Prompt** | A recipient-defined theme, topic, or question displayed on their public profile link to guide visitor submissions. | *Bio, status, custom headline, bio title* |
 | **Sentiment Tag** | A classification label representing the emotional tone of an anonymous message. | *Vibe, mood score, AI emotion, category* |
+| **Display Name** | The optional name a recipient shows on their public profile instead of their username. | *Nickname, full name, screen name* |
+| **Toxicity Level** | The graded moderation verdict: `none`, `borderline`, `hurtful`, `severe`. | *Toxicity score, spam score* |
+| **Quarantine Sensitivity** | The recipient's threshold for holding messages back: Relaxed, Balanced (default), Strict. | *Filter level, strictness* |
+| **Quiet Hours** | A daily window in the recipient's time zone with no email or push alerts. | *Do not disturb, mute* |
+| **Hidden Preview** | An alert that says "New Anonymous Message" instead of the text (default). | *Private notification* |
+| **Story Card** | A shareable 9:16 or 1:1 PNG of a message and optionally its answer. | *Screenshot, share image* |
+
+The canonical list, including engineering and design terms, is [`GLOSSARY.md`](../GLOSSARY.md).
 
 ---
 
@@ -43,29 +56,44 @@ mindmap
   root((GhostMsg 👻))
     Anonymous Messaging & Virality
       Public Profile Link /u/username
-      Custom AMA Banner Prompts
-      AI Suggested Prompts Gemini 2.5 Flash Lite
-      Public Q&A Showcase Feed
-      9:16 Social Story Card Exporter
-    Inbox Intelligence & Safety
-      Live Real-Time SSE Feed
-      Search, Filters & Starred Messages
-      Multi-Select Bulk Actions & Data Export
-      AI Toxicity Quarantine
-      AI Sentiment Classification
-      1-Click Multi-Tone AI Smart Replies
+      Display name, photo, AMA banner
+      AI Suggested Messages
+      Public Q&A feed
+      Story Card 9:16 / 1:1 export
+      Claim-your-link landing
+    Inbox Intelligence
+      Live SSE feed
+      Filters, search, grid/list
+      Keyboard triage j k x s r
+      Bulk actions and CSV/JSON export
+      AI Sentiment Tags
+      AI Smart Reply tones
+      Command palette ⌘K
+    Recipient Control
+      Profile page with live preview
+      Settings sections
+      Quarantine on/off + sensitivity
+      Spicy blur
+      Quiet hours and hidden previews
+      Instant email, daily digest, Web Push
+      Delete all with undo, delete account
     Privacy & Abuse Prevention
-      Upstash Redis In-Memory Sliding Rate Limiting
-      Cryptographic Salted Sender Hash
-      Recipient-Level Sender Shadowbanning
-    Developer & Architecture Foundation
-      Standalone Message Collection with Compound Indexes
-      OpenAPI 3.1 Registry & Scalar UI
-      Automated TypeScript Typegen
-      Ultracite Biome Linter
+      In-memory sliding rate limit
+      Per-recipient HMAC Sender Hash
+      Silent blocking with dates
+      Graded AI moderation, fail open
+    Design System
+      3 palettes × light/dark
+      shadcn elements + CVA variants
+      WCAG AA contrast gate
+    Engineering Foundation
+      Standalone Message collection + compound indexes
+      OpenAPI 3.1 + Scalar + typegen
+      Four-tier components, Storybook story tests, MSW
+      Generated registry and screenshots
 ```
 
 ---
 
 ## 4. Next Chapter
-Proceed to [Chapter 2: Getting Started](file:///d:/Projects/GhostMsg/docs/02-getting-started.md) for local environment setup and configuration.
+Proceed to [Chapter 2: Getting Started](02-getting-started.md) for local environment setup and configuration, or jump to [Chapter 12: Product Guide](12-product-guide-and-features.md) for the feature walkthrough.

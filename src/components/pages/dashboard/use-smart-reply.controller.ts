@@ -10,6 +10,8 @@ export interface UseSmartReplyControllerOptions {
   isOpen: boolean;
   message: MessageDto | null;
   onSaved: () => void;
+  /** Settings → "Publish answers to my Public Q&A by default". */
+  publishByDefault?: boolean;
 }
 
 /**
@@ -20,6 +22,7 @@ export function useSmartReplyController({
   isOpen,
   message,
   onSaved,
+  publishByDefault = true,
 }: UseSmartReplyControllerOptions) {
   const [replyText, setReplyText] = useState("");
   const [isPublished, setIsPublished] = useState(true);
@@ -31,9 +34,9 @@ export function useSmartReplyController({
   useEffect(() => {
     if (isOpen && message) {
       setReplyText(message.reply?.text || "");
-      setIsPublished(Boolean(message.reply?.isPublished ?? true));
+      setIsPublished(Boolean(message.reply?.isPublished ?? publishByDefault));
     }
-  }, [isOpen, message]);
+  }, [isOpen, message, publishByDefault]);
 
   const handleGenerate = useCallback(
     async (tone: SmartReplyTone) => {
@@ -55,9 +58,10 @@ export function useSmartReplyController({
     [message, smartReplyMutation]
   );
 
-  const handleSave = useCallback(async () => {
+  /** Resolves true once the answer is saved (false when skipped or failed). */
+  const handleSave = useCallback(async (): Promise<boolean> => {
     if (!(message && replyText.trim())) {
-      return;
+      return false;
     }
     try {
       await replyMutation.mutateAsync({
@@ -66,8 +70,10 @@ export function useSmartReplyController({
         isPublished,
       });
       onSaved();
+      return true;
     } catch {
       // Handled by mutation toast
+      return false;
     }
   }, [message, replyText, isPublished, replyMutation, onSaved]);
 

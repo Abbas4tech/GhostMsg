@@ -96,7 +96,11 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
+      // `useSession().update({ username })` after a username change.
+      if (trigger === "update" && typeof session?.username === "string") {
+        token.username = session.username;
+      }
       if (user) {
         token._id = user._id;
         token.isVerified = user.isVerified;

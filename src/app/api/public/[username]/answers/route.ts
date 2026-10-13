@@ -47,6 +47,11 @@ export async function GET(
         success: true,
         username: user.username,
         amaPrompt: user.amaPrompt || "Send me an anonymous message!",
+        displayName: user.displayName || undefined,
+        avatarUrl: user.avatarUrl ?? null,
+        showAmaBanner: user.showAmaBanner ?? true,
+        offerSuggestions: user.messagePreferences?.offerSuggestions ?? true,
+        isAcceptingMessages: user.isAcceptingMessage,
         answers: formattedAnswers,
       },
       { status: 200 }

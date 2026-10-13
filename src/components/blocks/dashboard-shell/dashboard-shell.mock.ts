@@ -3,19 +3,27 @@ import { noop } from "@/mock/noop";
 import type { DashboardAccessDeniedProps } from "./dashboard-access-denied";
 import type { DashboardShellProps } from "./dashboard-shell";
 
-export const dashboardShellSlotText = {
-  messages: "Messages tab content",
-  profile: "Profile tab content",
-  settings: "Settings tab content",
-};
+export const dashboardShellSlotText = "Routed page content";
 
-export const defaultDashboardShellArgs: Omit<
-  DashboardShellProps,
-  "messages" | "profile" | "settings"
-> = {
-  username: FIXTURE_USERNAME,
-  defaultTab: "messages",
-};
+export const defaultDashboardShellArgs: Omit<DashboardShellProps, "children"> =
+  {
+    activeNav: "inbox",
+    unreadCount: 3,
+    username: FIXTURE_USERNAME,
+    profileLink: {
+      label: `ghostmsg.app/u/${FIXTURE_USERNAME}`,
+      onCopy: noop,
+      onShare: noop,
+    },
+    acceptance: { isAccepting: true, isPending: false, onToggle: noop },
+    onOpenCommand: noop,
+    onSignOut: noop,
+  };
+
+export const pausedDashboardShellArgs = {
+  acceptance: { isAccepting: false, isPending: false, onToggle: noop },
+  unreadCount: 0,
+} satisfies Partial<DashboardShellProps>;
 
 export const defaultDashboardAccessDeniedArgs: DashboardAccessDeniedProps = {
   onGoToLogin: noop,

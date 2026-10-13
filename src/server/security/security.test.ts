@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { checkRateLimit, computeSenderHash } from "./security";
+import {
+  checkRateLimit,
+  computeSenderHash,
+  isBearerTokenValid,
+} from "./security";
 
 const SHA256_HEX_REGEX = /^[a-f0-9]{64}$/;
 
@@ -50,6 +54,20 @@ describe("security.ts", () => {
       expect(res3.success).toBe(false);
       expect(res3.remaining).toBe(0);
       expect(res3.resetTime).toBeGreaterThan(Date.now());
+    });
+  });
+
+  describe("isBearerTokenValid", () => {
+    it("accepts only the exact bearer header", () => {
+      expect(isBearerTokenValid("Bearer s3cret", "s3cret")).toBe(true);
+      expect(isBearerTokenValid("Bearer wrong!", "s3cret")).toBe(false);
+      expect(isBearerTokenValid("s3cret", "s3cret")).toBe(false);
+      expect(isBearerTokenValid(null, "s3cret")).toBe(false);
+    });
+
+    it("rejects everything when no secret is configured", () => {
+      expect(isBearerTokenValid("Bearer ", undefined)).toBe(false);
+      expect(isBearerTokenValid("Bearer ", "")).toBe(false);
     });
   });
 });

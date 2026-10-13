@@ -26,7 +26,7 @@ const meta = {
     username: { control: "text", description: "Name used in the greeting" },
     children: {
       control: false,
-      description: "OTP form slot (renders its own CardContent)",
+      description: "Verification Code form slot",
     },
   },
 } satisfies Meta<typeof VerifyPanel>;
@@ -36,13 +36,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Verify Your account!")).toBeVisible();
     await expect(
-      canvas.getByText(
-        `Hi ${FIXTURE_USERNAME}, Please enter the one-time password sent to your email.`
-      )
+      canvas.getByRole("heading", { level: 1, name: "Check your email" })
     ).toBeVisible();
-    await expect(canvas.getByText("One-Time Password")).toBeVisible();
+    await expect(canvas.getByText(`@${FIXTURE_USERNAME}`)).toBeVisible();
+    await expect(canvas.getByLabelText("Verification Code")).toBeVisible();
   },
 };
 

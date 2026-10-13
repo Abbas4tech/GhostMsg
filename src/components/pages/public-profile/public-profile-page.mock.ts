@@ -12,6 +12,7 @@ export const publicProfileHandlers = {
   noAnswers: withScenario(scenarios.answers.none),
   answersLoading: withScenario(scenarios.answers.loading),
   userNotFound: withScenario(scenarios.answers.error),
+  paused: withScenario(scenarios.answers.paused),
   suggestionsError: withScenario(scenarios.ai.error),
   notAccepting: withScenario(scenarios.send.notAccepting),
 };

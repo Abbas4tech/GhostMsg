@@ -1,20 +1,17 @@
 import type { NextRequest } from "next/server";
 import { moderateAndClassifyMessage } from "@/server/ai/moderation";
+import { shouldQuarantine } from "@/server/ai/quarantine-policy";
 import dbConnect from "@/server/db/db-connect";
 import { sendMessageAlertEmail } from "@/server/email/send-message-alert-email";
 import MessageModel from "@/server/models/message.model";
 import UserModel from "@/server/models/user.model";
+import {
+  buildAlertPreview,
+  isWithinQuietHours,
+} from "@/server/notifications/delivery-policy";
 import { sendPushToUser } from "@/server/push/web-push";
 import { publishNewMessage } from "@/server/realtime/event-bus";
 import { checkRateLimit, computeSenderHash } from "@/server/security/security";
-
-const PUSH_PREVIEW_LENGTH = 80;
-
-/** Short notification body: lock screens show it, so keep it brief. */
-const buildPushPreview = (content: string): string =>
-  content.length > PUSH_PREVIEW_LENGTH
-    ? `${content.slice(0, PUSH_PREVIEW_LENGTH)}…`
-    : content;
 
 export async function POST(req: NextRequest): Promise<Response> {
   await dbConnect();
@@ -89,13 +86,18 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     // 4. Synchronous AI Moderation & Sentiment Classification
     const moderation = await moderateAndClassifyMessage(content.trim());
+    // The recipient's Safety settings decide what is held back.
+    const isQuarantined = shouldQuarantine(
+      moderation.toxicity,
+      user.safetySettings
+    );
 
     // 5. Create Standalone Message Document
     const messageDoc = await MessageModel.create({
       recipientId: user._id,
       content: content.trim(),
       sentimentTag: moderation.sentimentTag,
-      isQuarantined: moderation.isToxic,
+      isQuarantined,
       isPinned: false,
       isRead: false,
       senderHash,
@@ -112,29 +114,32 @@ export async function POST(req: NextRequest): Promise<Response> {
       createdAt: messageDoc.createdAt.toISOString(),
     });
 
-    // 7. Dispatch instant email alert if enabled and not quarantined
-    if (
-      user.email &&
-      user.notificationSettings?.emailAlerts === "instant" &&
-      !moderation.isToxic
-    ) {
-      sendMessageAlertEmail(
-        user.email,
-        user.username,
-        messageDoc.content,
-        messageDoc.sentimentTag
-      ).catch((e) => console.warn("Email alert error:", e));
+    // 7–8. Alerts: never for quarantined messages or during quiet hours;
+    // the text is hidden unless the recipient opted to show it.
+    const settings = user.notificationSettings;
+    const canAlert = !(
+      isQuarantined || isWithinQuietHours(new Date(), settings?.quietHours)
+    );
+    const hideText = settings?.hideMessageText ?? true;
+    const preview = buildAlertPreview(messageDoc.content, hideText);
+
+    if (canAlert && user.email && settings?.emailAlerts === "instant") {
+      sendMessageAlertEmail({
+        email: user.email,
+        username: user.username,
+        preview: hideText ? null : preview,
+        sentimentTag: messageDoc.sentimentTag,
+      }).catch((e) => console.warn("Email alert error:", e));
     }
 
-    // 8. Web Push to every subscribed device (best effort, never blocks)
     if (
-      user.notificationSettings?.webPushEnabled &&
-      user.pushSubscriptions?.length &&
-      !moderation.isToxic
+      canAlert &&
+      settings?.webPushEnabled &&
+      user.pushSubscriptions?.length
     ) {
       sendPushToUser(String(user._id), user.pushSubscriptions, {
         title: "New anonymous message 👻",
-        body: buildPushPreview(messageDoc.content),
+        body: preview,
         url: "/dashboard",
       }).catch((e) => console.warn("Web push error:", e));
     }

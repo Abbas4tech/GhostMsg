@@ -8,6 +8,7 @@ import {
   buildMessagesCsv,
   buildMessagesExport,
   buildMessagesJson,
+  toMessageExportRecord,
 } from "./export";
 
 describe("buildMessagesCsv", () => {
@@ -30,10 +31,29 @@ describe("buildMessagesCsv", () => {
 });
 
 describe("buildMessagesJson", () => {
-  it("round-trips the messages", () => {
-    expect(JSON.parse(buildMessagesJson([sweetMessage]))).toEqual([
-      sweetMessage,
-    ]);
+  it("exports the allow-listed fields of every message", () => {
+    const [record] = JSON.parse(buildMessagesJson([answeredSpicyMessage]));
+    expect(record).toEqual(toMessageExportRecord(answeredSpicyMessage));
+    expect(record).toMatchObject({
+      id: String(answeredSpicyMessage._id),
+      content: answeredSpicyMessage.content,
+      sentimentTag: answeredSpicyMessage.sentimentTag,
+      reply: { text: answeredSpicyMessage.reply?.text },
+    });
+  });
+
+  it("never includes the Sender Hash", () => {
+    const message = buildMessage({ senderHash: "a8f5c3d29b7e41f0" });
+    const json = buildMessagesJson([message]);
+    expect(json).not.toContain("senderHash");
+    expect(json).not.toContain("a8f5c3d29b7e41f0");
+  });
+
+  it("exports a missing or blank answer as null", () => {
+    const [record] = JSON.parse(
+      buildMessagesJson([buildMessage({ reply: null })])
+    );
+    expect(record.reply).toBeNull();
   });
 });
 

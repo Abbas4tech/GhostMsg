@@ -6,7 +6,7 @@ import { VerifyPage } from "./verify-page";
 /** Page stories chain MSW worker start → session → lazy chunk → query; allow realistic load time under parallel runs. */
 const PAGE_LOAD = { timeout: 15_000 };
 
-const SUBMIT_REGEX = /^submit$/i;
+const SUBMIT_REGEX = /^verify$/i;
 
 const meta = {
   title: "Pages/Auth/Verify",
@@ -39,7 +39,9 @@ const enterOtp = async (
 
 export const Default: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Verify Your account!")).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { level: 1, name: "Check your email" })
+    ).toBeVisible();
   },
 };
 

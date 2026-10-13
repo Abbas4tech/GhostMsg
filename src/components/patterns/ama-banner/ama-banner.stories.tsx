@@ -11,36 +11,58 @@ const meta = {
   title: "Patterns/AmaBanner",
   component: AmaBanner,
   tags: ["autodocs"],
+  decorators: [
+    (Story) => (
+      <div className="max-w-md">
+        <Story />
+      </div>
+    ),
+  ],
   args: defaultAmaBannerArgs,
   argTypes: {
-    username: {
-      control: "text",
-      description: "Recipient handle (rendered as the page h1)",
-    },
     prompt: {
       control: "text",
-      description:
-        "Custom AMA prompt; empty/null falls back to the default prompt",
+      description: "AMA Prompt; empty/null falls back to the default",
     },
+    eyebrow: { control: "text", description: "Small line above the prompt" },
+    tone: {
+      control: "radio",
+      options: ["brand", "soft", "quiet"],
+      description: "brand = accepting, soft = preview, quiet = paused",
+    },
+    size: {
+      control: "radio",
+      options: ["sm", "md", "lg"],
+      description: "Padding",
+    },
+    children: { control: false, description: "Custom body (paused note)" },
   },
 } satisfies Meta<typeof AmaBanner>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const CustomPrompt: Story = {
+export const Brand: Story = {
   play: async ({ canvas }) => {
-    await expect(
-      canvas.getByRole("heading", { level: 1, name: `@${FIXTURE_USERNAME}` })
-    ).toBeVisible();
-    await expect(canvas.getByText(`✨ ${FIXTURE_AMA_PROMPT}`)).toBeVisible();
+    await expect(canvas.getByText(`AMA · ${FIXTURE_USERNAME}`)).toBeVisible();
+    await expect(canvas.getByText(FIXTURE_AMA_PROMPT)).toBeVisible();
   },
 };
 
 export const DefaultPrompt: Story = {
   args: { prompt: null },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText(`✨ ${DEFAULT_AMA_PROMPT}`)).toBeVisible();
+    await expect(canvas.getByText(DEFAULT_AMA_PROMPT)).toBeVisible();
+  },
+};
+
+export const Soft: Story = { args: { tone: "soft", size: "sm" } };
+
+export const QuietPaused: Story = {
+  args: {
+    tone: "quiet",
+    eyebrow: "Paused",
+    children: <p className="text-muted-foreground">Messages are paused.</p>,
   },
 };
 

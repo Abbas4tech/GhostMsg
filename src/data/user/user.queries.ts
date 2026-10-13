@@ -18,6 +18,20 @@ export const userQueries = {
         clientFetch(api.GET("/api/user/notifications", { signal })),
       staleTime: 60 * 1000,
     }),
+  profile: () =>
+    queryOptions({
+      queryKey: queryKeys.user.profile(),
+      queryFn: ({ signal }) =>
+        clientFetch(api.GET("/api/user/profile", { signal })),
+      staleTime: 60 * 1000,
+    }),
+  preferences: () =>
+    queryOptions({
+      queryKey: queryKeys.user.preferences(),
+      queryFn: ({ signal }) =>
+        clientFetch(api.GET("/api/user/preferences", { signal })),
+      staleTime: 60 * 1000,
+    }),
   blockedSenders: () =>
     queryOptions({
       queryKey: queryKeys.user.blockedSenders(),

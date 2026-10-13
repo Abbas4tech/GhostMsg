@@ -1,5 +1,6 @@
 import {
   answeredSpicyMessage,
+  fixtureDate,
   longContentMessage,
   noSenderHashMessage,
   privateReplyAdviceMessage,
@@ -17,12 +18,22 @@ export const messageCardCallbacks = {
   onOpenStoryCard: noop,
   onOpenBlock: noop,
   onOpenDelete: noop,
+  onReveal: noop,
 } satisfies Partial<MessageCardProps>;
+
+/** Fixed "now" two minutes after the base fixture date, so ages are stable. */
+export const MESSAGE_CARD_NOW = new Date(
+  new Date(fixtureDate()).getTime() + 2 * 60 * 1000
+);
 
 export const defaultMessageCardArgs: MessageCardProps = {
   message: sweetMessage,
   isSelected: false,
   isSenderBlocked: false,
+  isFocused: false,
+  isRevealed: false,
+  layout: "grid",
+  now: MESSAGE_CARD_NOW,
   ...messageCardCallbacks,
 };
 
@@ -48,4 +59,13 @@ export const noSenderHashMessageCardArgs = {
 
 export const longContentMessageCardArgs = {
   message: longContentMessage,
+} satisfies Partial<MessageCardProps>;
+
+export const revealedQuarantinedMessageCardArgs = {
+  message: quarantinedMessage,
+  isRevealed: true,
+} satisfies Partial<MessageCardProps>;
+
+export const listMessageCardArgs = {
+  layout: "list",
 } satisfies Partial<MessageCardProps>;

@@ -1,7 +1,7 @@
 # ADR 0002: Dual Authentication Strategy and Email Verification
 
 ## Status
-**Accepted** *(Email transport updated from Resend to Nodemailer SMTP via [ADR 0011](file:///d:/Projects/GhostMsg/docs/adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md))*
+**Accepted** *(Email transport updated from Resend to Nodemailer SMTP via [ADR 0011](0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md))*
 
 ---
 
@@ -73,13 +73,13 @@ sequenceDiagram
 - **Modern Transactional Emails**: Beautiful HTML emails generated using `@react-email/components`.
 
 ### Negative & Mitigations
-- **Unverified Account Accumulation**: Users who sign up but never verify could occupy usernames. Mitigated by allowing re-signup with updated credentials for existing unverified emails in [`src/app/api/sign-up/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/sign-up/route.ts).
+- **Unverified Account Accumulation**: Users who sign up but never verify could occupy usernames. Mitigated by allowing re-signup with updated credentials for existing unverified emails in [`src/app/api/sign-up/route.ts`](../../src/app/api/sign-up/route.ts).
 
 ---
 
 ## References & Code Pointers
-- NextAuth Configuration: [`src/app/api/auth/[...nextauth]/options.ts`](file:///d:/Projects/GhostMsg/src/app/api/auth/%5B...nextauth%5D/options.ts)
-- Sign-Up Handler: [`src/app/api/sign-up/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/sign-up/route.ts)
-- Code Verification Handler: [`src/app/api/verify-code/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/verify-code/route.ts)
-- Verification Email Template: [`emails/verification-email.tsx`](file:///d:/Projects/GhostMsg/emails/verification-email.tsx)
-- Route Protection Middleware: [`src/middleware.ts`](file:///d:/Projects/GhostMsg/src/middleware.ts)
+- NextAuth Configuration: [`src/app/api/auth/[...nextauth]/options.ts`](../../src/app/api/auth/[...nextauth]/options.ts)
+- Sign-Up Handler: [`src/app/api/sign-up/route.ts`](../../src/app/api/sign-up/route.ts)
+- Code Verification Handler: [`src/app/api/verify-code/route.ts`](../../src/app/api/verify-code/route.ts)
+- Verification Email Template: [`emails/verification-email.tsx`](../../emails/verification-email.tsx)
+- Route Protection Middleware: [`src/middleware.ts`](../../src/middleware.ts)

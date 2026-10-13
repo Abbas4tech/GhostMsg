@@ -25,3 +25,10 @@ export const transporter = nodemailer.createTransport({
 export const FROM_ADDRESS =
   process.env.SMTP_FROM ??
   `GhostMsg 👻 <${process.env.SMTP_USER ?? "noreply@ghostmsg.app"}>`;
+
+const TRAILING_SLASH = /\/+$/;
+
+/** Public origin for links in emails (NEXTAUTH_URL in production). */
+export const APP_URL = (
+  process.env.NEXTAUTH_URL ?? "https://ghost-msg.vercel.app"
+).replace(TRAILING_SLASH, "");

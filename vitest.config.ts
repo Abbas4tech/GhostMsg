@@ -63,6 +63,8 @@ export default defineConfig({
             headless: true,
             provider: playwright({}),
             instances: [{ browser: "chromium" }],
+            // Desktop width so lg: layouts (dashboard sidebar) render in tests.
+            viewport: { width: 1280, height: 900 },
           },
         },
       },

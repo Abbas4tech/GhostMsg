@@ -59,9 +59,23 @@ NEXT_PUBLIC_VAPID_PUBLIC_KEY="B..."
 VAPID_PRIVATE_KEY="..."
 # Optional contact sent to push services (default: mailto:support@ghostmsg.app)
 VAPID_SUBJECT="mailto:you@example.com"
+
+# ==============================================================================
+# 6. Sender Hash pepper (Trust & Safety, Chapter 17)
+# ==============================================================================
+# HMAC secret for Sender Hashes. Falls back to NEXT_AUTH_SECRET when unset.
+# Rotating it changes every future hash, so existing blocks stop matching.
+SENDER_PEPPER_SECRET="another-random-32-byte-secret"
+
+# ==============================================================================
+# 7. Daily digest scheduler (ADR 0029)
+# ==============================================================================
+# Bearer secret for GET /api/cron/daily-digest (Vercel Cron sends it).
+# Unset = daily digests are off (the route answers 503).
+CRON_SECRET="a-long-random-secret"
 ```
 
-> Without the VAPID keys the app still runs. Settings then reports that push isn't configured, and the server skips sending pushes.
+> Without the VAPID keys the app still runs. Settings then reports that push isn't configured, and the server skips sending pushes. Without `GOOGLE_AI_STUDIO_SECRET`, moderation delivers every message as clean and AI features use fixed fallbacks ([Chapter 17 §4](17-trust-safety-and-privacy.md#4-moderation-and-the-quarantine-policy)).
 
 ---
 
@@ -104,4 +118,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ---
 
 ## 5. Next Chapter
-Proceed to [Chapter 3: System Architecture](file:///d:/Projects/GhostMsg/docs/03-system-architecture.md) for technical architecture details.
+Proceed to [Chapter 3: System Architecture](03-system-architecture.md) for technical architecture details.

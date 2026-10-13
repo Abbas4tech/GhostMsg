@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type React from "react";
 import { useForm } from "react-hook-form";
-import { expect, screen } from "storybook/test";
+import { expect } from "storybook/test";
 import { Form } from "@/components/elements/form";
 import { UsernameField } from "./username-field";
 import {
@@ -10,6 +10,8 @@ import {
   USERNAME_AVAILABILITIES,
   type UsernameFieldStoryArgs,
 } from "./username-field.mock";
+
+const IS_AVAILABLE_REGEX = /is available/;
 
 /** Hosts the field inside a react-hook-form `Form`, as SignUpForm does. */
 function UsernameFieldHarness({
@@ -58,38 +60,35 @@ type Story = StoryObj<typeof meta>;
 
 export const Idle: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByLabelText("Username *")).toHaveValue("johndoe");
+    await expect(canvas.getByLabelText("Username")).toHaveValue("johndoe");
   },
 };
 
 export const Checking: Story = {
   args: { availability: "checking" },
-  play: async ({ canvasElement }) => {
-    await expect(
-      canvasElement.querySelector(".animate-spin")
-    ).toBeInTheDocument();
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("status")).toHaveTextContent("Checking…");
   },
 };
 
 export const Available: Story = {
   args: { availability: "available" },
-  play: async ({ canvasElement, userEvent }) => {
-    const icon = canvasElement.querySelector(".text-green-500");
-    await expect(icon).toBeInTheDocument();
-    await userEvent.hover(icon as Element);
-    await expect(await screen.findByRole("tooltip")).toHaveTextContent(
-      "Username is available"
-    );
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("img", { name: "Username is available" })
+    ).toBeVisible();
+    await expect(canvas.getByText("ghostmsg.app/u/johndoe")).toBeVisible();
+    await expect(canvas.getByText(IS_AVAILABLE_REGEX)).toBeVisible();
   },
 };
 
 export const Taken: Story = {
   args: takenUsernameFieldArgs,
-  play: async ({ canvasElement, userEvent }) => {
-    const icon = canvasElement.querySelector(".text-red-500");
-    await expect(icon).toBeInTheDocument();
-    await userEvent.hover(icon as Element);
-    await expect(await screen.findByRole("tooltip")).toHaveTextContent(
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("img", { name: "Username is taken" })
+    ).toBeVisible();
+    await expect(canvas.getByRole("alert")).toHaveTextContent(
       "Username is already taken"
     );
   },

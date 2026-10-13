@@ -1,8 +1,10 @@
 import type { NextRequest } from "next/server";
 import { getServerSession, type User } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { updateNotificationsRequestSchema } from "@/schemas/notification-schema";
 import dbConnect from "@/server/db/db-connect";
 import UserModel from "@/server/models/user.model";
+import { toNotificationSettings } from "@/server/users/user-dto";
 
 export async function GET(): Promise<Response> {
   await dbConnect();
@@ -24,10 +26,9 @@ export async function GET(): Promise<Response> {
     return Response.json(
       {
         success: true,
-        notificationSettings: userDoc?.notificationSettings || {
-          emailAlerts: "instant",
-          webPushEnabled: false,
-        },
+        notificationSettings: toNotificationSettings(
+          userDoc?.notificationSettings
+        ),
         isAcceptingMessage: userDoc?.isAcceptingMessage ?? true,
       },
       { status: 200 }
@@ -54,15 +55,22 @@ export async function PATCH(request: NextRequest): Promise<Response> {
       );
     }
 
-    const body = await request.json();
-    const { emailAlerts, webPushEnabled } = body;
-
-    const updateFields: Record<string, unknown> = {};
-    if (["instant", "daily", "off"].includes(emailAlerts)) {
-      updateFields["notificationSettings.emailAlerts"] = emailAlerts;
+    const parsed = updateNotificationsRequestSchema.safeParse(
+      await request.json()
+    );
+    if (!parsed.success) {
+      return Response.json(
+        { success: false, message: "Invalid notification settings" },
+        { status: 400 }
+      );
     }
-    if (typeof webPushEnabled === "boolean") {
-      updateFields["notificationSettings.webPushEnabled"] = webPushEnabled;
+
+    // Dot paths so one control never resets its siblings.
+    const updateFields: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(parsed.data)) {
+      if (value !== undefined) {
+        updateFields[`notificationSettings.${key}`] = value;
+      }
     }
 
     const updated = await UserModel.findByIdAndUpdate(
@@ -75,7 +83,9 @@ export async function PATCH(request: NextRequest): Promise<Response> {
       {
         success: true,
         message: "Notification settings updated successfully!",
-        notificationSettings: updated?.notificationSettings,
+        notificationSettings: toNotificationSettings(
+          updated?.notificationSettings
+        ),
       },
       { status: 200 }
     );

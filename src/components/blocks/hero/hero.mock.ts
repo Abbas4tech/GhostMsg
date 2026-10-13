@@ -1,7 +1,7 @@
 import type { HeroProps } from "./hero";
 
 export const defaultHeroArgs: HeroProps = {
-  title: "Send Messages like a Ghost. 👻",
+  title: "Say the honest thing. Stay a ghost.",
   description:
-    "GhostMsg lets you send anonymous messages that appear out of nowhere. Perfect for fun confessions, playful hints, or secret admirers.",
+    "Share one link. Get Anonymous Messages. Answer the good ones and post them as Story Cards.",
 };

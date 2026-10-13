@@ -75,6 +75,9 @@ describe("useSendMessageController", () => {
     await act(() => result.current.handleSubmit({ content: SUGGESTION }));
 
     expect(toast.success).toHaveBeenCalledWith("Message sent successfully");
+    expect(result.current.isSent).toBe(true);
+    act(() => result.current.handleSendAnother());
+    expect(result.current.isSent).toBe(false);
     expect(result.current.form.getValues("content")).toBe("");
   });
 

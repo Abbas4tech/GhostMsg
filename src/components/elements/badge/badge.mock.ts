@@ -6,18 +6,19 @@ export const BADGE_VARIANTS = [
   "destructive",
   "outline",
   "glass",
+  "success",
+  "warning",
+  "neutral",
+  "count",
+  "attention",
 ] as const;
-
-export const BADGE_SIZES = ["sm", "md", "lg"] as const;
 
 export const defaultBadgeArgs: BadgeProps = {
   children: "Public",
   variant: "default",
-  size: "md",
 };
 
 export const countBadgeArgs: BadgeProps = {
   children: "12",
-  variant: "secondary",
-  size: "sm",
+  variant: "count",
 };

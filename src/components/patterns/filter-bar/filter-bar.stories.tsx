@@ -1,41 +1,30 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn } from "storybook/test";
+import { mixedMessageCounts } from "@/mock/fixtures/messages.fixtures";
 import { FilterBar } from "./filter-bar";
 import {
   defaultFilterBarArgs,
   noQuarantineFilterBarArgs,
-  searchingFilterBarArgs,
+  quarantinedActiveFilterBarArgs,
 } from "./filter-bar.mock";
 
 const QUARANTINED_REGEX = /quarantined/i;
-const STARRED_REGEX = /starred/i;
+const UNREAD_REGEX = /unread/i;
+const ALL_REGEX = /^all/i;
 
 const meta = {
   title: "Patterns/FilterBar",
   component: FilterBar,
   tags: ["autodocs"],
-  decorators: [
-    (Story) => (
-      <div className="max-w-2xl">
-        <Story />
-      </div>
-    ),
-  ],
-  args: { ...defaultFilterBarArgs, onStatusChange: fn(), onSearchChange: fn() },
+  args: { ...defaultFilterBarArgs, onStatusChange: fn() },
   argTypes: {
     activeStatus: {
       control: "select",
       options: ["all", "unread", "starred", "answered", "quarantined"],
-      description: "Highlighted status chip",
+      description: "Selected chip",
     },
-    searchQuery: { control: "text", description: "Controlled search text" },
-    counts: {
-      control: "object",
-      description:
-        "Per-status counts (chip suffixes). Quarantined chip only shows when > 0.",
-    },
+    counts: { control: "object", description: "Count per status" },
     onStatusChange: { description: "Chip clicked → status" },
-    onSearchChange: { description: "Search input changed → text" },
   },
 } satisfies Meta<typeof FilterBar>;
 
@@ -43,52 +32,38 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button", { name: "All (5)" })).toBeVisible();
-    await expect(
-      canvas.getByRole("button", { name: "Unread (2)" })
-    ).toBeVisible();
-    await expect(
-      canvas.getByRole("button", { name: QUARANTINED_REGEX })
-    ).toBeVisible();
-  },
-};
-
-export const ChangesStatus: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    await userEvent.click(canvas.getByRole("button", { name: STARRED_REGEX }));
-    await expect(args.onStatusChange).toHaveBeenCalledWith("starred");
+    await expect(
+      canvas.getByRole("radio", { name: ALL_REGEX })
+    ).toHaveAttribute("aria-checked", "true");
+    await userEvent.click(canvas.getByRole("radio", { name: UNREAD_REGEX }));
+    await expect(args.onStatusChange).toHaveBeenCalledWith("unread");
+    await expect(
+      canvas.getByRole("radio", { name: QUARANTINED_REGEX })
+    ).toHaveTextContent(String(mixedMessageCounts.quarantined));
   },
 };
 
-export const Searches: Story = {
+export const KeepsOneSelected: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    await userEvent.type(
-      canvas.getByPlaceholderText("Search messages..."),
-      "s"
-    );
-    await expect(args.onSearchChange).toHaveBeenCalledWith("s");
+    // Clicking the active chip must not clear the filter.
+    await userEvent.click(canvas.getByRole("radio", { name: ALL_REGEX }));
+    await expect(args.onStatusChange).not.toHaveBeenCalled();
   },
 };
 
-export const WithSearchQuery: Story = { args: searchingFilterBarArgs };
-
-export const StarredActive: Story = { args: { activeStatus: "starred" } };
-
-export const QuarantinedActive: Story = {
-  args: { activeStatus: "quarantined" },
-};
-
-export const NoQuarantined: Story = {
+export const NoQuarantine: Story = {
   args: noQuarantineFilterBarArgs,
   play: async ({ canvas }) => {
     await expect(
-      canvas.queryByRole("button", { name: QUARANTINED_REGEX })
+      canvas.queryByRole("radio", { name: QUARANTINED_REGEX })
     ).not.toBeInTheDocument();
   },
 };
 
-export const WithoutCounts: Story = { args: { counts: undefined } };
+export const QuarantinedActive: Story = {
+  args: quarantinedActiveFilterBarArgs,
+};
 
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile1", isRotated: false } },

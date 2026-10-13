@@ -3,7 +3,7 @@
 ## Status
 **Accepted** (Fully implemented & verified across 34 tests in 9 test suites)
 
-> **Update (2026-10-12):** **Partially superseded by [ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md).** Component behaviour is now tested by Storybook story `play()` functions in Chromium. `*.test.tsx` covers logic and controllers only. All tests are network-isolated with MSW. `__tests__/` component folders no longer exist.
+> **Update (2026-10-12):** **Partially superseded by [ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md).** Component behaviour is now tested by Storybook story `play()` functions in Chromium. `*.test.tsx` covers logic and controllers only. All tests are network-isolated with MSW. `__tests__/` component folders no longer exist.
 
 ---
 
@@ -79,7 +79,7 @@ src/
 ---
 
 ## References & Code Pointers
-- Engineering Docs: [`docs/07-testing-strategy.md`](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md)
-- API Patterns: [`docs/agents/api-patterns.md`](file:///d:/Projects/GhostMsg/docs/agents/api-patterns.md)
-- Security Module: [`src/lib/security.ts`](file:///d:/Projects/GhostMsg/src/lib/security.ts)
-- Settings Tab Component: [`src/components/dashboard/settings-tab.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/settings-tab.tsx)
+- Engineering Docs: [`docs/07-testing-strategy.md`](../07-testing-strategy.md)
+- API Patterns: [`docs/agents/api-patterns.md`](../agents/api-patterns.md)
+- Security Module: [`src/lib/security.ts`](../../src/server/security/security.ts)
+- Settings Tab Component: [`src/components/dashboard/settings-tab.tsx`](../../src/components/pages/dashboard/settings-page.tsx)

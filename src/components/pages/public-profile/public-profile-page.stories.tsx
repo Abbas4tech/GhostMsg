@@ -3,6 +3,7 @@ import { expect, screen, waitFor } from "storybook/test";
 import { DEFAULT_AMA_PROMPT } from "@/components/patterns/ama-banner";
 import {
   FIXTURE_AMA_PROMPT,
+  FIXTURE_USERNAME,
   publicAnswerScenarios,
   suggestionScenarios,
 } from "@/mock/fixtures/public-profile.fixtures";
@@ -15,8 +16,7 @@ import {
 /** Page stories chain MSW worker start → session → lazy chunk → query; allow realistic load time under parallel runs. */
 const PAGE_LOAD = { timeout: 15_000 };
 
-const TEXTAREA_REGEX = /type your message here/i;
-const SEND_REGEX = /^send$/i;
+const SEND_REGEX = /^send anonymously$/i;
 const MESSAGE = "You always make the team calls more fun. Thanks!";
 
 const meta = {
@@ -44,7 +44,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvas }) => {
     await expect(
-      await canvas.findByText(`✨ ${FIXTURE_AMA_PROMPT}`, undefined, PAGE_LOAD)
+      await canvas.findByText(FIXTURE_AMA_PROMPT, undefined, PAGE_LOAD)
     ).toBeVisible();
     await expect(
       await canvas.findByText(
@@ -67,7 +67,7 @@ export const SuggestionFillsForm: Story = {
     await userEvent.click(
       await canvas.findByRole("button", { name: suggestion }, PAGE_LOAD)
     );
-    await expect(canvas.getByPlaceholderText(TEXTAREA_REGEX)).toHaveValue(
+    await expect(canvas.getByLabelText("Your Anonymous Message")).toHaveValue(
       suggestion
     );
   },
@@ -75,20 +75,32 @@ export const SuggestionFillsForm: Story = {
 
 export const SendsMessage: Story = {
   play: async ({ canvas, userEvent }) => {
-    const textarea = canvas.getByPlaceholderText(TEXTAREA_REGEX);
-    await userEvent.type(textarea, MESSAGE);
+    await userEvent.type(
+      canvas.getByLabelText("Your Anonymous Message"),
+      MESSAGE
+    );
     await userEvent.click(canvas.getByRole("button", { name: SEND_REGEX }));
     await expect(
-      await screen.findByText("Message sent successfully", undefined, PAGE_LOAD)
+      await canvas.findByText(
+        `Sent. ${FIXTURE_USERNAME} will never know it was you.`,
+        undefined,
+        PAGE_LOAD
+      )
     ).toBeVisible();
-    await waitFor(() => expect(textarea).toHaveValue(""));
+    await userEvent.click(canvas.getByRole("button", { name: "Send another" }));
+    await waitFor(() =>
+      expect(canvas.getByLabelText("Your Anonymous Message")).toHaveValue("")
+    );
   },
 };
 
 export const NotAcceptingMessages: Story = {
   parameters: { msw: { handlers: publicProfileHandlers.notAccepting } },
   play: async ({ canvas, userEvent }) => {
-    await userEvent.type(canvas.getByPlaceholderText(TEXTAREA_REGEX), MESSAGE);
+    await userEvent.type(
+      canvas.getByLabelText("Your Anonymous Message"),
+      MESSAGE
+    );
     await userEvent.click(canvas.getByRole("button", { name: SEND_REGEX }));
     await expect(
       await screen.findByText(
@@ -104,10 +116,10 @@ export const NoAnswersYet: Story = {
   parameters: { msw: { handlers: publicProfileHandlers.noAnswers } },
   play: async ({ canvas }) => {
     await expect(
-      await canvas.findByText(`✨ ${DEFAULT_AMA_PROMPT}`, undefined, PAGE_LOAD)
+      await canvas.findByText(DEFAULT_AMA_PROMPT, undefined, PAGE_LOAD)
     ).toBeVisible();
     await expect(
-      canvas.queryByText("Public Answers & Confessions")
+      canvas.queryByRole("heading", { name: "Public Q&A" })
     ).not.toBeInTheDocument();
   },
 };
@@ -138,11 +150,37 @@ export const SuggestionsUnavailable: Story = {
   },
 };
 
+export const Paused: Story = {
+  parameters: { msw: { handlers: publicProfileHandlers.paused } },
+  play: async ({ canvas }) => {
+    await expect(
+      await canvas.findByText(
+        `${FIXTURE_USERNAME} is taking a breather.`,
+        undefined,
+        PAGE_LOAD
+      )
+    ).toBeVisible();
+  },
+};
+
+export const UserNotFound: Story = {
+  parameters: { msw: { handlers: publicProfileHandlers.userNotFound } },
+  play: async ({ canvas }) => {
+    await expect(
+      await canvas.findByText(
+        "Nobody's home at this link.",
+        undefined,
+        PAGE_LOAD
+      )
+    ).toBeVisible();
+  },
+};
+
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile1", isRotated: false } },
   play: async ({ canvas }) => {
     await expect(
-      await canvas.findByText(`✨ ${FIXTURE_AMA_PROMPT}`, undefined, PAGE_LOAD)
+      await canvas.findByText(FIXTURE_AMA_PROMPT, undefined, PAGE_LOAD)
     ).toBeVisible();
   },
 };

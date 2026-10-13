@@ -42,11 +42,12 @@ export const defaultSignUpFormArgs: SignUpFormStoryArgs = {
 };
 
 export const defaultAuthFormFooterArgs: AuthFormFooterProps = {
-  submitLabel: "Login",
-  submittingLabel: "Logging in...",
+  submitLabel: "Sign in",
+  submittingLabel: "Signing in...",
+  submitVariant: "default",
+  alternatePrompt: "New here?",
   alternateHref: "/sign-up",
-  alternateLabel: "Create an account!",
+  alternateLabel: "Get your link",
   isSubmitting: false,
   isSubmitDisabled: false,
-  onGoogleSignIn: noop,
 };

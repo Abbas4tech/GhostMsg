@@ -16,8 +16,8 @@ export function SignInPage({
 
   return (
     <AuthPanel
-      description="Continue your journey with GhostMsg"
-      title="Login to your account"
+      description="Sign in to read your Anonymous Messages."
+      title="Welcome back"
     >
       <SignInForm
         form={signInForm.form}

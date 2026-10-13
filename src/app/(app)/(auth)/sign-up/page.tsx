@@ -14,6 +14,19 @@ export const metadata: Metadata = {
   },
 };
 
-const Signup = (): React.JSX.Element => <SignUpPage />;
+interface SignupProps {
+  searchParams: Promise<{ username?: string | string[] }>;
+}
+
+const Signup = async ({
+  searchParams,
+}: SignupProps): Promise<React.JSX.Element> => {
+  const { username } = await searchParams;
+  return (
+    <SignUpPage
+      initialUsername={typeof username === "string" ? username : undefined}
+    />
+  );
+};
 
 export default Signup;

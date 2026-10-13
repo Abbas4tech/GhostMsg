@@ -1,13 +1,23 @@
 "use client";
 
-import { CheckCheck, Download, Star, Trash2, X } from "lucide-react";
+import { Download, Eye, Star, Trash2, X } from "lucide-react";
 import type React from "react";
 import { Button } from "@/components/elements/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/elements/dropdown-menu";
 import type { MessageExportFormat } from "@/lib/messages/export";
+import { cn } from "@/lib/utils";
 
 export type BulkAction = "delete" | "read" | "star";
 
 export interface BulkActionToolbarProps {
+  className?: string;
   isPending?: boolean;
   onAction: (action: BulkAction) => void;
   onClearSelection: () => void;
@@ -15,12 +25,17 @@ export interface BulkActionToolbarProps {
   selectedCount: number;
 }
 
+const toolbarButton =
+  "rounded-full text-background hover:bg-background/15 hover:text-background";
+
+/** Dark pill that appears while messages are selected. */
 export function BulkActionToolbar({
   selectedCount,
   isPending = false,
   onAction,
   onExport,
   onClearSelection,
+  className,
 }: BulkActionToolbarProps): React.JSX.Element | null {
   if (selectedCount === 0) {
     return null;
@@ -28,73 +43,88 @@ export function BulkActionToolbar({
 
   return (
     <div
-      className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border bg-background/95 px-4 py-2.5 shadow-2xl backdrop-blur-md"
+      aria-label="Bulk actions"
+      className={cn(
+        "flex flex-wrap items-center gap-1 rounded-full bg-foreground py-1.5 pr-1.5 pl-4 text-background shadow-lift motion-safe:animate-rise sm:gap-2",
+        className
+      )}
       data-slot="bulk-action-toolbar"
+      role="toolbar"
     >
-      <span className="font-semibold text-muted-foreground text-xs">
+      <span className="font-bold text-sm tabular-nums">
         {selectedCount} selected
       </span>
-
-      <div className="h-4 w-px bg-border" />
+      <span className="flex-1" />
 
       <Button
-        className="h-7 text-xs"
+        aria-label="Mark read"
+        className={toolbarButton}
         disabled={isPending}
         onClick={() => onAction("read")}
         size="sm"
         variant="ghost"
       >
-        <CheckCheck className="mr-1 h-3.5 w-3.5 text-blue-500" /> Read
+        <Eye aria-hidden="true" />
+        <span className="hidden sm:inline">Mark read</span>
       </Button>
 
       <Button
-        className="h-7 text-xs"
+        aria-label="Star"
+        className={toolbarButton}
         disabled={isPending}
         onClick={() => onAction("star")}
         size="sm"
         variant="ghost"
       >
-        <Star className="mr-1 h-3.5 w-3.5 text-yellow-500" /> Star
+        <Star aria-hidden="true" />
+        <span className="hidden sm:inline">Star</span>
       </Button>
 
-      <Button
-        className="h-7 text-xs"
-        onClick={() => onExport("csv")}
-        size="sm"
-        variant="ghost"
-      >
-        <Download className="mr-1 h-3.5 w-3.5" /> CSV
-      </Button>
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            aria-label="Export"
+            className={toolbarButton}
+            size="sm"
+            variant="ghost"
+          >
+            <Download aria-hidden="true" />
+            <span className="hidden sm:inline">Export CSV / JSON</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Download selected as</DropdownMenuLabel>
+            <DropdownMenuItem onSelect={() => onExport("csv")}>
+              CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => onExport("json")}>
+              JSON
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <Button
-        className="h-7 text-xs"
-        onClick={() => onExport("json")}
-        size="sm"
-        variant="ghost"
-      >
-        <Download className="mr-1 h-3.5 w-3.5" /> JSON
-      </Button>
-
-      <Button
-        className="h-7 text-destructive text-xs hover:bg-destructive/10"
+        aria-label="Delete selected"
+        className="rounded-full"
         disabled={isPending}
         onClick={() => onAction("delete")}
         size="sm"
-        variant="ghost"
+        variant="destructive"
       >
-        <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
+        <Trash2 aria-hidden="true" />
+        <span className="hidden sm:inline">Delete</span>
       </Button>
-
-      <div className="h-4 w-px bg-border" />
 
       <Button
         aria-label="Clear selection"
-        className="h-6 w-6 p-0"
+        className={toolbarButton}
         onClick={onClearSelection}
-        size="icon"
+        size="icon-sm"
         variant="ghost"
       >
-        <X className="h-3.5 w-3.5" />
+        <X aria-hidden="true" />
       </Button>
     </div>
   );

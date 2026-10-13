@@ -1,7 +1,7 @@
 # ADR 0001: Embedded Messages in User Document
 
 ## Status
-**Superseded by [ADR 0010](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md)**
+**Superseded by [ADR 0010](0010-standalone-messages-schema-and-feature-architecture.md)**
 
 ---
 
@@ -44,7 +44,7 @@ In relational database designs or normalized MongoDB architectures, messages wou
 ---
 
 ## The Decision
-We chose **Option B**: Store anonymous messages as embedded subdocuments inside the `User` document in [`src/model/user.model.ts`](file:///d:/Projects/GhostMsg/src/model/user.model.ts).
+We chose **Option B**: Store anonymous messages as embedded subdocuments inside the `User` document in [`src/model/user.model.ts`](../../src/server/models/user.model.ts).
 
 ```typescript
 interface Message {
@@ -78,12 +78,12 @@ interface User {
 - **Simplified Backup & Recovery**: Backing up user records preserves the entire messaging state.
 
 ### Negative & Mitigations
-- **Sorting Requirement**: Because subdocument arrays are appended in chronological order, retrieving newest messages first requires an aggregation pipeline (`$unwind` + `$sort` by `messages.createdAt: -1`). This is implemented in [`src/app/api/get-messages/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/get-messages/route.ts).
+- **Sorting Requirement**: Because subdocument arrays are appended in chronological order, retrieving newest messages first requires an aggregation pipeline (`$unwind` + `$sort` by `messages.createdAt: -1`). This is implemented in [`src/app/api/get-messages/route.ts`](../../src/app/api/get-messages/route.ts).
 
 ---
 
 ## References & Code Pointers
-- Data Model: [`src/model/user.model.ts`](file:///d:/Projects/GhostMsg/src/model/user.model.ts)
-- Message Ingestion: [`src/app/api/send-message/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/send-message/route.ts)
-- Inbox Query: [`src/app/api/get-messages/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/get-messages/route.ts)
-- Message Deletion: [`src/app/api/delete-message/[messageId]/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/delete-message/%5BmessageId%5D/route.ts)
+- Data Model: [`src/model/user.model.ts`](../../src/server/models/user.model.ts)
+- Message Ingestion: [`src/app/api/send-message/route.ts`](../../src/app/api/send-message/route.ts)
+- Inbox Query: [`src/app/api/get-messages/route.ts`](../../src/app/api/get-messages/route.ts)
+- Message Deletion: [`src/app/api/delete-message/[messageId]/route.ts`](../../src/app/api/delete-message/[messageId]/route.ts)

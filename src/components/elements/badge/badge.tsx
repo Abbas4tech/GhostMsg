@@ -1,52 +1,67 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import { Slot } from "radix-ui";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Stock shadcn (new-york v4) Badge. GhostMsg opt-in variants: `glass`,
+ * `success` / `warning` / `neutral` soft status pills and `count` /
+ * `attention` counters (they invert inside an `on` toggle).
+ */
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden whitespace-nowrap rounded-full border border-transparent px-2 py-0.5 font-medium text-xs transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground shadow-xs hover:bg-primary/80",
+        default: "bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
         destructive:
-          "border-transparent bg-destructive text-white shadow-xs hover:bg-destructive/80 dark:bg-destructive/60",
-        outline: "text-foreground",
+          "bg-destructive text-destructive-foreground focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90",
+        outline:
+          "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 [a&]:hover:underline",
         glass:
           "border-white/20 bg-white/10 text-foreground backdrop-blur-md dark:border-white/10 dark:bg-black/20",
-      },
-      size: {
-        sm: "px-2 py-0.5 text-xs",
-        md: "px-2.5 py-0.5 font-semibold text-xs",
-        lg: "px-3 py-1 font-semibold text-sm",
+        success:
+          "h-6 border-success/30 bg-success/15 px-2.5 font-semibold text-success",
+        warning:
+          "h-6 border-warning/40 bg-warning/20 px-2.5 font-semibold text-warning-foreground",
+        neutral:
+          "h-7 border-sentiment-neutral/30 bg-sentiment-neutral-subtle px-2.5 font-semibold text-[13px] text-sentiment-neutral",
+        count:
+          "h-[22px] min-w-[22px] bg-muted in-data-[state=on]:bg-primary-foreground/20 px-1.5 in-data-[state=on]:text-primary-foreground text-muted-foreground tabular-nums",
+        attention:
+          "h-[22px] min-w-[22px] bg-warning in-data-[state=on]:bg-primary-foreground/20 px-1.5 in-data-[state=on]:text-primary-foreground text-warning-foreground tabular-nums",
       },
     },
     defaultVariants: {
       variant: "default",
-      size: "md",
     },
   }
 );
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+export type BadgeProps = React.ComponentProps<"span"> &
+  VariantProps<typeof badgeVariants> & { asChild?: boolean };
 
-export function Badge({
+function Badge({
   className,
-  variant,
-  size,
+  variant = "default",
+  asChild = false,
   ...props
 }: BadgeProps): React.JSX.Element {
+  const Comp = asChild ? Slot.Root : "span";
+
   return (
-    <div
-      className={cn(badgeVariants({ variant, size }), className)}
+    <Comp
+      className={cn(badgeVariants({ variant }), className)}
       data-slot="badge"
+      data-variant={variant}
       {...props}
     />
   );
 }
 
-export { badgeVariants };
+export { Badge, badgeVariants };
+export default Badge;
