@@ -121,3 +121,11 @@ Biome's linter will catch most issues automatically. Focus your attention on:
 ---
 
 Most formatting and common issues are automatically fixed by Biome. Run `npm exec -- ultracite fix` before committing to ensure compliance.
+
+---
+
+## GhostMsg Project Rules
+
+- Read `AGENTS.md` at the repo root for project-wide agent guidance.
+- **Components / UI / route pages:** before touching `src/components/**` or `src/app/**/page.tsx|layout.tsx`, read `docs/agents/component-architecture.md`. It defines the four tiers (`elements → patterns → blocks → pages`), keeps all business logic in `pages/` controllers, and explains how Biome enforces this.
+- **Before push:** follow `.agents/rules/pre-push-quality-checks.md`.
