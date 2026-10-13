@@ -3,6 +3,8 @@
 ## Status
 **Accepted**
 
+> **Update (2026-10-12):** `MessageCard` now lives in `src/components/patterns/message-card/` and `MessagesCarousel` in `src/components/patterns/messages-carousel/`. Dashboard tabs are lazy page-level components in `src/components/pages/dashboard/` ([ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
+
 ---
 
 ## Context & Problem Statement

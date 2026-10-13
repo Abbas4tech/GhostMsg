@@ -3,6 +3,8 @@
 ## Status
 **Accepted**
 
+> **Update (2026-10-12):** **Extended by [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md).** A fourth tier (`pages/`) now owns all controllers, and vendor `ui/` and `animate-ui/` moved into `elements/`. Testing moved to stories ([ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md)).
+
 ---
 
 ## Context & Problem Statement

@@ -1,7 +1,7 @@
 /**
  * AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY.
  * Generated from src/lib/openapi.ts by openapi-typescript.
- * Run "npm run typegen" to regenerate.
+ * Run "pnpm typegen" to regenerate.
  */
 
 export interface paths {

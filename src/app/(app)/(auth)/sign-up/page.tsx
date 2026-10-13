@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import type React from "react";
 
-import { AuthForm } from "@/components/auth";
-import { Text } from "@/components/ui/text";
+import { SignUpPage } from "@/components/pages/auth/sign-up";
 
 export const metadata: Metadata = {
   title: "Signup",
@@ -15,20 +14,6 @@ export const metadata: Metadata = {
   },
 };
 
-const SignupPage = (): React.JSX.Element => (
-  <main className="flex items-center justify-center bg-background p-4">
-    <section className="mt-8 w-full max-w-sm">
-      <header className="mb-6 flex flex-col gap-2">
-        <Text as={"h2"} variant={"h2"}>
-          Join GhostMsg
-        </Text>
-        <Text variant={"muted"}>
-          Enter your details below to signup for your account
-        </Text>
-      </header>
-      <AuthForm mode="signup" />
-    </section>
-  </main>
-);
+const Signup = (): React.JSX.Element => <SignUpPage />;
 
-export default SignupPage;
+export default Signup;

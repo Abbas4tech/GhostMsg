@@ -1,12 +1,9 @@
 import type React from "react";
 import type { PropsWithChildren } from "react";
-import Header from "@/components/global-header";
+import { SiteLayout } from "@/components/pages/layouts/site-layout";
 
 const layout = ({ children }: PropsWithChildren): React.JSX.Element => (
-  <>
-    <Header />
-    {children}
-  </>
+  <SiteLayout>{children}</SiteLayout>
 );
 
 export default layout;
