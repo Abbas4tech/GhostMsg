@@ -9,10 +9,12 @@ This chapter details GhostMsg's type-safe API infrastructure, single-source-of-t
 ```mermaid
 flowchart LR
     A["Zod Schemas\n(src/schemas/)"] --> B["OpenAPI 3.1 Registry\n(src/lib/openapi.ts)"]
-    B --> C["npm run typegen\n(scripts/generate-api-types.ts)"]
+    B --> C["pnpm typegen\n(scripts/generate-api-types.ts)"]
     C --> D["src/generated/api-schema.d.ts\n(Exported paths)"]
     D --> E["openapi-fetch client\n(src/lib/api-client.ts)"]
     E --> F["React Query (queryOptions & useMutation)"]
+    D --> G["Typed MSW handlers\n(src/mock/handlers — ok()/created())"]
+    F --> H["Page controllers\n(src/components/pages/**/use-*.controller.ts)"]
 ```
 
 ---

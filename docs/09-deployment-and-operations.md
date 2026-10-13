@@ -15,9 +15,11 @@ GhostMsg is optimized for deployment on the **Vercel Edge & Serverless Platform*
 ### Build Command
 Vercel executes the production build:
 ```bash
-npm run build
-# Runs: npm run typegen && next build --turbopack
+pnpm build
+# Runs: pnpm typegen && next build
 ```
+
+Vercel detects pnpm from `packageManager` (`pnpm@10.29.1`) and `pnpm-lock.yaml`, the only lockfile. Storybook isn't part of the app deployment. `pnpm build-storybook` produces a separate static site in `storybook-static/` that can be hosted anywhere if needed.
 
 ---
 
