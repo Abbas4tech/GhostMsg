@@ -1,5 +1,7 @@
 # GhostMsg: Comprehensive Feature & Implementation Blueprint 📘
 
+> **Note (2026-10-12):** Component file paths in this blueprint predate the four-tier structure. Current locations: [Chapter 11: Component Registry](file:///d:/Projects/GhostMsg/docs/11-component-registry.md). Rules: [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md), [ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md).
+
 This blueprint specifies the technical architecture, data structures, cryptographic algorithms, AI pipelines, API contracts, UI state machines, and implementation workflows for the expanded GhostMsg feature suite as formalized in [ADR 0010](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md).
 
 ---
