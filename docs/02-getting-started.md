@@ -7,10 +7,10 @@ This chapter guides you through setting up GhostMsg on your local development ma
 ## 1. Prerequisites
 
 Ensure you have the following installed and configured:
-- **Node.js**: `v18.18+` or `v20+` (LTS recommended)
-- **Package Manager**: `npm`, `pnpm`, or `bun`
+- **Node.js**: `22.19+` recommended (Storybook 10 requires Node 20.16+ / 22.19+; the project is developed on Node 22)
+- **Package Manager**: **pnpm 10** only (pinned via `packageManager`; `pnpm-lock.yaml` is the single lockfile)
 - **MongoDB Database**: Local MongoDB instance or free cloud cluster at [MongoDB Atlas](https://www.mongodb.com/atlas)
-- **Resend Account**: Free account at [Resend](https://resend.com) for sending verification emails
+- **SMTP Email Credentials**: Standard SMTP provider credentials (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`) for sending OTP verification & alert emails via Nodemailer
 - **Google AI Studio Key**: API key from [Google AI Studio](https://aistudio.google.com/) for Gemini message prompt generation
 - **Google Cloud Console OAuth Credentials** *(optional)*: For Google OAuth 2.0 sign-in
 
@@ -39,9 +39,12 @@ GOOGLE_OAUTH_CLIENT_SECRET="GOCSPX-your-google-client-secret"
 GOOGLE_OAUTH_CALLBACK_URL="http://localhost:3000/api/auth/callback/google"
 
 # ==============================================================================
-# 3. Transactional Emails (Resend)
+# 3. Transactional Emails (Nodemailer + SMTP)
 # ==============================================================================
-RESEND_API_KEY="re_123456789abcdef"
+SMTP_HOST="smtp.mailtrap.io"
+SMTP_PORT="587"
+SMTP_USER="your-smtp-username"
+SMTP_PASS="your-smtp-password"
 
 # ==============================================================================
 # 4. Google AI Studio (Gemini 2.5 Flash Lite)
@@ -58,16 +61,23 @@ GOOGLE_AI_STUDIO_SECRET="AIzaSy..."
 git clone https://github.com/Abbas4tech/GhostMsg.git
 cd GhostMsg
 
-# 2. Install dependencies
+# 2. Install dependencies (pnpm only)
 pnpm install
-# or: npm install
+
+# 2b. One-time: browser for Storybook story tests
+pnpm exec playwright install chromium
 
 # 3. Generate TypeScript API types from OpenAPI spec
 pnpm typegen
 
 # 4. Start development server with Turbopack
 pnpm dev
+
+# 5. (Optional) Component catalog
+pnpm storybook        # http://localhost:6006
 ```
+
+> **First test run:** `pnpm test:stories` can fail once with "failed to find the current suite" while Vite optimizes dependencies. Re-run it.
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 

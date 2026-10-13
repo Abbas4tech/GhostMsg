@@ -28,6 +28,11 @@ GhostMsg adheres strictly to a standardized domain vocabulary:
 | **Message Acceptance** | A toggleable user preference controlling whether a recipient's public profile is open to receiving new anonymous messages. | *Active status, open inbox, message switch, receiving toggle* |
 | **Verification Code** | A temporary, time-limited numerical 6-digit one-time pass code sent via email to confirm ownership of an email address. | *OTP, activation code, auth token, confirm PIN* |
 | **Suggested Message** | A generated prompt or question presented to visitors on a recipient's profile to inspire message ideas. | *AI question, template, sample prompt, starter message* |
+| **Sender Hash** | A one-way cryptographic fingerprint generated on submission to allow rate limiting and recipient blocklists without recording or exposing raw sender IP addresses. | *User ID, sender fingerprint, IP address, sender token* |
+| **Public Q&A** | A published pairing of an anonymous message and the recipient's authored response, publicly visible on the recipient's profile or exported as a shareable card. | *Thread, post, broadcast, comment reply* |
+| **Quarantined Message** | An anonymous message flagged by content moderation as toxic, abusive, or spam, isolated into a separate inbox view rather than delivered to the primary inbox. | *Spam, deleted message, hidden feedback* |
+| **AMA Prompt** | A recipient-defined theme, topic, or question displayed on their public profile link to guide visitor submissions. | *Bio, status, custom headline, bio title* |
+| **Sentiment Tag** | A classification label representing the emotional tone of an anonymous message. | *Vibe, mood score, AI emotion, category* |
 
 ---
 
@@ -36,23 +41,28 @@ GhostMsg adheres strictly to a standardized domain vocabulary:
 ```mermaid
 mindmap
   root((GhostMsg 👻))
-    Anonymous Messaging
+    Anonymous Messaging & Virality
       Public Profile Link /u/username
-      Message Acceptance Toggle
+      Custom AMA Banner Prompts
       AI Suggested Prompts Gemini 2.5 Flash Lite
-    User Experience
-      Interactive Inbox with Reverse Chronological Sort
-      One-Click Share Link Copying
-      Animated Dark and Light Themes
-    Authentication & Security
-      Credentials Auth with Bcrypt
-      Google OAuth 2.0 Integration
-      6-Digit Email Verification via Resend
-    Developer Experience
-      OpenAPI 3.1 Specification Registry
-      Interactive Scalar API Reference /docs
+      Public Q&A Showcase Feed
+      9:16 Social Story Card Exporter
+    Inbox Intelligence & Safety
+      Live Real-Time SSE Feed
+      Search, Filters & Starred Messages
+      Multi-Select Bulk Actions & Data Export
+      AI Toxicity Quarantine
+      AI Sentiment Classification
+      1-Click Multi-Tone AI Smart Replies
+    Privacy & Abuse Prevention
+      Upstash Redis In-Memory Sliding Rate Limiting
+      Cryptographic Salted Sender Hash
+      Recipient-Level Sender Shadowbanning
+    Developer & Architecture Foundation
+      Standalone Message Collection with Compound Indexes
+      OpenAPI 3.1 Registry & Scalar UI
       Automated TypeScript Typegen
-      Sub-second Ultracite Biome Linter
+      Ultracite Biome Linter
 ```
 
 ---

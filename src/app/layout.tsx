@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import type React from "react";
 
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/elements/sonner";
 import AuthProvider from "@/context/auth-provider";
 import QueryProvider from "@/context/query-provider";
 import ThemeProvider from "@/context/theme-provider";

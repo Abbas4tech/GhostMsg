@@ -12,6 +12,7 @@
       "!**/public",
       "!**/src/types/api.ts",
       "src/**",
+      ".storybook/**",
       "emails/**",
       "scripts/**",
       "docs/**",
@@ -24,18 +25,56 @@
   },
   "linter": {
     "rules": {
+      "performance": {
+        "noBarrelFile": "off"
+      },
       "suspicious": {
         "noArrayIndexKey": "error"
+      },
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": [
+                  "@/components/animate-ui",
+                  "@/components/animate-ui/**",
+                  "@/components/ui",
+                  "@/components/ui/**"
+                ],
+                "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+              }
+            ]
+          }
+        }
       }
     }
   },
   "overrides": [
     {
-      "includes": ["src/components/ui/**"],
+      "includes": [
+        "src/components/elements/carousel/**",
+        "src/components/elements/input-otp/**"
+      ],
       "linter": {
         "rules": {
           "a11y": {
             "useSemanticElements": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/components/elements/effects/**",
+        "src/components/elements/**/*.primitive.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveElementInteractions": "off",
+            "noStaticElementInteractions": "off"
           }
         }
       }
@@ -51,12 +90,136 @@
       }
     },
     {
-      "includes": ["src/components/animate-ui/**"],
+      "includes": ["src/components/elements/**"],
       "linter": {
         "rules": {
-          "a11y": {
-            "noNoninteractiveElementInteractions": "off",
-            "noStaticElementInteractions": "off"
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@/components/animate-ui",
+                      "@/components/animate-ui/**",
+                      "@/components/ui",
+                      "@/components/ui/**"
+                    ],
+                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+                  },
+                  {
+                    "group": [
+                      "@tanstack/react-query",
+                      "@/hooks/mutations/**",
+                      "@/queries/**",
+                      "next-auth/react",
+                      "next/navigation",
+                      "@/lib/push-notification-adapter",
+                      "@/hooks/use-live-messages"
+                    ],
+                    "message": "Business logic (queries, mutations, session, router, browser adapters) belongs in @/components/pages controllers only (ADR 0015)."
+                  },
+                  {
+                    "group": [
+                      "@/components/patterns",
+                      "@/components/patterns/**",
+                      "@/components/blocks",
+                      "@/components/blocks/**",
+                      "@/components/pages",
+                      "@/components/pages/**"
+                    ],
+                    "message": "Elements are Tier 1: they may only import other elements (ADR 0015)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/patterns/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@/components/animate-ui",
+                      "@/components/animate-ui/**",
+                      "@/components/ui",
+                      "@/components/ui/**"
+                    ],
+                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+                  },
+                  {
+                    "group": [
+                      "@tanstack/react-query",
+                      "@/hooks/mutations/**",
+                      "@/queries/**",
+                      "next-auth/react",
+                      "next/navigation",
+                      "@/lib/push-notification-adapter",
+                      "@/hooks/use-live-messages"
+                    ],
+                    "message": "Business logic (queries, mutations, session, router, browser adapters) belongs in @/components/pages controllers only (ADR 0015)."
+                  },
+                  {
+                    "group": [
+                      "@/components/blocks",
+                      "@/components/blocks/**",
+                      "@/components/pages",
+                      "@/components/pages/**"
+                    ],
+                    "message": "Patterns are Tier 2: import elements or other patterns only (ADR 0015)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/blocks/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@/components/animate-ui",
+                      "@/components/animate-ui/**",
+                      "@/components/ui",
+                      "@/components/ui/**"
+                    ],
+                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+                  },
+                  {
+                    "group": [
+                      "@tanstack/react-query",
+                      "@/hooks/mutations/**",
+                      "@/queries/**",
+                      "next-auth/react",
+                      "next/navigation",
+                      "@/lib/push-notification-adapter",
+                      "@/hooks/use-live-messages"
+                    ],
+                    "message": "Business logic (queries, mutations, session, router, browser adapters) belongs in @/components/pages controllers only (ADR 0015)."
+                  },
+                  {
+                    "group": ["@/components/pages", "@/components/pages/**"],
+                    "message": "Blocks are Tier 3: they may not import pages (ADR 0015)."
+                  }
+                ]
+              }
+            }
           }
         }
       }

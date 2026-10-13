@@ -14,10 +14,11 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 | **04** | [**API & Type Safety**](file:///d:/Projects/GhostMsg/docs/04-api-and-type-safety.md) | OpenAPI 3.1 contracts, Scalar UI (`/docs`), automated typegen, and `openapi-fetch` SDK. |
 | **05** | [**Component Architecture**](file:///d:/Projects/GhostMsg/docs/05-component-architecture.md) | Next.js App Router tree, Tailwind CSS v4 design tokens, Radix/Shadcn primitives, and Motion. |
 | **06** | [**Developer Workflow**](file:///d:/Projects/GhostMsg/docs/06-dev-workflow.md) | Daily commands, Husky pre-commit hooks, API typegen automation, and Changesets. |
-| **07** | [**Testing Strategy**](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md) | Testing hierarchy, Playwright multi-browser E2E suite, test fixtures, and mock states. |
+| **07** | [**Testing Strategy**](file:///d:/Projects/GhostMsg/docs/07-testing-strategy.md) | Unit + story Vitest projects, MSW-isolated tests, ownership rules, test inventory (no E2E suite yet). |
 | **08** | [**Code Quality & Standards**](file:///d:/Projects/GhostMsg/docs/08-code-quality.md) | Ultracite (Biome) rules, TypeScript strict mode configuration, and anti-pattern bans. |
-| **09** | [**Deployment & Operations**](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md) | Vercel production deployment, MongoDB Atlas connection pooling, and Resend DNS settings. |
-| **10** | [**Storybook & UI Catalog**](file:///d:/Projects/GhostMsg/docs/10-storybook-and-ui-catalog.md) | Component isolation, provider wrapping, mock states, and visual preview workflows. |
+| **09** | [**Deployment & Operations**](file:///d:/Projects/GhostMsg/docs/09-deployment-and-operations.md) | Vercel production deployment, MongoDB Atlas connection pooling, and SMTP email provider configuration. |
+| **10** | [**Storybook & UI Catalog**](file:///d:/Projects/GhostMsg/docs/10-storybook-and-ui-catalog.md) | Storybook 10 (nextjs-vite), story standard, MSW page isolation, fixtures, and story tests in Chromium. |
+| **11** | [**Component Registry**](file:///d:/Projects/GhostMsg/docs/11-component-registry.md) | Generated inventory: every module, public API, stories, play() tests, mocks, controllers, fixtures and MSW scenarios (`pnpm docs:registry`). |
 
 ---
 
@@ -32,17 +33,27 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0007: Dependency Reclassification & Bundle Optimization**](file:///d:/Projects/GhostMsg/docs/adr/0007-dependency-reclassification-and-bundle-optimization.md)
 - [**ADR 0008: React Optimization & Dynamic Bundle Analysis**](file:///d:/Projects/GhostMsg/docs/adr/0008-react-optimization-and-bundle-analysis.md)
 - [**ADR 0009: Biome Suppression Elimination & Code Quality Remediation**](file:///d:/Projects/GhostMsg/docs/adr/0009-biome-suppression-elimination-and-lint-remediation.md)
+- [**ADR 0010: Standalone Message Collection, Abuse Prevention & Public Q&A Architecture**](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md)
+- [**ADR 0011: Mandatory Type-Safe OpenAPI SDK, Nodemailer SMTP Mailer & Reversible Abuse Prevention**](file:///d:/Projects/GhostMsg/docs/adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md)
+- [**ADR 0012: Vitest Unit & Integration Testing Strategy for GhostMsg**](file:///d:/Projects/GhostMsg/docs/adr/0012-vitest-unit-and-integration-testing-strategy.md)
+- [**ADR 0013: Elements-Patterns-Blocks Composable Component Architecture & Colocated Tooling**](file:///d:/Projects/GhostMsg/docs/adr/0013-elements-patterns-blocks-composable-architecture.md)
+- [**ADR 0014: Architectural Deepening: Pure Patterns, Hoisted Overlays, Web Push Adapter & Elements Consolidation**](file:///d:/Projects/GhostMsg/docs/adr/0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md)
+- [**ADR 0015: Four-Tier Components: Pages Layer, Logic Isolation & Vendor Consolidation**](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)
+- [**ADR 0016: Storybook 10, MSW Mocking & Story-Driven Component Testing**](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md)
+- [**ADR 0017: Generated Component Registry & Documentation Freshness Gate**](file:///d:/Projects/GhostMsg/docs/adr/0017-generated-component-registry-and-docs-freshness-gate.md)
 
 ---
 
 ## 📐 Architecture Blueprints
 
+- [**Feature & Implementation Master Blueprint**](file:///d:/Projects/GhostMsg/docs/feature-and-implementation-blueprint.md)
 - [**API & React Query Architecture Blueprint**](file:///d:/Projects/GhostMsg/docs/api-and-react-query-architecture.md)
 
 
 ## 🤖 Agent Guidelines
 
 - [**API & Client-Server Patterns**](file:///d:/Projects/GhostMsg/docs/agents/api-patterns.md)
+- [**Component Architecture (4 tiers, logic in pages)**](file:///d:/Projects/GhostMsg/docs/agents/component-architecture.md)
 - [**Domain Modeling Guidelines**](file:///d:/Projects/GhostMsg/docs/agents/domain.md)
 - [**Issue Tracker Integration**](file:///d:/Projects/GhostMsg/docs/agents/issue-tracker.md)
 - [**Triage Labels System**](file:///d:/Projects/GhostMsg/docs/agents/triage-labels.md)

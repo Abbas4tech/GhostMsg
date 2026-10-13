@@ -1,7 +1,7 @@
 # ADR 0001: Embedded Messages in User Document
 
 ## Status
-**Accepted**
+**Superseded by [ADR 0010](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md)**
 
 ---
 

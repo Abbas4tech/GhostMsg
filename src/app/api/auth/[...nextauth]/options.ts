@@ -48,6 +48,10 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Please verify your account first before login");
           }
 
+          if (!user.password) {
+            throw new Error("Please sign in with Google for this account");
+          }
+
           const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password
