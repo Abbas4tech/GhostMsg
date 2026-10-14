@@ -128,7 +128,15 @@ All additive on `users`, with schema defaults and read-side defaults (`src/serve
 | `pnpm theme:contrast` | ✓ all 6 palette × mode pairs AA |
 | `pnpm docs:registry:check` | ✓ |
 
-## 7. Issues found while documenting, and fixed
+## 7. Follow-up: state-management review
+
+After the redesign, a state-management review ([Chapter 20](20-state-management.md)) was carried out in three phases:
+
+- **Correctness** ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)): server-side filters, search and keyset paging with **Load more**; `GET /api/messages/counts` for badges, the unread count and "Delete all N"; export of every message; mark-read on interaction; selection scoped to the current filter; optimistic star/read/reply; a per-device push switch. The MSW mock now runs the same filter rules as the server.
+- **Consistency** ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)): one optimistic-resource mutation factory (serialised per resource, silent switches); live messages inserted into the cache; focus refetch and polling when the stream drops; Suggested Messages as a cached query; AMA Prompt saved with the profile.
+- **Structure** ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)): inbox split into filter/data controllers with URL state and a remembered layout; dialogs by message id; no effects copying state; Profile on react-hook-form with a leave guard; dashboard session from the server; Message Acceptance out of the JWT; public profile rendered on the server with real metadata; palette synced across tabs.
+
+## 8. Issues found while documenting, and fixed
 
 Writing chapters 12–18 against the code surfaced four places where behaviour broke the product's own rules. All are fixed in this release ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md), [Chapter 17 §10](17-trust-safety-and-privacy.md#10-known-issues-code-that-does-not-yet-meet-these-rules)):
 

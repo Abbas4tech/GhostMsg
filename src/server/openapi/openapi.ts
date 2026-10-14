@@ -12,6 +12,7 @@ import {
   errorResponseSchema,
   getBlockedSendersResponseSchema,
   getMessagesResponseSchema,
+  inboxCountsResponseSchema,
   messageItemSchema,
   publicAnswersResponseSchema,
   sendMessageResponseSchema,
@@ -349,21 +350,25 @@ registry.registerPath({
   request: {
     query: z.object({
       status: z
-        .enum(["all", "unread", "starred", "quarantined", "answered"])
+        .enum(["all", "unread", "starred", "quarantined", "answered", "any"])
         .optional()
-        .openapi({ description: "Filter by message category", example: "all" }),
+        .openapi({
+          description:
+            "Inbox filter (default all = not quarantined); any = every message",
+          example: "all",
+        }),
       q: z
         .string()
         .optional()
         .openapi({ description: "Search query string", example: "project" }),
-      limit: z
-        .string()
-        .optional()
-        .openapi({ description: "Limit number of results", example: "20" }),
+      limit: z.string().optional().openapi({
+        description: "Page size 1-100 (default 30)",
+        example: "30",
+      }),
       cursor: z
         .string()
         .optional()
-        .openapi({ description: "Cursor for pagination" }),
+        .openapi({ description: "`nextCursor` from the previous page" }),
     }),
   },
   responses: {
@@ -1100,6 +1105,21 @@ registry.registerPath({
   request: { body: json(amaSuggestionsRequestSchema) },
   responses: {
     200: { description: "Suggestions", ...json(amaSuggestionsResponseSchema) },
+    ...AUTH_ERRORS,
+  },
+});
+
+// 30. GET /api/messages/counts
+registry.registerPath({
+  method: "get",
+  path: "/api/messages/counts",
+  summary: "Get Inbox Counts",
+  description:
+    "Count of messages for every inbox filter plus the overall total, independent of paging.",
+  tags: ["Dashboard & Inbox"],
+  ...authed,
+  responses: {
+    200: { description: "Counts", ...json(inboxCountsResponseSchema) },
     ...AUTH_ERRORS,
   },
 });

@@ -18,7 +18,12 @@ vi.mock("web-push", () => {
 vi.mock("@/server/models/user.model", () => ({ default: { updateOne } }));
 
 import { WebPushError } from "web-push";
-import { getVapidConfig, isGoneError, sendPushToUser } from "./web-push";
+import {
+  disablePushWhenNoDevices,
+  getVapidConfig,
+  isGoneError,
+  sendPushToUser,
+} from "./web-push";
 
 const subscription = (endpoint: string) => ({
   endpoint,
@@ -123,6 +128,20 @@ describe("sendPushToUser", () => {
     expect(updateOne).toHaveBeenCalledWith(
       { _id: "u1" },
       { $pull: { pushSubscriptions: { endpoint: { $in: ["gone"] } } } }
+    );
+    // Push turns off for the account only when no device is left.
+    expect(updateOne).toHaveBeenCalledWith(
+      { _id: "u1", pushSubscriptions: { $size: 0 } },
+      { $set: { "notificationSettings.webPushEnabled": false } }
+    );
+  });
+
+  it("disablePushWhenNoDevices only matches users without subscriptions", async () => {
+    await disablePushWhenNoDevices("u2");
+
+    expect(updateOne).toHaveBeenCalledWith(
+      { _id: "u2", pushSubscriptions: { $size: 0 } },
+      { $set: { "notificationSettings.webPushEnabled": false } }
     );
   });
 });

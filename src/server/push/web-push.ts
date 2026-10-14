@@ -98,7 +98,19 @@ export async function sendPushToUser(
       { _id: userId },
       { $pull: { pushSubscriptions: { endpoint: { $in: goneEndpoints } } } }
     );
+    await disablePushWhenNoDevices(userId);
   }
 
   return { sent, removed: goneEndpoints.length };
+}
+
+/**
+ * `webPushEnabled` means "at least one device subscribed": switch it off only
+ * once the last subscription is gone, never because one device opted out.
+ */
+export async function disablePushWhenNoDevices(userId: string): Promise<void> {
+  await UserModel.updateOne(
+    { _id: userId, pushSubscriptions: { $size: 0 } },
+    { $set: { "notificationSettings.webPushEnabled": false } }
+  );
 }

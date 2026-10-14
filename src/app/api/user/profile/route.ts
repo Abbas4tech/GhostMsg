@@ -46,7 +46,7 @@ export async function GET(): Promise<Response> {
   }
 }
 
-/** Display name, photo (data URL or null) and "Show the AMA banner". */
+/** Display name, photo (data URL or null), AMA Prompt and "Show the AMA banner". */
 export async function PATCH(request: NextRequest): Promise<Response> {
   await dbConnect();
   try {
@@ -69,10 +69,13 @@ export async function PATCH(request: NextRequest): Promise<Response> {
       );
     }
 
-    const { displayName, avatarUrl, showAmaBanner } = parsed.data;
+    const { displayName, avatarUrl, showAmaBanner, amaPrompt } = parsed.data;
     const update: Record<string, unknown> = {};
     if (displayName !== undefined) {
       update.displayName = displayName;
+    }
+    if (amaPrompt !== undefined) {
+      update.amaPrompt = amaPrompt;
     }
     if (avatarUrl !== undefined) {
       update.avatarUrl = avatarUrl;

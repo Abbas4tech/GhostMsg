@@ -22,6 +22,10 @@ Single-context (`GLOSSARY.md` and `docs/adr/` at root). See `docs/agents/domain.
 
 Before changing user-facing behaviour, settings, copy, moderation, notifications, or anything that stores or shows sender data, read `docs/agents/product-rules.md` (invariants S1–S10, recipient-control and copy rules). Depth: `docs/17-trust-safety-and-privacy.md`.
 
+### State management
+
+Server data lives only in React Query (`src/data/**` factories); lists are filtered and paged on the server; controller `useState` is for ephemeral UI only; no global client store. Before adding a query, mutation, controller state, URL or device state, read `docs/20-state-management.md`.
+
 ### Design system
 
 shadcn (Radix) components first; the design is applied through opt-in CVA variants inside `src/components/elements/*`, semantic tokens only, every screen in 3 palettes × light/dark. Before adding a token, variant, palette or element, read `docs/13-design-system-and-theming.md`.

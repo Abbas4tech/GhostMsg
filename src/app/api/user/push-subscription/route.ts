@@ -7,6 +7,7 @@ import {
 } from "@/schemas/notification-schema";
 import dbConnect from "@/server/db/db-connect";
 import UserModel from "@/server/models/user.model";
+import { disablePushWhenNoDevices } from "@/server/push/web-push";
 
 async function getSessionUserId(): Promise<string | null> {
   const session = await getServerSession(authOptions);
@@ -84,6 +85,8 @@ export async function DELETE(request: NextRequest): Promise<Response> {
       { _id: userId },
       { $pull: { pushSubscriptions: { endpoint: parsed.data.endpoint } } }
     );
+    // Push stays on while any other device is still subscribed.
+    await disablePushWhenNoDevices(userId);
 
     return Response.json(
       { success: true, message: "Push subscription removed" },

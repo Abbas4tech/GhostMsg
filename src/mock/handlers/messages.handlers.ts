@@ -1,5 +1,17 @@
 import { HttpResponse, http } from "msw";
 import {
+  compareNewestFirst,
+  decodeInboxCursor,
+  encodeInboxCursor,
+  isAfterCursor,
+} from "@/lib/messages/inbox-cursor";
+import {
+  countInboxStatuses,
+  isInboxQueryStatus,
+  matchesInboxSearch,
+  matchesInboxStatus,
+} from "@/lib/messages/inbox-filter";
+import {
   type MessageFixture,
   messageScenarios,
 } from "@/mock/fixtures/messages.fixtures";
@@ -13,17 +25,59 @@ import {
 
 const success = (message: string) => ({ success: true, message });
 
-/** Inbox list + every inbox mutation, answering with the given dataset. */
+const DEFAULT_PAGE_SIZE = 30;
+
+/**
+ * One inbox page exactly as the server builds it: status filter, search on
+ * content or answer, newest first, keyset cursor (shared rules in
+ * `src/lib/messages/inbox-filter.ts` and `inbox-cursor.ts`).
+ */
+function inboxPage(messages: MessageFixture[], url: URL) {
+  const statusParam = url.searchParams.get("status") ?? "all";
+  const status = isInboxQueryStatus(statusParam) ? statusParam : "all";
+  const q = url.searchParams.get("q") ?? "";
+  const limit = Number(url.searchParams.get("limit")) || DEFAULT_PAGE_SIZE;
+  const cursor = decodeInboxCursor(url.searchParams.get("cursor"));
+
+  const matching = messages
+    .filter(
+      (message) =>
+        matchesInboxStatus(message, status) && matchesInboxSearch(message, q)
+    )
+    .sort(compareNewestFirst);
+  const remaining = cursor
+    ? matching.filter((message) => isAfterCursor(message, cursor))
+    : matching;
+  const page = remaining.slice(0, limit);
+  const last = page.at(-1);
+
+  return {
+    success: true,
+    messages: page,
+    total: matching.length,
+    nextCursor:
+      remaining.length > limit && last ? encodeInboxCursor(last) : null,
+  };
+}
+
+/** Inbox list, counts and every inbox mutation, answering with the dataset. */
 export const inboxHandlers = (
   messages: MessageFixture[],
   options: ScenarioOptions = {}
 ) => [
-  http.get(mswPath("/api/get-messages"), async () => {
+  http.get(mswPath("/api/get-messages"), async ({ request }) => {
     await applyLatency(options);
-    return ok("/api/get-messages", "get", {
+    return ok(
+      "/api/get-messages",
+      "get",
+      inboxPage(messages, new URL(request.url))
+    );
+  }),
+  http.get(mswPath("/api/messages/counts"), async () => {
+    await applyLatency(options);
+    return ok("/api/messages/counts", "get", {
       success: true,
-      messages,
-      total: messages.length,
+      counts: countInboxStatuses(messages),
     });
   }),
   http.patch(mswPath("/api/messages/{messageId}"), () =>
@@ -61,6 +115,9 @@ export const messageHandlers = {
     error: [
       http.get(mswPath("/api/get-messages"), () =>
         apiError(500, "Failed to fetch messages")
+      ),
+      http.get(mswPath("/api/messages/counts"), () =>
+        apiError(500, "Failed to count messages")
       ),
     ],
   },

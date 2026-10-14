@@ -1,27 +1,52 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  type InfiniteData,
+  type QueryKey,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { queryKeys } from "@/data/query-keys";
-import { buildLiveMessageToast } from "./use-live-messages.utils";
+import type { MessagesPageDto } from "@/types/api";
+import {
+  addToInboxCounts,
+  buildLiveMessageToast,
+  type InboxListFilters,
+  insertLiveMessage,
+  type LiveMessageEvent,
+  toLiveMessageDto,
+} from "./use-live-messages.utils";
 
 export interface UseLiveMessagesOptions {
   /** Recipient's "Hide message text in notifications" (default on). */
   hideMessageText?: boolean;
 }
 
+const RECONNECT_MS = 5000;
+/** Batch the reconciling refetch after a burst of live messages. */
+const REFETCH_DELAY_MS = 1500;
+
+const LIST_KEY = [...queryKeys.messages.all, "list"];
+
+interface CountsData {
+  counts: Parameters<typeof addToInboxCounts>[0];
+}
+
 /**
- * Listens to `/api/messages/stream` (SSE): refreshes the inbox on every new
- * message and toasts only what the recipient's settings allow (never the
- * text of a quarantined message).
+ * Listens to `/api/messages/stream` (SSE). A new message is inserted into the
+ * matching cached inbox lists and counts at once, then one debounced refetch
+ * reconciles (Sender Hash, reply). The toast shows only what the recipient's
+ * settings allow. Returns whether the stream is connected, so callers can
+ * poll while it is down.
  */
 export const useLiveMessages = ({
   hideMessageText = true,
 }: UseLiveMessagesOptions = {}) => {
   const { data: session, status } = useSession();
   const queryClient = useQueryClient();
+  const [isConnected, setIsConnected] = useState(false);
   // Read inside the listener so a settings change doesn't reconnect the stream.
   const hideTextRef = useRef(hideMessageText);
   useEffect(() => {
@@ -34,44 +59,73 @@ export const useLiveMessages = ({
     }
 
     let eventSource: EventSource | null = null;
-    let reconnectTimer: NodeJS.Timeout | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let refetchTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleRefetch = () => {
+      if (refetchTimer) {
+        clearTimeout(refetchTimer);
+      }
+      refetchTimer = setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.messages.all });
+      }, REFETCH_DELAY_MS);
+    };
+
+    const handleNewMessage = (event: MessageEvent<string>) => {
+      try {
+        const payload = JSON.parse(event.data) as LiveMessageEvent;
+        const notice = buildLiveMessageToast(payload, hideTextRef.current);
+        if (notice) {
+          toast.info(notice.title, { description: notice.description });
+        }
+        const message = toLiveMessageDto(payload);
+        if (message) {
+          for (const [key] of queryClient.getQueriesData({
+            queryKey: LIST_KEY,
+          })) {
+            const filters = ((key as QueryKey)[2] ?? {}) as InboxListFilters;
+            queryClient.setQueryData<InfiniteData<MessagesPageDto>>(
+              key,
+              (data) => insertLiveMessage(data, filters, message)
+            );
+          }
+          queryClient.setQueryData<CountsData>(
+            queryKeys.messages.counts(),
+            (data) =>
+              data
+                ? { ...data, counts: addToInboxCounts(data.counts, message) }
+                : data
+          );
+        }
+        scheduleRefetch();
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
     const connect = () => {
       eventSource = new EventSource("/api/messages/stream");
-
-      eventSource.addEventListener("new_message", (event) => {
-        try {
-          const notice = buildLiveMessageToast(
-            JSON.parse(event.data),
-            hideTextRef.current
-          );
-          if (notice) {
-            toast.info(notice.title, { description: notice.description });
-          }
-
-          // Invalidate message list to refresh inbox
-          queryClient.invalidateQueries({ queryKey: queryKeys.messages.all });
-        } catch (e) {
-          console.error(e);
-        }
-      });
-
+      eventSource.onopen = () => setIsConnected(true);
+      eventSource.addEventListener("new_message", handleNewMessage);
       eventSource.onerror = () => {
+        setIsConnected(false);
         eventSource?.close();
-        // Auto-reconnect in 5 seconds
-        reconnectTimer = setTimeout(connect, 5000);
+        reconnectTimer = setTimeout(connect, RECONNECT_MS);
       };
     };
 
     connect();
 
     return () => {
-      if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
+      setIsConnected(false);
+      for (const timer of [reconnectTimer, refetchTimer]) {
+        if (timer) {
+          clearTimeout(timer);
+        }
       }
-      if (eventSource) {
-        eventSource.close();
-      }
+      eventSource?.close();
     };
   }, [session?.user, status, queryClient]);
+
+  return { isConnected };
 };

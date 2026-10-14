@@ -8,6 +8,7 @@ Start here when you are an AI agent working in GhostMsg. Each guide covers one k
 | [component-architecture.md](component-architecture.md) | Touch `src/components/**` or `src/app/**/page.tsx|layout.tsx`, or install a shadcn / Animate UI component. |
 | [source-structure.md](source-structure.md) | Add or move files under `src/` outside `src/components/`, extract a `*.utils.ts`, or write a controller test. |
 | [api-patterns.md](api-patterns.md) | Add, change or call an API endpoint. |
+| [../20-state-management.md](../20-state-management.md) | Add a query, mutation, controller `useState`, URL or device state, or touch the inbox data flow. |
 | [feature-recipes.md](feature-recipes.md) | Build a common change end-to-end (new setting, endpoint, screen section, variant, shadcn install, policy change). |
 | [documentation-maintenance.md](documentation-maintenance.md) | Finish any change: which docs, screenshots and indexes to update. |
 | [domain.md](domain.md) | Explore the codebase (read `GLOSSARY.md` and relevant ADRs first). |
@@ -25,6 +26,7 @@ Start here when you are an AI agent working in GhostMsg. Each guide covers one k
 | What must never leak, and how is abuse handled? | [17 Trust, Safety & Privacy](../17-trust-safety-and-privacy.md) |
 | When do alerts fire? | [18 Notifications & Real-Time](../18-notifications-and-realtime.md) |
 | What changed in the redesign? | [19 Change Summary](../19-redesign-change-summary.md) |
+| Where does state live; what's the review backlog? | [20 State Management](../20-state-management.md) |
 | Which modules, stories, mocks and scenarios exist? | [11 Component Registry](../11-component-registry.md) (generated) |
 
 ## Gates before you hand off

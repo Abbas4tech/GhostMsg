@@ -9,8 +9,14 @@ type Schemas = components["schemas"];
 
 /** Inbox message as returned by `GET /api/get-messages`. */
 export type MessageDto = Schemas["MessageItem"];
+/** One page of `GET /api/get-messages` (keyset paging). */
+export type MessagesPageDto = Schemas["GetMessagesResponse"];
+/** `GET /api/messages/counts`: count per inbox filter + overall total. */
+export type InboxCountsDto = Schemas["InboxCounts"];
 /** Recipient reply attached to a message (`null` when unanswered). */
 export type MessageReplyDto = Schemas["MessageReply"];
+/** Everything `/u/[username]` shows (`GET /api/public/{username}/answers`). */
+export type PublicProfileDto = Schemas["PublicAnswersResponse"];
 /** Published Q&A item on `/u/[username]`. */
 export type PublicAnswerDto = Schemas["PublicAnswerItem"];
 /** Recipient notification preferences. */

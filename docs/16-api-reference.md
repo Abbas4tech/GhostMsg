@@ -31,7 +31,8 @@ How the contract is produced and consumed is covered in [Chapter 4](04-api-and-t
 | | `GET /api/suggest-messages` | — | AI Suggested Messages (Edge) |
 | Public Q&A | `GET /api/public/{username}/answers` | — | Public profile + published answers |
 | | `POST /api/messages/{messageId}/reply` | ✓ | Save / publish an answer |
-| Inbox | `GET /api/get-messages?status=&q=&limit=` | ✓ | List messages |
+| Inbox | `GET /api/get-messages?status=&q=&limit=&cursor=` | ✓ | One page of one filter (server-side filter, search, keyset paging) |
+| | `GET /api/messages/counts` | ✓ | **New.** Count per filter + total |
 | | `PATCH /api/messages/{messageId}` | ✓ | Star / read |
 | | `POST /api/messages/bulk` | ✓ | Bulk read / star / delete |
 | | `DELETE /api/delete-message/{messageId}` | ✓ | Delete one message |
@@ -42,7 +43,7 @@ How the contract is produced and consumed is covered in [Chapter 4](04-api-and-t
 | | `POST /api/ai/ama-suggestions` | ✓ | **New.** AMA Prompt ideas |
 | Profile & settings | `GET/PATCH /api/user/profile` | ✓ | **New.** Display name, photo, AMA banner switch |
 | | `PATCH /api/user/username` | ✓ | **New.** Change username |
-| | `PATCH /api/user/ama-prompt` | ✓ | AMA Prompt text |
+| | `PATCH /api/user/ama-prompt` | ✓ | AMA Prompt text (legacy; the app saves it via `PATCH /api/user/profile`) |
 | | `GET/PATCH /api/user/preferences` | ✓ | **New.** Messages + Safety settings |
 | | `GET/PATCH /api/user/notifications` | ✓ | Email, push, **hidden text, quiet hours** |
 | | `POST/DELETE /api/user/push-subscription` | ✓ | Web Push device subscription |
@@ -81,7 +82,7 @@ Body `{ username, code }` (6 digits). **200** when correct and unexpired (`isVer
 Side effects, in order: rate limit → Sender Hash → blocklist check (silent 200) → moderation (`toxicity`, `sentimentTag`) → `shouldQuarantine` → create Message → publish SSE event → email (instant, if allowed) → Web Push (if allowed). Alerts are skipped for quarantined messages and inside quiet hours. With `hideMessageText` (default) push says "New Anonymous Message" and the email shows a neutral sentence without text or tone. Full diagram: [Chapter 17 §3](17-trust-safety-and-privacy.md#3-the-send-pipeline). Client: `useSendMessageMutation`.
 
 ### `GET /api/suggest-messages` (Edge)
-**200** `{ success: true, messages: "q1||q2||q3" }`, a single string split by `||` on the client. Falls back to a fixed set without an AI key or on error (still 200). Client: `useSuggestMessagesMutation`; only called when the profile's `offerSuggestions` is true.
+**200** `{ success: true, messages: "q1||q2||q3" }`, a single string split by `||` on the client. Falls back to a fixed set without an AI key or on error (still 200). Client: `publicQueries.suggestions()` (a cached query, no retries, failure toasted once; "New ideas" refetches); only enabled when the profile's `offerSuggestions` is true.
 
 ## 5. Public Q&A
 
@@ -108,15 +109,27 @@ Side effects, in order: rate limit → Sender Hash → blocklist check (silent 2
 Up to 50 published answers, newest published first. **404** "User not found" (the page renders its not-found state and does not retry). `displayName` is omitted when empty. Client: `messagesQueries.publicAnswers(username)`.
 
 ### `POST /api/messages/{messageId}/reply`
-Body `{ text (1–1000), isPublished }`. Sets `reply` and `publishedAt` when published. **404** if not yours. Client: `useReplyMessageMutation` (Smart Reply save).
+Body `{ text (1–1000), isPublished }`. Sets `reply` (and `publishedAt` when published) and marks the message **read**. **404** if not yours. Client: `useReplyMessageMutation` (optimistic with rollback; Smart Reply save).
 
 ## 6. Inbox
 
 ### `GET /api/get-messages`
-Query `status` = `all` (default: everything not quarantined) · `unread` · `starred` · `quarantined` · `answered`; `q` (case-insensitive content match); `limit` (default 50, max 100). **200** `{ success, messages: MessageDto[], total }`. Each `MessageDto` includes `senderHash` (for blocking) and `reply`. The dashboard loads `all` once and filters and counts client-side (`inbox.utils.ts`). Client: `messagesQueries.list()`.
+One page of one inbox filter, filtered and searched on the server ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
+
+| Param | Values |
+| :--- | :--- |
+| `status` | `all` (default: not quarantined) · `unread` · `starred` · `quarantined` · `answered` · `any` (every message, for exports) |
+| `q` | Case-insensitive literal match on the message **or its answer** (regex characters are escaped) |
+| `limit` | 1–100, default 30 |
+| `cursor` | `nextCursor` from the previous page (`"<ISO createdAt>_<id>"`) |
+
+**200** `{ success, messages: MessageDto[], total, nextCursor }`: newest first (`createdAt`, then `_id`); `total` counts everything matching the filter + search; `nextCursor` is `null` on the last page. **400** for an unknown status or a malformed cursor. Each `MessageDto` includes `senderHash` (for blocking) and `reply`. Client: `messagesQueries.inbox({ status, q })` (`useInfiniteQuery`), `fetchAllMessages(status)` (exports).
+
+### `GET /api/messages/counts` *(new)*
+**200** `{ success, counts: { all, unread, starred, answered, quarantined, total } }` from one aggregation (`total` includes quarantined). Client: `messagesQueries.counts()` (inbox badges, sidebar unread badge, "Delete all N").
 
 ### `PATCH /api/messages/{messageId}`
-Body `{ isPinned?, isRead? }`. **200** with the updated message. Client: `useUpdateMessageMutation` (optimistic).
+Body `{ isPinned?, isRead? }`. **200** with the updated message. Client: `useUpdateMessageMutation` (optimistic with rollback, silent on success). The inbox sends `isRead: true` when the recipient replies, opens the Story Card, reveals or stars an unread message.
 
 ### `POST /api/messages/bulk`
 Body `{ action: "read" | "star" | "delete", ids: string[] (≥1) }`. Invalid ObjectIds are dropped; updates are scoped to the Recipient. Client: `useBulkActionMutation` (optimistic, shared cache helpers in `messages-cache.ts`).
@@ -154,7 +167,8 @@ Body `{ currentPrompt? (≤120) }` → `{ success, suggestions: string[3] }`. Ge
 
 ```json
 // PATCH body: every field optional
-{ "displayName": "Maya", "avatarUrl": "data:image/webp;base64,UklGR…", "showAmaBanner": false }
+{ "displayName": "Maya", "avatarUrl": "data:image/webp;base64,UklGR…",
+  "amaPrompt": "Ask me about design", "showAmaBanner": false }
 ```
 
 ```json
@@ -164,13 +178,13 @@ Body `{ currentPrompt? (≤120) }` → `{ success, suggestions: string[3] }`. Ge
                "avatarUrl": "data:image/webp;base64,…", "amaPrompt": "…", "showAmaBanner": false } }
 ```
 
-`avatarUrl: null` removes the photo. Validation: `displayName` ≤ 40 after trim; `avatarUrl` must match `data:image/(png|jpeg|webp);base64,…` and be ≤ 350,000 chars ("Photo is too large"). GET **404** if the user document is gone. Client: `userQueries.profile()`, `useUpdateProfileMutation` (optimistic).
+`avatarUrl: null` removes the photo. `amaPrompt` (1–120 after trim) is saved in the same request. Validation: `displayName` ≤ 40 after trim; `avatarUrl` must match `data:image/(png|jpeg|webp);base64,…` and be ≤ 350,000 chars ("Photo is too large"). GET **404** if the user document is gone. Client: `userQueries.profile()`, `useUpdateProfileMutation` (optimistic).
 
 ### `PATCH /api/user/username`
 Body `{ username }` (sign-up rules). **409** "Username is already taken" (another user); **200** `{ success, message, username }`. The old `/u/<old>` link stops resolving immediately. The client then calls `useSession().update({ username })` (the NextAuth `jwt` callback copies it into the token on `trigger === "update"`) and `router.refresh()`. Client: `useChangeUsernameMutation`.
 
-### `PATCH /api/user/ama-prompt` *(existing)*
-Body `{ amaPrompt }` (≤120) → `{ success, message: "AMA prompt updated successfully!", amaPrompt }`. Client: `useAmaPromptMutation`.
+### `PATCH /api/user/ama-prompt` *(legacy)*
+Body `{ amaPrompt }` (≤120) → `{ success, message: "AMA prompt updated successfully!", amaPrompt }`. Kept for compatibility; the Profile page sends `amaPrompt` inside `PATCH /api/user/profile` so Save is one atomic request ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)).
 
 ### `GET /api/user/preferences` · `PATCH /api/user/preferences`
 
@@ -200,7 +214,7 @@ Writes dot paths (`safetySettings.sensitivity`) so siblings are never reset. Cli
 GET → `{ success, notificationSettings: { emailAlerts, webPushEnabled, hideMessageText, quietHours }, isAcceptingMessage }`. Times are `HH:MM` 24-hour; `timeZone` is an IANA name (1–64 chars). Client: `userQueries.notifications()`, `useNotificationSettingsMutation` (optimistic).
 
 ### `POST /api/user/push-subscription` · `DELETE /api/user/push-subscription`
-POST body = the browser's `PushSubscription` JSON `{ endpoint (URL), keys: { p256dh, auth } }`; replaces any record with the same endpoint and sets `webPushEnabled: true`. DELETE body `{ endpoint }` removes that device. The client's push adapter (`use-push-notification.ts`) also PATCHes `webPushEnabled: false` when turning push off ([ADR 0020](adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md)).
+POST body = the browser's `PushSubscription` JSON `{ endpoint (URL), keys: { p256dh, auth } }`; replaces any record with the same endpoint and sets `webPushEnabled: true`. DELETE body `{ endpoint }` removes that device only; the server sets `webPushEnabled: false` once **no** device remains (`disablePushWhenNoDevices`, also after pruning gone endpoints). The Settings switch reflects this browser's subscription ([ADR 0020](adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md), [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
 
 ### `DELETE /api/messages`
 No body. Deletes every message of the Recipient (public answers included). **200** `{ success, message: "All messages deleted", deletedCount }`. The client delays this call by 10 s behind an Undo toast. Client: `useDeleteAllMessagesMutation`.
@@ -223,24 +237,27 @@ Side effects: one digest email per recipient with `emailAlerts = "daily"` and ne
 
 ## 11. Client data-layer map
 
-Pages never call endpoints directly; controllers use these hooks ([ADR 0006](adr/0006-standardized-api-calling-and-react-query-architecture.md), [ADR 0018](adr/0018-source-structure-server-data-lib-utils-controllers-tests.md)).
+Settings-like mutations (acceptance, notifications, preferences, profile) are built with `useOptimisticResourceMutation` (`src/data/optimistic-resource-mutation.ts`): optimistic, serialised per resource, silent on success, rollback + toast on error ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)). Pages never call endpoints directly; controllers use these hooks ([ADR 0006](adr/0006-standardized-api-calling-and-react-query-architecture.md), [ADR 0018](adr/0018-source-structure-server-data-lib-utils-controllers-tests.md)).
 
 | Query key | `queryOptions` / hook | Endpoint | Optimistic | Used by controllers |
 | :--- | :--- | :--- | :---: | :--- |
-| `["messages","list",{}]` | `messagesQueries.list()` | `GET /api/get-messages` | — | inbox, dashboard-shell (unread), settings (export, totals) |
+| `["messages","list",{status,q}]` | `messagesQueries.inbox({ status, q })` (infinite) | `GET /api/get-messages` | — | inbox |
+| `["messages","counts"]` | `messagesQueries.counts()` | `GET /api/messages/counts` | — | inbox (badges), dashboard-shell (unread), settings ("Delete all N") |
+| — | `fetchAllMessages(status)` (not cached) | `GET /api/get-messages` pages | — | settings ("Export all") |
 | `["public","answers",u]` | `messagesQueries.publicAnswers(u)` | `GET /api/public/{u}/answers` | — | public-answers |
 | `["user","acceptance"]` | `userQueries.acceptance()` / `useAcceptMessageMutation` | `/api/accept-message` | ✓ | dashboard-shell, settings, profile |
 | `["user","notifications"]` | `userQueries.notifications()` / `useNotificationSettingsMutation` | `/api/user/notifications` | ✓ | settings |
 | `["user","blocked-senders"]` | `userQueries.blockedSenders()` / block + unblock mutations | `/api/block-sender` | — | settings, inbox |
-| `["user","profile"]` | `userQueries.profile()` / `useUpdateProfileMutation` | `/api/user/profile` | ✓ | profile, dashboard-shell (avatar), settings (email) |
+| `["user","profile"]` | `userQueries.profile()` / `useUpdateProfileMutation` | `/api/user/profile` | ✓ (factory) | profile, dashboard-shell (avatar), settings (email) |
 | `["user","preferences"]` | `userQueries.preferences()` / `useUpdatePreferencesMutation` | `/api/user/preferences` | ✓ | settings, inbox |
 | `["auth","check-username",u]` | `authQueries.checkUsername(u)` | `/api/check-username-unique` | — | sign-up, change-username |
 | — | `useChangeUsernameMutation` | `PATCH /api/user/username` | — | change-username |
-| — | `useAmaPromptMutation`, `useAmaSuggestionsMutation` | `/api/user/ama-prompt`, `/api/ai/ama-suggestions` | — | profile |
+| — | `useAmaSuggestionsMutation` | `/api/ai/ama-suggestions` | — | profile |
 | — | `useDeleteAllMessagesMutation`, `useDeleteAccountMutation` | `DELETE /api/messages`, `DELETE /api/user` | — | danger-zone |
 | — | `useReplyMessageMutation`, `useSmartReplyMutation` | reply, smart-reply | ✓ (reply) | smart-reply |
 | — | `useUpdateMessageMutation`, `useBulkActionMutation`, `useDeleteMessageMutation` | message routes | ✓ | inbox |
-| — | `useSendMessageMutation`, `useSuggestMessagesMutation` | public routes | — | send-message |
+| `["public","suggestions"]` | `publicQueries.suggestions()` | `GET /api/suggest-messages` | — | send-message |
+| — | `useSendMessageMutation` | `POST /api/send-message` | — | send-message |
 | — | `usePushSubscriptionMutation`, `useRemovePushSubscriptionMutation` (via `usePushNotification`) | push-subscription | — | settings |
 | — | `useLiveMessages()` | SSE stream | — | inbox |
 

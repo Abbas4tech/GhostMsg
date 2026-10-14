@@ -1,135 +1,161 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { useAmaPromptMutation } from "@/data/user/use-ama-prompt-mutation";
 import { useAmaSuggestionsMutation } from "@/data/user/use-ama-suggestions-mutation";
 import { useUpdateProfileMutation } from "@/data/user/use-update-profile-mutation";
 import { userQueries } from "@/data/user/user.queries";
+import { useLeaveGuard } from "@/hooks/use-leave-guard";
 import { resizeImageToDataUrl } from "@/lib/browser/resize-image";
 import { toLinkPrefix } from "./dashboard.utils";
+import { buildProfilePatch, type ProfileFormValues } from "./profile.utils";
 import { useProfileLinkController } from "./use-profile-link.controller";
 
-/** Unsaved edits; `undefined` means "unchanged from the server". */
-interface ProfileDraft {
-  amaPrompt?: string;
-  /** `null` removes the photo. */
-  avatarUrl?: string | null;
-  displayName?: string;
-  showAmaBanner?: boolean;
-}
+const EMPTY_PROFILE: ProfileFormValues = {
+  displayName: "",
+  avatarUrl: null,
+  amaPrompt: "",
+  showAmaBanner: true,
+};
 
-const EMPTY_DRAFT: ProfileDraft = {};
+/** Programmatic edits count as user edits (dirty) for the unsaved bar. */
+const AS_EDIT = { shouldDirty: true } as const;
 
 /**
- * Profile page: identity, link, AMA Prompt and the live preview. Edits stay
- * a local draft (shown in the preview) until "Save changes".
+ * Profile page: identity, link, AMA Prompt and the live preview. Edits live
+ * in a react-hook-form draft fed by the server profile (`values`), shown in
+ * the preview, saved as one atomic PATCH, and protected from accidental
+ * navigation by the leave guard.
  */
 export function useProfileController() {
+  const router = useRouter();
   const link = useProfileLinkController();
   const { data: profileData } = useQuery(userQueries.profile());
   const { data: acceptanceData } = useQuery(userQueries.acceptance());
-  const profileMutation = useUpdateProfileMutation();
-  const amaMutation = useAmaPromptMutation();
+  const { mutateAsync: saveProfile, isPending: isSaving } =
+    useUpdateProfileMutation();
   const suggestMutation = useAmaSuggestionsMutation();
 
   const saved = profileData?.profile;
-  const [draft, setDraft] = useState<ProfileDraft>(EMPTY_DRAFT);
+  const serverValues = useMemo<ProfileFormValues>(
+    () =>
+      saved
+        ? {
+            displayName: saved.displayName ?? "",
+            avatarUrl: saved.avatarUrl ?? null,
+            amaPrompt: saved.amaPrompt ?? "",
+            showAmaBanner: saved.showAmaBanner ?? true,
+          }
+        : EMPTY_PROFILE,
+    [saved]
+  );
+
+  // `values` keeps the form in step with the server; fields the recipient is
+  // editing are kept (keepDirtyValues) when a refetch lands.
+  const form = useForm<ProfileFormValues>({
+    values: serverValues,
+    resetOptions: { keepDirtyValues: true },
+  });
+  const values = useWatch({ control: form.control }) as ProfileFormValues;
+  const { isDirty, dirtyFields } = form.formState;
+
   const [isPhotoProcessing, setIsPhotoProcessing] = useState(false);
   const [aiIdeas, setAiIdeas] = useState<string[]>([]);
 
-  const values = {
-    username: saved?.username ?? link.username,
-    displayName: draft.displayName ?? saved?.displayName ?? "",
-    avatarUrl:
-      draft.avatarUrl === undefined
-        ? (saved?.avatarUrl ?? null)
-        : draft.avatarUrl,
-    amaPrompt: draft.amaPrompt ?? saved?.amaPrompt ?? "",
-    showAmaBanner: draft.showAmaBanner ?? saved?.showAmaBanner ?? true,
-  };
-
-  const isDirty = useMemo(
-    () =>
-      (draft.displayName !== undefined &&
-        draft.displayName.trim() !== (saved?.displayName ?? "")) ||
-      (draft.avatarUrl !== undefined &&
-        draft.avatarUrl !== (saved?.avatarUrl ?? null)) ||
-      (draft.amaPrompt !== undefined &&
-        draft.amaPrompt.trim() !== (saved?.amaPrompt ?? "")) ||
-      (draft.showAmaBanner !== undefined &&
-        draft.showAmaBanner !== (saved?.showAmaBanner ?? true)),
-    [draft, saved]
+  const { setValue, reset, getValues } = form;
+  const setDisplayName = useCallback(
+    (displayName: string) => setValue("displayName", displayName, AS_EDIT),
+    [setValue]
   );
-
-  const update = useCallback(
-    (patch: ProfileDraft) => setDraft((prev) => ({ ...prev, ...patch })),
-    []
+  const setAmaPrompt = useCallback(
+    (amaPrompt: string) => setValue("amaPrompt", amaPrompt, AS_EDIT),
+    [setValue]
+  );
+  const setShowAmaBanner = useCallback(
+    (showAmaBanner: boolean) =>
+      setValue("showAmaBanner", showAmaBanner, AS_EDIT),
+    [setValue]
+  );
+  const setAvatarUrl = useCallback(
+    (avatarUrl: string | null) => setValue("avatarUrl", avatarUrl, AS_EDIT),
+    [setValue]
   );
 
   const handlePhotoSelect = useCallback(
     async (file: File) => {
       setIsPhotoProcessing(true);
       try {
-        update({ avatarUrl: await resizeImageToDataUrl(file) });
+        setAvatarUrl(await resizeImageToDataUrl(file));
       } catch {
         toast.error("Couldn't read that image. Try a PNG, JPEG or WebP.");
       } finally {
         setIsPhotoProcessing(false);
       }
     },
-    [update]
+    [setAvatarUrl]
   );
 
-  const handleDiscard = useCallback(() => setDraft(EMPTY_DRAFT), []);
+  const handleDiscard = useCallback(() => reset(), [reset]);
 
-  const { mutateAsync: saveProfile } = profileMutation;
-  const { mutateAsync: saveAmaPrompt } = amaMutation;
   const handleSave = useCallback(async () => {
-    const amaPrompt = draft.amaPrompt?.trim();
-    try {
-      const profilePatch = {
-        displayName: draft.displayName?.trim(),
-        avatarUrl: draft.avatarUrl,
-        showAmaBanner: draft.showAmaBanner,
-      };
-      const hasProfileChange = Object.values(profilePatch).some(
-        (value) => value !== undefined
-      );
-      await Promise.all([
-        hasProfileChange ? saveProfile(profilePatch) : undefined,
-        amaPrompt && amaPrompt !== saved?.amaPrompt
-          ? saveAmaPrompt(amaPrompt)
-          : undefined,
-      ]);
-      setDraft(EMPTY_DRAFT);
-      toast.success("Profile saved");
-    } catch {
-      // Each mutation toasts and rolls back its own failure.
+    const current = getValues();
+    const patch = buildProfilePatch(current, dirtyFields);
+    if (Object.keys(patch).length === 0) {
+      reset();
+      return;
     }
-  }, [draft, saved?.amaPrompt, saveProfile, saveAmaPrompt]);
+    try {
+      await saveProfile(patch);
+      // The saved values become the new baseline (no longer dirty).
+      reset({
+        ...current,
+        displayName: current.displayName.trim(),
+        amaPrompt: patch.amaPrompt ?? serverValues.amaPrompt,
+      });
+    } catch {
+      // Rolled back + toasted by the mutation
+    }
+  }, [getValues, dirtyFields, saveProfile, reset, serverValues.amaPrompt]);
 
   const { mutateAsync: suggest } = suggestMutation;
   const handleSuggest = useCallback(async () => {
     try {
-      const result = await suggest(values.amaPrompt || undefined);
+      const result = await suggest(getValues("amaPrompt") || undefined);
       setAiIdeas(result.suggestions);
     } catch {
       // Toasted by the mutation
     }
-  }, [suggest, values.amaPrompt]);
+  }, [suggest, getValues]);
+
+  // Leaving with unsaved edits asks first (DiscardChangesModal).
+  const leave = useLeaveGuard(isDirty);
+  const { pendingHref, clearPendingHref } = leave;
+  const handleConfirmLeave = useCallback(() => {
+    if (!pendingHref) {
+      return;
+    }
+    clearPendingHref();
+    reset();
+    router.push(pendingHref);
+  }, [pendingHref, clearPendingHref, reset, router]);
 
   return {
-    ...values,
+    username: saved?.username ?? link.username,
+    displayName: values.displayName ?? "",
+    avatarUrl: values.avatarUrl ?? null,
+    amaPrompt: values.amaPrompt ?? "",
+    showAmaBanner: values.showAmaBanner ?? true,
     profileUrl: link.profileUrl,
     linkPrefix: toLinkPrefix(link.profileLabel),
     isAccepting: Boolean(acceptanceData?.isAcceptingMessage ?? true),
-    setDisplayName: (displayName: string) => update({ displayName }),
-    setAmaPrompt: (amaPrompt: string) => update({ amaPrompt }),
-    setShowAmaBanner: (showAmaBanner: boolean) => update({ showAmaBanner }),
+    setDisplayName,
+    setAmaPrompt,
+    setShowAmaBanner,
     handlePhotoSelect,
-    handlePhotoRemove: () => update({ avatarUrl: null }),
+    handlePhotoRemove: () => setAvatarUrl(null),
     isPhotoProcessing,
     aiIdeas,
     handleSuggest,
@@ -137,8 +163,11 @@ export function useProfileController() {
     handleCopyProfileUrl: link.handleCopy,
     handleShareProfileUrl: link.handleShare,
     isDirty,
-    isSaving: profileMutation.isPending || amaMutation.isPending,
+    isSaving,
     handleDiscard,
     handleSave,
+    isLeaveConfirmOpen: pendingHref !== null,
+    handleConfirmLeave,
+    handleCancelLeave: clearPendingHref,
   };
 }

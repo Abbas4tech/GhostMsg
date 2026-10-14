@@ -37,7 +37,10 @@ export function SettingsPage(props: SettingsPageProps = {}): React.JSX.Element {
           onDeleteAll: danger.openDeleteAll,
           onDeleteAccount: danger.openDeleteAccount,
         }}
-        data={{ onExport: settings.handleExport }}
+        data={{
+          onExport: settings.handleExport,
+          isExporting: settings.isExporting,
+        }}
         messages={{
           isAccepting: settings.isAccepting,
           isAcceptancePending: settings.isAcceptancePending,

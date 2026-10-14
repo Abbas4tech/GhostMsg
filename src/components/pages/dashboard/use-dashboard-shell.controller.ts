@@ -9,7 +9,6 @@ import { messagesQueries } from "@/data/messages/messages.queries";
 import { useAcceptMessageMutation } from "@/data/user/use-accept-message-mutation";
 import { userQueries } from "@/data/user/user.queries";
 import { getActiveNav } from "./dashboard.utils";
-import { countByStatus } from "./inbox.utils";
 import { useProfileLinkController } from "./use-profile-link.controller";
 
 /**
@@ -23,14 +22,12 @@ export function useDashboardShellController() {
   const link = useProfileLinkController();
   const isAuthenticated = status === "authenticated";
 
-  const { data: messagesData } = useQuery({
-    ...messagesQueries.list(),
+  // Server counts: correct however many messages exist (no list download).
+  const { data: countsData } = useQuery({
+    ...messagesQueries.counts(),
     enabled: isAuthenticated,
   });
-  const unreadCount = useMemo(
-    () => countByStatus(messagesData?.messages ?? []).unread,
-    [messagesData?.messages]
-  );
+  const unreadCount = countsData?.counts.unread ?? 0;
 
   const { data: acceptanceData } = useQuery({
     ...userQueries.acceptance(),

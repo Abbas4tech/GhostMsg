@@ -69,8 +69,8 @@ flowchart TB
 
 | | |
 | :--- | :--- |
-| **Composition** | `InboxPage` → `Inbox` block: header (title, unread count, search `InputGroup` pill with `/` `Kbd`, grid/list segmented `ToggleGroup`, Refresh) → `FilterBar` (chip `ToggleGroup` + `Badge count/attention`) → `BulkActionToolbar` (when selecting) → `MessageCard` grid/list → shortcut legend (`Kbd`). Hoisted modals: `SmartReplyModal`, `StoryCardModal`, `RevealMessageModal`, `BlockSenderModal`, `DeleteMessageModal`. |
-| **Controllers** | `use-inbox.controller.ts` (query, SSE, filters, search, selection, bulk, modal state, `concealSpicy`, `publishByDefault`), `use-inbox-keyboard.controller.ts`, `use-smart-reply.controller.ts` |
+| **Composition** | `InboxPage` → `Inbox` block: header (title, unread count, search `InputGroup` pill with `/` `Kbd`, grid/list segmented `ToggleGroup`, Refresh) → `FilterBar` (chip `ToggleGroup` + `Badge count/attention`) → `BulkActionToolbar` (when selecting) → `MessageCard` grid/list → **Load more** (when the server has more pages) → shortcut legend (`Kbd`). Hoisted modals: `SmartReplyModal`, `StoryCardModal`, `RevealMessageModal`, `BlockSenderModal`, `DeleteMessageModal`. |
+| **Controllers** | `use-inbox.controller.ts` composes `use-inbox-filters.controller.ts` (filter + debounced search, written to `?filter=&q=`) and `use-inbox-data.controller.ts` (server-filtered paged query, counts, live SSE inserts, 30 s polling fallback); it owns scoped selection, dialog state by message id, mark-read and actions. Plus `use-inbox-keyboard.controller.ts`, `use-smart-reply.controller.ts` (draft seeded once per opening). State rules: [Chapter 20](20-state-management.md). |
 | **States** | Loading skeleton · empty per filter (`Empty` + Copy my link) · populated · selecting · focused card · concealed (quarantined / spicy) · revealed |
 | **Stories** | `Pages/Dashboard` → Inbox, DeletesAMessage, RepliesWithAi, RevealsQuarantined, KeyboardTriage, EmptyInbox, InboxError, InboxLoading, Mobile; `Blocks/Inbox`; `Patterns/MessageCard`, `Patterns/FilterBar`, `Patterns/BulkActionToolbar` |
 
@@ -123,7 +123,8 @@ sequenceDiagram
 | | |
 | :--- | :--- |
 | **Composition** | `PublicProfilePage` → `PublicProfile` block (phone-first, max 480px): header (`BrandMark`, Get your own link, `PalettePickerButton`, `ThemeTogglerButton`) → identity (`Avatar` xl, display name, status) → `AmaBanner` (if `showAmaBanner`) → `SendMessageForm` with `SuggestedMessages` slot (if `offerSuggestions`) or the sent card → `PublicQaFeed` |
-| **Controllers** | `use-public-answers.controller.ts` (profile + answers + settings, 404 → not found, no retry on 404), `use-send-message.controller.ts` (form, send, suggestions; `autoFetchSuggestions` gated on profile load + `offerSuggestions`) |
+| **Controllers** | `use-public-answers.controller.ts` (profile + answers + settings; `initialData` rendered on the server by `getPublicProfile`, 404 → not found, no retry on 404), `use-send-message.controller.ts` (form, send, `publicQueries.suggestions` query gated on `offerSuggestions`) |
+| **Server rendering** | `app/u/[username]/page.tsx` loads the profile with `getPublicProfile` (React `cache`) for an instant first paint; `layout.tsx` builds the title and link preview from the display name and AMA Prompt. |
 | **States** | Loading answers · accepting · sending · sent · paused · not found · no answers yet · suggestions unavailable |
 | **Stories** | `Pages/PublicProfile` → Default, SuggestionFillsForm, SendsMessage, NotAcceptingMessages, NoAnswersYet, AnswersLoading, SuggestionsUnavailable, Paused, UserNotFound, Mobile |
 
@@ -134,7 +135,7 @@ sequenceDiagram
 | | |
 | :--- | :--- |
 | **Composition** | `ProfilePage` → `ProfilePanel` block: `PageHeading` (Breadcrumb + "View as visitor") → left column `IdentityCard`, `ShareLinkCard`, `AmaPromptEditor` → right column sticky `VisitorPreview` → `UnsavedChangesBar`. Hoisted `ChangeUsernameModal`. |
-| **Controllers** | `use-profile.controller.ts` (draft model, `isDirty`, save/discard, photo resize, AI ideas, `toLinkPrefix`), `use-change-username.controller.ts` (debounced availability, mutation, `useSession().update`, `router.refresh`), `use-profile-link.controller.ts` (copy/share) |
+| **Controllers** | `use-profile.controller.ts` (react-hook-form draft fed by the server profile, `isDirty`, one-request save via `buildProfilePatch`, discard, photo resize, AI ideas, leave guard), `use-change-username.controller.ts` (debounced availability, mutation, `useSession().update`, `router.refresh`), `use-profile-link.controller.ts` (copy/share). Hoisted `DiscardChangesModal` when leaving with unsaved edits. |
 | **States** | Clean · dirty (bar visible) · saving · photo processing · suggesting · username checking/available/taken |
 | **Stories** | `Pages/Dashboard` → Profile; `Blocks/ProfilePanel` (Default, UnsavedChanges, BannerHidden, Paused, Mobile); `Patterns/IdentityCard`, `Patterns/AmaPromptEditor`, `Patterns/ShareLinkCard`, `Patterns/VisitorPreview`, `Patterns/UnsavedChangesBar`, `Patterns/Modals/ChangeUsernameModal` |
 
@@ -149,19 +150,18 @@ sequenceDiagram
     participant UI as ProfilePanel
     participant C as use-profile.controller
     participant P as PATCH /api/user/profile
-    participant A as PATCH /api/user/ama-prompt
 
     R->>UI: Edits display name / photo / prompt / banner
     UI->>C: setDisplayName / handlePhotoSelect / setAmaPrompt / setShowAmaBanner
-    C-->>UI: draft values (preview updates live), isDirty = true → bar appears
-    R->>UI: Save changes
-    par only changed fields
-        C->>P: { displayName?, avatarUrl?, showAmaBanner? }
-    and prompt changed and not blank
-        C->>A: { amaPrompt }
+    C-->>UI: form values (preview updates live), isDirty = true → bar appears
+    alt Save changes
+        C->>P: one request with only the changed fields (blank prompt left out)
+        P-->>C: profile → new baseline, toast "Profile saved"
+    else clicks a link with unsaved edits
+        C-->>UI: DiscardChangesModal ("Keep editing" focused)
+        R->>UI: Discard and leave → reset + navigate
     end
-    C-->>UI: draft cleared, toast "Profile saved"
-    Note over C: Discard clears the draft without any request
+    Note over C: Discard resets to the server values without any request
 ```
 
 ## 7. Settings (`/dashboard/settings`)

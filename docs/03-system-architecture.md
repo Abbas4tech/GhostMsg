@@ -110,7 +110,8 @@ sequenceDiagram
 
 ### Session Management & JWT Payload
 - Strategy: JWT (`session: { strategy: 'jwt' }`).
-- Token Enrichment: The session token includes `_id`, `username`, `isVerified`, and `isAcceptingMessage`.
+- Token Enrichment: The session token includes `_id`, `username` and `isVerified` (identity only; settings such as Message Acceptance are read from the API, [ADR 0031](adr/0031-state-management-consistency-and-structure.md)). `username` is refreshed through `useSession().update` after a rename.
+- Dashboard session: the dashboard route layout reads `getServerSession` and passes it to `SessionProvider`, so it renders signed-in without a loading flash.
 - Protected Routes: [`src/middleware.ts`](../src/middleware.ts) enforces authentication on `/dashboard` and redirects logged-in users away from guest-only auth pages.
 
 ---

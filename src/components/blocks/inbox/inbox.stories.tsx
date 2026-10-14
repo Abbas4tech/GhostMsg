@@ -6,13 +6,16 @@ import {
   defaultInboxArgs,
   emptyInboxArgs,
   loadingInboxArgs,
+  loadingMoreInboxArgs,
   longContentInboxArgs,
+  moreToLoadInboxArgs,
   noMatchesInboxArgs,
   quarantinedInboxArgs,
 } from "./inbox.mock";
 
 const MESSAGE_CARD_ID_REGEX = /^message-card-/;
 const STARRED_REGEX = /starred/i;
+const LOAD_MORE_REGEX = /load more/i;
 
 /** Callback spies for every grouped prop, so the Actions panel logs them. */
 const spies = () => ({
@@ -49,6 +52,10 @@ const meta = {
     messages: {
       control: "object",
       description: "Messages after filtering/search (page-computed)",
+    },
+    pagination: {
+      control: "object",
+      description: "Server paging: Load more when more pages exist",
     },
     totalMessages: {
       control: "number",
@@ -193,6 +200,35 @@ export const QuarantinedOnly: Story = {
 };
 
 export const LongContent: Story = { args: longContentInboxArgs };
+
+export const MoreToLoad: Story = {
+  args: {
+    pagination: { ...moreToLoadInboxArgs.pagination, onLoadMore: fn() },
+  },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(
+      canvas.getByRole("button", { name: LOAD_MORE_REGEX })
+    );
+    await expect(args.pagination?.onLoadMore).toHaveBeenCalledOnce();
+  },
+};
+
+export const LoadingMore: Story = {
+  args: loadingMoreInboxArgs,
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("button", { name: LOAD_MORE_REGEX })
+    ).toBeDisabled();
+  },
+};
+
+export const LastPage: Story = {
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.queryByRole("button", { name: LOAD_MORE_REGEX })
+    ).not.toBeInTheDocument();
+  },
+};
 
 export const Mobile: Story = {
   globals: { viewport: { value: "mobile1", isRotated: false } },

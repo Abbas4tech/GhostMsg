@@ -26,6 +26,7 @@ import {
 } from "@/components/elements/input-group";
 import { Kbd } from "@/components/elements/kbd";
 import { Skeleton } from "@/components/elements/skeleton";
+import { Spinner } from "@/components/elements/spinner";
 import {
   ToggleGroup,
   ToggleGroupItem,
@@ -79,6 +80,13 @@ export type InboxCardActions = Pick<
   | "onStarToggle"
 >;
 
+/** Server paging: the inbox loads one page at a time. */
+export interface InboxPagination {
+  hasMore: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore: () => void;
+}
+
 export interface InboxProps {
   bulkActions: InboxBulkActions;
   cardActions: InboxCardActions;
@@ -91,7 +99,7 @@ export interface InboxProps {
   isLoading?: boolean;
   isRefreshing?: boolean;
   isSenderBlocked?: (senderHash?: string) => boolean;
-  /** Messages after filtering/search. */
+  /** Loaded messages for the current filter and search. */
   messages: MessageDto[];
   /** Reference time for message ages (stories pin it). */
   now?: Date;
@@ -99,6 +107,8 @@ export interface InboxProps {
   onCopyLink?: () => void;
   onRefresh: () => void;
   onViewModeChange: (mode: InboxViewMode) => void;
+  /** "Load more" below the list when the server has more pages. */
+  pagination?: InboxPagination;
   /** Quarantined messages the recipient chose to reveal. */
   revealedIds?: string[];
   /** id of the search input, so "/" can focus it. */
@@ -249,6 +259,7 @@ export function Inbox({
   revealedIds = [],
   concealSpicy = false,
   now,
+  pagination,
   searchInputId = INBOX_SEARCH_INPUT_ID,
   isSenderBlocked = neverBlocked,
 }: InboxProps): React.JSX.Element {
@@ -370,6 +381,22 @@ export function Inbox({
               />
             );
           })}
+        </div>
+      ) : null}
+
+      {!isLoading && pagination?.hasMore ? (
+        <div className="flex justify-center">
+          <Button
+            className="rounded-full"
+            disabled={pagination.isLoadingMore}
+            onClick={pagination.onLoadMore}
+            variant="outline"
+          >
+            {pagination.isLoadingMore ? (
+              <Spinner data-icon="inline-start" />
+            ) : null}
+            Load more
+          </Button>
         </div>
       ) : null}
 

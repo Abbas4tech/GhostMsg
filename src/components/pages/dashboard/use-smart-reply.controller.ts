@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import type { SmartReplyTone } from "@/components/patterns/modals";
 import { useReplyMessageMutation } from "@/data/messages/use-reply-message-mutation";
 import { useSmartReplyMutation } from "@/data/messages/use-smart-reply-mutation";
@@ -25,26 +25,33 @@ export function useSmartReplyController({
   publishByDefault = true,
 }: UseSmartReplyControllerOptions) {
   const [replyText, setReplyText] = useState("");
-  const [isPublished, setIsPublished] = useState(true);
+  const [isPublished, setIsPublished] = useState(publishByDefault);
 
   const replyMutation = useReplyMessageMutation();
   const smartReplyMutation = useSmartReplyMutation();
 
-  // Re-seed the draft every time the modal opens for a message.
-  useEffect(() => {
-    if (isOpen && message) {
+  // Seed the draft once per opening (adjusting state during render, no
+  // effect): later refetches of the same message or a late preference never
+  // overwrite what the recipient is typing.
+  const openFor = isOpen && message ? String(message._id) : null;
+  const [seededFor, setSeededFor] = useState<string | null>(null);
+  if (openFor !== seededFor) {
+    setSeededFor(openFor);
+    if (openFor && message) {
       setReplyText(message.reply?.text || "");
       setIsPublished(Boolean(message.reply?.isPublished ?? publishByDefault));
     }
-  }, [isOpen, message, publishByDefault]);
+  }
 
+  const { mutateAsync: generateAsync } = smartReplyMutation;
+  const { mutateAsync: saveReplyAsync } = replyMutation;
   const handleGenerate = useCallback(
     async (tone: SmartReplyTone) => {
       if (!message) {
         return;
       }
       try {
-        const res = await smartReplyMutation.mutateAsync({
+        const res = await generateAsync({
           content: message.content,
           tone,
         });
@@ -55,7 +62,7 @@ export function useSmartReplyController({
         // Handled by mutation toast
       }
     },
-    [message, smartReplyMutation]
+    [message, generateAsync]
   );
 
   /** Resolves true once the answer is saved (false when skipped or failed). */
@@ -64,7 +71,7 @@ export function useSmartReplyController({
       return false;
     }
     try {
-      await replyMutation.mutateAsync({
+      await saveReplyAsync({
         messageId: String(message._id),
         text: replyText.trim(),
         isPublished,
@@ -75,7 +82,7 @@ export function useSmartReplyController({
       // Handled by mutation toast
       return false;
     }
-  }, [message, replyText, isPublished, replyMutation, onSaved]);
+  }, [message, replyText, isPublished, saveReplyAsync, onSaved]);
 
   return {
     replyText,

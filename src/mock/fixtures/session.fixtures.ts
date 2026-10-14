@@ -12,7 +12,6 @@ export function buildSession(
       email: "johndoe@example.com",
       name: FIXTURE_USERNAME,
       isVerified: true,
-      isAcceptingMessage: true,
       ...overrides,
     },
     expires: "2099-01-01T00:00:00.000Z",

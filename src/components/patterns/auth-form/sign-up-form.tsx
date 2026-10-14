@@ -103,7 +103,10 @@ export function SignUpForm({
           alternateLabel="Sign in"
           alternatePrompt="Already have a link?"
           isSubmitDisabled={
-            !form.formState.isValid || isSubmitting || isCheckingUsername
+            !form.formState.isValid ||
+            isSubmitting ||
+            isCheckingUsername ||
+            usernameAvailability === "taken"
           }
           isSubmitting={isSubmitting}
           submitLabel="Send my Verification Code"

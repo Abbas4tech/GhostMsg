@@ -1,17 +1,20 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { SendMessageValues } from "@/components/patterns/send-message-form";
+import { publicQueries } from "@/data/public/public.queries";
 import { useSendMessageMutation } from "@/data/public/use-send-message-mutation";
-import { useSuggestMessagesMutation } from "@/data/public/use-suggest-messages-mutation";
 import { messageSchema } from "@/schemas/message-schema";
 import { parseSuggestions } from "./send-message.utils";
 
+const NO_SUGGESTIONS: string[] = [];
+
 export interface UseSendMessageControllerOptions {
-  /** Fetch AI suggestions once on mount (default: true). */
+  /** Load AI suggestions (once, then cached; default: true). */
   autoFetchSuggestions?: boolean;
   username: string;
 }
@@ -31,17 +34,33 @@ export function useSendMessageController({
     mode: "onChange",
   });
 
-  const sendMutation = useSendMessageMutation();
-  const suggestMutation = useSuggestMessagesMutation();
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const { mutateAsync: sendAsync, isPending: isSubmitting } =
+    useSendMessageMutation();
+  // Suggested Messages are a cached query: loaded once when allowed,
+  // "New ideas" refetches. Failures are toasted by the query.
+  const suggestionsQuery = useQuery({
+    ...publicQueries.suggestions(),
+    enabled: autoFetchSuggestions,
+  });
+  const suggestionsText = suggestionsQuery.data?.success
+    ? suggestionsQuery.data.messages
+    : "";
+  const suggestions = useMemo(
+    () =>
+      suggestionsText ? parseSuggestions(suggestionsText) : NO_SUGGESTIONS,
+    [suggestionsText]
+  );
+  const { refetch: refetchSuggestions } = suggestionsQuery;
+  const fetchSuggestions = useCallback(async () => {
+    await refetchSuggestions();
+  }, [refetchSuggestions]);
   // After a successful send the form gives way to a reassurance card.
   const [isSent, setIsSent] = useState(false);
-  const hasAutoFetchedRef = useRef(false);
 
   const handleSubmit = useCallback(
     async ({ content }: SendMessageValues) => {
       try {
-        const response = await sendMutation.mutateAsync({ username, content });
+        const response = await sendAsync({ username, content });
         if (response?.success) {
           toast.success(response.message);
           form.reset({ content: "" });
@@ -53,29 +72,8 @@ export function useSendMessageController({
         toast.error(message || "Failed to send message");
       }
     },
-    [form, sendMutation, username]
+    [form, sendAsync, username]
   );
-
-  const { mutateAsync: suggestAsync } = suggestMutation;
-  const fetchSuggestions = useCallback(async () => {
-    try {
-      const response = await suggestAsync();
-      if (response?.success) {
-        setSuggestions(parseSuggestions(response.messages));
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to suggest messages";
-      toast.error(message || "Failed to suggest messages");
-    }
-  }, [suggestAsync]);
-
-  useEffect(() => {
-    if (autoFetchSuggestions && !hasAutoFetchedRef.current) {
-      hasAutoFetchedRef.current = true;
-      fetchSuggestions();
-    }
-  }, [autoFetchSuggestions, fetchSuggestions]);
 
   const selectSuggestion = useCallback(
     (suggestion: string) => {
@@ -93,10 +91,10 @@ export function useSendMessageController({
     handleSubmit,
     isSent,
     handleSendAnother,
-    isSubmitting: sendMutation.isPending,
+    isSubmitting,
     suggestions,
     fetchSuggestions,
-    isFetchingSuggestions: suggestMutation.isPending,
+    isFetchingSuggestions: suggestionsQuery.isFetching,
     selectSuggestion,
   };
 }

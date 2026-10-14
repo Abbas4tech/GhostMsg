@@ -19,6 +19,10 @@ export {
   type DeleteMessageModalProps,
 } from "./delete-message-modal";
 export {
+  DiscardChangesModal,
+  type DiscardChangesModalProps,
+} from "./discard-changes-modal";
+export {
   RevealMessageModal,
   type RevealMessageModalProps,
 } from "./reveal-message-modal";

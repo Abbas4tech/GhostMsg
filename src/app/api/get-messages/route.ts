@@ -1,11 +1,24 @@
 import mongoose from "mongoose";
 import type { NextRequest } from "next/server";
 import { getServerSession, type User } from "next-auth";
+import {
+  decodeInboxCursor,
+  encodeInboxCursor,
+} from "@/lib/messages/inbox-cursor";
+import { isInboxQueryStatus } from "@/lib/messages/inbox-filter";
 import dbConnect from "@/server/db/db-connect";
+import { buildInboxFilter, parsePageSize } from "@/server/messages/inbox-query";
 import MessageModel from "@/server/models/message.model";
 import UserModel from "@/server/models/user.model";
 import { authOptions } from "../auth/[...nextauth]/options";
 
+const badRequest = (message: string) =>
+  Response.json({ success: false, message }, { status: 400 });
+
+/**
+ * One page of the inbox for a filter + search, newest first, with a keyset
+ * `nextCursor` and the `total` matching the filter (Chapter 16 §6).
+ */
 export async function GET(req: NextRequest): Promise<Response> {
   await dbConnect();
   try {
@@ -20,14 +33,10 @@ export async function GET(req: NextRequest): Promise<Response> {
     }
 
     if (!mongoose.Types.ObjectId.isValid(user._id as string)) {
-      return Response.json(
-        { success: false, message: "Invalid user ID format" },
-        { status: 400 }
-      );
+      return badRequest("Invalid user ID format");
     }
 
     const userId = new mongoose.Types.ObjectId(user._id);
-
     const userExists = await UserModel.exists({ _id: userId });
     if (!userExists) {
       return Response.json(
@@ -36,43 +45,33 @@ export async function GET(req: NextRequest): Promise<Response> {
       );
     }
 
-    const url = new URL(req.url);
-    const status = url.searchParams.get("status") || "all";
-    const search = url.searchParams.get("q") || "";
-    const limit = Math.min(Number(url.searchParams.get("limit") || 50), 100);
-
-    // Build query filter
-    const query: Record<string, unknown> = { recipientId: userId };
-
-    switch (status) {
-      case "unread":
-        query.isQuarantined = false;
-        query.isRead = false;
-        break;
-      case "starred":
-        query.isPinned = true;
-        break;
-      case "quarantined":
-        query.isQuarantined = true;
-        break;
-      case "answered":
-        query["reply.text"] = { $exists: true, $ne: "" };
-        break;
-      default:
-        query.isQuarantined = false;
-        break;
+    const { searchParams } = new URL(req.url);
+    const status = searchParams.get("status") ?? "all";
+    if (!isInboxQueryStatus(status)) {
+      return badRequest("Unknown status filter");
     }
-
-    if (search.trim()) {
-      query.content = { $regex: search.trim(), $options: "i" };
+    const rawCursor = searchParams.get("cursor");
+    const cursor = decodeInboxCursor(rawCursor);
+    if (rawCursor && !(cursor && mongoose.Types.ObjectId.isValid(cursor.id))) {
+      return badRequest("Invalid cursor");
     }
+    const q = searchParams.get("q") ?? "";
+    const limit = parsePageSize(searchParams.get("limit"));
 
-    const [messages, total] = await Promise.all([
-      MessageModel.find(query).sort({ createdAt: -1 }).limit(limit).lean(),
-      MessageModel.countDocuments(query),
+    // Fetch one extra to know whether another page exists.
+    const [found, total] = await Promise.all([
+      MessageModel.find(buildInboxFilter(userId, { status, q, cursor }))
+        .sort({ createdAt: -1, _id: -1 })
+        .limit(limit + 1)
+        .lean(),
+      MessageModel.countDocuments(buildInboxFilter(userId, { status, q })),
     ]);
+    const page = found.slice(0, limit);
+    const last = page.at(-1);
+    const nextCursor =
+      found.length > limit && last ? encodeInboxCursor(last) : null;
 
-    const formattedMessages = messages.map((msg) => ({
+    const messages = page.map((msg) => ({
       _id: String(msg._id),
       content: msg.content,
       sentimentTag: msg.sentimentTag || "neutral",
@@ -93,11 +92,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     }));
 
     return Response.json(
-      {
-        success: true,
-        messages: formattedMessages,
-        total,
-      },
+      { success: true, messages, total, nextCursor },
       { status: 200 }
     );
   } catch (error) {

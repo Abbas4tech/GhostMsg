@@ -577,13 +577,19 @@ export interface paths {
     get: {
       parameters: {
         query?: {
-          /** @description Filter by message category */
-          status?: "all" | "unread" | "starred" | "quarantined" | "answered";
+          /** @description Inbox filter (default all = not quarantined); any = every message */
+          status?:
+            | "all"
+            | "unread"
+            | "starred"
+            | "quarantined"
+            | "answered"
+            | "any";
           /** @description Search query string */
           q?: string;
-          /** @description Limit number of results */
+          /** @description Page size 1-100 (default 30) */
           limit?: string;
-          /** @description Cursor for pagination */
+          /** @description `nextCursor` from the previous page */
           cursor?: string;
         };
         header?: never;
@@ -872,6 +878,59 @@ export interface paths {
         };
       };
     };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/messages/counts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Inbox Counts
+     * @description Count of messages for every inbox filter plus the overall total, independent of paging.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Counts */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["InboxCountsResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -1946,8 +2005,16 @@ export interface components {
       success: boolean;
       /** @description List of received messages */
       messages: components["schemas"]["MessageItem"][];
-      /** @example 42 */
+      /**
+       * @description Messages matching the filter
+       * @example 42
+       */
       total?: number;
+      /**
+       * @description Pass as `cursor` for the next page; null on the last page
+       * @example 2026-10-06T12:00:00.000Z_660c1d2e1b9d4c001f3e8a1a
+       */
+      nextCursor?: string | null;
     };
     AcceptMessageRequest: {
       /**
@@ -2210,6 +2277,11 @@ export interface components {
        */
       displayName?: string;
       /**
+       * @description AMA Prompt shown on the public profile
+       * @example Ask me anything about moving countries for work.
+       */
+      amaPrompt?: string;
+      /**
        * @description Square avatar as a base64 data URL (resized in the browser)
        * @example data:image/webp;base64,UklGR…
        */
@@ -2345,6 +2417,28 @@ export interface components {
     AmaSuggestionsRequest: {
       /** @description Riff on this prompt when given */
       currentPrompt?: string;
+    };
+    InboxCountsResponse: {
+      /** @example true */
+      success: boolean;
+      counts: components["schemas"]["InboxCounts"];
+    };
+    InboxCounts: {
+      /** @example 24 */
+      all: number;
+      /** @example 3 */
+      unread: number;
+      /** @example 5 */
+      starred: number;
+      /** @example 9 */
+      answered: number;
+      /** @example 2 */
+      quarantined: number;
+      /**
+       * @description Every message, quarantined included
+       * @example 26
+       */
+      total: number;
     };
     DailyDigestRunResponse: {
       /** @example true */

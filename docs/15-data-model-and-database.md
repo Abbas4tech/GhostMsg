@@ -88,7 +88,7 @@ erDiagram
 | :--- | :--- | :--- | :--- | :--- |
 | `username` | string | required, **unique**, trimmed; Zod `usernameValidation` on input | `POST /api/sign-up`, Google sign-in, `PATCH /api/user/username` | session, profile, public answers |
 | `email` | string | required, **unique**, regex `.+@.+\..+` | sign-up, Google | `GET /api/user/profile` (owner only) |
-| `password` | string? | bcrypt hash (10 rounds); absent for Google-only accounts | sign-up | never |
+| `password` | string? | bcrypt hash (10 rounds); Google sign-up stores a random unusable password | sign-up, Google sign-in | never |
 | `verifyCode`, `verifyCodeExpiry` | string, Date | required; code expires 1 hour after sign-up | sign-up | never |
 | `isVerified` | boolean | `false` | `POST /api/verify-code`, Google | session |
 | `isAcceptingMessage` | boolean | `true` | `POST /api/accept-message` | session, `GET /api/accept-message`, public answers (`isAcceptingMessages`) |
@@ -154,7 +154,7 @@ Messages migrated from the old embedded model carry a placeholder hash (`sha256(
 | single-field: `recipientId`, `isQuarantined`, `isPinned`, `isRead`, `senderHash` | Filters, bulk updates, blocklist joins |
 | `users.username` unique, `users.email` unique | Lookups by link and sign-in |
 
-`GET /api/get-messages` filters by status, searches with a case-insensitive regex on `content`, sorts by `createdAt` and caps `limit` at 100 (default 50). The public feed returns at most 50 published answers sorted by `reply.publishedAt`.
+`GET /api/get-messages` filters by status, searches `content` and `reply.text` with an escaped case-insensitive pattern, sorts by `{ createdAt: -1, _id: -1 }` and pages with a keyset cursor (default 30, max 100). `GET /api/messages/counts` computes every filter count in one `$group` over the recipient's messages (`recipientId` index). Both are built in `src/server/messages/inbox-query.ts` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). The public feed returns at most 50 published answers sorted by `reply.publishedAt`.
 
 ## 4. Compatibility: documents older than a field
 

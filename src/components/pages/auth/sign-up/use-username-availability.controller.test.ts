@@ -27,19 +27,16 @@ describe("useUsernameAvailabilityController", () => {
     expect(requests).toEqual([]);
   });
 
-  it("reports an available name and clears the field error", async () => {
+  it("reports an available name", async () => {
     const { result } = renderHookWithProviders(useHarness);
 
-    act(() => {
-      result.current.form.setError("username", { message: "stale" });
-      result.current.form.setValue("username", "freeghost");
-    });
+    act(() => result.current.form.setValue("username", "freeghost"));
 
     await waitFor(() => expect(result.current.availability).toBe("available"));
-    expect(result.current.form.getFieldState("username").error).toBeUndefined();
+    expect(result.current.availabilityMessage).toBeUndefined();
   });
 
-  it("reports a taken name and writes the server message into the form", async () => {
+  it("reports a taken name without writing it into form state", async () => {
     server.use(...scenarios.username.taken);
     const { result } = renderHookWithProviders(useHarness);
 
@@ -49,8 +46,7 @@ describe("useUsernameAvailabilityController", () => {
     expect(result.current.availabilityMessage).toBe(
       "Username is already taken"
     );
-    expect(result.current.form.getFieldState("username").error?.message).toBe(
-      "Username is already taken"
-    );
+    // The field shows availability itself; form errors stay schema-only.
+    expect(result.current.form.getFieldState("username").error).toBeUndefined();
   });
 });

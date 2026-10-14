@@ -1,64 +1,15 @@
-import type {
-  MessageFilterCounts,
-  MessageFilterStatus,
-} from "@/components/patterns/filter-bar";
+import type { MessageFilterStatus } from "@/components/patterns/filter-bar";
+import { isInboxStatus } from "@/lib/messages/inbox-filter";
 import type { MessageDto } from "@/types/api";
 
-/** Inbox filtering and counting rules (pure; used by `useInboxController`). */
-
-export const hasReplyText = (message: MessageDto): boolean =>
-  Boolean(message.reply?.text && message.reply.text.trim().length > 0);
-
-export function matchesStatus(
-  message: MessageDto,
-  status: MessageFilterStatus
-): boolean {
-  switch (status) {
-    case "unread":
-      return !(message.isQuarantined || message.isRead);
-    case "starred":
-      return Boolean(message.isPinned);
-    case "quarantined":
-      return Boolean(message.isQuarantined);
-    case "answered":
-      return hasReplyText(message);
-    default:
-      return !message.isQuarantined;
-  }
-}
-
-export function matchesSearch(message: MessageDto, query: string): boolean {
-  if (!query.trim()) {
-    return true;
-  }
-  const q = query.toLowerCase();
-  const contentMatch = message.content.toLowerCase().includes(q);
-  const replyMatch = Boolean(message.reply?.text?.toLowerCase().includes(q));
-  return contentMatch || replyMatch;
-}
-
-export function countByStatus(messages: MessageDto[]): MessageFilterCounts {
-  return {
-    all: messages.filter((m) => matchesStatus(m, "all")).length,
-    unread: messages.filter((m) => matchesStatus(m, "unread")).length,
-    starred: messages.filter((m) => matchesStatus(m, "starred")).length,
-    quarantined: messages.filter((m) => matchesStatus(m, "quarantined")).length,
-    answered: messages.filter((m) => matchesStatus(m, "answered")).length,
-  };
-}
-
-const FILTER_STATUSES: readonly MessageFilterStatus[] = [
-  "all",
-  "unread",
-  "starred",
-  "quarantined",
-  "answered",
-];
+/**
+ * Inbox page helpers (pure). Filtering and counting rules live in
+ * `src/lib/messages/inbox-filter.ts`, shared with the server and the mocks.
+ */
 
 /** Narrows a `?filter=` search param to a known inbox filter. */
 export const isFilterStatus = (value: unknown): value is MessageFilterStatus =>
-  typeof value === "string" &&
-  (FILTER_STATUSES as readonly string[]).includes(value);
+  isInboxStatus(value);
 
 export type InboxShortcut =
   | "next"
@@ -99,4 +50,94 @@ export function moveFocus(
   }
   const next = Math.min(ids.length - 1, Math.max(0, index + delta));
   return ids[next];
+}
+
+// ── URL state ──────────────────────────────────────────────────────────────
+
+/**
+ * `/dashboard?filter=unread&q=hi` for the current inbox view. The default
+ * filter and an empty search are left out so the plain URL stays clean.
+ */
+export function buildInboxHref(
+  pathname: string,
+  status: MessageFilterStatus,
+  query: string
+): string {
+  const params = new URLSearchParams();
+  if (status !== "all") {
+    params.set("filter", status);
+  }
+  const q = query.trim();
+  if (q) {
+    params.set("q", q);
+  }
+  const search = params.toString();
+  return search ? `${pathname}?${search}` : pathname;
+}
+
+// ── Selection ──────────────────────────────────────────────────────────────
+
+/** Selected ids together with the filter + search ("scope") they belong to. */
+export interface ScopedSelection {
+  ids: readonly string[];
+  scope: string;
+}
+
+/** Adds or removes `id`; a selection from another scope starts over. */
+export function toggleScopedSelection(
+  selection: ScopedSelection,
+  scope: string,
+  id: string
+): ScopedSelection {
+  const ids = selection.scope === scope ? selection.ids : [];
+  return {
+    scope,
+    ids: ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
+  };
+}
+
+/** The ids that count as selected: same scope and currently loaded. */
+export function visibleSelection(
+  selection: ScopedSelection,
+  scope: string,
+  loadedIds: ReadonlySet<string>
+): string[] {
+  return selection.scope === scope
+    ? selection.ids.filter((id) => loadedIds.has(id))
+    : [];
+}
+
+// ── Dialogs ────────────────────────────────────────────────────────────────
+
+export type InboxModalKind = "block" | "delete" | "reply" | "reveal" | "story";
+
+/**
+ * The open dialog, by message id. `snapshot` is the message as it was when the
+ * dialog opened: used only if the message is no longer loaded (e.g. deleted
+ * while the dialog animates out). Closing keeps the id so content stays put.
+ */
+export interface InboxModalState {
+  kind: InboxModalKind | null;
+  messageId: string | null;
+  snapshot: MessageDto | null;
+}
+
+export const CLOSED_INBOX_MODAL: InboxModalState = {
+  kind: null,
+  messageId: null,
+  snapshot: null,
+};
+
+/** The dialog's message: the live cached copy, else the snapshot. */
+export function resolveModalMessage(
+  modal: InboxModalState,
+  messages: readonly MessageDto[]
+): MessageDto | null {
+  if (!modal.messageId) {
+    return null;
+  }
+  return (
+    messages.find((message) => String(message._id) === modal.messageId) ??
+    modal.snapshot
+  );
 }

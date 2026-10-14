@@ -63,36 +63,43 @@ Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/`
 | `src/server/email/send-message-alert-email.test.ts` | Preview + tone when shown; neutral email without text or tone when hidden; `APP_URL` link; failed send |
 | `src/server/email/send-daily-digest-email.test.ts` | Previews + "more in your inbox", count-only when hidden, subject pluralisation |
 | `src/server/users/user-dto.test.ts` | Profile/preferences/notification defaults for old documents, blocked-sender date join (ADR 0024) |
-| `src/server/push/web-push.test.ts` | VAPID config, gone (404/410) detection, fan-out, pruning, unconfigured skip (ADR 0020) |
+| `src/server/push/web-push.test.ts` | VAPID config, gone (404/410) detection, fan-out, pruning, unconfigured skip, push off only when no device remains (ADR 0020, 0030) |
+| `src/server/messages/inbox-query.test.ts` | Status filters mirror the shared rules, escaped search on message + answer, cursor + search combination, page-size parsing, counts pipeline (ADR 0030) |
 | **Schemas** | |
 | `src/schemas/message-schema.test.ts` | Message/send/reply/bulk schemas |
 | `src/schemas/notification-schema.test.ts` | Notification settings, `HH:MM` clock, quiet hours |
 | `src/schemas/user-settings-schema.test.ts` | Display name trim/cap, avatar data URLs, `null` removal, username rules, preference partials + sensitivity enum, delete-account confirmation |
 | **Lib & data** | |
+| `src/hooks/use-leave-guard.test.ts` | Holds in-app links while dirty, ignores new-tab/external/same-page links, browser close prompt |
+| `src/providers/palette-provider.test.tsx` | Stores/applies a palette, follows other tabs (`storage` event), ignores unknown values |
+| `src/lib/messages/inbox-filter.test.ts` | Shared inbox rules: status matching (incl. `any`), search, counts, guards |
+| `src/lib/messages/inbox-cursor.test.ts` | Cursor round-trip, malformed cursors, newest-first order, later-page check |
 | `src/lib/messages/export.test.ts` | CSV/JSON export builders, allow-listed JSON records (never `senderHash`), quote escaping, filename + MIME |
 | `src/lib/browser/download.test.ts` | Anchor + data-URL download side effect |
 | `src/lib/browser/resize-image.test.ts` | `fitWithin` downscaling, never upscales |
 | `src/lib/format/relative-time.test.ts` | now / minutes / hours / days, short date after a week, future dates |
 | `src/lib/theme/palette.test.ts` | Palette guard, boot script (stored, invalid, blocked storage) |
 | `src/lib/users/username-availability.test.ts` | Availability status mapping, min length (shared by sign-up and Change username) |
-| `src/data/messages/use-live-messages.utils.test.ts` | Live toast: silent for quarantined, text-free when hidden, 40-char preview |
+| `src/data/messages/use-live-messages.utils.test.ts` | Live toast (silent for quarantined, text-free when hidden), SSE payload mapping, cache insert per filter (no searches, no duplicates), counts bump |
 | `src/data/user/use-push-notification.utils.test.ts` | VAPID key base64url → `Uint8Array`, same-key detection, DOMException → user message |
 | **Component utils** | |
 | `src/components/elements/theme-toggler/theme-toggler.utils.test.ts` | Theme cycling order |
-| `src/components/pages/dashboard/inbox.utils.test.ts` | Status filters, search, per-status counts, shortcut keys, focus movement |
+| `src/components/pages/dashboard/inbox.utils.test.ts` | Filter guard, shortcut keys, focus movement, `buildInboxHref`, scoped selection, dialog message resolution |
 | `src/components/pages/dashboard/dashboard.utils.test.ts` | Active nav from pathname, `stripProtocol`, `toLinkPrefix` |
-| `src/components/pages/dashboard/profile.utils.test.ts` | Public profile URL |
+| `src/components/pages/dashboard/profile.utils.test.ts` | Public profile URL, `buildProfilePatch` (changed fields only, trimmed, no blank prompt) |
 | `src/components/pages/home/home.utils.test.ts` | Claim href (trim, encode, empty), link prefix fallback |
 | `src/components/pages/public-profile/send-message.utils.test.ts` | AI suggestion parsing (`||`-separated) |
 | **Controllers** | |
-| `src/components/pages/dashboard/use-inbox.controller.test.ts` | Load, filter, search, selection, modals, bulk, export, delete, refresh errors, blocklist, **optimistic delete/bulk before the response + rollback on failure** (ADR 0021) |
+| `src/components/pages/dashboard/use-inbox.controller.test.ts` | Server filters (Quarantined), debounced server search, Load more paging, server counts, selection scoped to filter + loaded ids, mark-read on reply, optimistic star rollback, bulk, export, delete, refresh errors, blocklist (ADR 0021, 0030) |
 | `src/components/pages/dashboard/use-dashboard-shell.controller.test.ts` | Session + active nav + unread count, acceptance toggle and paused label, ⌘K/Ctrl+K, command routing, sign-out, go to sign-in |
 | `src/components/pages/dashboard/use-profile-link.controller.test.ts` | Link + label from the session, copy + toast, blocked clipboard, share sheet only when supported |
+| `src/components/pages/dashboard/use-inbox-filters.controller.test.ts` | Route filter/search, URL write-through via `history.replaceState`, debounced search + scope, adopting a new `?filter=` |
+| `src/components/pages/dashboard/use-inbox-data.controller.test.ts` | One filter from the server with counts, polling fallback flag, refresh toasts |
 | `src/components/pages/dashboard/use-inbox-keyboard.controller.test.ts` | `j`/`k` cursor, select/star/reply on the focused card, `/` focuses search, ignored while a dialog is open |
 | `src/components/pages/dashboard/use-smart-reply.controller.test.ts` | Draft seeding, AI generate, save / blank-draft guard |
-| `src/components/pages/dashboard/use-profile.controller.test.ts` | Profile URL from session, draft + discard, save profile and trimmed AMA prompt together, blank-prompt guard, AI ideas |
+| `src/components/pages/dashboard/use-profile.controller.test.ts` | Profile URL from session, form draft + discard, one-request save with the trimmed AMA prompt, blank-prompt guard, leave guard → discard and navigate, AI ideas |
 | `src/components/pages/dashboard/use-change-username.controller.test.ts` | Opens idle with the current name, debounced available/taken, save → session `update` + `router.refresh` |
-| `src/components/pages/dashboard/use-settings.controller.test.ts` | Defaults, closed-inbox scenario, acceptance (API + controlled), alerts, unblock, web push (not configured / subscribe / off) |
+| `src/components/pages/dashboard/use-settings.controller.test.ts` | Defaults, closed-inbox scenario, acceptance (API + controlled), alerts, unblock, web push per device (switch follows this browser; off removes only this device) |
 | `src/components/pages/dashboard/use-danger-zone.controller.test.ts` | Delete all behind the undo toast, Undo cancels, unmount commits, typed account deletion → `signOut`, wrong confirmation |
 | `src/components/pages/dashboard/use-appearance.controller.test.ts` | Mode/palette exposure, system fallback, unknown palette ignored, `setTheme` |
 | `src/components/pages/home/use-claim-link.controller.test.ts` | Submit opens `/sign-up?username=`, host as link prefix |

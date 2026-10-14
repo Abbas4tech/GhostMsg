@@ -115,7 +115,7 @@ sequenceDiagram
     PS-->>SM: 404/410 for a revoked device → $pull that subscription
 ```
 
-- **Per device.** "Push notifications: On this device only." Each browser registers its own subscription; turning push off removes this device and sets `webPushEnabled: false`.
+- **Per device.** "Push notifications: On this device only." Each browser registers its own subscription, and the Settings switch shows **this browser's** subscription. Turning push off removes this device only; `webPushEnabled` ("some device is subscribed") goes false only when the last subscription is removed or pruned ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md) D9).
 - **Server:** [`src/server/push/web-push.ts`](../src/server/push/web-push.ts): `getVapidConfig()` (null when keys are missing → push skipped), `sendPushToUser()` (never throws; prunes gone endpoints).
 - **Client adapter:** `src/data/user/use-push-notification.ts` hides browser APIs from controllers (ADR 0014/0020). Missing VAPID config surfaces as `PUSH_NOT_CONFIGURED_MESSAGE`.
 - **Env:** `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (default `mailto:support@ghostmsg.app`).
@@ -138,11 +138,13 @@ sequenceDiagram
     SM->>BUS: publishNewMessage(id, dto)
     BUS->>ST: listener
     ST-->>Tab: event: new_message
-    Tab->>Tab: toast (none if quarantined, no text if hidden) + invalidate ["messages"]
+    Tab->>Tab: toast (none if quarantined, no text if hidden)
+    Tab->>Tab: insert into matching cached lists + counts, debounced refetch (1.5 s)
     Note over Tab: on error: close, reconnect after 5 s
 ```
 
 - `runtime = "nodejs"`, `dynamic = "force-dynamic"`. The listener and heartbeat are removed when the request aborts.
+- **Client:** `useLiveMessages` inserts each new message into every cached inbox list it belongs to (not searches) and into the counts (`insertLiveMessage`, `addToInboxCounts`), then refetches once after 1.5 s to fill in the Sender Hash and reply. It reports `isConnected`; while disconnected the inbox polls every 30 s, and inbox + counts refetch on window focus ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)).
 - The bus is a process-wide `EventEmitter` (`src/server/realtime/event-bus.ts`, max 100 listeners, kept on `global` in development to survive hot reload).
 
 ### Scaling limits

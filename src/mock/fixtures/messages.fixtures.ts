@@ -1,3 +1,4 @@
+import type { InboxCounts } from "@/lib/messages/inbox-filter";
 import type { MessageDto } from "@/types/api";
 
 /** Inbox message exactly as `GET /api/get-messages` returns it. */
@@ -114,11 +115,12 @@ export const messageScenarios = {
   single: [sweetMessage],
 } satisfies Record<string, MessageFixture[]>;
 
-/** Filter counts matching `messageScenarios.mixed`. */
+/** Expected `GET /api/messages/counts` for `messageScenarios.mixed`. */
 export const mixedMessageCounts = {
   all: 5,
   unread: 2,
   starred: 1,
   answered: 2,
   quarantined: 1,
-};
+  total: messageScenarios.mixed.length,
+} satisfies InboxCounts;

@@ -11,12 +11,15 @@ import {
 } from "./settings-section";
 
 export interface DataSettingsProps {
+  /** Export in progress: both buttons wait. */
+  isExporting?: boolean;
   onExport: (format: MessageExportFormat) => void;
 }
 
 /** Export every message as CSV or JSON. */
 export function DataSettings({
   onExport,
+  isExporting = false,
 }: DataSettingsProps): React.JSX.Element {
   return (
     <SettingsSection id="data" title="Data & account">
@@ -26,6 +29,7 @@ export function DataSettings({
           <div className="flex gap-2">
             <Button
               className="rounded-full"
+              disabled={isExporting}
               onClick={() => onExport("csv")}
               size="sm"
               variant="outline"
@@ -35,6 +39,7 @@ export function DataSettings({
             </Button>
             <Button
               className="rounded-full"
+              disabled={isExporting}
               onClick={() => onExport("json")}
               size="sm"
               variant="outline"

@@ -208,6 +208,18 @@ _Avoid_: Custom class, override, skin
 Unsaved Profile page edits held in the page controller and shown in the live preview until Save changes or Discard.
 _Avoid_: Pending state, dirty form
 
+**Inbox counts**:
+The server-computed number of messages per inbox filter plus the overall total (`GET /api/messages/counts`). Badges and "Delete all N" use these, never the loaded page.
+_Avoid_: Local count, page length
+
+**Inbox cursor**:
+The opaque keyset position `"<ISO createdAt>_<id>"` of the last message on an inbox page, passed back as `cursor` to fetch the next page.
+_Avoid_: Offset, page number
+
+**Leave guard**:
+The protection for unsaved edits (`useLeaveGuard`): the browser prompt on close/reload, and a "Discard unsaved changes?" dialog before following an in-app link.
+_Avoid_: Navigation blocker, exit popup
+
 **Undo window**:
 The 10-second delay, with an Undo toast, between confirming Delete all and the request being sent. Leaving the page commits it.
 _Avoid_: Soft delete, trash

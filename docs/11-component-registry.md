@@ -4,7 +4,7 @@
 
 Generated inventory of every component module, its public API, stories, interaction tests, mocks, controllers, plus the shared fixtures and MSW scenarios. Rules live in [Chapter 5](05-component-architecture.md), [Chapter 10](10-storybook-and-ui-catalog.md) and the [agent guide](agents/component-architecture.md).
 
-**Totals:** 91 modules · 387 stories · 262 play() interaction tests.
+**Totals:** 91 modules · 392 stories · 267 play() interaction tests.
 
 - Regenerate after adding/renaming a module, story, mock export or scenario: `pnpm docs:registry`.
 - `pnpm docs:registry:check` fails when this file is stale (part of the pre-push gate).
@@ -335,7 +335,7 @@ Generated inventory of every component module, its public API, stories, interact
 
 > Pure, domain-aware compositions of elements. Data in, callbacks out.
 
-**24 modules · 150 stories · 113 play() tests**
+**24 modules · 152 stories · 115 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -350,7 +350,7 @@ Generated inventory of every component module, its public API, stories, interact
 | [`how-it-works`](../src/components/patterns/how-it-works) | ✅ | 1 | 1 | 1 | 0 |
 | [`identity-card`](../src/components/patterns/identity-card) | ✅ | 4 | 4 | 1 | 0 |
 | [`message-card`](../src/components/patterns/message-card) | ✅ | 14 | 11 | 1 | 0 |
-| [`modals`](../src/components/patterns/modals) | ✅ | 32 | 30 | 1 | 0 |
+| [`modals`](../src/components/patterns/modals) | ✅ | 34 | 32 | 1 | 0 |
 | [`page-heading`](../src/components/patterns/page-heading) | ✅ | 3 | 2 | 1 | 0 |
 | [`public-qa-feed`](../src/components/patterns/public-qa-feed) | ✅ | 5 | 3 | 1 | 0 |
 | [`section-nav`](../src/components/patterns/section-nav) | ✅ | 2 | 1 | 1 | 0 |
@@ -435,16 +435,17 @@ Generated inventory of every component module, its public API, stories, interact
 
 #### `patterns/modals`
 
-- **Public API (index.ts):** `BlockSenderModal`, `BlockSenderModalProps (type)`, `ChangeUsernameModal`, `ChangeUsernameModalProps (type)`, `DeleteAccountModal`, `DeleteAccountModalProps (type)`, `DeleteAllMessagesModal`, `DeleteAllMessagesModalProps (type)`, `DeleteMessageModal`, `DeleteMessageModalProps (type)`, `RevealMessageModal`, `RevealMessageModalProps (type)`, `REPLY_MAX_LENGTH`, `SmartReplyModal`, `SmartReplyModalProps (type)`, `SmartReplyTone (type)`, `StoryCardModal`, `StoryCardModalProps (type)`
+- **Public API (index.ts):** `BlockSenderModal`, `BlockSenderModalProps (type)`, `ChangeUsernameModal`, `ChangeUsernameModalProps (type)`, `DeleteAccountModal`, `DeleteAccountModalProps (type)`, `DeleteAllMessagesModal`, `DeleteAllMessagesModalProps (type)`, `DeleteMessageModal`, `DeleteMessageModalProps (type)`, `DiscardChangesModal`, `DiscardChangesModalProps (type)`, `RevealMessageModal`, `RevealMessageModalProps (type)`, `REPLY_MAX_LENGTH`, `SmartReplyModal`, `SmartReplyModalProps (type)`, `SmartReplyTone (type)`, `StoryCardModal`, `StoryCardModalProps (type)`
 - **Stories** `block-sender-modal.stories.tsx` → _Patterns/Modals/BlockSenderModal_: `Block`, `Unblock`, `BlockOnly`, `Pending`, `Cancels`, `WithoutSenderHash`
 - **Stories** `change-username-modal.stories.tsx` → _Patterns/Modals/ChangeUsernameModal_: `Available`, `Taken`, `Checking`, `Cancels`
 - **Stories** `delete-account-modal.stories.tsx` → _Patterns/Modals/DeleteAccountModal_: `TypeToConfirm`, `Pending`
 - **Stories** `delete-all-messages-modal.stories.tsx` → _Patterns/Modals/DeleteAllMessagesModal_: `Default`, `SingleMessage`, `Cancels`
 - **Stories** `delete-message-modal.stories.tsx` → _Patterns/Modals/DeleteMessageModal_: `Default`, `Pending`, `Cancels`, `PublicAnswer`, `NoMessage`
+- **Stories** `discard-changes-modal.stories.tsx` → _Patterns/Modals/DiscardChangesModal_: `KeepEditingIsDefault`, `Discards`
 - **Stories** `reveal-message-modal.stories.tsx` → _Patterns/Modals/RevealMessageModal_: `KeepHiddenIsDefault`, `KeepHidden`
 - **Stories** `smart-reply-modal.stories.tsx` → _Patterns/Modals/SmartReplyModal_: `NewReply`, `GeneratesWithAi`, `TogglesPublish`, `EditingExistingReply`, `Generating`, `Saving`, `Private`
 - **Stories** `story-card-modal.stories.tsx` → _Patterns/Modals/StoryCardModal_: `WithAnswer`, `WithoutAnswer`, `ClosesOnEscape`
-- **Mocks:** `modals.mock.ts` → `defaultBlockSenderModalArgs`, `defaultDeleteMessageModalArgs`, `defaultSmartReplyModalArgs`, `editingSmartReplyModalArgs`, `defaultStoryCardModalArgs`, `defaultRevealMessageModalArgs`, `defaultChangeUsernameModalArgs`, `defaultDeleteAllMessagesModalArgs`, `defaultDeleteAccountModalArgs`
+- **Mocks:** `modals.mock.ts` → `defaultBlockSenderModalArgs`, `defaultDeleteMessageModalArgs`, `defaultSmartReplyModalArgs`, `editingSmartReplyModalArgs`, `defaultStoryCardModalArgs`, `defaultRevealMessageModalArgs`, `defaultChangeUsernameModalArgs`, `defaultDeleteAllMessagesModalArgs`, `defaultDeleteAccountModalArgs`, `defaultDiscardChangesModalArgs`
 
 #### `patterns/page-heading`
 
@@ -522,7 +523,7 @@ Generated inventory of every component module, its public API, stories, interact
 
 > Pure page sections composing patterns (slots + grouped props).
 
-**14 modules · 56 stories · 37 play() tests**
+**14 modules · 59 stories · 40 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -530,7 +531,7 @@ Generated inventory of every component module, its public API, stories, interact
 | [`cta-banner`](../src/components/blocks/cta-banner) | ✅ | 1 | 1 | 1 | 0 |
 | [`dashboard-shell`](../src/components/blocks/dashboard-shell) | ✅ | 7 | 5 | 1 | 0 |
 | [`hero`](../src/components/blocks/hero) | ✅ | 3 | 1 | 1 | 0 |
-| [`inbox`](../src/components/blocks/inbox) | ✅ | 12 | 8 | 1 | 0 |
+| [`inbox`](../src/components/blocks/inbox) | ✅ | 15 | 11 | 1 | 0 |
 | [`not-found-panel`](../src/components/blocks/not-found-panel) | ✅ | 3 | 2 | 1 | 0 |
 | [`profile-panel`](../src/components/blocks/profile-panel) | ✅ | 5 | 2 | 1 | 0 |
 | [`public-profile`](../src/components/blocks/public-profile) | ✅ | 7 | 5 | 1 | 0 |
@@ -569,9 +570,9 @@ Generated inventory of every component module, its public API, stories, interact
 
 #### `blocks/inbox`
 
-- **Public API (index.ts):** `INBOX_SEARCH_INPUT_ID`, `Inbox`, `InboxBulkActions (type)`, `InboxCardActions (type)`, `InboxFilters (type)`, `InboxProps (type)`, `InboxSelection (type)`, `InboxViewMode (type)`
-- **Stories** `inbox.stories.tsx` → _Blocks/Inbox_: `Grid`, `EmitsInteractions`, `ListView`, `Focused`, `Loading`, `Refreshing`, `WithSelection`, `Empty`, `NoMatches`, `QuarantinedOnly`, `LongContent`, `Mobile`
-- **Mocks:** `inbox.mock.ts` → `defaultInboxArgs`, `loadingInboxArgs`, `emptyInboxArgs`, `noMatchesInboxArgs`, `quarantinedInboxArgs`, `longContentInboxArgs`
+- **Public API (index.ts):** `INBOX_SEARCH_INPUT_ID`, `Inbox`, `InboxBulkActions (type)`, `InboxCardActions (type)`, `InboxFilters (type)`, `InboxPagination (type)`, `InboxProps (type)`, `InboxSelection (type)`, `InboxViewMode (type)`
+- **Stories** `inbox.stories.tsx` → _Blocks/Inbox_: `Grid`, `EmitsInteractions`, `ListView`, `Focused`, `Loading`, `Refreshing`, `WithSelection`, `Empty`, `NoMatches`, `QuarantinedOnly`, `LongContent`, `MoreToLoad`, `LoadingMore`, `LastPage`, `Mobile`
+- **Mocks:** `inbox.mock.ts` → `defaultInboxArgs`, `loadingInboxArgs`, `emptyInboxArgs`, `noMatchesInboxArgs`, `quarantinedInboxArgs`, `longContentInboxArgs`, `moreToLoadInboxArgs`, `loadingMoreInboxArgs`
 
 #### `blocks/not-found-panel`
 
@@ -639,7 +640,7 @@ Generated inventory of every component module, its public API, stories, interact
 | [`auth/sign-in`](../src/components/pages/auth/sign-in) | ✅ | 4 | 3 | 0 | 1 |
 | [`auth/sign-up`](../src/components/pages/auth/sign-up) | ✅ | 5 | 4 | 0 | 2 |
 | [`auth/verify`](../src/components/pages/auth/verify) | ✅ | 3 | 3 | 0 | 1 |
-| [`dashboard`](../src/components/pages/dashboard) | ✅ | 14 | 14 | 1 | 13 |
+| [`dashboard`](../src/components/pages/dashboard) | ✅ | 14 | 14 | 1 | 15 |
 | [`home`](../src/components/pages/home) | ✅ | 4 | 3 | 0 | 2 |
 | [`layouts/site-layout`](../src/components/pages/layouts/site-layout) | ✅ | 2 | 2 | 0 | 0 |
 | [`not-found`](../src/components/pages/not-found) | ✅ | 1 | 1 | 0 | 0 |
@@ -679,10 +680,10 @@ Generated inventory of every component module, its public API, stories, interact
 #### `pages/dashboard`
 
 - **Public API (index.ts):** `DashboardLayout`, `DashboardLayoutProps (type)`, `isFilterStatus`, `InboxPage`, `InboxPageProps (type)`, `ProfilePage`, `SettingsPage`, `SettingsPageProps (type)`
-- **Controllers:** `useAppearanceController`, `useChangeUsernameController`, `useDangerZoneController`, `useDashboardShellController`, `useInboxKeyboardController`, `useInboxController`, `useProfileLinkController`, `useProfileController`, `useSettingsController`, `useSmartReplyController`
+- **Controllers:** `useAppearanceController`, `useChangeUsernameController`, `useDangerZoneController`, `useDashboardShellController`, `useInboxDataController`, `useInboxFiltersController`, `useInboxKeyboardController`, `useInboxController`, `useProfileLinkController`, `useProfileController`, `useSettingsController`, `useSmartReplyController`
 - **Stories** `dashboard.stories.tsx` → _Pages/Dashboard_: `Inbox`, `DeletesAMessage`, `RepliesWithAi`, `RevealsQuarantined`, `KeyboardTriage`, `CommandPalette`, `EmptyInbox`, `InboxError`, `InboxLoading`, `Settings`, `Profile`, `SessionLoading`, `SignedOut`, `Mobile`
 - **Mocks:** `dashboard.mock.ts` → `dashboardHandlers`
-- **Unit tests:** `dashboard.utils.test.ts`, `inbox.utils.test.ts`, `profile.utils.test.ts`, `use-appearance.controller.test.ts`, `use-change-username.controller.test.ts`, `use-danger-zone.controller.test.ts`, `use-dashboard-shell.controller.test.ts`, `use-inbox-keyboard.controller.test.ts`, `use-inbox.controller.test.ts`, `use-profile-link.controller.test.ts`, `use-profile.controller.test.ts`, `use-settings.controller.test.ts`, `use-smart-reply.controller.test.ts`
+- **Unit tests:** `dashboard.utils.test.ts`, `inbox.utils.test.ts`, `profile.utils.test.ts`, `use-appearance.controller.test.ts`, `use-change-username.controller.test.ts`, `use-danger-zone.controller.test.ts`, `use-dashboard-shell.controller.test.ts`, `use-inbox-data.controller.test.ts`, `use-inbox-filters.controller.test.ts`, `use-inbox-keyboard.controller.test.ts`, `use-inbox.controller.test.ts`, `use-profile-link.controller.test.ts`, `use-profile.controller.test.ts`, `use-settings.controller.test.ts`, `use-smart-reply.controller.test.ts`
 
 #### `pages/home`
 

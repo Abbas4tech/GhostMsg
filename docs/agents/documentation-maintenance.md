@@ -16,6 +16,7 @@ Which docs a change must update, how to keep screenshots and diagrams current, a
 | An endpoint (new, changed request/response/status) | [Chapter 16](../16-api-reference.md), [Chapter 4](../04-api-and-type-safety.md) operations matrix | `pnpm typegen` |
 | Moderation, blocking, rate limits, privacy | [Chapter 17](../17-trust-safety-and-privacy.md) (and its known-issues table) | — |
 | Email, push, SSE, quiet hours | [Chapter 18](../18-notifications-and-realtime.md) | — |
+| A query, mutation, cache rule or where some state lives | [Chapter 20](../20-state-management.md) (state map, rules, review status) | — |
 | A domain term | [`GLOSSARY.md`](../../GLOSSARY.md) (with `_Avoid_`) | — |
 | A hard-to-reverse or surprising decision | New ADR in `docs/adr/` (next number) + [docs/README.md](../README.md) index + root README list | — |
 | Env vars | [Chapter 2](../02-getting-started.md), [Chapter 9](../09-deployment-and-operations.md), `.env.example` if present | — |

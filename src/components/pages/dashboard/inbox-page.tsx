@@ -116,6 +116,7 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
         onCopyLink={link.handleCopy}
         onRefresh={inbox.handleRefresh}
         onViewModeChange={inbox.setViewMode}
+        pagination={inbox.pagination}
         revealedIds={inbox.revealedIds}
         searchInputId={INBOX_SEARCH_INPUT_ID}
         selection={{
@@ -123,7 +124,7 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
           onToggle: inbox.handleToggleSelect,
           onClear: inbox.handleDeselectAll,
         }}
-        totalMessages={inbox.allMessages.length}
+        totalMessages={inbox.totalMessages}
         viewMode={inbox.viewMode}
       />
 

@@ -2,16 +2,22 @@ import { act, waitFor } from "@testing-library/react";
 import { delay, http } from "msw";
 import { toast } from "sonner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { INBOX_PAGE_SIZE } from "@/data/messages/messages.queries";
 import { downloadTextFile } from "@/lib/browser/download";
 import { buildMessagesJson } from "@/lib/messages/export";
 import {
   answeredSpicyMessage,
+  buildMessage,
+  curiousMessage,
+  fixtureDate,
+  messageScenarios,
   mixedMessageCounts,
   quarantinedMessage,
   sweetMessage,
 } from "@/mock/fixtures/messages.fixtures";
 import { buildBlockedHashes } from "@/mock/fixtures/user.fixtures";
 import { scenarios } from "@/mock/handlers";
+import { inboxHandlers } from "@/mock/handlers/messages.handlers";
 import { apiError, mswPath } from "@/mock/handlers/utils";
 import { server } from "@/test/msw-server";
 import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
@@ -23,39 +29,83 @@ vi.mock("sonner", () => ({
 vi.mock("@/lib/browser/download", () => ({ downloadTextFile: vi.fn() }));
 
 const VISIBLE_IN_ALL = mixedMessageCounts.all;
+const ids = (messages: { _id: string }[]) => messages.map((m) => String(m._id));
 
 async function renderLoadedInbox() {
   const view = renderHookWithProviders(() => useInboxController());
   await waitFor(() =>
-    expect(view.result.current.allMessages.length).toBeGreaterThan(0)
+    expect(view.result.current.messages.length).toBeGreaterThan(0)
   );
   return view;
 }
+
+/** 35 messages, newest first: one full page plus a second page of 5. */
+const manyMessages = Array.from({ length: INBOX_PAGE_SIZE + 5 }, (_, i) =>
+  buildMessage({
+    _id: `msg-many-${String(i).padStart(2, "0")}`,
+    content: `Paged message number ${i}`,
+    createdAt: fixtureDate(i + 1),
+  })
+);
 
 describe("useInboxController", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("loads the inbox and hides quarantined messages from 'all'", async () => {
+  it("loads 'all' from the server (no quarantined) with server counts", async () => {
     const { result } = await renderLoadedInbox();
 
-    expect(result.current.counts).toEqual(mixedMessageCounts);
     expect(result.current.messages).toHaveLength(VISIBLE_IN_ALL);
-    expect(result.current.messages).not.toContainEqual(quarantinedMessage);
+    expect(ids(result.current.messages)).not.toContain(
+      String(quarantinedMessage._id)
+    );
+    await waitFor(() =>
+      expect(result.current.counts).toEqual(mixedMessageCounts)
+    );
+    expect(result.current.totalMessages).toBe(messageScenarios.mixed.length);
   });
 
-  it("filters by status and search query", async () => {
+  it("asks the server for each filter, so Quarantined is never empty by accident", async () => {
     const { result } = await renderLoadedInbox();
 
     act(() => result.current.setActiveStatus("quarantined"));
-    expect(result.current.messages).toEqual([quarantinedMessage]);
 
-    act(() => {
-      result.current.setActiveStatus("all");
-      result.current.setSearchQuery("controversial");
-    });
-    expect(result.current.messages).toEqual([answeredSpicyMessage]);
+    await waitFor(() =>
+      expect(ids(result.current.messages)).toEqual([
+        String(quarantinedMessage._id),
+      ])
+    );
+  });
+
+  it("searches on the server after a short pause", async () => {
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.setSearchQuery("controversial"));
+
+    await waitFor(() =>
+      expect(ids(result.current.messages)).toEqual([
+        String(answeredSpicyMessage._id),
+      ])
+    );
+  });
+
+  it("pages through the server with Load more", async () => {
+    server.use(...inboxHandlers(manyMessages));
+    const { result } = await renderLoadedInbox();
+
+    expect(result.current.messages).toHaveLength(INBOX_PAGE_SIZE);
+    expect(result.current.pagination.hasMore).toBe(true);
+
+    act(() => result.current.pagination.onLoadMore());
+
+    await waitFor(() =>
+      expect(result.current.messages).toHaveLength(manyMessages.length)
+    );
+    expect(result.current.pagination.hasMore).toBe(false);
+    expect(new Set(ids(result.current.messages)).size).toBe(
+      manyMessages.length
+    );
   });
 
   it("toggles selection and clears it", async () => {
@@ -73,6 +123,23 @@ describe("useInboxController", () => {
     expect(result.current.selectedIds).toEqual([]);
   });
 
+  it("drops the selection when the filter changes, so bulk actions only touch visible messages", async () => {
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.handleToggleSelect(String(sweetMessage._id)));
+    act(() => result.current.setActiveStatus("starred"));
+
+    expect(result.current.selectedIds).toEqual([]);
+  });
+
+  it("ignores selected ids that are not loaded", async () => {
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.handleToggleSelect("msg-not-loaded"));
+
+    expect(result.current.selectedIds).toEqual([]);
+  });
+
   it("keeps the active message after closing so dialogs can animate out", async () => {
     const { result } = await renderLoadedInbox();
 
@@ -83,6 +150,56 @@ describe("useInboxController", () => {
     act(() => result.current.closeModal());
     expect(result.current.activeModal).toBeNull();
     expect(result.current.activeMessage).toEqual(sweetMessage);
+  });
+
+  it("marks an unread message read when the recipient opens it to reply", async () => {
+    server.use(
+      http.patch(mswPath("/api/messages/{messageId}"), async () => {
+        await delay("infinite");
+      })
+    );
+    const requests = recordRequests();
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.openReplyModal(sweetMessage));
+
+    await waitFor(() =>
+      expect(requests).toContain(`PATCH /api/messages/${sweetMessage._id}`)
+    );
+    const updated = result.current.messages.find(
+      (m) => m._id === sweetMessage._id
+    );
+    expect(updated?.isRead).toBe(true);
+  });
+
+  it("does not mark an already-read message again", async () => {
+    const requests = recordRequests();
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.openStoryModal(answeredSpicyMessage));
+
+    expect(requests).not.toContain(
+      `PATCH /api/messages/${answeredSpicyMessage._id}`
+    );
+  });
+
+  it("stars optimistically and rolls back when the server refuses", async () => {
+    server.use(
+      http.patch(mswPath("/api/messages/{messageId}"), () =>
+        apiError(500, "Could not star")
+      )
+    );
+    const { result } = await renderLoadedInbox();
+
+    await act(() => result.current.handleStarToggle(curiousMessage));
+
+    expect(toast.error).toHaveBeenCalledWith("Could not star");
+    await waitFor(() =>
+      expect(
+        result.current.messages.find((m) => m._id === curiousMessage._id)
+          ?.isPinned
+      ).toBe(false)
+    );
   });
 
   it("applies a bulk action to the selection, then clears it", async () => {
@@ -138,7 +255,9 @@ describe("useInboxController", () => {
 
     expect(result.current.activeModal).toBeNull();
     await waitFor(() =>
-      expect(result.current.allMessages).not.toContainEqual(sweetMessage)
+      expect(ids(result.current.messages)).not.toContain(
+        String(sweetMessage._id)
+      )
     );
   });
 
@@ -154,11 +273,11 @@ describe("useInboxController", () => {
 
     expect(toast.error).toHaveBeenCalledWith("Could not delete");
     await waitFor(() =>
-      expect(result.current.allMessages).toContainEqual(sweetMessage)
+      expect(ids(result.current.messages)).toContain(String(sweetMessage._id))
     );
   });
 
-  it("applies bulk delete and read optimistically", async () => {
+  it("applies bulk delete optimistically", async () => {
     server.use(
       http.post(mswPath("/api/messages/bulk"), async () => {
         await delay("infinite");
@@ -173,7 +292,9 @@ describe("useInboxController", () => {
 
     expect(result.current.selectedIds).toEqual([]);
     await waitFor(() =>
-      expect(result.current.allMessages).not.toContainEqual(sweetMessage)
+      expect(ids(result.current.messages)).not.toContain(
+        String(sweetMessage._id)
+      )
     );
   });
 
@@ -190,26 +311,8 @@ describe("useInboxController", () => {
 
     expect(toast.error).toHaveBeenCalledWith("Bulk failed");
     await waitFor(() =>
-      expect(result.current.allMessages).toContainEqual(sweetMessage)
+      expect(ids(result.current.messages)).toContain(String(sweetMessage._id))
     );
-  });
-
-  it("delegates deletes and refreshes to controlled callbacks", async () => {
-    const onDelete = vi.fn().mockResolvedValue(undefined);
-    const onRefresh = vi.fn();
-    const { result } = renderHookWithProviders(() =>
-      useInboxController({
-        initialMessages: [sweetMessage],
-        onDelete,
-        onRefresh,
-      })
-    );
-
-    await act(() => result.current.handleDeleteConfirm(sweetMessage));
-    await act(() => result.current.handleRefresh());
-
-    expect(onDelete).toHaveBeenCalledWith(sweetMessage);
-    expect(onRefresh).toHaveBeenCalledOnce();
   });
 
   it("toasts the error when a refresh fails", async () => {

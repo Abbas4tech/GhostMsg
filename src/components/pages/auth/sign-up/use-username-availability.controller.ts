@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { type UseFormReturn, useWatch } from "react-hook-form";
 import { useDebounceValue } from "usehooks-ts";
 import type { SignUpValues } from "@/components/patterns/auth-form";
@@ -13,21 +12,15 @@ import {
 } from "@/lib/users/username-availability";
 
 /**
- * Debounced server-side username availability check. Writes the result back
- * into the form as a field error so submit stays disabled while taken.
+ * Debounced server-side username availability check. The result is shown by
+ * the username field and blocks submit while taken; it is derived from the
+ * query, never written into form state.
  */
 export function useUsernameAvailabilityController(
   form: UseFormReturn<SignUpValues>
 ) {
   const username = useWatch({ control: form.control, name: "username" }) ?? "";
-  const [debouncedUsername, setDebouncedUsername] = useDebounceValue(
-    username,
-    USERNAME_DEBOUNCE_MS
-  );
-
-  useEffect(() => {
-    setDebouncedUsername(username);
-  }, [username, setDebouncedUsername]);
+  const [debouncedUsername] = useDebounceValue(username, USERNAME_DEBOUNCE_MS);
 
   const isCheckable = isCheckableUsername(debouncedUsername);
 
@@ -35,21 +28,6 @@ export function useUsernameAvailabilityController(
     ...authQueries.checkUsername(debouncedUsername),
     enabled: isCheckable,
   });
-
-  const { setError, clearErrors } = form;
-  useEffect(() => {
-    if (!isCheckable) {
-      return;
-    }
-    if (error) {
-      setError("username", {
-        type: "manual",
-        message: error.message || "Username is already taken or invalid",
-      });
-    } else if (data?.success) {
-      clearErrors("username");
-    }
-  }, [error, data, isCheckable, setError, clearErrors]);
 
   return {
     availability: deriveUsernameAvailability({

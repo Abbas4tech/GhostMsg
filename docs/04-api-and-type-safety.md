@@ -59,7 +59,8 @@ The OpenAPI registry in [`src/server/openapi/openapi.ts`](../src/server/openapi/
 | `/api/verify-code` | `POST` | No | Body: `VerifyCodeRequest` | `200 OK` | `400`, `404`, `500` | 6-digit email OTP verification |
 | `/api/send-message` | `POST` | No | Body: `SendMessageRequest` | `200 OK` | `429`, `404`, `500` | Rate limiting, sender hash, AI moderation, ingestion |
 | `/api/suggest-messages` | `GET` | No (Edge) | None | `200 OK` | `500` | Gemini 2.5 Flash Lite prompt suggestions |
-| `/api/get-messages` | `GET` | Yes (Session) | Query: `status`, `q`, `cursor`, `limit` | `200 OK` | `401`, `404`, `500` | Filtered, paginated inbox retrieval |
+| `/api/get-messages` | `GET` | Yes (Session) | Query: `status` (incl. `any`), `q`, `cursor`, `limit` | `200 OK` | `400`, `401`, `404`, `500` | One page of one filter: server-side filter + escaped search, keyset paging (`nextCursor`) |
+| `/api/messages/counts` | `GET` | Yes (Session) | None | `200 OK` | `401`, `500` | Count per inbox filter + total |
 | `/api/delete-message/{messageId}` | `DELETE` | Yes (Session) | Path: `messageId` | `200 OK` | `401`, `404`, `500` | Single message deletion |
 | `/api/messages/{messageId}` | `PATCH` | Yes (Session) | Path: `messageId`, Body: `{ isPinned, isRead }` | `200 OK` | `401`, `404`, `500` | Toggle star/read status |
 | `/api/messages/{messageId}/reply` | `POST` | Yes (Session) | Path: `messageId`, Body: `{ text, isPublished }` | `200 OK` | `401`, `404`, `500` | Save or publish Q&A response |

@@ -75,9 +75,37 @@ export const getMessagesResponseSchema = z
     messages: z
       .array(messageItemSchema)
       .openapi({ description: "List of received messages" }),
-    total: z.number().optional().openapi({ example: 42 }),
+    total: z
+      .number()
+      .optional()
+      .openapi({ description: "Messages matching the filter", example: 42 }),
+    nextCursor: z.string().nullable().optional().openapi({
+      description: "Pass as `cursor` for the next page; null on the last page",
+      example: "2026-10-06T12:00:00.000Z_660c1d2e1b9d4c001f3e8a1a",
+    }),
   })
   .openapi("GetMessagesResponse");
+
+export const inboxCountsSchema = z
+  .object({
+    all: z.number().int().openapi({ example: 24 }),
+    unread: z.number().int().openapi({ example: 3 }),
+    starred: z.number().int().openapi({ example: 5 }),
+    answered: z.number().int().openapi({ example: 9 }),
+    quarantined: z.number().int().openapi({ example: 2 }),
+    total: z.number().int().openapi({
+      description: "Every message, quarantined included",
+      example: 26,
+    }),
+  })
+  .openapi("InboxCounts");
+
+export const inboxCountsResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    counts: inboxCountsSchema,
+  })
+  .openapi("InboxCountsResponse");
 
 export const acceptMessageGetResponseSchema = z
   .object({

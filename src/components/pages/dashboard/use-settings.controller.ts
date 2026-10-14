@@ -1,11 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import type {
   EmailAlertMode,
   QuietHoursValue,
 } from "@/components/blocks/settings-panel";
+import { fetchAllMessages } from "@/data/messages/fetch-all-messages";
 import { messagesQueries } from "@/data/messages/messages.queries";
 import { useAcceptMessageMutation } from "@/data/user/use-accept-message-mutation";
 import { useUnblockSenderMutation } from "@/data/user/use-block-sender-mutation";
@@ -51,7 +53,7 @@ export function useSettingsController({
   const { data: blockedData } = useQuery(userQueries.blockedSenders());
   const { data: preferencesData } = useQuery(userQueries.preferences());
   const { data: profileData } = useQuery(userQueries.profile());
-  const { data: messagesData } = useQuery(messagesQueries.list());
+  const { data: countsData } = useQuery(messagesQueries.counts());
 
   const acceptMutation = useAcceptMessageMutation();
   const notifMutation = useNotificationSettingsMutation();
@@ -105,13 +107,23 @@ export function useSettingsController({
   );
   const handleUnblockAll = useCallback(() => unblock("ALL"), [unblock]);
 
-  const messages = messagesData?.messages;
-  const handleExport = useCallback(
-    (format: MessageExportFormat) => {
-      downloadTextFile(buildMessagesExport(messages ?? [], format));
-    },
-    [messages]
-  );
+  // "Export all" pages through the server: every message, not just what's loaded.
+  const [isExporting, setIsExporting] = useState(false);
+  const handleExport = useCallback(async (format: MessageExportFormat) => {
+    setIsExporting(true);
+    try {
+      const messages = await fetchAllMessages("any");
+      downloadTextFile(buildMessagesExport(messages, format));
+    } catch (error) {
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Couldn't export your messages"
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  }, []);
 
   const notifications = notifData?.notificationSettings;
   const blockedHashes = blockedData?.blockedSenderHashes ?? [];
@@ -149,7 +161,10 @@ export function useSettingsController({
     emailAlerts: (notifications?.emailAlerts ?? "instant") as EmailAlertMode,
     isNotificationPending: notifMutation.isPending,
     handleEmailAlertChange,
-    webPushEnabled: Boolean(notifications?.webPushEnabled),
+    // This device's subscription, not the account flag (push is per device).
+    webPushEnabled:
+      Boolean(notifications?.webPushEnabled) &&
+      pushAdapter.isSubscribedHere === true,
     isWebPushPending: pushAdapter.isPending || notifMutation.isPending,
     handleToggleWebPush,
     hideMessageText: notifications?.hideMessageText ?? true,
@@ -162,7 +177,8 @@ export function useSettingsController({
     },
     handleQuietHoursChange,
     // Data
-    totalMessages: messages?.length ?? 0,
+    totalMessages: countsData?.counts.total ?? 0,
     handleExport,
+    isExporting,
   };
 }

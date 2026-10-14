@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ApiError } from "@/data/api-client";
 import { queryKeys } from "@/data/query-keys";
-import { useNotificationSettingsMutation } from "@/data/user/use-notification-settings-mutation";
 import { usePushSubscriptionMutation } from "@/data/user/use-push-subscription-mutation";
 import { useRemovePushSubscriptionMutation } from "@/data/user/use-remove-push-subscription-mutation";
 import {
@@ -20,6 +19,11 @@ const SERVICE_WORKER_URL = "/sw.js";
 export interface PushNotificationState {
   isConfigured: boolean;
   isPending: boolean;
+  /**
+   * Whether this browser holds a push subscription (`undefined` while it is
+   * checked). Push is per device: the account flag only says "some device".
+   */
+  isSubscribedHere: boolean | undefined;
   isSupported: boolean;
   permission: NotificationPermission | "unsupported";
   subscribe: () => Promise<boolean>;
@@ -63,11 +67,13 @@ export function usePushNotification(): PushNotificationState {
     NotificationPermission | "unsupported"
   >("unsupported");
   const [isPending, setIsPending] = useState(false);
+  const [isSubscribedHere, setIsSubscribedHere] = useState<boolean | undefined>(
+    undefined
+  );
 
   const queryClient = useQueryClient();
   const pushMutation = usePushSubscriptionMutation();
   const removeMutation = useRemovePushSubscriptionMutation();
-  const notifMutation = useNotificationSettingsMutation();
 
   const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
   const isConfigured = vapidPublicKey.length > 0;
@@ -76,6 +82,27 @@ export function usePushNotification(): PushNotificationState {
     const supported = isPushSupported();
     setIsSupported(supported);
     setPermission(supported ? Notification.permission : "unsupported");
+    if (!supported) {
+      setIsSubscribedHere(false);
+      return;
+    }
+    let isActive = true;
+    navigator.serviceWorker
+      .getRegistration(SERVICE_WORKER_URL)
+      .then((registration) => registration?.pushManager.getSubscription())
+      .then((subscription) => {
+        if (isActive) {
+          setIsSubscribedHere(Boolean(subscription));
+        }
+      })
+      .catch(() => {
+        if (isActive) {
+          setIsSubscribedHere(false);
+        }
+      });
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   const { mutateAsync: registerAsync } = pushMutation;
@@ -107,6 +134,7 @@ export function usePushNotification(): PushNotificationState {
 
       // The server stores the device and sets webPushEnabled; refresh the toggle.
       await registerAsync(subscription);
+      setIsSubscribedHere(true);
       await queryClient.invalidateQueries({
         queryKey: queryKeys.user.notifications(),
       });
@@ -124,7 +152,10 @@ export function usePushNotification(): PushNotificationState {
   }, [isSupported, isConfigured, vapidPublicKey, registerAsync, queryClient]);
 
   const { mutateAsync: removeAsync } = removeMutation;
-  const { mutateAsync: updateSettingsAsync } = notifMutation;
+  /**
+   * Turns push off on this device only. The server switches the account flag
+   * off once no device is left, so other devices keep receiving pushes.
+   */
   const unsubscribe = useCallback(async (): Promise<boolean> => {
     setIsPending(true);
     try {
@@ -138,7 +169,10 @@ export function usePushNotification(): PushNotificationState {
           await subscription.unsubscribe();
         }
       }
-      await updateSettingsAsync({ webPushEnabled: false });
+      setIsSubscribedHere(false);
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.user.notifications(),
+      });
       return true;
     } catch (err: unknown) {
       if (!(err instanceof ApiError)) {
@@ -152,13 +186,14 @@ export function usePushNotification(): PushNotificationState {
     } finally {
       setIsPending(false);
     }
-  }, [removeAsync, updateSettingsAsync]);
+  }, [removeAsync, queryClient]);
 
   return {
     isConfigured,
     isSupported,
     permission,
     isPending,
+    isSubscribedHere,
     subscribe,
     unsubscribe,
   };

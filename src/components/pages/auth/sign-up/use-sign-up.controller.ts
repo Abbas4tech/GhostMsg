@@ -38,6 +38,10 @@ export function useSignUpController({
   const { mutateAsync } = signUpMutation;
   const handleSubmit = useCallback(
     async ({ username, email, password }: SignUpValues) => {
+      // The button is disabled too; this guards Enter and stale clicks.
+      if (availability === "taken") {
+        return;
+      }
       try {
         const res = await mutateAsync({ username, email, password });
         if (res?.success) {
@@ -49,7 +53,7 @@ export function useSignUpController({
         toast.error(message || "Signup failed");
       }
     },
-    [mutateAsync, router]
+    [mutateAsync, router, availability]
   );
 
   return {

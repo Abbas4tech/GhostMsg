@@ -1,17 +1,47 @@
-import type { QueryClient, QueryKey } from "@tanstack/react-query";
+import type {
+  InfiniteData,
+  QueryClient,
+  QueryKey,
+} from "@tanstack/react-query";
 import { queryKeys } from "@/data/query-keys";
-import type { MessageDto } from "@/types/api";
+import type { MessageDto, MessagesPageDto } from "@/types/api";
 
-interface MessagesListData {
-  messages: MessageDto[];
-  success: boolean;
-  total?: number;
-}
+/** A cached inbox list: paged (`useInfiniteQuery`) or a single page. */
+type MessagesListData = InfiniteData<MessagesPageDto> | MessagesPageDto;
 
 export type MessagesCacheSnapshot = [QueryKey, MessagesListData | undefined][];
 
 /** Every cached inbox list (any filter combination). */
 const LIST_FILTER = { queryKey: [...queryKeys.messages.all, "list"] };
+
+const isPaged = (
+  data: MessagesListData
+): data is InfiniteData<MessagesPageDto> => "pages" in data;
+
+/** Applies `update` to every page and keeps each page's `total` in step. */
+function updateListData(
+  data: MessagesListData | undefined,
+  update: (messages: MessageDto[]) => MessageDto[]
+): MessagesListData | undefined {
+  if (!data) {
+    return data;
+  }
+  const pages = isPaged(data) ? data.pages : [data];
+  const updatedPages = pages.map((page) => ({
+    page,
+    messages: update(page.messages ?? []),
+  }));
+  const removed = updatedPages.reduce(
+    (sum, { page, messages }) => sum + (page.messages.length - messages.length),
+    0
+  );
+  const nextPages = updatedPages.map(({ page, messages }) => ({
+    ...page,
+    messages,
+    total: page.total === undefined ? undefined : page.total - removed,
+  }));
+  return isPaged(data) ? { ...data, pages: nextPages } : nextPages[0];
+}
 
 /**
  * Optimistically rewrites every cached inbox list and returns a snapshot for
@@ -25,21 +55,24 @@ export async function updateCachedMessages(
   await queryClient.cancelQueries(LIST_FILTER);
   const snapshot = queryClient.getQueriesData<MessagesListData>(LIST_FILTER);
 
-  queryClient.setQueriesData<MessagesListData>(LIST_FILTER, (data) => {
-    if (!data?.messages) {
-      return data;
-    }
-    const messages = update(data.messages);
-    const removed = data.messages.length - messages.length;
-    return {
-      ...data,
-      messages,
-      total: data.total === undefined ? undefined : data.total - removed,
-    };
-  });
+  queryClient.setQueriesData<MessagesListData>(LIST_FILTER, (data) =>
+    updateListData(data, update)
+  );
 
   return snapshot;
 }
+
+/** Applies `patch` to one message in every cached list. */
+export const patchCachedMessage = (
+  queryClient: QueryClient,
+  messageId: string,
+  patch: Partial<MessageDto>
+): Promise<MessagesCacheSnapshot> =>
+  updateCachedMessages(queryClient, (messages) =>
+    messages.map((message) =>
+      String(message._id) === messageId ? { ...message, ...patch } : message
+    )
+  );
 
 /** Restores the lists captured by `updateCachedMessages`. */
 export function restoreCachedMessages(
@@ -51,7 +84,7 @@ export function restoreCachedMessages(
   }
 }
 
-/** Re-syncs every inbox list with the server after a mutation settles. */
+/** Re-syncs every inbox list and the counts with the server. */
 export function invalidateCachedMessages(queryClient: QueryClient): void {
   queryClient.invalidateQueries({ queryKey: queryKeys.messages.all });
 }

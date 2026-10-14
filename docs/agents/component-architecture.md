@@ -250,7 +250,7 @@ sequenceDiagram
     Page->>Page: useDashboardShellController() → skeleton / access denied / shell
     Page->>Tab: <DashboardShell>{children = <InboxPage/>}</DashboardShell>
     Tab->>Ctl: useInboxController()
-    Ctl->>API: messagesQueries.list(), mutations, useLiveMessages()
+    Ctl->>API: messagesQueries.inbox() + counts(), mutations, useLiveMessages()
     Tab->>Block: messages, filters, selection, cardActions…
     Block->>Card: message + stable callbacks (memo-safe)
     Card-->>Tab: onOpenDelete(message)

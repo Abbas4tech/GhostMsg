@@ -67,3 +67,11 @@ export const longContentInboxArgs = {
   messages: messageScenarios.longContent,
   totalMessages: messageScenarios.longContent.length,
 } satisfies Partial<InboxProps>;
+
+export const moreToLoadInboxArgs = {
+  pagination: { hasMore: true, isLoadingMore: false, onLoadMore: noop },
+} satisfies Partial<InboxProps>;
+
+export const loadingMoreInboxArgs = {
+  pagination: { hasMore: true, isLoadingMore: true, onLoadMore: noop },
+} satisfies Partial<InboxProps>;

@@ -54,6 +54,22 @@ export default function PaletteProvider({
     }
   }, [forcedPalette]);
 
+  // Another tab changed the palette: follow it (the event fires only in
+  // other tabs of this origin, never in the one that wrote it).
+  useEffect(() => {
+    if (forcedPalette) {
+      return;
+    }
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === PALETTE_STORAGE_KEY && isPalette(event.newValue)) {
+        document.documentElement.dataset.palette = event.newValue;
+        setPaletteState(event.newValue);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [forcedPalette]);
+
   const setPalette = useCallback((next: Palette) => {
     setPaletteState(next);
     document.documentElement.dataset.palette = next;

@@ -10,6 +10,7 @@ import type { ChangeUsernameModalProps } from "./change-username-modal";
 import type { DeleteAccountModalProps } from "./delete-account-modal";
 import type { DeleteAllMessagesModalProps } from "./delete-all-messages-modal";
 import type { DeleteMessageModalProps } from "./delete-message-modal";
+import type { DiscardChangesModalProps } from "./discard-changes-modal";
 import type { RevealMessageModalProps } from "./reveal-message-modal";
 import type { SmartReplyModalProps } from "./smart-reply-modal";
 import type { StoryCardModalProps } from "./story-card-modal";
@@ -91,4 +92,10 @@ export const defaultDeleteAccountModalArgs: DeleteAccountModalProps = {
   onConfirm: noop,
   onConfirmValueChange: noop,
   onOpenChange: noop,
+};
+
+export const defaultDiscardChangesModalArgs: DiscardChangesModalProps = {
+  open: true,
+  onDiscard: noop,
+  onKeepEditing: noop,
 };

@@ -4,6 +4,7 @@ export {
   type InboxBulkActions,
   type InboxCardActions,
   type InboxFilters,
+  type InboxPagination,
   type InboxProps,
   type InboxSelection,
   type InboxViewMode,

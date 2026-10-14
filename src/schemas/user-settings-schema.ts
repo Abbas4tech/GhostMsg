@@ -50,6 +50,11 @@ export const getUserProfileResponseSchema = z
 export const updateUserProfileRequestSchema = z
   .object({
     displayName: displayNameSchema.optional(),
+    /** Sent with the rest of the profile so Save is one atomic request. */
+    amaPrompt: z.string().trim().min(1).max(120).optional().openapi({
+      description: "AMA Prompt shown on the public profile",
+      example: "Ask me anything about moving countries for work.",
+    }),
     /** `null` removes the photo. */
     avatarUrl: avatarDataUrlSchema.nullable().optional(),
     showAmaBanner: z.boolean().optional(),

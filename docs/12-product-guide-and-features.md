@@ -161,18 +161,20 @@ Each entry lists **what**, **rules** (invariants to keep), and **where** (UI →
   - The AMA banner shows only when `showAmaBanner` is on. Suggested Messages show and load only when `offerSuggestions` is on, and only after the profile has loaded.
   - When paused, answers stay readable and the form is replaced, never silently broken.
   - A 404 renders the not-found state without retries.
-- **Where:** `pages/public-profile/` → `use-public-answers.controller.ts` (`messagesQueries.publicAnswers`), `use-send-message.controller.ts` (`useSendMessageMutation`, `useSuggestMessagesMutation`) → `GET /api/public/{username}/answers`, `GET /api/suggest-messages` (Edge), `POST /api/send-message`.
+- **Where:** `pages/public-profile/` → `use-public-answers.controller.ts` (`messagesQueries.publicAnswers`), `use-send-message.controller.ts` (`useSendMessageMutation`, `publicQueries.suggestions`) → `GET /api/public/{username}/answers`, `GET /api/suggest-messages` (Edge), `POST /api/send-message`.
 
 ### 5.4 Inbox (`/dashboard`)
 
 | Capability | Behaviour | Code |
 | :--- | :--- | :--- |
-| **Filters** | All · Unread · Starred · Answered · Quarantined, with counts (Quarantined shows an attention badge). A ToggleGroup of chips. `?filter=` deep-links one. | `patterns/filter-bar`, `inbox.utils.ts` (`countByStatus`, `matchesStatus`) |
-| **Search** | Client-side match on content and answer; `/` focuses the box. | `matchesSearch` |
-| **Layouts** | Grid or list (segmented ToggleGroup). | `viewMode` in `use-inbox.controller.ts` |
-| **Live updates** | New messages appear without refresh through Server-Sent Events. | `data/messages/use-live-messages.ts` → `/api/messages/stream` |
+| **Filters** | All · Unread · Starred · Answered · Quarantined, with counts from the server (Quarantined shows an attention badge). A ToggleGroup of chips. Each filter is fetched from the server; `?filter=` deep-links one. | `patterns/filter-bar`, `messagesQueries.inbox` / `messagesQueries.counts`, rules in `lib/messages/inbox-filter.ts` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)) |
+| **Search** | Server-side, case-insensitive match on the message or its answer, 250 ms after typing stops; `/` focuses the box. The filter and search are kept in the URL (`?filter=&q=`), so refresh and shared links restore the view. | `searchFilter` in `server/messages/inbox-query.ts`, `use-inbox-filters.controller.ts` |
+| **Paging** | 30 messages per page, newest first; **Load more** fetches the next page. Counts and "Delete all N" use server totals, not the loaded page. | `useInfiniteQuery`, keyset cursor (`lib/messages/inbox-cursor.ts`) |
+| **Read state** | Opening Reply or the Story Card, revealing and starring mark a message read (optimistic); answering marks it read on the server too. Bulk **Mark read** still works. | `markRead` in `use-inbox.controller.ts` |
+| **Layouts** | Grid or list (segmented ToggleGroup), remembered on this device. | `viewMode` (`localStorage`) in `use-inbox.controller.ts` |
+| **Live updates** | New messages appear at once through Server-Sent Events (inserted into the list and counts, then re-synced). If the stream drops, the inbox polls every 30 s; it also refreshes when the tab regains focus. | `data/messages/use-live-messages.ts` → `/api/messages/stream`, `use-inbox-data.controller.ts` |
 | **Keyboard triage** | `j`/`k` move, `x` select, `s` star, `r` reply, `/` search, `⌘K`/`Ctrl+K` command palette. Ignored while typing or when a dialog is open; never acts on a quarantined message. | `use-inbox-keyboard.controller.ts`, `inbox.utils.ts` (`resolveInboxShortcut`) |
-| **Bulk actions** | Select cards → Mark read, Star, Export CSV/JSON, Delete. Optimistic with rollback. | `patterns/bulk-action-toolbar`, `use-bulk-action-mutation.ts` → `POST /api/messages/bulk` |
+| **Bulk actions** | Select cards → Mark read, Star, Export CSV/JSON, Delete. Optimistic with rollback. The selection belongs to the current filter + search: changing either clears it, so an action never reaches a hidden message. | `patterns/bulk-action-toolbar`, `use-bulk-action-mutation.ts` → `POST /api/messages/bulk` |
 | **Message card** | Sentiment Tag, relative time, star, answer preview with Public badge, Reply/Edit answer, Story Card, Block, Delete. States: default, unread (accent bar), selected, answered, quarantined (dashed + hidden body). | `patterns/message-card` |
 | **Empty / error / loading** | shadcn `Empty` states per filter; skeleton grid while loading. A failed load shows the empty state and the error toasts on **Refresh** (the initial load fails quietly). | `blocks/inbox`, `handleRefresh` in `use-inbox.controller.ts` |
 
@@ -197,9 +199,9 @@ Each entry lists **what**, **rules** (invariants to keep), and **where** (UI →
 | **Identity** | Photo (Change / Remove), Display Name (0–40), Username with **Change** | The photo is center-cropped and resized in the browser to 256px WebP (JPEG fallback) and stored as a data URL ≤ 350,000 chars. An empty Display Name falls back to the username. | `PATCH /api/user/profile` |
 | **Change username** dialog | New username with live availability (✓ / ✗ / spinner) | Saving updates the NextAuth session (`update({ username })`) and refreshes the router. **The old link stops working**: there is no redirect ([ADR 0027](adr/0027-destructive-account-actions-undo-window-and-typed-confirmation.md)). | `PATCH /api/user/username` (409 when taken) |
 | **Your Public Profile Link** | Copy, Share… (native share sheet when available) | Shown without protocol. | — |
-| **AMA Prompt** | Text (≤120, counter warns from 100), idea chips, **Suggest with AI**, **Show the AMA banner** | AI ideas riff on the current prompt; fixed fallbacks when AI is unavailable. | `PATCH /api/user/ama-prompt`, `POST /api/ai/ama-suggestions` |
+| **AMA Prompt** | Text (≤120, counter warns from 100), idea chips, **Suggest with AI**, **Show the AMA banner** | AI ideas riff on the current prompt; fixed fallbacks when AI is unavailable. | `PATCH /api/user/profile` (with the rest of the profile), `POST /api/ai/ama-suggestions` |
 | **What visitors see** | Live preview | Mirrors the draft before saving; not interactive. | — |
-| **Unsaved changes bar** | Discard / Save changes | Edits are a local **draft** until saved; one Save sends the profile patch and the AMA prompt together. | both of the above |
+| **Unsaved changes bar** | Discard / Save changes | Edits are a **draft** (react-hook-form) until saved; Save sends only the changed fields in one request. Leaving with unsaved edits asks first (**Discard unsaved changes?**, "Keep editing" focused); closing the tab shows the browser prompt. | `PATCH /api/user/profile` |
 
 ### 5.7 Settings (`/dashboard/settings`)
 
@@ -217,12 +219,12 @@ A scroll-spy **section nav** (desktop) follows the sections. Every control saves
 | Safety | Blur Spicy 🔥 messages until opened | `safetySettings.blurSpicy` | Spicy cards render concealed ("Spicy 🔥 Reveal to read."). Client-side only. |
 | Safety | Blocked senders table | `blockedSenderHashes` + `blockedSenders[{hash, blockedAt}]` | Shows `#01a8…e4` handles and dates; Unblock per row. |
 | Notifications | Email me about new Anonymous Messages: Instant · Daily digest · Off | `notificationSettings.emailAlerts` | Instant sends one email per message. Daily digest sends one summary a day (17:00 UTC) of new non-quarantined messages since the last digest ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)). |
-| Notifications | Push notifications (this device) | `notificationSettings.webPushEnabled` + `pushSubscriptions[]` | Browser permission + VAPID subscription ([ADR 0020](adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md)). |
+| Notifications | Push notifications (this device) | this browser's subscription + `pushSubscriptions[]` (`webPushEnabled` = any device) | On only when this browser is subscribed. Turning it off removes this device only; other devices keep receiving pushes ([ADR 0020](adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md), [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md) D9). |
 | Notifications | Hide message text in notifications (default **on**) | `notificationSettings.hideMessageText` | Alerts say "New Anonymous Message" instead of the text. |
 | Notifications | Quiet hours (switch + start/end, 30-min steps) | `notificationSettings.quietHours{enabled,start,end,timeZone}` | No email or push inside the window; the browser's IANA time zone is saved with it. |
 | Appearance | Mode: Light · Dark · System | `next-themes` (browser storage) | Per device, not per account. |
 | Appearance | Palette: Soft spectral · Midnight confessional · Playful paper | `localStorage["ghostmsg-palette"]` | Per device ([Chapter 13](13-design-system-and-theming.md)). |
-| Data & account | Export all messages (CSV / JSON) | — | Built in the browser from the loaded messages. Both formats use an allow-list of fields; Sender Hashes are never included. |
+| Data & account | Export all messages (CSV / JSON) | — | Pages through the server for **every** message (quarantined included) and builds the file in the browser. Both formats use an allow-list of fields; Sender Hashes are never included. |
 | Danger zone | Delete all messages | — | Confirm dialog → **10-second Undo toast** → `DELETE /api/messages`. Leaving the page commits immediately. |
 | Danger zone | Delete account and link | — | Type the username to enable → `DELETE /api/user` → sign out to `/`. |
 

@@ -121,7 +121,8 @@ Email and push are fire-and-forget (`.catch(console.warn)`); they never delay or
 | AMA Prompt | ≤ 120 | schema + model |
 | Display name | ≤ 40 | schema + model |
 | Avatar | PNG/JPEG/WebP data URL ≤ 350,000 chars | profile schema |
-| Inbox page | ≤ 100 per request | get-messages |
+| Inbox page | 30 per page, ≤ 100 per request | get-messages |
+| Inbox search | Literal text only (regex characters escaped) | `escapeRegExp` in `server/messages/inbox-query.ts` |
 
 The limiter is an **in-memory Map per server instance** (cleaned every 5 minutes). It is not shared across serverless instances; see [Chapter 18 §5](18-notifications-and-realtime.md#scaling-limits) for the scaling note.
 

@@ -2,11 +2,14 @@
 
 import type React from "react";
 import { ProfilePanel } from "@/components/blocks/profile-panel";
-import { ChangeUsernameModal } from "@/components/patterns/modals";
+import {
+  ChangeUsernameModal,
+  DiscardChangesModal,
+} from "@/components/patterns/modals";
 import { useChangeUsernameController } from "./use-change-username.controller";
 import { useProfileController } from "./use-profile.controller";
 
-/** /dashboard/profile: identity, link, AMA Prompt, live preview. */
+/** /dashboard/profile: identity, link, AMA Prompt, live preview, leave guard. */
 export function ProfilePage(): React.JSX.Element {
   const profile = useProfileController();
   const rename = useChangeUsernameController(profile.username);
@@ -57,6 +60,11 @@ export function ProfilePage(): React.JSX.Element {
         onValueChange={rename.setValue}
         open={rename.isOpen}
         value={rename.value}
+      />
+      <DiscardChangesModal
+        onDiscard={profile.handleConfirmLeave}
+        onKeepEditing={profile.handleCancelLeave}
+        open={profile.isLeaveConfirmOpen}
       />
     </>
   );

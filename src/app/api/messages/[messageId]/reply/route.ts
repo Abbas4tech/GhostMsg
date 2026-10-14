@@ -54,6 +54,8 @@ export async function POST(
             isPublished: Boolean(isPublished),
             publishedAt: isPublished ? new Date() : undefined,
           },
+          // Answering a message means it has been read.
+          isRead: true,
         },
       },
       { new: true }

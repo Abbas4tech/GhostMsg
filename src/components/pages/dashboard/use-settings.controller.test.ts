@@ -8,6 +8,17 @@ import { server } from "@/test/msw-server";
 import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
 import { useSettingsController } from "./use-settings.controller";
 
+/** A service worker registration that already holds a push subscription. */
+const thisDeviceRegistration = () =>
+  ({
+    pushManager: {
+      getSubscription: vi.fn().mockResolvedValue({
+        endpoint: "https://push.example.com/sub/this-device",
+        unsubscribe: vi.fn().mockResolvedValue(true),
+      }),
+    },
+  }) as unknown as ServiceWorkerRegistration;
+
 /** Any 65-byte base64url string: the test PushManager does not validate it. */
 const TEST_VAPID_PUBLIC_KEY = `B${"A".repeat(86)}`;
 
@@ -42,7 +53,18 @@ describe("useSettingsController", () => {
       )
     );
     expect(result.current.emailAlerts).toBe("daily");
-    expect(result.current.webPushEnabled).toBe(true);
+    // The account has push on, but not on this browser: the switch is off.
+    expect(result.current.webPushEnabled).toBe(false);
+  });
+
+  it("shows push on only when this device is subscribed", async () => {
+    vi.mocked(navigator.serviceWorker.getRegistration).mockResolvedValueOnce(
+      thisDeviceRegistration()
+    );
+    server.use(...scenarios.settings.closedWithBlocks);
+    const { result } = renderHookWithProviders(() => useSettingsController());
+
+    await waitFor(() => expect(result.current.webPushEnabled).toBe(true));
   });
 
   it("toggles acceptance through the API", async () => {
@@ -107,12 +129,21 @@ describe("useSettingsController", () => {
     expect(toast.error).not.toHaveBeenCalled();
   });
 
-  it("turns web push off on the server when disabled", async () => {
+  it("turns push off for this device only (other devices keep it)", async () => {
+    const registration = thisDeviceRegistration();
+    vi.mocked(navigator.serviceWorker.getRegistration).mockResolvedValue(
+      registration
+    );
     const requests = recordRequests();
     const { result } = renderHookWithProviders(() => useSettingsController());
 
     await act(() => result.current.handleToggleWebPush(false));
 
-    expect(requests).toContain("PATCH /api/user/notifications");
+    expect(requests).toContain("DELETE /api/user/push-subscription");
+    expect(requests).not.toContain("PATCH /api/user/notifications");
+    expect(result.current.webPushEnabled).toBe(false);
+    vi.mocked(navigator.serviceWorker.getRegistration).mockResolvedValue(
+      undefined
+    );
   });
 });

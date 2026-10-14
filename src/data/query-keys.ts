@@ -3,12 +3,13 @@ export const queryKeys = {
     all: ["messages"] as const,
     list: (filters?: { status?: string; q?: string }) =>
       [...queryKeys.messages.all, "list", filters || {}] as const,
-    detail: (id: string) => [...queryKeys.messages.all, "detail", id] as const,
+    counts: () => [...queryKeys.messages.all, "counts"] as const,
   },
   public: {
     all: ["public"] as const,
     answers: (username: string) =>
       [...queryKeys.public.all, "answers", username] as const,
+    suggestions: () => [...queryKeys.public.all, "suggestions"] as const,
   },
   user: {
     all: ["user"] as const,
