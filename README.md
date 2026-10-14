@@ -144,40 +144,11 @@ pnpm exec playwright install chromium   # one-time, for story tests
 
 ### 2. Configure Environment Variables
 
-Create a `.env.local` file in the root directory:
-
-```env
-# Database
-MONGODB_URI=your_mongodb_connection_string
-
-# NextAuth
-NEXT_AUTH_SECRET=your_nextauth_secret_key
-NEXTAUTH_URL=http://localhost:3000
-
-# Transactional Email (Nodemailer SMTP)
-SMTP_HOST=smtp.mailtrap.io
-SMTP_PORT=587
-SMTP_USER=your_smtp_username
-SMTP_PASS=your_smtp_password
-
-# Google AI Studio (Gemini)
-GOOGLE_AI_STUDIO_SECRET=your_google_ai_studio_api_key
-
-# Google OAuth (Optional)
-GOOGLE_OAUTH_CLIENT_ID=your_google_client_id
-GOOGLE_OAUTH_CLIENT_SECRET=your_google_client_secret
-GOOGLE_OAUTH_CALLBACK_URL=http://localhost:3000/api/auth/callback/google
-
-# Web Push / VAPID (optional; npx web-push generate-vapid-keys)
-NEXT_PUBLIC_VAPID_PUBLIC_KEY=your_vapid_public_key
-VAPID_PRIVATE_KEY=your_vapid_private_key
-
-# Sender Hash pepper (recommended; falls back to NEXT_AUTH_SECRET)
-SENDER_PEPPER_SECRET=another_random_secret
-
-# Daily digest cron (optional; unset = digests off)
-CRON_SECRET=a_long_random_secret
+```bash
+cp .env.example .env.local
 ```
+
+Fill in `MONGODB_URI`, `NEXT_AUTH_SECRET` and the `SMTP_*` values; everything else is optional. [`.env.example`](.env.example) explains each variable, and [Chapter 2](docs/02-getting-started.md#2-environment-variables-configuration) lists what each one enables.
 
 ### 3. Run Development Server
 

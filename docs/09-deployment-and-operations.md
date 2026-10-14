@@ -25,7 +25,7 @@ Vercel detects pnpm from `packageManager` (`pnpm@10.29.1`) and `pnpm-lock.yaml`,
 
 ## 2. Production Environment Variables Checklist
 
-Ensure these variables are added in your Vercel Project Settings:
+Ensure these variables are added in your Vercel Project Settings. [`.env.example`](../.env.example) is the complete, commented list, and [Chapter 2 §2.1](02-getting-started.md#21-every-variable-the-code-reads) shows where each one is read. Vercel variables the code doesn't read (`RESEND_API_KEY`, `GOOGLE_OAUTH_CALLBACK_URL`) can be deleted ([§2.2](02-getting-started.md#22-set-automatically-or-not-used)):
 
 | Variable | Description |
 | :--- | :--- |
@@ -36,11 +36,11 @@ Ensure these variables are added in your Vercel Project Settings:
 | `SMTP_PORT` | Production SMTP port (e.g. 587 or 465). |
 | `SMTP_USER` | Production SMTP authentication username. |
 | `SMTP_PASS` | Production SMTP authentication password. |
+| `SMTP_FROM` | Optional sender, e.g. `GhostMsg 👻 <noreply@your-domain>` (default: `GhostMsg 👻 <SMTP_USER>`). |
 | `GOOGLE_AI_STUDIO_SECRET` | Google AI Studio Gemini API key. |
-| `GOOGLE_OAUTH_CLIENT_ID` | Google Cloud OAuth client ID (authorized redirect URI set to production domain). |
+| `GOOGLE_OAUTH_CLIENT_ID` | Google Cloud OAuth client ID. Register `https://<your-domain>/api/auth/callback/google` as the authorized redirect URI (NextAuth builds it from `NEXTAUTH_URL`; there is no callback variable). |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | Google Cloud OAuth client secret. |
-| `GOOGLE_OAUTH_CALLBACK_URL` | `https://ghost-msg.vercel.app/api/auth/callback/google` |
-| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Web Push VAPID public key (`npx web-push generate-vapid-keys`). Exposed to the browser ([ADR 0020](adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md)). |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Web Push VAPID public key (`npx web-push generate-vapid-keys`). Exposed to the browser and **inlined at build time**: redeploy after changing it ([ADR 0020](adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md)). |
 | `VAPID_PRIVATE_KEY` | Web Push VAPID private key. Server only; rotating it invalidates existing device subscriptions. |
 | `VAPID_SUBJECT` | Optional `mailto:`/`https:` contact for push services (default `mailto:support@ghostmsg.app`). |
 | `CRON_SECRET` | Bearer secret for the daily digest cron (`vercel.json` schedules `GET /api/cron/daily-digest` at 17:00 UTC). Vercel Cron sends it automatically; unset = digests off ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)). |

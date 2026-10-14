@@ -230,6 +230,7 @@ it("sends nothing when the only change is a blank AMA prompt", async () => {
 | Toasts | `vi.mock("sonner", …)` |
 | `signIn` | `vi.mock("next-auth/react", () => ({ signIn: vi.fn() }))` (no `renderHookWithProviders`, use plain `renderHook`) |
 | Downloads | `vi.mock("@/lib/browser/download", () => ({ downloadTextFile: vi.fn() }))` |
+| Env vars | `vi.stubEnv("NAME", value)` in the test + `vi.unstubAllEnvs()` in `afterEach`; never rely on `.env.local` ([Chapter 2 §2.3](../02-getting-started.md#23-tests)) |
 | Never | mocking `@/data/**`, or hitting the real network |
 
 ---

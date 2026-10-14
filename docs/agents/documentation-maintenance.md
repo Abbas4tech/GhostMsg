@@ -19,7 +19,7 @@ Which docs a change must update, how to keep screenshots and diagrams current, a
 | A query, mutation, cache rule or where some state lives | [Chapter 20](../20-state-management.md) (state map, rules, review status) | — |
 | A domain term | [`GLOSSARY.md`](../../GLOSSARY.md) (with `_Avoid_`) | — |
 | A hard-to-reverse or surprising decision | New ADR in `docs/adr/` (next number) + [docs/README.md](../README.md) index + root README list | — |
-| Env vars | [Chapter 2](../02-getting-started.md), [Chapter 9](../09-deployment-and-operations.md), `.env.example` if present | — |
+| Env vars | [`.env.example`](../../.env.example) (the complete list: purpose, default, what breaks without it; optional lines commented out), the [Chapter 2](../02-getting-started.md) summary table, the [Chapter 9](../09-deployment-and-operations.md) production checklist | — |
 | Fixing a known issue (K1…) | Remove its row in [Chapter 17 §10](../17-trust-safety-and-privacy.md#10-known-issues-code-that-does-not-yet-meet-these-rules) and mentions in Chapters 12/15/18 | — |
 
 ## 2. Screenshots
