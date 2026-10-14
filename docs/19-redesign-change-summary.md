@@ -58,6 +58,19 @@ timeline
 
 OpenAPI paths are registered under the new **Profile & Settings** tag; `pnpm typegen` regenerated `src/generated/api-schema.d.ts`. Reference: [Chapter 16](16-api-reference.md).
 
+### 3.3 State-management follow-up ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md), [ADR 0031](adr/0031-state-management-consistency-and-structure.md))
+
+| Endpoint | Change | Compatible? |
+| :--- | :--- | :--- |
+| `GET /api/get-messages` | Serves **one page of one filter**: `status` (`all` default, `unread`, `starred`, `answered`, `quarantined`, `any`), `q`, `cursor`, `limit` (30, max 100); returns `nextCursor`. `400` for an unknown status or a bad cursor. | **No**: callers that expected every message must page (`fetchAllMessages`). |
+| `GET /api/messages/counts` | **New.** `{ all, unread, starred, answered, quarantined, total }` in one aggregation. | Additive |
+| `POST /api/messages/{id}/reply` | Also marks the message read. | Additive |
+| `DELETE /api/user/push-subscription` | Turns `webPushEnabled` off when no device is left (also after gone-pruning). | Behaviour |
+| `PATCH /api/user/profile` | + `amaPrompt`; the whole Profile page saves in one request. | Additive |
+| `PATCH /api/user/ama-prompt` | Legacy: still works, no longer called by the app. | — |
+| `GET /api/public/{username}/answers` | Body built by `getPublicProfile`, shared with the server-rendered page and its metadata. Same shape. | Same |
+| NextAuth session / JWT | `isAcceptingMessage` removed (identity only). | **No** for code reading `session.user.isAcceptingMessage` |
+
 ## 4. Database changes
 
 All additive on `users`, with schema defaults and read-side defaults (`src/server/users/user-dto.ts`), so **no migration is required** ([Chapter 15 §4](15-data-model-and-database.md#4-compatibility-documents-older-than-a-field)).
@@ -124,7 +137,7 @@ All additive on `users`, with schema defaults and read-side defaults (`src/serve
 | `pnpm check` (Ultracite/Biome) | ✓ 0 errors |
 | `pnpm exec tsc --noEmit` | ✓ |
 | `pnpm build` | ✓ |
-| `pnpm test:all` | ✓ 610 tests in 148 files (unit + story) |
+| `pnpm test:all` | ✓ 676 tests in 157 files (54 unit + 103 story), after the state-management review |
 | `pnpm theme:contrast` | ✓ all 6 palette × mode pairs AA |
 | `pnpm docs:registry:check` | ✓ |
 
@@ -138,7 +151,7 @@ After the redesign, a state-management review ([Chapter 20](20-state-management.
 
 ## 8. Issues found while documenting, and fixed
 
-Writing chapters 12–18 against the code surfaced four places where behaviour broke the product's own rules. All are fixed in this release ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md), [Chapter 17 §10](17-trust-safety-and-privacy.md#10-known-issues-code-that-does-not-yet-meet-these-rules)):
+Writing chapters 12–18 against the code surfaced four places where behaviour broke the product's own rules (K1–K4, [ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)); the state-management review found three more (K5–K7, [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). All are fixed in this release ([Chapter 17 §10](17-trust-safety-and-privacy.md#10-known-issues-code-that-does-not-yet-meet-these-rules)):
 
 | # | Problem | Fix |
 | :--- | :--- | :--- |
@@ -146,7 +159,10 @@ Writing chapters 12–18 against the code surfaced four places where behaviour b
 | K2 | The live toast previewed quarantined messages and ignored hidden text. | `buildLiveMessageToast`. |
 | K3 | "Daily digest" was never sent. | `GET /api/cron/daily-digest` + Vercel Cron + digest email. |
 | K4 | Hidden-text alert emails quoted the placeholder as if it were the message and linked to a hard-coded domain. | Neutral hidden-text email; `APP_URL` links. |
+| K5 | "Export all" contained only the loaded messages. | `fetchAllMessages("any")` pages through the server. |
+| K6 | A selection survived a filter change, so bulk actions could reach hidden messages. | Selection scoped to filter + search, loaded ids only. |
+| K7 | Turning push off on one device switched it off everywhere. | Per-device switch; server clears the flag when no device is left. |
 
-Also added: controller tests for `use-dashboard-shell` and `use-profile-link`, and graded-moderation parsing tests with the AI SDK mocked.
+Also added: controller tests for `use-dashboard-shell` and `use-profile-link`, and graded-moderation parsing tests with the AI SDK mocked. The final documentation audit added tests for code the docs already described but nothing exercised: the inbox URL/selection/dialog helpers (`inbox.utils.test.ts`) and **Export all** (`fetch-all-messages.test.ts`, `use-settings.controller.test.ts`), and corrected the OpenAPI descriptions of the reply, AMA Prompt, profile, push-unsubscribe and public-answers operations.
 
 **Still deliberate (not bugs):** no "Unblock all" button (design), the in-memory rate limiter and live-event bus (need shared infrastructure and a privacy decision before moving off-process), avatars stored in MongoDB ([Chapter 12 §6](12-product-guide-and-features.md#6-known-gaps-and-non-goals)).

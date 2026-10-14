@@ -106,7 +106,7 @@ Side effects, in order: rate limit → Sender Hash → blocklist check (silent 2
 }
 ```
 
-Up to 50 published answers, newest published first. **404** "User not found" (the page renders its not-found state and does not retry). `displayName` is omitted when empty. Client: `messagesQueries.publicAnswers(username)`.
+Up to 50 published answers, newest published first; no paging parameters. **404** "User not found" (the page renders its not-found state and does not retry). `displayName` is omitted when empty. Server: `getPublicProfile(username)` in `src/server/users/public-profile.ts` (React `cache`) builds this body; the route returns it, and `app/u/[username]/page.tsx` + `generateMetadata` call it directly so the page renders filled ([ADR 0031](adr/0031-state-management-consistency-and-structure.md) D14). Client: `messagesQueries.publicAnswers(username)`, seeded with the server copy as `initialData`.
 
 ### `POST /api/messages/{messageId}/reply`
 Body `{ text (1–1000), isPublished }`. Sets `reply` (and `publishedAt` when published) and marks the message **read**. **404** if not yours. Client: `useReplyMessageMutation` (optimistic with rollback; Smart Reply save).

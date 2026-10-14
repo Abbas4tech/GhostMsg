@@ -1,7 +1,11 @@
 # ADR 0024: Profile & Preferences Data Model and the Settings API
 
 ## Status
-**Accepted** (2026-10-14). Details the data side of [ADR 0023](0023-shadcn-first-elements-and-profile-settings-backend.md) (D9–D10). Builds on the embedded-settings pattern already used by `notificationSettings` and `pushSubscriptions` ([ADR 0020](0020-web-push-delivery-vapid-and-subscription-lifecycle.md)).
+**Accepted** (2026-10-14).
+
+> **Update (2026-10-14, later):** `PATCH /api/user/profile` also accepts `amaPrompt` (trimmed, 1–120), so the whole Profile page saves atomically in one request ([ADR 0031](0031-state-management-consistency-and-structure.md) D3, D11). The "one optimistic mutation per endpoint" of D2 is now built with the shared `useOptimisticResourceMutation` factory (D1).
+
+Details the data side of [ADR 0023](0023-shadcn-first-elements-and-profile-settings-backend.md) (D9–D10). Builds on the embedded-settings pattern already used by `notificationSettings` and `pushSubscriptions` ([ADR 0020](0020-web-push-delivery-vapid-and-subscription-lifecycle.md)).
 
 ---
 

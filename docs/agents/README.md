@@ -26,7 +26,7 @@ Start here when you are an AI agent working in GhostMsg. Each guide covers one k
 | What must never leak, and how is abuse handled? | [17 Trust, Safety & Privacy](../17-trust-safety-and-privacy.md) |
 | When do alerts fire? | [18 Notifications & Real-Time](../18-notifications-and-realtime.md) |
 | What changed in the redesign? | [19 Change Summary](../19-redesign-change-summary.md) |
-| Where does state live; what's the review backlog? | [20 State Management](../20-state-management.md) |
+| Where does state live, and which state rules apply (server paging, optimistic factory, URL/device state)? | [20 State Management](../20-state-management.md) |
 | Which modules, stories, mocks and scenarios exist? | [11 Component Registry](../11-component-registry.md) (generated) |
 
 ## Gates before you hand off

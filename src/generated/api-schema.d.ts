@@ -765,7 +765,7 @@ export interface paths {
     put?: never;
     /**
      * Author & Publish Message Reply
-     * @description Author a reply to an anonymous message and optionally publish to public profile.
+     * @description Author a reply to an anonymous message and optionally publish to public profile. Answering also marks the message read.
      */
     post: {
       parameters: {
@@ -946,7 +946,7 @@ export interface paths {
     };
     /**
      * Get Public Q&A Answers Feed
-     * @description Retrieve all published responses for a user's public profile link.
+     * @description Public profile (display name, photo, AMA Prompt, acceptance, banner and suggestion settings) plus up to 50 published answers, newest published first.
      */
     get: {
       parameters: {
@@ -1257,7 +1257,7 @@ export interface paths {
     head?: never;
     /**
      * Update Custom AMA Prompt Banner
-     * @description Set the custom topic/banner displayed to visitors on /u/[username].
+     * @description Legacy: set the AMA Prompt shown to visitors on /u/[username]. The app saves it with PATCH /api/user/profile (amaPrompt) instead.
      */
     patch: {
       parameters: {
@@ -1553,7 +1553,7 @@ export interface paths {
     head?: never;
     /**
      * Update Profile
-     * @description Display name, photo (data URL, or null to remove) and AMA banner switch.
+     * @description Partial update in one request: display name, photo (data URL, or null to remove), AMA Prompt and AMA banner switch.
      */
     patch: {
       parameters: {
@@ -1655,7 +1655,7 @@ export interface paths {
     };
     /**
      * Remove Web Push Subscription
-     * @description Forget this device's PushSubscription so the server stops sending it notifications.
+     * @description Forget this device's PushSubscription so the server stops sending it notifications. When no device is left, notificationSettings.webPushEnabled becomes false.
      */
     delete: {
       parameters: {

@@ -19,16 +19,18 @@ Full reasoning: [Chapter 17](../17-trust-safety-and-privacy.md). A change that b
 | S5 | Quarantine decisions use the Recipient's `safetySettings` through `shouldQuarantine`; don't add parallel thresholds. | `quarantine-policy.ts` | One call site in `send-message`. |
 | S6 | Nothing becomes public without an explicit per-answer choice. `publishByDefault` only pre-sets the switch. | Smart Reply, `reply` route | `isPublished` comes from the request. |
 | S7 | Notification text is hidden by default (`hideMessageText ?? true`) in push, email, digest and the live toast; quiet hours suppress email, push and digests. | `delivery-policy.ts`, `daily-digest.ts`, `use-live-messages.utils.ts` | Use `buildAlertPreview` and `isWithinQuietHours` for any new alert. |
-| S8 | Public endpoints expose only: username, display name, avatar, AMA prompt + banner flag, suggestions flag, acceptance, published answers. Never email, hashes or settings. | `public/[username]/answers` | Review the response object literal. |
+| S8 | Public endpoints expose only: username, display name, avatar, AMA prompt + banner flag, suggestions flag, acceptance, published answers. Never email, hashes or settings. | `getPublicProfile` (`src/server/users/public-profile.ts`), used by `public/[username]/answers`, `/u/[username]` and its metadata | Review the object literal in `getPublicProfile`; it is the only public read model. |
 | S9 | Destructive actions are undoable (timer) or typed-to-confirm, and the server re-validates confirmations. | danger-zone controller, `DELETE /api/user` | [ADR 0027](../adr/0027-destructive-account-actions-undo-window-and-typed-confirmation.md). |
 | S10 | Message routes scope every query by `recipientId: session.user._id`; a foreign id is a 404. | message routes | Filter includes `recipientId`. |
 
 ## 2. Recipient-control rules
 
-- **Every setting saves itself.** Settings controls are optimistic mutations with rollback and a toast on error. No page-level Save button in Settings.
-- **Profile edits are a draft.** The Profile page holds a local draft (preview updates live) and saves on **Save changes** in the `UnsavedChangesBar`; **Discard** sends nothing.
+- **Every setting saves itself.** Settings controls are optimistic mutations with rollback and a toast on error, built with `useOptimisticResourceMutation` ([Chapter 20](../20-state-management.md) rule 8). Switches are **silent on success** (the switch moving is the confirmation); rapid toggles are queued per resource, so the last one wins. No page-level Save button in Settings.
+- **Profile edits are a draft.** The Profile page holds a react-hook-form draft (preview updates live) and saves on **Save changes** in the `UnsavedChangesBar` with **one** `PATCH /api/user/profile` carrying only the changed fields; **Discard** sends nothing. A blank AMA Prompt is never sent.
+- **Unsaved edits are guarded.** With a dirty Profile draft, closing or reloading the tab triggers the browser prompt, and an in-app link opens "Discard unsaved changes?" (`DiscardChangesModal`, **Keep editing** focused) instead of navigating (`useLeaveGuard`).
 - **Pausing is calm.** Message Acceptance off shows "taking a breather" to visitors; answers stay visible. Never render it as an error.
-- **Settings are per account, appearance is per device.** Palette and mode live in browser storage, not the API.
+- **Settings are per account, appearance is per device.** Palette and mode live in browser storage, not the API, and follow other tabs of the same browser. The inbox grid/list layout is per device too.
+- **The inbox view is in the URL.** Filter and search are written to `?filter=&q=` (no navigation), so a reload or shared link restores the view. Counts come from the server and are exact before every page has loaded.
 - **Defaults favour safety:** quarantine on, Balanced, hidden previews on, publish-by-default off, suggestions on.
 
 ## 3. Visitor (sender) rules
@@ -68,6 +70,6 @@ Full reasoning: [Chapter 17](../17-trust-safety-and-privacy.md). A change that b
 | `safetySettings.quarantineEnabled`, `sensitivity` | `send-message` → `shouldQuarantine` | Quarantine routing |
 | `safetySettings.blurSpicy` | `use-inbox` → `concealSpicy` | Spicy concealment |
 | `showAmaBanner` | public answers, `VisitorPreview` | Banner visibility |
-| `notificationSettings.*` | `send-message` (email, push), `daily-digest` (`emailAlerts = daily`), `use-inbox` (live toast `hideMessageText`), Settings | Alert channels |
+| `notificationSettings.*` | `send-message` (email, push), `daily-digest` (`emailAlerts = daily`), `use-inbox-data` → `useLiveMessages` (live toast `hideMessageText`), Settings | Alert channels |
 
 When you add a preference, add a row here and in [Chapter 12 §5.7](../12-product-guide-and-features.md#57-settings-dashboardsettings).

@@ -171,8 +171,12 @@ One device's browser `PushSubscription` (`endpoint` + `keys`) stored in `User.pu
 _Avoid_: Device token, FCM token
 
 **Optimistic update**:
-A cache change applied in `onMutate` before the server answers, rolled back from a snapshot in `onError` (`src/data/messages/messages-cache.ts`, ADR 0021).
+A cache change applied in `onMutate` before the server answers, rolled back from a snapshot in `onError`. Inbox messages use the helpers in `src/data/messages/messages-cache.ts` (ADR 0021, ADR 0030); settings-like resources use the Optimistic resource mutation.
 _Avoid_: Fake update, local-only change
+
+**Optimistic resource mutation**:
+The factory `useOptimisticResourceMutation` (`src/data/optimistic-resource-mutation.ts`) behind every settings-like save (acceptance, notifications, preferences, profile): optimistic, queued per resource (`scopeId`) so the last change wins, silent on success unless given a message, one error toast and a rollback on failure (ADR 0031).
+_Avoid_: Settings hook, save mutation
 
 **DTO**:
 A client-facing data shape derived from the generated OpenAPI schema (`src/types/api.ts`), e.g. `MessageDto`. Distinct from the Mongoose model types on the server.
@@ -205,7 +209,7 @@ An opt-in CVA option inside an element (`Badge variant="count"`, `ToggleGroup va
 _Avoid_: Custom class, override, skin
 
 **Draft (profile)**:
-Unsaved Profile page edits held in the page controller and shown in the live preview until Save changes or Discard.
+Unsaved Profile page edits: a react-hook-form form fed by the server profile, shown in the live preview until **Save changes** (one `PATCH` with only the changed fields) or **Discard**. Protected by the Leave guard.
 _Avoid_: Pending state, dirty form
 
 **Inbox counts**:
@@ -215,6 +219,10 @@ _Avoid_: Local count, page length
 **Inbox cursor**:
 The opaque keyset position `"<ISO createdAt>_<id>"` of the last message on an inbox page, passed back as `cursor` to fetch the next page.
 _Avoid_: Offset, page number
+
+**Selection scope**:
+The inbox filter + search a selection belongs to. Changing either starts a new selection, and only loaded messages count as selected, so a bulk action never reaches a message the Recipient can't see (`toggleScopedSelection`, `visibleSelection`).
+_Avoid_: Global selection, checked ids
 
 **Leave guard**:
 The protection for unsaved edits (`useLeaveGuard`): the browser prompt on close/reload, and a "Discard unsaved changes?" dialog before following an in-app link.

@@ -29,7 +29,7 @@ flowchart LR
     TW --> UI["Every element, pattern, block"]
 ```
 
-- **Palette** is owned by `src/providers/palette-provider.tsx` and `src/lib/theme/palette.ts`. `PALETTE_BOOT_SCRIPT` runs inline in `<head>` before first paint, so there is no flash of the default palette. The server renders `data-palette="spectral"`.
+- **Palette** is owned by `src/providers/palette-provider.tsx` and `src/lib/theme/palette.ts`. `PALETTE_BOOT_SCRIPT` runs inline in `<head>` before first paint, so there is no flash of the default palette. The server renders `data-palette="spectral"`. A change in one tab reaches the other open tabs of the same browser through the `storage` event (`palette-provider.test.tsx`); light/dark already syncs through `next-themes`.
 - **Mode** is owned by `next-themes` on the `.dark` class. `@custom-variant dark (&:is(.dark *))` makes `dark:` follow the class, not the OS.
 - **Selector specificity** resolves the 6 combinations: `:root.dark[data-palette=x]` > `:root[data-palette=x]` > `.dark` > `:root`.
 - **Both are per device.** Nothing is stored on the account ([Chapter 12 §6](12-product-guide-and-features.md#6-known-gaps-and-non-goals)).

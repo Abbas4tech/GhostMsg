@@ -2,6 +2,8 @@ import { act, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PUSH_NOT_CONFIGURED_MESSAGE } from "@/data/user/use-push-notification.utils";
+import { downloadTextFile } from "@/lib/browser/download";
+import { messageScenarios } from "@/mock/fixtures/messages.fixtures";
 import { userSettingsScenarios } from "@/mock/fixtures/user.fixtures";
 import { scenarios } from "@/mock/handlers";
 import { server } from "@/test/msw-server";
@@ -23,6 +25,7 @@ const thisDeviceRegistration = () =>
 const TEST_VAPID_PUBLIC_KEY = `B${"A".repeat(86)}`;
 
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("@/lib/browser/download", () => ({ downloadTextFile: vi.fn() }));
 
 describe("useSettingsController", () => {
   beforeEach(() => {
@@ -127,6 +130,31 @@ describe("useSettingsController", () => {
 
     expect(requests).toContain("POST /api/user/push-subscription");
     expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it("exports every message, quarantined included, without Sender Hashes", async () => {
+    const { result } = renderHookWithProviders(() => useSettingsController());
+
+    await act(() => result.current.handleExport("json"));
+
+    expect(downloadTextFile).toHaveBeenCalledTimes(1);
+    const [file] = vi.mocked(downloadTextFile).mock.calls[0];
+    const records: { isQuarantined: boolean }[] = JSON.parse(file.content);
+    expect(records).toHaveLength(messageScenarios.mixed.length);
+    expect(records.some((record) => record.isQuarantined)).toBe(true);
+    expect(file.content).not.toContain("senderHash");
+    expect(result.current.isExporting).toBe(false);
+  });
+
+  it("toasts and downloads nothing when the export fails", async () => {
+    server.use(...scenarios.inbox.error);
+    const { result } = renderHookWithProviders(() => useSettingsController());
+
+    await act(() => result.current.handleExport("csv"));
+
+    expect(toast.error).toHaveBeenCalledWith("Failed to fetch messages");
+    expect(downloadTextFile).not.toHaveBeenCalled();
+    expect(result.current.isExporting).toBe(false);
   });
 
   it("turns push off for this device only (other devices keep it)", async () => {

@@ -63,7 +63,7 @@ The OpenAPI registry in [`src/server/openapi/openapi.ts`](../src/server/openapi/
 | `/api/messages/counts` | `GET` | Yes (Session) | None | `200 OK` | `401`, `500` | Count per inbox filter + total |
 | `/api/delete-message/{messageId}` | `DELETE` | Yes (Session) | Path: `messageId` | `200 OK` | `401`, `404`, `500` | Single message deletion |
 | `/api/messages/{messageId}` | `PATCH` | Yes (Session) | Path: `messageId`, Body: `{ isPinned, isRead }` | `200 OK` | `401`, `404`, `500` | Toggle star/read status |
-| `/api/messages/{messageId}/reply` | `POST` | Yes (Session) | Path: `messageId`, Body: `{ text, isPublished }` | `200 OK` | `401`, `404`, `500` | Save or publish Q&A response |
+| `/api/messages/{messageId}/reply` | `POST` | Yes (Session) | Path: `messageId`, Body: `{ text, isPublished }` | `200 OK` | `401`, `404`, `500` | Save or publish Q&A response (also marks the message read) |
 | `/api/messages/bulk` | `POST` | Yes (Session) | Body: `{ action, ids }` | `200 OK` | `400`, `401`, `500` | Batch mark-read, star, or delete |
 | `/api/block-sender` | `GET` | Yes (Session) | None | `200 OK` | `401`, `500` | Fetch recipient's blocked sender fingerprints |
 | `/api/block-sender` | `POST` | Yes (Session) | Body: `{ senderHash }` | `200 OK` | `401`, `500` | Block sender fingerprint |
@@ -71,19 +71,20 @@ The OpenAPI registry in [`src/server/openapi/openapi.ts`](../src/server/openapi/
 | `/api/user/notifications` | `GET` | Yes (Session) | None | `200 OK` | `401`, `500` | Get notification & email alert preferences |
 | `/api/user/notifications` | `PATCH` | Yes (Session) | Body: `{ emailAlerts?, webPushEnabled?, hideMessageText?, quietHours? }` | `200 OK` | `400`, `401`, `500` | Update notification preferences (quiet hours skip alerts) |
 | `/api/user/push-subscription` | `POST` | Yes (Session) | Body: `PushSubscriptionRequest` (`endpoint`, `keys` required) | `200 OK` | `400`, `401`, `500` | Register (or replace) this device's Web Push subscription |
-| `/api/user/push-subscription` | `DELETE` | Yes (Session) | Body: `PushUnsubscribeRequest` (`endpoint`) | `200 OK` | `400`, `401`, `500` | Remove this device's Web Push subscription |
-| `/api/public/{username}/answers` | `GET` | No | Query: `cursor`, `limit` | `200 OK` | `404`, `500` | Public Q&A feed + display name, photo, acceptance, banner and suggestion settings |
+| `/api/user/push-subscription` | `DELETE` | Yes (Session) | Body: `PushUnsubscribeRequest` (`endpoint`) | `200 OK` | `400`, `401`, `500` | Remove this device's Web Push subscription; `webPushEnabled` turns false when no device is left |
+| `/api/public/{username}/answers` | `GET` | No | Path: `username` | `200 OK` | `404`, `500` | Public Q&A feed + display name, photo, acceptance, banner and suggestion settings |
 | `/api/ai/smart-reply` | `POST` | Yes (Session) | Body: `{ content, tone }` | `200 OK` | `401`, `500` | Multi-tone AI smart reply generator |
-| `/api/user/ama-prompt` | `PATCH` | Yes (Session) | Body: `{ amaPrompt }` | `200 OK` | `401`, `500` | Customize profile banner prompt |
+| `/api/user/ama-prompt` | `PATCH` | Yes (Session) | Body: `{ amaPrompt }` | `200 OK` | `401`, `500` | *Legacy.* Set the AMA Prompt; the app uses `PATCH /api/user/profile` |
 | `/api/user/profile` | `GET` | Yes (Session) | None | `200 OK` | `401`, `404`, `500` | Profile: username, email, display name, photo, AMA prompt, banner |
-| `/api/user/profile` | `PATCH` | Yes (Session) | Body: `{ displayName?, avatarUrl?, showAmaBanner? }` | `200 OK` | `400`, `401`, `500` | Update identity (photo = resized data URL, ≤ 350 kB) |
+| `/api/user/profile` | `PATCH` | Yes (Session) | Body: `{ displayName?, avatarUrl?, amaPrompt?, showAmaBanner? }` | `200 OK` | `400`, `401`, `500` | One atomic profile save, only changed fields (photo = resized data URL, ≤ 350 kB; prompt 1–120 chars) |
 | `/api/user/username` | `PATCH` | Yes (Session) | Body: `{ username }` | `200 OK` | `400`, `401`, `409`, `500` | Change username (old link stops working) |
 | `/api/user/preferences` | `GET` | Yes (Session) | None | `200 OK` | `401`, `500` | Messages + safety preferences |
 | `/api/user/preferences` | `PATCH` | Yes (Session) | Body: `{ messages?, safety? }` (partial) | `200 OK` | `400`, `401`, `500` | Suggestions, publish default, quarantine + sensitivity, blur Spicy |
 | `/api/user` | `DELETE` | Yes (Session) | Body: `{ confirmUsername }` | `200 OK` | `400`, `401`, `404`, `500` | Delete account, link, messages and answers |
 | `/api/messages` | `DELETE` | Yes (Session) | None | `200 OK` | `401`, `500` | Delete every message (client offers a 10 s undo first) |
 | `/api/ai/ama-suggestions` | `POST` | Yes (Session) | Body: `{ currentPrompt? }` | `200 OK` | `401`, `500` | AI ideas for the AMA Prompt |
-| `/api/messages/stream` | `GET` | Yes (Session) | None (SSE Stream) | `200 OK` | `401`, `500` | Live real-time SSE stream |
+| `/api/messages/stream` | `GET` | Yes (Session) | None (SSE Stream) | `200 OK` | `401`, `500` | Live real-time SSE stream (*not in the OpenAPI spec*; see [Chapter 18 §5](18-notifications-and-realtime.md#5-live-feed-server-sent-events)) |
+| `/api/cron/daily-digest` | `GET` | `Authorization: Bearer CRON_SECRET` | None | `200 OK` | `401`, `503` | Daily digest run (Vercel Cron); `503` when `CRON_SECRET` is unset |
 | `/api/accept-message` | `GET` | Yes (Session) | None | `200 OK` | `401`, `404`, `500` | Check acceptance status |
 | `/api/accept-message` | `POST` | Yes (Session) | Body: `AcceptMessageRequest` | `200 OK` | `400`, `401`, `500` | Toggle acceptance preference |
 

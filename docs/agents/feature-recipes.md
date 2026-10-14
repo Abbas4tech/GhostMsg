@@ -27,7 +27,7 @@ Example: a "Show my Sentiment Tags publicly" switch in Settings → Messages.
 4. **Route:** nothing to do. `PATCH /api/user/preferences` already writes any validated key with a dot path.
 5. **Typegen:** `pnpm typegen`.
 6. **Fixtures/MSW:** extend `buildUserPreferences` in `src/mock/fixtures/user.fixtures.ts`; the preferences handler merges bodies automatically.
-7. **Controller:** expose `showSentimentPublicly` + `handleShowSentimentPubliclyChange` from `use-settings.controller.ts` via `updatePreferences({ messages: { … } })`. Test it in `use-settings.controller.test.ts` with `recordRequests()`.
+7. **Controller:** expose `showSentimentPublicly` + `handleShowSentimentPubliclyChange` from `use-settings.controller.ts` via `updatePreferences({ messages: { … } })`. That mutation is built on `useOptimisticResourceMutation`, so the switch is already optimistic, queued, silent on success and rolled back with a toast on error; a setting on a **new** resource gets its own mutation file on the same factory with a new `scopeId`. Test it in `use-settings.controller.test.ts` with `recordRequests()`.
 8. **UI:** add a `SwitchSetting` row to `blocks/settings-panel/messages-settings.tsx` (+ the prop in `MessagesSettingsProps`), wire it in `settings-page.tsx`, and update `settings-panel.mock.ts` + a story `play()`.
 9. **Consumer:** read the flag where it matters (a server route, or another controller).
 10. **Docs:** [Chapter 12 §5.7](../12-product-guide-and-features.md#57-settings-dashboardsettings), [Chapter 15 §2.3](../15-data-model-and-database.md#23-embedded-settings), [Chapter 16 §9](../16-api-reference.md#9-profile--settings-new-in-this-release-unless-noted), [product-rules.md §6](product-rules.md#6-feature-switches-and-where-they-are-read); re-capture `dashboard-settings`.
@@ -36,7 +36,7 @@ Example: a "Show my Sentiment Tags publicly" switch in Settings → Messages.
 
 ## Recipe B: Add an endpoint
 
-Follow [Chapter 16 §12](../16-api-reference.md#13-adding-an-endpoint-checklist). Key points: session check first; `safeParse`; ownership filter on message routes; logic worth testing goes in a `src/server/<capability>/` module with a colocated test; every status code registered in OpenAPI; an MSW handler before any test calls it.
+Follow [Chapter 16 §13](../16-api-reference.md#13-adding-an-endpoint-checklist). Key points: session check first; `safeParse`; ownership filter on message routes; logic worth testing goes in a `src/server/<capability>/` module with a colocated test; every status code registered in OpenAPI; an MSW handler before any test calls it.
 
 ## Recipe C: Add or change a screen section
 
@@ -89,3 +89,17 @@ it("saves the sensitivity", async () => {
 ```
 
 Mock only edges (`next/navigation`, `sonner`, `next-auth/react` `signOut`/`useSession().update`, browser APIs) with `vi.mock`; use `vi.hoisted` for spies; switch server behaviour with `server.use(...scenarios.x.y)`. See [ADR 0019](../adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md).
+
+## Recipe I: Add an inbox filter
+
+Example: a "Published" chip that lists answers visible on the Public Profile Link. The filter rules are one contract executed in three places: the server (MongoDB), the MSW mock and the live cache ([ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
+
+1. **Contract:** add `"published"` to `INBOX_STATUSES` and a case in `matchesInboxStatus` / `countInboxStatuses`, plus the field in `InboxCounts` and `EMPTY_INBOX_COUNTS` (`src/lib/messages/inbox-filter.ts`) + test.
+2. **Server:** add the MongoDB equivalent in `statusFilter`, the `$cond` in `inboxCountsPipeline` and `toInboxCounts` (`src/server/messages/inbox-query.ts`). The contract test in `inbox-query.test.ts` must agree with step 1.
+3. **Schemas:** the `status` enum of `GET /api/get-messages` (`src/server/openapi/openapi.ts`) and `inboxCountsSchema`; `pnpm typegen`.
+4. **Mocks:** the MSW handler already filters and counts with the lib helpers; update `mixedMessageCounts` in the fixtures.
+5. **UI:** add the value to `MessageFilterStatus` and a chip in `patterns/filter-bar` (+ story), and the command in the ⌘K groups. `isFilterStatus` follows `isInboxStatus`, so `?filter=published` works at once.
+6. **Live updates:** nothing to do; `insertLiveMessage` and `addToInboxCounts` use the same contract.
+7. **Docs:** Chapter 12 inbox table, Chapter 16 `get-messages`/counts, GLOSSARY if the name is new.
+
+**Done when** `inbox-filter.test.ts`, `inbox-query.test.ts`, `use-inbox-data.controller.test.ts` and the `Blocks/Inbox` + `Pages/Dashboard` stories pass.

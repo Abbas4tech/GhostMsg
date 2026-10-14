@@ -54,7 +54,7 @@ flowchart TB
     subgraph Node["Server (Node / Edge)"]
         direction TB
         RT["src/app/api/**<br/>route handlers"]
-        SV["src/server/**  (server-only)<br/>db · models · email · ai · security · realtime · push · notifications · users · openapi"]
+        SV["src/server/**  (server-only)<br/>db · models · messages · email · ai · security · realtime · push · notifications · users · openapi"]
         RT --> SV
     end
     DL -- "HTTP /api/* (openapi-fetch, typed by api-schema.d.ts)" --> RT
@@ -78,6 +78,8 @@ flowchart TB
 | Lib | `src/lib/<domain>/` | anyone | React, Next, `@/data`, `@/server`, components |
 
 The full placement rules and recipes are in the [Source Structure Guide](agents/source-structure.md).
+
+Where state lives at runtime (React Query cache, URL, device storage, form drafts, the server session) and how the inbox pages, counts and live updates fit together is in [Chapter 20: State Management](20-state-management.md).
 
 ---
 

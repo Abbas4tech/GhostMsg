@@ -3,6 +3,8 @@
 ## Status
 **Accepted** *(Email transport updated from Resend to Nodemailer SMTP via [ADR 0011](0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md))*
 
+> **Update (2026-10-14):** The session token is **identity only** (`_id`, `username`, `isVerified`). `isAcceptingMessage` was removed from the JWT and session because it was set at sign-in and never refreshed; the client reads Message Acceptance through the `user.acceptance` query ([ADR 0031](0031-state-management-consistency-and-structure.md) D13). The dashboard layout now passes the server session to `SessionProvider` (D12).
+
 ---
 
 ## Context & Problem Statement

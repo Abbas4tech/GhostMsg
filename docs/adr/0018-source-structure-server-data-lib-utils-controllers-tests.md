@@ -3,6 +3,8 @@
 ## Status
 **Accepted** (2026-10-12). Resolved in a grilling session (Q1–Q16). Complements [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md) (component tiers) and [ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md) (testing). The controller test harness required by Q7 is specified in [ADR 0019](0019-controller-test-harness-renderhook-msw-and-edge-mocking.md). Agent guide: [docs/agents/source-structure.md](../agents/source-structure.md).
 
+> **Update (2026-10-14):** The rules stand; some examples moved. The inbox helpers `matchesStatus`, `matchesSearch`, `countByStatus` and `hasReplyText` were promoted to `src/lib/messages/inbox-filter.ts` (`matchesInboxStatus`, `matchesInboxSearch`, `countInboxStatuses`) because the server, the MSW mocks and the live cache now share them ([ADR 0030](0030-server-side-inbox-filtering-paging-and-counts.md)); `inbox.utils.ts` keeps the page-only helpers (URL, scoped selection, dialog state). New capabilities `src/server/messages/`, `src/server/notifications/` and `src/server/users/public-profile.ts`, the shared factory `src/data/optimistic-resource-mutation.ts`, and the split inbox controllers ([ADR 0031](0031-state-management-consistency-and-structure.md)) follow the same placement rules. The current map is in [docs/agents/source-structure.md](../agents/source-structure.md).
+
 ---
 
 ## Context & Problem Statement

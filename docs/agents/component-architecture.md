@@ -164,14 +164,14 @@ pages/
 │   │   └── use-sign-in.controller.ts (+ .test.ts)
 │   ├── sign-up/                ← app/(app)/(auth)/sign-up/page.tsx
 │   │   ├── use-sign-up.controller.ts (+ .test.ts)
-│   │   ├── use-username-availability.controller.ts (+ .test.ts)
-│   │   └── username-availability.utils.ts (+ .test.ts)
+│   │   └── use-username-availability.controller.ts (+ .test.ts)   (rules in src/lib/users/username-availability.ts)
 │   └── verify/                 ← app/(app)/(auth)/verify/[username]/page.tsx
 │       └── use-verify.controller.ts (+ .test.ts)
 ├── dashboard/                  ← app/(dashboard)/dashboard/{layout,page,profile/page,settings/page}.tsx
 │   ├── dashboard-layout.tsx    (session gate + DashboardShell sidebar + ⌘K palette)
 │   ├── inbox-page.tsx  profile-page.tsx  settings-page.tsx
-│   ├── use-{dashboard-shell,profile-link,inbox,inbox-keyboard,smart-reply,profile,settings}.controller.ts
+│   ├── use-{dashboard-shell,profile-link,inbox,inbox-filters,inbox-data,inbox-keyboard,smart-reply,
+│   │       profile,change-username,settings,appearance,danger-zone}.controller.ts (+ .test.ts each)
 │   └── {inbox,dashboard,profile}.utils.ts (+ .test.ts each)
 ├── public-profile/             ← app/u/[username]/page.tsx
 └── not-found/                  ← app/not-found.tsx
@@ -261,8 +261,9 @@ sequenceDiagram
 ### 5.2 Hoisted overlays
 
 - **Mount each modal once**, as a sibling of the list in the page component, never inside `map()`.
-- The controller holds `activeModal: "block" | "delete" | "reply" | "story" | null` and `activeMessage`.
-- `closeModal` resets only `activeModal`. `activeMessage` is kept so the dialog animates out with its content.
+- The controller holds one modal state `{ kind: "block" | "delete" | "reply" | "reveal" | "story" | null, messageId, snapshot }` (`InboxModalState` in `inbox.utils.ts`).
+- The dialog's message is resolved by id from the live cache (`resolveModalMessage`), so it never shows a stale copy; `snapshot` is used only once the message is gone (e.g. deleted while the dialog closes).
+- `closeModal` clears only `kind`. The id is kept so the dialog animates out with its content.
 - **Openers are stable `useCallback`s** (`openDeleteModal`, …) so memoized cards don't re-render.
 
 ### 5.3 Forms owned by pages
@@ -277,9 +278,10 @@ return { form, handleSubmit, isSubmitting: form.formState.isSubmitting, onGoogle
 <SignInForm form={c.form} isSubmitting={c.isSubmitting} onSubmit={c.handleSubmit} onGoogleSignIn={c.onGoogleSignIn} />
 ```
 
-Cross-field side effects stay in the controller and write back into form state:
+Cross-field side effects stay in the controller:
 - **Suggestion → textarea:** `form.setValue("content", text, { shouldValidate: true })`.
-- **Username availability:** debounce, then query, then `form.setError` / `clearErrors`. The status goes to the pattern as `usernameAvailability: "idle" | "checking" | "available" | "taken"`.
+- **Username availability:** debounce, then query, then **derive** the status (`deriveUsernameAvailability`); it is never written into form state with effects. The status goes to the pattern as `usernameAvailability: "idle" | "checking" | "available" | "taken"`, the form disables submit while taken, and the controller re-checks before sending.
+- **Forms fed by server data** (the Profile draft): `useForm({ values: serverValues, resetOptions: { keepDirtyValues: true } })`, never a `useEffect` that calls `reset`. `formState.isDirty` drives the unsaved bar and `useLeaveGuard` (`src/hooks/use-leave-guard.ts`), which the page answers with `DiscardChangesModal`. Save sends only dirty fields (`buildProfilePatch`) and then `reset`s to the saved values.
 
 ### 5.4 Browser APIs
 

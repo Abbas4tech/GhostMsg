@@ -144,7 +144,7 @@ The first pass of this refactor changed visuals along with structure. The follow
 ---
 
 ## References & Code Pointers
-- Architectural Review Report: `file:///C:/Users/Abbas/AppData/Local/Temp/architecture-review-20261010-005400.html`
+- Architectural Review Report: a local HTML report generated on 2026-10-10 (not kept in the repository); its decisions are recorded in this ADR.
 - Component Architecture Guide: [`docs/05-component-architecture.md`](../05-component-architecture.md)
 - Foundational Taxonomy: [`docs/adr/0013-elements-patterns-blocks-composable-architecture.md`](0013-elements-patterns-blocks-composable-architecture.md)
 - Codebase Design Principles: [`.agents/skills/codebase-design/SKILL.md`](../../.agents/skills/codebase-design/SKILL.md)

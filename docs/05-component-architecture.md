@@ -31,7 +31,7 @@ src/
     │   ├── page-heading/  section-nav/  unsaved-changes-bar/  visitor-preview/  identity-card/
     │   └── share-link-card/  ama-prompt-editor/
     │       (modals/: block-sender, delete-message, reveal-message, smart-reply, story-card,
-    │        change-username, delete-all-messages, delete-account)
+    │        change-username, delete-all-messages, delete-account, discard-changes)
     ├── blocks/                       # Tier 3: pure page sections
     │   ├── site-header/  hero/  trust-section/  qa-showcase/  cta-banner/  site-footer/
     │   ├── auth-panel/  verify-panel/  not-found-panel/
@@ -42,8 +42,8 @@ src/
         ├── home/
         ├── auth/ (shared/use-google-sign-in, sign-in/use-sign-in, sign-up/use-sign-up + use-username-availability, verify/use-verify)
         ├── dashboard/ (dashboard-layout, inbox-page, profile-page, settings-page; controllers: dashboard-shell,
-        │              inbox, inbox-keyboard, smart-reply, profile, profile-link, change-username, settings,
-        │              appearance, danger-zone)
+        │              inbox (= inbox-filters + inbox-data), inbox-keyboard, smart-reply, profile, profile-link,
+        │              change-username, settings, appearance, danger-zone)
         ├── public-profile/ (public-profile-page, use-send-message / use-public-answers controllers)
         └── not-found/
 ```
@@ -71,14 +71,17 @@ flowchart LR
         SU --> UA["useUsernameAvailabilityController"]
         SI --> G["shared/useGoogleSignInController"]
         SU --> G
-        UA --> UAU["username-availability.utils"]
+        UA --> UAU["lib/users/username-availability"]
     end
     subgraph Dash["pages/dashboard"]
         DL["DashboardLayout"] --> DS["useDashboardShellController"]
         IT["InboxPage"] --> IC["useInboxController"]
         IT --> SR["useSmartReplyController"]
         IT --> KB["useInboxKeyboardController"]
+        IC --> IF["useInboxFiltersController<br/>filter + search → URL"]
+        IC --> ID["useInboxDataController<br/>paged query · counts · live · polling"]
         PT["ProfilePage"] --> PC["useProfileController"]
+        PC --> LG["@/hooks/use-leave-guard"]
         ST["SettingsPage"] --> SC["useSettingsController"]
         DS --> PL["useProfileLinkController"]
         IT --> PL
@@ -127,13 +130,16 @@ src/components/pages/dashboard/              # page (impure by design)
 ├── use-dashboard-shell.controller.ts   # unread badge, Message Acceptance, ⌘K, sign-out
 ├── use-profile-link.controller.ts      # link + copy / native share (shared)
 ├── use-inbox-keyboard.controller.ts + .test.ts   # j/k/x/s/r and "/"
-├── use-inbox.controller.ts        + use-inbox.controller.test.ts       # renderHook + MSW
+├── use-inbox-filters.controller.ts + .test.ts  # filter + debounced search, written to ?filter=&q=
+├── use-inbox-data.controller.ts    + .test.ts  # paged server query, counts, live updates, polling fallback
+├── use-inbox.controller.ts        + use-inbox.controller.test.ts       # composes the two: selection, dialogs, actions
 ├── use-smart-reply.controller.ts  + use-smart-reply.controller.test.ts
-├── use-profile.controller.ts      + use-profile.controller.test.ts
+├── use-profile.controller.ts      + use-profile.controller.test.ts     # react-hook-form draft, one-PATCH save, leave guard
 ├── use-settings.controller.ts     + use-settings.controller.test.ts
-├── inbox.utils.ts   + inbox.utils.test.ts      # filters, counts, shortcuts, cursor
+├── use-change-username / use-appearance / use-danger-zone .controller.ts (+ tests)
+├── inbox.utils.ts   + inbox.utils.test.ts      # shortcuts, j/k focus, URL, scoped selection, dialog state
 ├── dashboard.utils.ts + dashboard.utils.test.ts  # active nav, link label
-├── profile.utils.ts + profile.utils.test.ts
+├── profile.utils.ts + profile.utils.test.ts    # profile URL, buildProfilePatch (dirty fields → one PATCH)
 ├── dashboard.mock.ts         # MSW handler sets (withScenario…)
 └── dashboard.stories.tsx     # layout + each page, real controllers against MSW
 ```
@@ -186,11 +192,12 @@ Tokens beyond stock shadcn (all wired into `@theme inline`):
 ## 4. State Management, Form Lifecycle & Render Boundaries
 
 - **Component Segregation**: Pages are split into focused pure patterns (`SendMessageForm`, `SuggestedMessages`, `PublicQaFeed`, `MessageCard`, `StoryCardModal`). The dashboard is three routes (`/dashboard`, `/dashboard/profile`, `/dashboard/settings`) inside one `DashboardLayout`, each page with its own controller, so render and query boundaries stay isolated.
-- **Hoisted Modal Overlays**: Each modal (`BlockSenderModal`, `DeleteMessageModal`, `RevealMessageModal`, `SmartReplyModal`, `StoryCardModal`) is mounted **once**, as a sibling of the `Inbox` block, inside the page-level `inbox-page.tsx`. The same holds for `ChangeUsernameModal` (in `profile-page.tsx`) and `DeleteAllMessagesModal` / `DeleteAccountModal` (in `settings-page.tsx`). `useInboxController` holds `activeModal` + `activeMessage`, and `closeModal` resets only `activeModal`, so dialogs animate out with their content ([ADR 0014](adr/0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md), [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
+- **Hoisted Modal Overlays**: Each modal (`BlockSenderModal`, `DeleteMessageModal`, `RevealMessageModal`, `SmartReplyModal`, `StoryCardModal`) is mounted **once**, as a sibling of the `Inbox` block, inside the page-level `inbox-page.tsx`. The same holds for `ChangeUsernameModal` and `DiscardChangesModal` (in `profile-page.tsx`) and `DeleteAllMessagesModal` / `DeleteAccountModal` (in `settings-page.tsx`). `useInboxController` holds one modal state `{ kind, messageId, snapshot }`; the dialog's message is resolved from the live cache by id (`resolveModalMessage`), falling back to the snapshot, and `closeModal` clears only `kind`, so dialogs animate out with their content and never show a stale copy ([ADR 0014](adr/0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md), [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
 - **Ports & Adapters for Browser Infrastructure**: External browser APIs (`PushManager`, ServiceWorker, Web Push) are encapsulated in dedicated adapters (`src/data/user/use-push-notification.ts`) rather than leaking into React component trees.
 - **Form Validation**: Page controllers create the `react-hook-form` instance with `zodResolver(schema)` and `mode: "onChange"`. Form patterns receive it as `form: UseFormReturn<Values>`, render the fields and call `form.handleSubmit(onSubmit)`. Pending state comes from the controller (`isSubmitting`).
-- **Deterministic Optimistic Updates**: Standardized on TanStack Query `onMutate` cache updates with context rollback in `onError` as specified in [ADR 0006](adr/0006-standardized-api-calling-and-react-query-architecture.md). Inbox mutations share `src/data/messages/messages-cache.ts`, and confirm dialogs close **before** the request is awaited ([ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md)).
-- **Debounced Username Availability**: `useUsernameAvailabilityController` (in `pages/auth/sign-up/use-username-availability.controller.ts`, composed by `useSignUpController`) watches the username with `useWatch`, debounces it by 400 ms with `useDebounceValue`, queries `authQueries.checkUsername`, and writes the result back with `form.setError` / `clearErrors`. The status mapping is the pure `deriveUsernameAvailability` in `username-availability.utils.ts`. The pure `UsernameField` pattern only renders `availability: "idle" | "checking" | "available" | "taken"`.
+- **Server-fed drafts**: the Profile page's form is `useForm({ values: serverValues, resetOptions: { keepDirtyValues: true } })`: it follows the server profile, keeps fields being edited when a refetch lands, and `isDirty` drives the `UnsavedChangesBar` and the leave guard (`useLeaveGuard` + `DiscardChangesModal`). Saving sends only the dirty fields in one `PATCH` (`buildProfilePatch`) ([ADR 0031](adr/0031-state-management-consistency-and-structure.md) D11).
+- **Deterministic Optimistic Updates**: Standardized on TanStack Query `onMutate` cache updates with context rollback in `onError` as specified in [ADR 0006](adr/0006-standardized-api-calling-and-react-query-architecture.md). Inbox mutations share `src/data/messages/messages-cache.ts` (which walks every page of every cached inbox list), and confirm dialogs close **before** the request is awaited ([ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md)). Settings-like resources (acceptance, notifications, preferences, profile) use the `useOptimisticResourceMutation` factory: queued per resource, silent on success, one error toast ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)). Server data is never copied into `useState`; see [Chapter 20](20-state-management.md).
+- **Debounced Username Availability**: `useUsernameAvailabilityController` (in `pages/auth/sign-up/use-username-availability.controller.ts`, composed by `useSignUpController`) watches the username with `useWatch`, debounces it by 400 ms (`USERNAME_DEBOUNCE_MS`) with `useDebounceValue`, and queries `authQueries.checkUsername`. The result is **derived, never written into form state**: the status mapping is the pure `deriveUsernameAvailability` in `src/lib/users/username-availability.ts` (shared with Change username), `SignUpForm` disables submit while the name is taken, and `useSignUpController` re-checks it before sending. The pure `UsernameField` pattern only renders `availability: "idle" | "checking" | "available" | "taken"`.
 - **Client-Side Story Card Engine**: `StoryCardModal` reads the palette tokens with `getComputedStyle` and draws the card on a canvas (format, look, answer and link toggles), then saves or shares the PNG without server roundtrips.
 
 ---

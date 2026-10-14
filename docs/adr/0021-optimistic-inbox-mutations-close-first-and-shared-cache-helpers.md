@@ -1,7 +1,11 @@
 # ADR 0021: Optimistic Inbox Mutations: Close-First Dialogs & Shared Cache Helpers
 
 ## Status
-**Accepted** (2026-10-12). Refines the optimistic-update rule of [ADR 0006](0006-standardized-api-calling-and-react-query-architecture.md) for the inbox, and the hoisted-modal pattern of [ADR 0014](0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md).
+**Accepted** (2026-10-12).
+
+> **Update (2026-10-14):** The inbox cache is now paged (`useInfiniteQuery`, one entry per filter + search), and `messages-cache.ts` walks every page of every cached list; `patchCachedMessage` also serves star/read and reply ([ADR 0030](0030-server-side-inbox-filtering-paging-and-counts.md) D8). On settle every message mutation invalidates `["messages"]` (`invalidateCachedMessages`), which refreshes the lists and the counts. Settings-like resources use the separate `useOptimisticResourceMutation` factory ([ADR 0031](0031-state-management-consistency-and-structure.md) D1). Close-first (D1) is unchanged.
+
+Refines the optimistic-update rule of [ADR 0006](0006-standardized-api-calling-and-react-query-architecture.md) for the inbox, and the hoisted-modal pattern of [ADR 0014](0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md).
 
 ---
 

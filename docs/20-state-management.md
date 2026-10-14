@@ -13,18 +13,23 @@ flowchart TB
     subgraph Server["Server (source of truth)"]
         DB[(MongoDB)]
         MEM["Process memory<br/>rate limiter · live-event bus"]
+        SSR["Server render<br/>getServerSession · getPublicProfile"]
     end
     subgraph Client["Browser"]
         RQ["React Query cache<br/>src/data/** queries + mutations"]
-        URL["URL<br/>?filter= · ?username="]
-        SESS["NextAuth session (JWT)<br/>_id · username"]
+        URL["URL<br/>?filter= · ?q= · ?username="]
+        SESS["NextAuth session (JWT)<br/>_id · username · isVerified"]
         CTRL["Controller state<br/>pages/**/use-*.controller.ts"]
-        FORM["react-hook-form<br/>auth, send message"]
-        DEV["Device storage<br/>palette (localStorage) · mode (next-themes)<br/>push subscription (browser)"]
+        FORM["react-hook-form<br/>auth, send message, Profile draft"]
+        DEV["Device storage<br/>palette (localStorage, synced across tabs) · mode (next-themes)<br/>inbox layout (localStorage) · push subscription (browser)"]
         UI["Pure UI<br/>elements · patterns · blocks (props only)"]
     end
     DB -->|"typed HTTP"| RQ
     MEM -->|"SSE"| RQ
+    DB --> SSR
+    SSR -->|"initialData"| RQ
+    SSR -->|"session prop"| SESS
+    RQ -->|"values"| FORM
     RQ --> CTRL
     URL --> CTRL
     SESS --> CTRL
@@ -36,11 +41,12 @@ flowchart TB
 | Kind | Owner | Use it for | Never |
 | :--- | :--- | :--- | :--- |
 | **Server data** | React Query (`src/data/**`) via `queryOptions` / `infiniteQueryOptions` factories and one-hook-per-file mutations | Anything stored in MongoDB | Copying it into `useState` (derive instead) |
-| **Session** | NextAuth JWT | Identity (`_id`, `username`) | App settings (they go stale in the token) |
-| **URL** | Route `searchParams` | Shareable view state (`?filter=`) | Secrets, large state |
-| **Controller UI state** | `useState` in `pages/**/use-*.controller.ts` | Ephemeral UI: open dialog, selection, focus, drafts | Data that exists on the server |
-| **Forms** | react-hook-form in controllers | Validated user input | Mirroring server results into errors via effects |
-| **Device** | `localStorage`, `next-themes`, browser APIs | Per-device preferences (palette, mode) and capabilities (push subscription) | Account settings |
+| **Server-rendered data** | Route files: `getServerSession` (dashboard layout → `SessionProvider`), `getPublicProfile` (`/u/[username]` → `initialData` + metadata) | A filled first paint where the server already has the data | A second source of truth: the client cache takes over after hydration |
+| **Session** | NextAuth JWT | Identity (`_id`, `username`, `isVerified`) | App settings (they go stale in the token) |
+| **URL** | Route `searchParams` in, `window.history.replaceState` out | Shareable view state (`?filter=`, `?q=`; `?username=` to prefill sign-up) | Secrets, large state |
+| **Controller UI state** | `useState` in `pages/**/use-*.controller.ts` | Ephemeral UI: open dialog (by message id), scoped selection, focus, the Smart Reply draft | Data that exists on the server |
+| **Forms** | react-hook-form in controllers | Validated user input; the Profile draft (`values` from the server, `keepDirtyValues`) | Mirroring server results into errors via effects |
+| **Device** | `localStorage`, `next-themes`, browser APIs | Per-device preferences (palette, mode, inbox layout) and capabilities (push subscription) | Account settings |
 | **Server process** | `src/server/security`, `src/server/realtime` | Rate limiting, live events | Anything that must survive a restart (see [Chapter 9 §4](09-deployment-and-operations.md#4-process-local-state-scaling-note)) |
 
 **No global client store.** The only app-wide state is the session; everything else is server data, URL or controller state. Don't add Zustand, Redux or context stores for server data.
@@ -109,20 +115,26 @@ The review found 22 items ([full findings](#5-review-findings-reference)). All t
 sequenceDiagram
     autonumber
     participant UI as Inbox block
-    participant C as use-inbox.controller
+    participant C as use-inbox (filters + data)
+    participant URL as URL
     participant Q as React Query
     participant API as /api/get-messages · /api/messages/counts
+    participant SSE as /api/messages/stream
 
     UI->>C: filter = Quarantined
+    C->>URL: replaceState ?filter=quarantined (no navigation)
     C->>Q: inbox({ status: "quarantined", q }) (keepPreviousData)
     Q->>API: GET ?status=quarantined&limit=30
     API-->>Q: { messages, total, nextCursor }
-    Q-->>C: pages → messages (selection for the old filter is dropped)
+    Q-->>C: pages → messages (selection for the old filter no longer counts)
     UI->>C: Load more
     C->>Q: fetchNextPage()
     Q->>API: GET ...&cursor=2026-10-01T…_66f…
     UI->>C: Star (unread message)
     C->>Q: patchCachedMessage(isPinned, isRead) → PATCH → settle: invalidate ["messages"] (lists + counts)
+    SSE-->>Q: new_message → insertLiveMessage (matching lists) + addToInboxCounts
+    Q->>API: one debounced refetch (1.5 s) fills Sender Hash and reply
+    Note over C,Q: stream down → poll every 30 s · tab focus → refetch inbox + counts
 ```
 
 ## 5. Review findings (reference)

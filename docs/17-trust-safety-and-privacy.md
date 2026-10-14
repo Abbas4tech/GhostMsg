@@ -142,7 +142,7 @@ Details and the decision flow: [Chapter 18](18-notifications-and-realtime.md).
 | :--- | :--- | :--- |
 | **Pause** | Message Acceptance off | Visitors see a calm paused state; answers remain public. |
 | **Hide** | Unpublish an answer, hide the AMA banner, turn off suggestions | Immediate. |
-| **Export** | Settings → Export all (CSV/JSON) | Built in the browser from the loaded inbox, allow-listed fields only; no Sender Hashes. |
+| **Export** | Settings → Export all (CSV/JSON) | Pages through the server for **every** message (quarantined included, not just what is loaded), then builds the file in the browser from allow-listed fields only; no Sender Hashes. |
 | **Erase messages** | Danger zone → Delete all (10 s undo) | Hard delete, answers included. |
 | **Erase account** | Danger zone → Delete account (type username) | Hard delete of User + Messages, then sign-out. The username becomes available to others. |
 | **Rename** | Change username | The old link stops working at once (no redirect, so an old link can't keep pointing at a renamed person). |
@@ -159,7 +159,7 @@ Details and the decision flow: [Chapter 18](18-notifications-and-realtime.md).
 
 ## 10. Known issues (code that does not yet meet these rules)
 
-**None open.** Resolved on 2026-10-14 ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)):
+**None open.** Resolved on 2026-10-14 (K1–K4 in [ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md), K5–K7 in [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)):
 
 | # | Was | Fix | Test |
 | :--- | :--- | :--- | :--- |
@@ -167,6 +167,9 @@ Details and the decision flow: [Chapter 18](18-notifications-and-realtime.md).
 | K2 | The live toast previewed every message, including quarantined ones, and ignored hidden text. | `buildLiveMessageToast`: silent for quarantined, text-free when hidden. | `use-live-messages.utils.test.ts` |
 | K3 | "Daily digest" was never sent. | Scheduled `GET /api/cron/daily-digest` (Vercel Cron + `CRON_SECRET`). | `daily-digest.test.ts`, `send-daily-digest-email.test.ts` |
 | K4 | Hidden-text alert emails quoted the placeholder "New Anonymous Message" and showed the tone; the button linked to a hard-coded domain. | `preview: null` renders a neutral sentence; links use `APP_URL`. | `send-message-alert-email.test.ts` |
+| K5 | "Export all" contained only the messages loaded in the inbox. | `fetchAllMessages("any")` pages through the server ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). | `fetch-all-messages.test.ts`, `use-settings.controller.test.ts` |
+| K6 | A selection survived a filter or search change, so a bulk action (delete, mark read) could reach messages no longer on screen. | Selection is scoped to the filter + search and counts only loaded ids (ADR 0030 D6). | `use-inbox.controller.test.ts`, `inbox.utils.test.ts` |
+| K7 | Turning push off on one device switched it off for every device. | Per-device switch; the server clears `webPushEnabled` only when no device is left (ADR 0030 D9). | `use-settings.controller.test.ts`, `web-push.test.ts` |
 
 Add a row here (K5…) whenever code is found not to meet a rule above, with its fix and owner, and remove it when the fix lands.
 
@@ -175,7 +178,7 @@ Add a row here (K5…) whenever code is found not to meet a rule above, with its
 - [ ] No new field stores or returns anything that identifies a sender.
 - [ ] Blocked-sender responses stay indistinguishable from success.
 - [ ] Quarantined messages still skip every alert channel.
-- [ ] New public data is opt-in and visible in the Profile preview.
+- [ ] New public data is opt-in, visible in the Profile preview, and added only in `getPublicProfile` (`src/server/users/public-profile.ts`), the single public read model (S8).
 - [ ] AI failures degrade to the safe default listed above.
 - [ ] New destructive actions have an undo window or typed confirmation.
 - [ ] Tests: policy unit tests (`quarantine-policy.test.ts`, `delivery-policy.test.ts`) and a controller or story test for the UI path.

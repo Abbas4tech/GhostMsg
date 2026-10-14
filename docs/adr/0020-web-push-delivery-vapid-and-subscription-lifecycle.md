@@ -1,7 +1,11 @@
 # ADR 0020: Web Push Delivery: VAPID Keys, Server Push Capability & Subscription Lifecycle
 
 ## Status
-**Accepted** (2026-10-12). Completes the Web Push adapter from [ADR 0014](0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md). Follows the placement rules of [ADR 0018](0018-source-structure-server-data-lib-utils-controllers-tests.md): a new `src/server/push/` capability.
+**Accepted** (2026-10-12).
+
+> **Update (2026-10-14):** D3 changed. The client no longer sets `webPushEnabled: false` after unsubscribing. Push is **per device**: the Settings switch shows this browser's subscription, turning it off removes only this device, and the server clears `webPushEnabled` when the last subscription is removed or pruned (`disablePushWhenNoDevices`, [ADR 0030](0030-server-side-inbox-filtering-paging-and-counts.md) D9).
+
+Completes the Web Push adapter from [ADR 0014](0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md). Follows the placement rules of [ADR 0018](0018-source-structure-server-data-lib-utils-controllers-tests.md): a new `src/server/push/` capability.
 
 ---
 

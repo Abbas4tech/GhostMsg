@@ -1,7 +1,11 @@
 # ADR 0023: shadcn-First Elements and the Profile & Settings Backend
 
 ## Status
-**Accepted** (2026-10-14). Builds on [ADR 0022](0022-palette-theming-and-claude-design-redesign.md) and replaces its D12 "Not built" list for quarantine and suggestion settings, delete account and AMA "Suggest with AI". Keeps the four tiers of [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md) and the story-test gate of [ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md).
+**Accepted** (2026-10-14).
+
+> **Update (2026-10-14, later):** D7 and D9 were refined by [ADR 0031](0031-state-management-consistency-and-structure.md). The Profile draft is a react-hook-form form; **Save changes** sends one `PATCH /api/user/profile` that now also carries `amaPrompt` (the separate `PATCH /api/user/ama-prompt` call is legacy); leaving with unsaved edits asks first (`DiscardChangesModal`). Settings switches are silent on success.
+
+Builds on [ADR 0022](0022-palette-theming-and-claude-design-redesign.md) and replaces its D12 "Not built" list for quarantine and suggestion settings, delete account and AMA "Suggest with AI". Keeps the four tiers of [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md) and the story-test gate of [ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md).
 
 ---
 

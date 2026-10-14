@@ -34,7 +34,8 @@ Step 1: Schemas (SSoT) ──▶ Step 2: Registry ──▶ Step 3: Typegen ─�
 ### Step 4: Implement Route & Consume with `clientFetch` + React Query
 - **Route Handler**: Implement `src/app/api/[endpoint]/route.ts` validating requests with Zod `safeParse` and returning structured `Response.json({...}, { status })`.
 - **Query Options**: Define query keys in `src/data/query-keys.ts` and pure `queryOptions` in `src/data/<domain>/<domain>.queries.ts` using `clientFetch` from `@/data/api-client`.
-- **Custom Mutation Hooks**: One hook per file at `src/data/<domain>/use-<action>-mutation.ts`, using `useMutation` with standardized cache invalidation or optimistic rollback ([ADR 0018](../adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q11).
+- **Custom Mutation Hooks**: One hook per file at `src/data/<domain>/use-<action>-mutation.ts` ([ADR 0018](../adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q11). Pick the shape from the table in section 1.1.
+- **Lists**: an endpoint that returns a collection filters, searches and pages **on the server** (keyset cursor, `limit`, `nextCursor`) and is consumed with `infiniteQueryOptions`; counts come from their own endpoint. Never download everything and filter on the client ([ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
 - **Client types**: Response shapes on the client come from OpenAPI via `src/types/api.ts` (`MessageDto`, `PublicAnswerDto`, …). Never import a Mongoose model (`@/server/models/**`) into client code: Biome blocks `@/server/**` outside `src/app` and `src/server`.
 - **Consumer location**: Queries and mutations are consumed **only** in page controllers (`src/components/pages/<route>/use-*.controller.ts`). Elements, patterns and blocks never import them, and Biome enforces this ([ADR 0015](../adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
 
@@ -92,6 +93,17 @@ export function useUpdateResourceMutation() {
 }
 ```
 
+### 1.1 Which mutation shape?
+
+| The mutation… | Use | Example |
+| :--- | :--- | :--- |
+| Edits one settings-like resource (a switch, a select, a profile form) | `useOptimisticResourceMutation({ queryKey, scopeId, mutationFn, merge, errorMessage, successMessage?, alsoInvalidate? })` from `src/data/optimistic-resource-mutation.ts`: optimistic, queued per `scopeId`, rollback + one error toast, silent unless `successMessage` | `use-update-preferences-mutation.ts` |
+| Changes messages in the inbox | `useMutation` + the helpers in `src/data/messages/messages-cache.ts` (`patchCachedMessage`, removals over every cached page); on settle `invalidateCachedMessages` refreshes lists + counts | `use-update-message-mutation.ts`, `use-delete-message-mutation.ts` |
+| Is a one-shot form action (sign-up, verify, send, change username, delete account) | plain `useMutation`; the page controller shows the toast or redirect | `use-sign-up-mutation.ts` |
+| Only reads (`GET`), even AI ideas | a **query** in `<domain>.queries.ts`; "load again" is `refetch` | `publicQueries.suggestions()` |
+
+Full rules: [Chapter 20 §2](../20-state-management.md#2-rules).
+
 ---
 
 ## 2. Anti-Patterns to Strictly Avoid
@@ -103,6 +115,10 @@ export function useUpdateResourceMutation() {
 | ❌ Inline string array query keys (`["messages"]`) | Fragile, error-prone, hard to manage scoped invalidations. | Centralize in `queryKeys` factory (`src/data/query-keys.ts`). |
 | ❌ Using `axios` or raw native `fetch()` | Strictly forbidden! Bypasses OpenAPI type-checking, introduces type drift, breaks schema validation contract. | Use `api` (`openapi-fetch`) + `clientFetch` from `@/data/api-client`. |
 | ❌ Manual `useState` for loading/data in fetchers | Causes race conditions & cache desync. | Use `@tanstack/react-query` (`useQuery`, `useMutation`). |
+| ❌ A `GET` wrapped in `useMutation` + a `useEffect` to fire it | Double calls under Strict Mode, no cache, no dedupe. | A query; `enabled` gates it, `refetch` reloads it. |
+| ❌ Fetching a whole collection to filter, search or count on the client | Unbounded downloads; counts depend on what happened to load. | Server-side filter + keyset paging + a counts endpoint. |
+| ❌ Hand-written `onMutate`/rollback for a settings resource | Inconsistent toasts; overlapping toggles roll back to a stale value. | `useOptimisticResourceMutation` with its own `scopeId`. |
+| ❌ Settings or preferences in the session token | Set at sign-in, never updated, so it goes stale. | Identity only in the JWT; read settings through their query. |
 | ❌ Manually editing `src/generated/api-schema.d.ts` | Overwritten on build. | Run `pnpm typegen`. |
 | ❌ Adding endpoints without OpenAPI registration | Breaks documentation & SDK type inference. | Register every route in `src/server/openapi/openapi.ts`. |
 

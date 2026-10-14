@@ -81,6 +81,7 @@ Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/`
 | `src/lib/theme/palette.test.ts` | Palette guard, boot script (stored, invalid, blocked storage) |
 | `src/lib/users/username-availability.test.ts` | Availability status mapping, min length (shared by sign-up and Change username) |
 | `src/data/messages/use-live-messages.utils.test.ts` | Live toast (silent for quarantined, text-free when hidden), SSE payload mapping, cache insert per filter (no searches, no duplicates), counts bump |
+| `src/data/messages/fetch-all-messages.test.ts` | "Export all" walks every server page (150 messages → 2 requests), quarantined included; one status on request |
 | `src/data/user/use-push-notification.utils.test.ts` | VAPID key base64url → `Uint8Array`, same-key detection, DOMException → user message |
 | **Component utils** | |
 | `src/components/elements/theme-toggler/theme-toggler.utils.test.ts` | Theme cycling order |
@@ -99,7 +100,7 @@ Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/`
 | `src/components/pages/dashboard/use-smart-reply.controller.test.ts` | Draft seeding, AI generate, save / blank-draft guard |
 | `src/components/pages/dashboard/use-profile.controller.test.ts` | Profile URL from session, form draft + discard, one-request save with the trimmed AMA prompt, blank-prompt guard, leave guard → discard and navigate, AI ideas |
 | `src/components/pages/dashboard/use-change-username.controller.test.ts` | Opens idle with the current name, debounced available/taken, save → session `update` + `router.refresh` |
-| `src/components/pages/dashboard/use-settings.controller.test.ts` | Defaults, closed-inbox scenario, acceptance (API + controlled), alerts, unblock, web push per device (switch follows this browser; off removes only this device) |
+| `src/components/pages/dashboard/use-settings.controller.test.ts` | Defaults, closed-inbox scenario, acceptance (API + controlled), alerts, unblock, web push per device (switch follows this browser; off removes only this device), Export all (every message, quarantined included, no Sender Hashes; failure toasts and downloads nothing) |
 | `src/components/pages/dashboard/use-danger-zone.controller.test.ts` | Delete all behind the undo toast, Undo cancels, unmount commits, typed account deletion → `signOut`, wrong confirmation |
 | `src/components/pages/dashboard/use-appearance.controller.test.ts` | Mode/palette exposure, system fallback, unknown palette ignored, `setTheme` |
 | `src/components/pages/home/use-claim-link.controller.test.ts` | Submit opens `/sign-up?username=`, host as link prefix |
@@ -111,7 +112,7 @@ Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/`
 | `src/components/pages/auth/sign-up/use-username-availability.controller.test.ts` | Short-name skip, available clears error, taken writes form error |
 | `src/components/pages/auth/verify/use-verify.controller.test.ts` | Verify + redirect, incorrect code |
 
-**Totals (2026-10-14):** 46 unit test files + 102 story files = 148 files, 610 tests (`pnpm test:all`).
+**Totals (2026-10-14):** 54 unit test files + 103 story files = 157 files, 676 tests (`pnpm test:all`).
 
 **Coverage:** every page controller now has a colocated `*.controller.test.ts`.
 

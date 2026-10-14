@@ -49,15 +49,15 @@ The loop on the right is the growth engine: answered messages become shareable c
 | `/sign-up` | Guests | Guest-only (middleware) | `auth/sign-up/` | `use-sign-up`, `use-google-sign-in` | [sign-up](assets/screenshots/sign-up.png) |
 | `/verify/[username]` | New users | Guest-only | `auth/verify/` | `use-verify` | [verify](assets/screenshots/verify.png) |
 | `/sign-in` | Guests | Guest-only | `auth/sign-in/` | `use-sign-in`, `use-google-sign-in` | [sign-in](assets/screenshots/sign-in.png) |
-| `/dashboard` | Recipient | Session (middleware + `DashboardLayout` gate) | `dashboard/inbox-page.tsx` | `use-inbox`, `use-inbox-keyboard`, `use-smart-reply` | [inbox](assets/screenshots/dashboard-inbox.png) |
-| `/dashboard?filter=unread\|starred\|answered\|quarantined` | Recipient | Session | same | `initialStatus` from the query string | — |
+| `/dashboard` | Recipient | Session (middleware + `DashboardLayout` gate) | `dashboard/inbox-page.tsx` | `use-inbox` (= `use-inbox-filters` + `use-inbox-data`), `use-inbox-keyboard`, `use-smart-reply` | [inbox](assets/screenshots/dashboard-inbox.png) |
+| `/dashboard?filter=unread\|starred\|answered\|quarantined` | Recipient | Session | same | `initialStatus` / `initialQuery` from `?filter=` / `?q=` | — |
 | `/dashboard/profile` | Recipient | Session | `dashboard/profile-page.tsx` | `use-profile`, `use-change-username`, `use-profile-link` | [profile](assets/screenshots/dashboard-profile.png) |
 | `/dashboard/settings` | Recipient | Session | `dashboard/settings-page.tsx` | `use-settings`, `use-appearance`, `use-danger-zone` | [settings](assets/screenshots/dashboard-settings.png) |
 | `/u/[username]` | Visitors | None | `public-profile/public-profile-page.tsx` | `use-public-answers`, `use-send-message` | [public profile](assets/screenshots/public-profile.png) |
 | `/docs` | Developers | None | Scalar API reference over `/api/openapi.json` | — | — |
 | any unknown path | Everyone | None | `not-found/not-found-page.tsx` | — | — |
 
-Every dashboard route renders inside `DashboardLayout` (`pages/dashboard/dashboard-layout.tsx`): session gate → `DashboardShell` (shadcn Sidebar) → routed page, plus the ⌘K `CommandPalette`. See [Chapter 14](14-ui-screens-and-user-flows.md) for the composition of every screen.
+Every dashboard route renders inside `DashboardLayout` (`pages/dashboard/dashboard-layout.tsx`): session gate → `DashboardShell` (shadcn Sidebar) → routed page, plus the ⌘K `CommandPalette`. The route layout (`app/(dashboard)/dashboard/layout.tsx`) reads the session on the server and hands it to `SessionProvider`, so a signed-in visit renders without a loading flash. See [Chapter 14](14-ui-screens-and-user-flows.md) for the composition of every screen.
 
 ## 4. Core journeys
 
@@ -176,7 +176,7 @@ Each entry lists **what**, **rules** (invariants to keep), and **where** (UI →
 | **Keyboard triage** | `j`/`k` move, `x` select, `s` star, `r` reply, `/` search, `⌘K`/`Ctrl+K` command palette. Ignored while typing or when a dialog is open; never acts on a quarantined message. | `use-inbox-keyboard.controller.ts`, `inbox.utils.ts` (`resolveInboxShortcut`) |
 | **Bulk actions** | Select cards → Mark read, Star, Export CSV/JSON, Delete. Optimistic with rollback. The selection belongs to the current filter + search: changing either clears it, so an action never reaches a hidden message. | `patterns/bulk-action-toolbar`, `use-bulk-action-mutation.ts` → `POST /api/messages/bulk` |
 | **Message card** | Sentiment Tag, relative time, star, answer preview with Public badge, Reply/Edit answer, Story Card, Block, Delete. States: default, unread (accent bar), selected, answered, quarantined (dashed + hidden body). | `patterns/message-card` |
-| **Empty / error / loading** | shadcn `Empty` states per filter; skeleton grid while loading. A failed load shows the empty state and the error toasts on **Refresh** (the initial load fails quietly). | `blocks/inbox`, `handleRefresh` in `use-inbox.controller.ts` |
+| **Empty / error / loading** | shadcn `Empty` states per filter; skeleton grid while loading. A failed load shows the empty state and the error toasts on **Refresh** (the initial load fails quietly). | `blocks/inbox`, `handleRefresh` in `use-inbox-data.controller.ts` |
 
 **Sentiment Tags** (set by moderation, never by the Recipient): 💖 Sweet · 🤔 Curious · 🔥 Spicy · 💡 Advice · 👻 Note (`neutral`).
 
@@ -207,7 +207,7 @@ Each entry lists **what**, **rules** (invariants to keep), and **where** (UI →
 
 ![Settings page](assets/screenshots/dashboard-settings.png)
 
-A scroll-spy **section nav** (desktop) follows the sections. Every control saves immediately and optimistically (no Save button); failures roll back and toast.
+A scroll-spy **section nav** (desktop) follows the sections. Every control saves immediately and optimistically (no Save button) and quietly: the control moving is the confirmation, so there is no success toast. Rapid changes to one section are sent in order and the last one wins; a failure rolls back and shows one error toast.
 
 | Section | Setting | Stored as | Effect |
 | :--- | :--- | :--- | :--- |

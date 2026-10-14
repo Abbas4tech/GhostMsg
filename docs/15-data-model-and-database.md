@@ -91,7 +91,7 @@ erDiagram
 | `password` | string? | bcrypt hash (10 rounds); Google sign-up stores a random unusable password | sign-up, Google sign-in | never |
 | `verifyCode`, `verifyCodeExpiry` | string, Date | required; code expires 1 hour after sign-up | sign-up | never |
 | `isVerified` | boolean | `false` | `POST /api/verify-code`, Google | session |
-| `isAcceptingMessage` | boolean | `true` | `POST /api/accept-message` | session, `GET /api/accept-message`, public answers (`isAcceptingMessages`) |
+| `isAcceptingMessage` | boolean | `true` | `POST /api/accept-message` | `GET /api/accept-message`, `GET /api/user/notifications`, public answers (`isAcceptingMessages`), `send-message` check. **Not in the session token** ([ADR 0031](adr/0031-state-management-consistency-and-structure.md) D13): the client reads it through `user.acceptance`. |
 | `lastDigestSentAt` | Date \| null | `null` | `GET /api/cron/daily-digest` after a successful digest | never (server-only; [ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)) |
 | `createdAt`, `updatedAt` | Date | Mongoose timestamps | automatic | — |
 
@@ -101,7 +101,7 @@ erDiagram
 | :--- | :--- | :--- | :--- | :--- |
 | `displayName` | string | `""`, trimmed, max 40 | `PATCH /api/user/profile` | Empty means "show the username". |
 | `avatarUrl` | string \| null | `null`; Zod: `data:image/(png\|jpeg\|webp);base64,…`, ≤ 350,000 chars | `PATCH /api/user/profile` (`null` removes) | Resized client-side to 256px WebP (≈15–40 KB). Stored inline ([ADR 0024](adr/0024-profile-preferences-data-model-and-settings-api.md)). |
-| `amaPrompt` | string | `"Send me an anonymous message!"`, max 120 | `PATCH /api/user/ama-prompt` | Blank input is ignored client-side. |
+| `amaPrompt` | string | `"Send me an anonymous message!"`, trimmed, 1–120 | `PATCH /api/user/profile` (the app's save; one request with the other Profile fields), `PATCH /api/user/ama-prompt` (legacy) | A blank prompt is never sent (`buildProfilePatch`). |
 | `showAmaBanner` | boolean | `true` | `PATCH /api/user/profile` | Hides the AMA banner on `/u/[username]`. |
 
 ### 2.3 Embedded settings

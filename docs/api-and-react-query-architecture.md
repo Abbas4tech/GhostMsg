@@ -1,6 +1,8 @@
 # API Calling & React Query Architecture Blueprint
 
-> **Current endpoint and hook map (2026-10-14):** [Chapter 16 §10: Client data-layer map](16-api-reference.md#11-client-data-layer-map) lists every query key, query/mutation hook and the controllers that use them, including the Profile & Settings hooks added in the redesign.
+> **Current endpoint and hook map (2026-10-14):** [Chapter 16 §11: Client data-layer map](16-api-reference.md#11-client-data-layer-map) lists every query key, query/mutation hook and the controllers that use them, including the Profile & Settings hooks added in the redesign.
+
+> **State rules (2026-10-14):** [Chapter 20: State Management](20-state-management.md) is the current reference. Several samples below are historical: the inbox no longer loads every message with `messagesQueries.list()` and filters on the client; it pages one server-filtered view with `messagesQueries.inbox({ status, q })` plus `messagesQueries.counts()` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). `useSuggestMessagesMutation` became the `publicQueries.suggestions()` query, and settings mutations are built with `useOptimisticResourceMutation` ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)). The inbox and counts queries opt in to `refetchOnWindowFocus`; the global default stays off.
 
 > **Note (2026-10-11):** File paths under `src/components/{auth,dashboard,profile}` in this blueprint are historical. Components now follow the four-tier layout in [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md): pure forms and cards live in `patterns/`, sections in `blocks/`, and every query and mutation lives in `pages/<route>/` controllers.
 

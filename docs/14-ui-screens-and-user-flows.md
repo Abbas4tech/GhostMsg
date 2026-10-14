@@ -59,7 +59,8 @@ flowchart TB
 
 ![Command palette](assets/screenshots/modal-command-palette.png)
 
-- **Controller:** `use-dashboard-shell.controller.ts`: session status, unread count (`countByStatus`), acceptance query + mutation, profile avatar, ⌘K listener, command groups, sign-out.
+- **Controller:** `use-dashboard-shell.controller.ts`: session status, unread count (`messagesQueries.counts()`, from the server, so it is right before the inbox has loaded), acceptance query + mutation, profile avatar, ⌘K listener, command groups, sign-out.
+- **Session:** `app/(dashboard)/dashboard/layout.tsx` reads `getServerSession` and passes it to `AuthProvider` → `SessionProvider`, so a signed-in visit renders the shell at once. The `SessionLoading` story covers the client-only case (no server session).
 - **Accessibility:** the Inbox nav link's name includes "Unread: N" (visually a badge, `aria-hidden`); the mobile avatar button opens the sidebar sheet (`useSidebar().setOpenMobile(true)`).
 - **Stories:** `Blocks/DashboardShell` (Desktop, SettingsActive, Paused, Mobile), `Pages/Dashboard` (SessionLoading, SignedOut, CommandPalette).
 

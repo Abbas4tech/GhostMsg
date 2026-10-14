@@ -18,32 +18,45 @@ src/
 │   ├── api-client.ts        # openapi-fetch `api`, `clientFetch`, `ApiError`
 │   ├── query-keys.ts        # every React Query key
 │   ├── auth/                # auth.queries.ts, use-sign-up-mutation.ts, use-verify-code-mutation.ts
-│   ├── messages/            # messages.queries.ts, messages-cache.ts (optimistic helpers), use-{bulk-action,delete-message,reply-message,
-│   │                        #   update-message,smart-reply}-mutation.ts, use-live-messages.ts
-│   ├── public/              # use-send-message-mutation.ts, use-suggest-messages-mutation.ts
-│   └── user/                # user.queries.ts, use-{accept-message,ama-prompt,block-sender,
-│                            #   notification-settings,push-subscription,remove-push-subscription}-mutation.ts,
+│   ├── optimistic-resource-mutation.ts  # useOptimisticResourceMutation: the factory for settings-like edits (ADR 0031)
+│   ├── messages/            # messages.queries.ts (inbox · counts · publicAnswers), messages-cache.ts (optimistic helpers),
+│   │                        #   fetch-all-messages.ts (export), use-{bulk-action,delete-message,delete-all-messages,
+│   │                        #   reply-message,update-message,smart-reply}-mutation.ts,
+│   │                        #   use-live-messages.ts (+ .utils.ts + .utils.test.ts)
+│   ├── public/              # public.queries.ts (suggestions), use-send-message-mutation.ts
+│   └── user/                # user.queries.ts, use-{accept-message,ama-suggestions,block-sender,change-username,
+│                            #   delete-account,notification-settings,push-subscription,remove-push-subscription,
+│                            #   update-preferences,update-profile}-mutation.ts,
 │                            #   use-push-notification.ts (+ .utils.ts + .utils.test.ts)
 ├── generated/               # api-schema.d.ts (pnpm typegen, never edit)
-├── hooks/                   # generic React hooks only (get-strict-context.tsx)
-├── lib/                     # pure, framework-free helpers by domain
+├── hooks/                   # generic React hooks only: use-leave-guard (+ test), use-active-section, use-mobile,
+│                            #   get-strict-context, use-auto-height, use-controlled-state, use-is-in-view
+├── lib/                     # pure, framework-free helpers by domain (each + .test.ts)
 │   ├── utils.ts             # cn()
-│   ├── messages/export.ts   # buildMessagesCsv / Json / Export (+ test)
-│   └── browser/download.ts  # downloadTextFile side effect (+ test)
+│   ├── messages/            # inbox-filter.ts + inbox-cursor.ts (shared inbox contract: server, mocks, live cache),
+│   │                        #   export.ts (buildMessagesCsv / Json / Export)
+│   ├── users/               # username-availability.ts (sign-up + change username)
+│   ├── theme/               # palette.ts (palette ids, storage key, parsing)
+│   ├── format/              # relative-time.ts
+│   └── browser/             # download.ts, resize-image.ts (browser side effects)
 ├── mock/                    # fixtures/, handlers/, noop.ts (tests & stories only)
-├── providers/               # auth-provider, query-provider, theme-provider
+├── providers/               # auth-provider (takes the server session), query-provider, theme-provider,
+│                            #   palette-provider (+ test)
 ├── schemas/                 # universal Zod contracts (+ zod.ts OpenAPI-extended z, + tests)
 ├── server/                  # SERVER ONLY: every file starts with `import "server-only"`
-│   ├── ai/                  # moderation.ts, smart-reply.ts (+ tests)
+│   ├── ai/                  # moderation.ts, quarantine-policy.ts, smart-reply.ts, ama-suggestions.ts (+ tests)
 │   ├── db/                  # db-connect.ts
-│   ├── email/               # mailer.ts, send-*-email.ts, email-result.ts
+│   ├── email/               # mailer.ts, send-{verification,message-alert,daily-digest}-email.ts, email-result.ts
+│   ├── messages/            # inbox-query.ts: MongoDB filter, page size, counts pipeline (+ test)
 │   ├── models/              # user.model.ts, message.model.ts
+│   ├── notifications/       # delivery-policy.ts, daily-digest.ts (+ tests), daily-digest-store.ts
 │   ├── openapi/             # openapi.ts (registry → /api/openapi.json, typegen)
 │   ├── push/                # web-push.ts: VAPID config, sendPushToUser, gone-pruning (+ test)
 │   ├── realtime/            # event-bus.ts (SSE fan-out)
-│   └── security/            # security.ts (+ test)
+│   ├── security/            # security.ts (+ test)
+│   └── users/               # user-dto.ts (+ test), public-profile.ts (getPublicProfile, React cache)
 ├── test/                    # setup.ts, msw-server.ts, server-only-stub.ts, test-utils.tsx
-└── types/                   # api.ts (OpenAPI DTOs), next-auth.d.ts
+└── types/                   # api.ts (OpenAPI DTOs), next-auth.d.ts (identity-only session)
 ```
 
 ---
@@ -138,8 +151,8 @@ Two more guards back this up:
 
 ### 4.1 Extract pure logic from a controller
 1. Move the pure function(s) to `pages/<route>/<route>.utils.ts`, with named exports and no React imports.
-2. Add `<route>.utils.test.ts`, built from `src/mock/fixtures` (e.g. `inbox.utils.test.ts` asserts `countByStatus(messageScenarios.mixed)` equals `mixedMessageCounts`).
-3. Import the utils into the controller and keep only wiring there (`useMemo(() => countByStatus(all), [all])`).
+2. Add `<route>.utils.test.ts`, built from `src/mock/fixtures` where data is needed (e.g. `profile.utils.test.ts` asserts `buildProfilePatch` sends only the dirty fields, trimmed; `inbox.utils.test.ts` asserts `resolveModalMessage` falls back to the snapshot once a message is gone).
+3. Import the utils into the controller and keep only wiring there (`handleSave` calls `buildProfilePatch(getValues(), dirtyFields)` and sends the result).
 
 **Done when** the controller has no branching that could be tested without React.
 
@@ -174,7 +187,7 @@ flowchart TB
     SU --> UA["useUsernameAvailabilityController"]
     SU --> G["shared/useGoogleSignInController"]
     SI --> G
-    UA --> UAU["username-availability.utils.ts<br/>deriveUsernameAvailability · isCheckableUsername"]
+    UA --> UAU["@/lib/users/username-availability<br/>deriveUsernameAvailability · isCheckableUsername"]
     UA --> AQ["@/data/auth/auth.queries<br/>checkUsername"]
     SU --> SM["@/data/auth/use-sign-up-mutation"]
 ```
@@ -192,14 +205,15 @@ import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
 
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-it("ignores a blank AMA prompt", async () => {
+it("sends nothing when the only change is a blank AMA prompt", async () => {
   const requests = recordRequests();
   const { result } = renderHookWithProviders(() => useProfileController());
 
   act(() => result.current.setAmaPrompt("   "));
-  await act(() => result.current.handleSaveAmaPrompt());
+  await act(() => result.current.handleSave());
 
-  expect(requests).not.toContain("PATCH /api/user/ama-prompt");
+  expect(requests).not.toContain("PATCH /api/user/profile");
+  expect(result.current.isDirty).toBe(false);
 });
 ```
 
@@ -209,6 +223,9 @@ it("ignores a blank AMA prompt", async () => {
 | A signed-in user | `{ session: sessionScenarios.authenticated }` |
 | A server state | `server.use(...scenarios.<area>.<name>)`, e.g. `scenarios.inbox.error`, `scenarios.username.taken` |
 | "Was the API called?" | `const requests = recordRequests()` → `expect(requests).toContain("POST /api/messages/bulk")` |
+| "What did it send?" | A named listener `const capture = async ({ request }) => bodies.push(await request.clone().json())`, `server.events.on("request:start", capture)`, then `server.events.removeListener(...)` at the end. Assert the body when MSW is stateless and a refetch would return the old value. |
+| URL view state | Assert `window.location.pathname + search` after the setter; reset with `window.history.replaceState(null, "", "/dashboard")` in `afterEach` (`use-inbox-filters.controller.test.ts`). A controller that needs no providers can use plain `renderHook`. |
+| Debounces | Assert the immediate value, then `await waitFor(...)` on the debounced one (real timers; the repo uses no fake timers) |
 | Router | `const { replace } = vi.hoisted(() => ({ replace: vi.fn() }))` + `vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }))` |
 | Toasts | `vi.mock("sonner", …)` |
 | `signIn` | `vi.mock("next-auth/react", () => ({ signIn: vi.fn() }))` (no `renderHookWithProviders`, use plain `renderHook`) |
