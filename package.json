@@ -1,29 +1,29 @@
 {
   "name": "ghostmsg",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "pnpm typegen && next build",
     "analyze": "cross-env ANALYZE=true next build",
-    "typegen": "tsx --conditions=react-server scripts/generate-api-types.ts",
-    "start": "next start",
-    "test": "vitest run --project unit",
-    "test:watch": "vitest --project unit",
-    "test:coverage": "vitest run --project unit --coverage",
+    "build": "pnpm typegen && next build",
+    "build-storybook": "storybook build",
     "check": "ultracite check",
+    "dev": "next dev --turbopack",
+    "docs:registry": "tsx scripts/generate-component-registry.ts",
+    "docs:registry:check": "tsx scripts/generate-component-registry.ts --check",
+    "docs:screenshots": "tsx scripts/capture-doc-screenshots.ts",
     "fix": "ultracite fix",
     "lint": "ultracite check",
     "lint:fix": "ultracite fix",
     "prepare": "husky",
-    "test:stories": "vitest run --project storybook",
-    "test:all": "vitest run",
+    "start": "next start",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "docs:registry": "tsx scripts/generate-component-registry.ts",
-    "docs:registry:check": "tsx scripts/generate-component-registry.ts --check",
-    "docs:screenshots": "tsx scripts/capture-doc-screenshots.ts",
-    "theme:contrast": "tsx scripts/check-theme-contrast.ts"
+    "test": "vitest run --project unit",
+    "test:all": "vitest run",
+    "test:coverage": "vitest run --project unit --coverage",
+    "test:stories": "vitest run --project storybook",
+    "test:watch": "vitest --project unit",
+    "theme:contrast": "tsx scripts/check-theme-contrast.ts",
+    "typegen": "tsx --conditions=react-server scripts/generate-api-types.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.14",
@@ -98,5 +98,5 @@
     "vite": "^8.3.3",
     "vitest": "^5.0.3"
   },
-  "packageManager": "pnpm@10.29.1"
+  "packageManager": "pnpm@12.14.0"
 }
