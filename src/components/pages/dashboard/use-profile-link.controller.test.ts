@@ -6,7 +6,7 @@ import { renderHookWithProviders } from "@/test/test-utils";
 import { useProfileLinkController } from "./use-profile-link.controller";
 
 const { toast } = vi.hoisted(() => ({
-  toast: { success: vi.fn(), error: vi.fn() },
+  toast: { error: vi.fn(), success: vi.fn() },
 }));
 
 vi.mock("sonner", () => ({ toast }));

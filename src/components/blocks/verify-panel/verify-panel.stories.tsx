@@ -17,18 +17,18 @@ function VerifyFormSlot(): React.JSX.Element {
 }
 
 const meta = {
-  title: "Blocks/VerifyPanel",
-  component: VerifyPanel,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: { ...defaultVerifyPanelArgs, children: <VerifyFormSlot /> },
   argTypes: {
-    username: { control: "text", description: "Name used in the greeting" },
     children: {
       control: false,
       description: "Verification Code form slot",
     },
+    username: { control: "text", description: "Name used in the greeting" },
   },
+  component: VerifyPanel,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/VerifyPanel",
 } satisfies Meta<typeof VerifyPanel>;
 
 export default meta;
@@ -49,5 +49,5 @@ export const LongUsername: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

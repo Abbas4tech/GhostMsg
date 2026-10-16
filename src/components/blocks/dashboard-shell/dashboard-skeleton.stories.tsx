@@ -3,10 +3,10 @@ import { expect } from "storybook/test";
 import { DashboardSkeleton } from "./dashboard-skeleton";
 
 const meta = {
-  title: "Blocks/DashboardShell/Skeleton",
   component: DashboardSkeleton,
-  tags: ["autodocs"],
   parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/DashboardShell/Skeleton",
 } satisfies Meta<typeof DashboardSkeleton>;
 
 export default meta;
@@ -21,5 +21,5 @@ export const Default: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

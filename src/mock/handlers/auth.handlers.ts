@@ -66,8 +66,8 @@ export const usernameHandlers = {
   available: [
     http.get(mswPath("/api/check-username-unique"), () =>
       ok("/api/check-username-unique", "get", {
-        success: true,
         message: "Username is unique",
+        success: true,
       })
     ),
   ],
@@ -79,47 +79,47 @@ export const usernameHandlers = {
 };
 
 export const signUpHandlers = {
-  success: [
-    http.post(mswPath("/api/sign-up"), () =>
-      created("/api/sign-up", "post", {
-        success: true,
-        message: "User registered successfully. Please verify your email.",
-      })
-    ),
-  ],
   error: [
     http.post(mswPath("/api/sign-up"), () =>
       apiError(400, "Email is already registered")
     ),
   ],
-};
-
-export const verifyHandlers = {
   success: [
-    http.post(mswPath("/api/verify-code"), () =>
-      ok("/api/verify-code", "post", {
+    http.post(mswPath("/api/sign-up"), () =>
+      created("/api/sign-up", "post", {
+        message: "User registered successfully. Please verify your email.",
         success: true,
-        message: "Account verified successfully",
       })
     ),
   ],
+};
+
+export const verifyHandlers = {
   invalid: [
     http.post(mswPath("/api/verify-code"), () =>
       apiError(400, "Incorrect verification code")
     ),
   ],
+  success: [
+    http.post(mswPath("/api/verify-code"), () =>
+      ok("/api/verify-code", "post", {
+        message: "Account verified successfully",
+        success: true,
+      })
+    ),
+  ],
 };
 
 export const authHandlers = {
+  credentials: credentialsHandlers,
   session: {
     authenticated: sessionHandlers(sessionScenarios.authenticated),
-    unauthenticated: sessionHandlers(sessionScenarios.unauthenticated),
     loading: sessionHandlers(sessionScenarios.authenticated, {
       latency: "infinite",
     }),
+    unauthenticated: sessionHandlers(sessionScenarios.unauthenticated),
   },
-  credentials: credentialsHandlers,
-  username: usernameHandlers,
   signUp: signUpHandlers,
+  username: usernameHandlers,
   verify: verifyHandlers,
 };

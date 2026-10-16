@@ -9,18 +9,39 @@ import UserModel from "@/server/models/user.model";
 import { controlGoogleSignInFlow } from "./controller/google-signin";
 
 export const authOptions: NextAuthOptions = {
+  callbacks: {
+    jwt({ token, user, trigger, session }) {
+      // `useSession().update({ username })` after a username change.
+      if (trigger === "update" && typeof session?.username === "string") {
+        token.username = session.username;
+      }
+      if (user) {
+        token._id = user._id;
+        token.isVerified = user.isVerified;
+        token.username = user.username;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (token) {
+        session.user._id = token._id;
+        session.user.isVerified = token.isVerified;
+        session.user.username = token.username;
+      }
+      return session;
+    },
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        return await controlGoogleSignInFlow(user);
+      }
+      return true;
+    },
+  },
+  pages: {
+    signIn: "/sign-in",
+  },
   providers: [
     CredentialProvider({
-      id: "credentials",
-      name: "Credentials",
-      credentials: {
-        email: {
-          label: "Email",
-          type: "text",
-          placeholder: "jsmith@gmail.com",
-        },
-        password: { label: "Password", type: "password" },
-      },
       async authorize(
         credentials: Record<string, string> | undefined
       ): Promise<NextAuthUser | null> {
@@ -67,45 +88,24 @@ export const authOptions: NextAuthOptions = {
           );
         }
       },
+      credentials: {
+        email: {
+          label: "Email",
+          placeholder: "jsmith@gmail.com",
+          type: "text",
+        },
+        password: { label: "Password", type: "password" },
+      },
+      id: "credentials",
+      name: "Credentials",
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_OAUTH_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET as string,
     }),
   ],
-  pages: {
-    signIn: "/sign-in",
-  },
+  secret: process.env.NEXT_AUTH_SECRET,
   session: {
     strategy: "jwt",
-  },
-  secret: process.env.NEXT_AUTH_SECRET,
-  callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === "google") {
-        return await controlGoogleSignInFlow(user);
-      }
-      return true;
-    },
-    session({ session, token }) {
-      if (token) {
-        session.user._id = token._id;
-        session.user.isVerified = token.isVerified;
-        session.user.username = token.username;
-      }
-      return session;
-    },
-    jwt({ token, user, trigger, session }) {
-      // `useSession().update({ username })` after a username change.
-      if (trigger === "update" && typeof session?.username === "string") {
-        token.username = session.username;
-      }
-      if (user) {
-        token._id = user._id;
-        token.isVerified = user.isVerified;
-        token.username = user.username;
-      }
-      return token;
-    },
   },
 };

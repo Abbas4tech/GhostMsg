@@ -41,8 +41,8 @@ export const STORY_CARD_SIZE: Record<
   StoryCardFormat,
   { height: number; width: number }
 > = {
-  story: { width: 1080, height: 1920 },
-  square: { width: 1080, height: 1080 },
+  square: { height: 1080, width: 1080 },
+  story: { height: 1920, width: 1080 },
 };
 
 const WHITESPACE = /\s+/;

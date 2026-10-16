@@ -18,9 +18,9 @@ const SIGN_IN_LINK_REGEX = /^sign in$/i;
 /** Creates the form with the real schema, as `useSignUpController` does. */
 function SignUpFormHarness(args: SignUpFormStoryArgs): React.JSX.Element {
   const form = useForm<SignUpValues>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: { username: "", email: "", password: "" },
+    defaultValues: { email: "", password: "", username: "" },
     mode: "onChange",
+    resolver: zodResolver(signUpSchema),
   });
   return (
     <div className="w-96">
@@ -30,27 +30,27 @@ function SignUpFormHarness(args: SignUpFormStoryArgs): React.JSX.Element {
 }
 
 const meta = {
-  title: "Patterns/AuthForm/SignUpForm",
-  component: SignUpFormHarness,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultSignUpFormArgs, onGoogleSignIn: fn(), onSubmit: fn() },
   argTypes: {
+    isSubmitting: { control: "boolean", description: "Shows “Signing up...”" },
+    onGoogleSignIn: { description: "Continue with Google clicked" },
+    onSubmit: {
+      description: "Valid details submitted → `{ username, email, password }`",
+    },
     usernameAvailability: {
       control: "radio",
-      options: ["idle", "checking", "available", "taken"],
       description: "Server availability state; `checking` also blocks submit",
+      options: ["idle", "checking", "available", "taken"],
     },
     usernameAvailabilityMessage: {
       control: "text",
       description: "Tooltip for the taken state",
     },
-    isSubmitting: { control: "boolean", description: "Shows “Signing up...”" },
-    onSubmit: {
-      description: "Valid details submitted → `{ username, email, password }`",
-    },
-    onGoogleSignIn: { description: "Continue with Google clicked" },
   },
+  component: SignUpFormHarness,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Patterns/AuthForm/SignUpForm",
 } satisfies Meta<typeof SignUpFormHarness>;
 
 export default meta;

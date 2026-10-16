@@ -15,7 +15,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     if (!parseResult.success) {
       return Response.json(
-        { success: false, message: "Invalid payload" },
+        { message: "Invalid payload", success: false },
         { status: 400 }
       );
     }
@@ -25,15 +25,15 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         reply,
+        success: true,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to generate smart reply:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

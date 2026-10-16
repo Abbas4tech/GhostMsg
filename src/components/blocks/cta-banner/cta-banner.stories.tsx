@@ -4,16 +4,16 @@ import { CtaBanner } from "./cta-banner";
 import { defaultCtaBannerArgs } from "./cta-banner.mock";
 
 const meta = {
-  title: "Blocks/CtaBanner",
-  component: CtaBanner,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: defaultCtaBannerArgs,
   argTypes: {
-    title: { control: "text", description: "Headline" },
     actionHref: { control: "text", description: "Button target" },
     actionLabel: { control: "text", description: "Button label" },
+    title: { control: "text", description: "Headline" },
   },
+  component: CtaBanner,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/CtaBanner",
 } satisfies Meta<typeof CtaBanner>;
 
 export default meta;

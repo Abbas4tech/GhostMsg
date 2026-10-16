@@ -25,21 +25,21 @@ const SMART_REPLY_TEXT = "Thanks for the kind words. You just made my day!";
  * talking to MSW handlers. No module mocks (ADR 0016, Q4).
  */
 const meta = {
-  title: "Pages/Dashboard",
+  args: { children: null },
   component: DashboardLayout,
-  tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
-    pageProviders: true,
     msw: { handlers: dashboardHandlers.default },
     nextjs: { navigation: { pathname: "/dashboard" } },
+    pageProviders: true,
   },
-  args: { children: null },
   render: () => (
     <DashboardLayout>
       <InboxPage />
     </DashboardLayout>
   ),
+  tags: ["autodocs"],
+  title: "Pages/Dashboard",
 } satisfies Meta<typeof DashboardLayout>;
 
 export default meta;
@@ -206,11 +206,6 @@ export const Settings: Story = {
     msw: { handlers: dashboardHandlers.closedWithBlocks },
     nextjs: { navigation: { pathname: "/dashboard/settings" } },
   },
-  render: () => (
-    <DashboardLayout>
-      <SettingsPage />
-    </DashboardLayout>
-  ),
   play: async ({ canvas }) => {
     const main = await canvas.findByRole("main", undefined, PAGE_LOAD);
     await expect(
@@ -224,15 +219,15 @@ export const Settings: Story = {
       within(sidebar).getByRole("link", { name: "Settings" })
     ).toHaveAttribute("aria-current", "page");
   },
+  render: () => (
+    <DashboardLayout>
+      <SettingsPage />
+    </DashboardLayout>
+  ),
 };
 
 export const Profile: Story = {
   parameters: { nextjs: { navigation: { pathname: "/dashboard/profile" } } },
-  render: () => (
-    <DashboardLayout>
-      <ProfilePage />
-    </DashboardLayout>
-  ),
   play: async ({ canvas }) => {
     const link = await canvas.findByLabelText(
       "Your profile link",
@@ -246,6 +241,11 @@ export const Profile: Story = {
       canvas.getByRole("heading", { level: 1, name: "Profile" })
     ).toBeVisible();
   },
+  render: () => (
+    <DashboardLayout>
+      <ProfilePage />
+    </DashboardLayout>
+  ),
 };
 
 export const SessionLoading: Story = {
@@ -267,7 +267,7 @@ export const SignedOut: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
   play: async ({ canvas }) => {
     await expect(
       await canvas.findByText(sweetMessage.content, undefined, PAGE_LOAD)

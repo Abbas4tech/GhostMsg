@@ -6,7 +6,8 @@ export const authQueries = {
   all: () => queryOptions({ queryKey: queryKeys.auth.all }),
   checkUsername: (username: string) =>
     queryOptions({
-      queryKey: queryKeys.auth.checkUsername(username),
+      enabled: Boolean(username && username.trim().length >= 2),
+      gcTime: 5 * 60 * 1000,
       queryFn: ({ signal }) =>
         clientFetch(
           api.GET("/api/check-username-unique", {
@@ -14,8 +15,7 @@ export const authQueries = {
             signal,
           })
         ),
-      enabled: Boolean(username && username.trim().length >= 2),
+      queryKey: queryKeys.auth.checkUsername(username),
       staleTime: 60 * 1000,
-      gcTime: 5 * 60 * 1000,
     }),
 };

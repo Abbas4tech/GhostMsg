@@ -9,10 +9,32 @@ import {
 } from "./input.mock";
 
 const meta = {
-  title: "Elements/Input",
+  args: { ...defaultInputArgs, onChange: fn() },
+  argTypes: {
+    "aria-invalid": {
+      control: "boolean",
+      description: "Shows the destructive error ring",
+    },
+    disabled: { control: "boolean", description: "Disables editing" },
+    onChange: { description: "Fires on every keystroke" },
+    placeholder: { control: "text", description: "Placeholder text" },
+    sizeVariant: {
+      control: "radio",
+      description: "Height preset (`md` = original)",
+      options: INPUT_SIZES,
+    },
+    type: {
+      control: "select",
+      description: "Native input type",
+      options: ["text", "email", "password", "search"],
+    },
+    variant: {
+      control: "select",
+      description: "Surface style",
+      options: INPUT_VARIANTS,
+    },
+  },
   component: Input,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   decorators: [
     (Story) => (
       <div className="w-80">
@@ -20,31 +42,9 @@ const meta = {
       </div>
     ),
   ],
-  args: { ...defaultInputArgs, onChange: fn() },
-  argTypes: {
-    variant: {
-      control: "select",
-      options: INPUT_VARIANTS,
-      description: "Surface style",
-    },
-    sizeVariant: {
-      control: "radio",
-      options: INPUT_SIZES,
-      description: "Height preset (`md` = original)",
-    },
-    type: {
-      control: "select",
-      options: ["text", "email", "password", "search"],
-      description: "Native input type",
-    },
-    placeholder: { control: "text", description: "Placeholder text" },
-    disabled: { control: "boolean", description: "Disables editing" },
-    "aria-invalid": {
-      control: "boolean",
-      description: "Shows the destructive error ring",
-    },
-    onChange: { description: "Fires on every keystroke" },
-  },
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Input",
 } satisfies Meta<typeof Input>;
 
 export default meta;
@@ -82,22 +82,22 @@ export const Sizes: Story = {
 
 export const Password: Story = {
   args: {
-    type: "password",
     "aria-label": "Password",
-    placeholder: "Enter your password..",
     defaultValue: "secret123",
+    placeholder: "Enter your password..",
+    type: "password",
   },
 };
 
 export const Invalid: Story = {
-  args: { "aria-invalid": true, defaultValue: "a", "aria-label": "Username" },
+  args: { "aria-invalid": true, "aria-label": "Username", defaultValue: "a" },
 };
 
 export const Disabled: Story = {
   args: {
-    disabled: true,
-    defaultValue: "https://ghostmsg.app/u/johndoe",
     "aria-label": "Profile link",
+    defaultValue: "https://ghostmsg.app/u/johndoe",
+    disabled: true,
   },
   play: async ({ canvas }) => {
     await expect(

@@ -44,11 +44,11 @@ export function buildLiveMessageToast(
   }
   const { content } = message;
   return {
-    title: LIVE_TOAST_TITLE,
     description:
       content.length > PREVIEW_LENGTH
         ? `${content.slice(0, PREVIEW_LENGTH)}…`
         : content,
+    title: LIVE_TOAST_TITLE,
   };
 }
 
@@ -64,11 +64,11 @@ export function toLiveMessageDto(event: LiveMessageEvent): MessageDto | null {
     _id: event._id,
     content: event.content,
     createdAt: event.createdAt,
-    sentimentTag: event.sentimentTag ?? "neutral",
-    isQuarantined: Boolean(event.isQuarantined),
     isPinned: Boolean(event.isPinned),
+    isQuarantined: Boolean(event.isQuarantined),
     isRead: Boolean(event.isRead),
     reply: null,
+    sentimentTag: event.sentimentTag ?? "neutral",
   };
 }
 
@@ -118,10 +118,10 @@ export function addToInboxCounts(
     counts[status] + (matchesInboxStatus(message, status) ? 1 : 0);
   return {
     all: add("all"),
-    unread: add("unread"),
-    starred: add("starred"),
-    quarantined: add("quarantined"),
     answered: add("answered"),
+    quarantined: add("quarantined"),
+    starred: add("starred"),
     total: counts.total + 1,
+    unread: add("unread"),
   };
 }

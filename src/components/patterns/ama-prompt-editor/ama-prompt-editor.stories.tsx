@@ -37,16 +37,6 @@ function StatefulAmaPromptEditor(args: AmaPromptEditorProps) {
 }
 
 const meta = {
-  title: "Patterns/AmaPromptEditor",
-  component: AmaPromptEditor,
-  tags: ["autodocs"],
-  decorators: [
-    (Story) => (
-      <div className="max-w-xl">
-        <Story />
-      </div>
-    ),
-  ],
   args: {
     ...defaultAmaPromptEditorArgs,
     onChange: fn(),
@@ -54,21 +44,31 @@ const meta = {
     onSuggest: fn(),
   },
   argTypes: {
-    value: {
-      control: "text",
-      description: `Controlled prompt (max ${AMA_PROMPT_MAX_LENGTH} chars)`,
-    },
-    showBanner: { control: "boolean", description: "Show the AMA banner" },
+    aiIdeas: { control: "object", description: "Ideas from Suggest with AI" },
     isSuggesting: {
       control: "boolean",
       description: "AI ideas loading (spinner, disabled)",
     },
-    aiIdeas: { control: "object", description: "Ideas from Suggest with AI" },
     onChange: { description: "Prompt changed → new value" },
     onShowBannerChange: { description: "Banner switch toggled" },
     onSuggest: { description: "Suggest with AI clicked" },
+    showBanner: { control: "boolean", description: "Show the AMA banner" },
+    value: {
+      control: "text",
+      description: `Controlled prompt (max ${AMA_PROMPT_MAX_LENGTH} chars)`,
+    },
   },
+  component: AmaPromptEditor,
+  decorators: [
+    (Story) => (
+      <div className="max-w-xl">
+        <Story />
+      </div>
+    ),
+  ],
   render: (args) => <StatefulAmaPromptEditor {...args} />,
+  tags: ["autodocs"],
+  title: "Patterns/AmaPromptEditor",
 } satisfies Meta<typeof AmaPromptEditor>;
 
 export default meta;

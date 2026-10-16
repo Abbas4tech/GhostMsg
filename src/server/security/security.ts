@@ -61,17 +61,17 @@ export async function checkRateLimit(
     const oldestTimestamp = record.timestamps[0];
     const resetTime = oldestTimestamp + windowMs;
     return {
-      success: false,
       remaining: 0,
       resetTime,
+      success: false,
     };
   }
 
   record.timestamps.push(now);
   return {
-    success: true,
     remaining: limit - record.timestamps.length,
     resetTime: now + windowMs,
+    success: true,
   };
 }
 

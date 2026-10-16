@@ -33,13 +33,13 @@ type TabsProps = React.ComponentProps<typeof TabsPrimitive.Root>;
 
 function Tabs(props: TabsProps) {
   const [value, setValue] = useControlledState({
-    value: props.value,
     defaultValue: props.defaultValue,
     onChange: props.onValueChange,
+    value: props.value,
   });
 
   return (
-    <TabsProvider value={{ value, setValue }}>
+    <TabsProvider value={{ setValue, value }}>
       <TabsPrimitive.Root
         data-slot="tabs"
         {...props}
@@ -52,7 +52,7 @@ function Tabs(props: TabsProps) {
 type TabsHighlightProps = Omit<HighlightProps, "controlledItems" | "value">;
 
 function TabsHighlight({
-  transition = { type: "spring", stiffness: 200, damping: 25 },
+  transition = { damping: 25, stiffness: 200, type: "spring" },
   ...props
 }: TabsHighlightProps) {
   const { value } = useTabs();
@@ -102,10 +102,10 @@ function TabsContent({
     <AnimatePresence mode="wait">
       <TabsPrimitive.Content asChild forceMount={forceMount} value={value}>
         <motion.div
-          animate={{ opacity: 1, filter: "blur(0px)" }}
+          animate={{ filter: "blur(0px)", opacity: 1 }}
           data-slot="tabs-content"
-          exit={{ opacity: 0, filter: "blur(4px)" }}
-          initial={{ opacity: 0, filter: "blur(4px)" }}
+          exit={{ filter: "blur(4px)", opacity: 0 }}
+          initial={{ filter: "blur(4px)", opacity: 0 }}
           layout
           layoutDependency={value}
           transition={transition}
@@ -131,9 +131,9 @@ type TabsContentsLayoutProps = Omit<HTMLMotionProps<"div">, "transition"> & {
 type TabsContentsProps = TabsContentsAutoProps | TabsContentsLayoutProps;
 
 const defaultTransition: Transition = {
-  type: "spring",
-  stiffness: 200,
   damping: 30,
+  stiffness: 200,
+  type: "spring",
 };
 
 function isAutoMode(props: TabsContentsProps): props is TabsContentsAutoProps {

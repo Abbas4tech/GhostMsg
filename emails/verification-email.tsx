@@ -29,8 +29,8 @@ export default function VerificationEmail({
           fontStyle="normal"
           fontWeight={400}
           webFont={{
-            url: "https://fonts.gstatic.com/s/roboto/v27/KF0mCnqEu92Fr1Mu4mxKKTU1Kg.woff2",
             format: "woff2",
+            url: "https://fonts.gstatic.com/s/roboto/v27/KF0mCnqEu92Fr1Mu4mxKKTU1Kg.woff2",
           }}
         />
       </Head>

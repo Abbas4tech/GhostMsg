@@ -15,9 +15,9 @@ import { buildProfilePatch, type ProfileFormValues } from "./profile.utils";
 import { useProfileLinkController } from "./use-profile-link.controller";
 
 const EMPTY_PROFILE: ProfileFormValues = {
-  displayName: "",
-  avatarUrl: null,
   amaPrompt: "",
+  avatarUrl: null,
+  displayName: "",
   showAmaBanner: true,
 };
 
@@ -44,9 +44,9 @@ export function useProfileController() {
     () =>
       saved
         ? {
-            displayName: saved.displayName ?? "",
-            avatarUrl: saved.avatarUrl ?? null,
             amaPrompt: saved.amaPrompt ?? "",
+            avatarUrl: saved.avatarUrl ?? null,
+            displayName: saved.displayName ?? "",
             showAmaBanner: saved.showAmaBanner ?? true,
           }
         : EMPTY_PROFILE,
@@ -56,8 +56,8 @@ export function useProfileController() {
   // `values` keeps the form in step with the server; fields the recipient is
   // editing are kept (keepDirtyValues) when a refetch lands.
   const form = useForm<ProfileFormValues>({
-    values: serverValues,
     resetOptions: { keepDirtyValues: true },
+    values: serverValues,
   });
   const values = useWatch({ control: form.control }) as ProfileFormValues;
   const { isDirty, dirtyFields } = form.formState;
@@ -112,8 +112,8 @@ export function useProfileController() {
       // The saved values become the new baseline (no longer dirty).
       reset({
         ...current,
-        displayName: current.displayName.trim(),
         amaPrompt: patch.amaPrompt ?? serverValues.amaPrompt,
+        displayName: current.displayName.trim(),
       });
     } catch {
       // Rolled back + toasted by the mutation
@@ -143,31 +143,31 @@ export function useProfileController() {
   }, [pendingHref, clearPendingHref, reset, router]);
 
   return {
-    username: saved?.username ?? link.username,
-    displayName: values.displayName ?? "",
-    avatarUrl: values.avatarUrl ?? null,
-    amaPrompt: values.amaPrompt ?? "",
-    showAmaBanner: values.showAmaBanner ?? true,
-    profileUrl: link.profileUrl,
-    linkPrefix: toLinkPrefix(link.profileLabel),
-    isAccepting: Boolean(acceptanceData?.isAcceptingMessage ?? true),
-    setDisplayName,
-    setAmaPrompt,
-    setShowAmaBanner,
-    handlePhotoSelect,
-    handlePhotoRemove: () => setAvatarUrl(null),
-    isPhotoProcessing,
     aiIdeas,
-    handleSuggest,
-    isSuggesting: suggestMutation.isPending,
-    handleCopyProfileUrl: link.handleCopy,
-    handleShareProfileUrl: link.handleShare,
-    isDirty,
-    isSaving,
-    handleDiscard,
-    handleSave,
-    isLeaveConfirmOpen: pendingHref !== null,
-    handleConfirmLeave,
+    amaPrompt: values.amaPrompt ?? "",
+    avatarUrl: values.avatarUrl ?? null,
+    displayName: values.displayName ?? "",
     handleCancelLeave: clearPendingHref,
+    handleConfirmLeave,
+    handleCopyProfileUrl: link.handleCopy,
+    handleDiscard,
+    handlePhotoRemove: () => setAvatarUrl(null),
+    handlePhotoSelect,
+    handleSave,
+    handleShareProfileUrl: link.handleShare,
+    handleSuggest,
+    isAccepting: Boolean(acceptanceData?.isAcceptingMessage ?? true),
+    isDirty,
+    isLeaveConfirmOpen: pendingHref !== null,
+    isPhotoProcessing,
+    isSaving,
+    isSuggesting: suggestMutation.isPending,
+    linkPrefix: toLinkPrefix(link.profileLabel),
+    profileUrl: link.profileUrl,
+    setAmaPrompt,
+    setDisplayName,
+    setShowAmaBanner,
+    showAmaBanner: values.showAmaBanner ?? true,
+    username: saved?.username ?? link.username,
   };
 }

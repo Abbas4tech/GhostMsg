@@ -7,20 +7,20 @@ import type { StorybookConfig } from "@storybook/nextjs-vite";
  * - `public/` is served so MSW's `mockServiceWorker.js` is available.
  */
 const config: StorybookConfig = {
-  stories: ["../src/components/**/*.stories.@(ts|tsx)"],
   addons: [
     "@storybook/addon-docs",
     "@storybook/addon-a11y",
     "@storybook/addon-vitest",
   ],
+  core: {
+    disableTelemetry: true,
+  },
   framework: {
     name: "@storybook/nextjs-vite",
     options: {},
   },
   staticDirs: ["../public"],
-  core: {
-    disableTelemetry: true,
-  },
+  stories: ["../src/components/**/*.stories.@(ts|tsx)"],
 };
 
 export default config;

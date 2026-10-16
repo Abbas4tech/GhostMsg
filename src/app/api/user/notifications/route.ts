@@ -19,18 +19,18 @@ export async function GET(): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
+        isAcceptingMessage: userDoc?.isAcceptingMessage ?? true,
         notificationSettings: toNotificationSettings(
           userDoc?.notificationSettings
         ),
-        isAcceptingMessage: userDoc?.isAcceptingMessage ?? true,
+        success: true,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to fetch notification settings:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }
@@ -49,7 +49,7 @@ export async function PATCH(request: NextRequest): Promise<Response> {
     );
     if (!parsed.success) {
       return Response.json(
-        { success: false, message: "Invalid notification settings" },
+        { message: "Invalid notification settings", success: false },
         { status: 400 }
       );
     }
@@ -70,18 +70,18 @@ export async function PATCH(request: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         message: "Notification settings updated successfully!",
         notificationSettings: toNotificationSettings(
           updated?.notificationSettings
         ),
+        success: true,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to update notification settings:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

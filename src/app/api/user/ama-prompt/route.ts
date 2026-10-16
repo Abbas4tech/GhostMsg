@@ -17,7 +17,7 @@ export async function PATCH(request: NextRequest): Promise<Response> {
 
     if (!parseResult.success) {
       return Response.json(
-        { success: false, message: "Invalid AMA prompt payload" },
+        { message: "Invalid AMA prompt payload", success: false },
         { status: 400 }
       );
     }
@@ -28,16 +28,16 @@ export async function PATCH(request: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         amaPrompt,
         message: "AMA prompt updated successfully!",
+        success: true,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to update AMA prompt:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

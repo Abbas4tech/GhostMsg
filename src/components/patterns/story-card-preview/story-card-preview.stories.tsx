@@ -7,26 +7,26 @@ import {
 } from "./story-card-preview.mock";
 
 const meta = {
-  title: "Patterns/StoryCardPreview",
-  component: StoryCardPreview,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: defaultStoryCardPreviewArgs,
   argTypes: {
-    question: { control: "text", description: "The Anonymous Message" },
     answer: { control: "text", description: "Recipient's answer" },
     label: { control: "text", description: "Sentiment chip" },
+    question: { control: "text", description: "The Anonymous Message" },
     size: {
       control: "radio",
-      options: ["sm", "md"],
       description: "Card width",
+      options: ["sm", "md"],
     },
     tilt: {
       control: "radio",
-      options: ["none", "right"],
       description: "Playful tilt",
+      options: ["none", "right"],
     },
   },
+  component: StoryCardPreview,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Patterns/StoryCardPreview",
 } satisfies Meta<typeof StoryCardPreview>;
 
 export default meta;

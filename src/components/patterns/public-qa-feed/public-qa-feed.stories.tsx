@@ -12,15 +12,8 @@ import {
 } from "./public-qa-feed.mock";
 
 const meta = {
-  title: "Patterns/PublicQaFeed",
-  component: PublicQaFeed,
-  tags: ["autodocs"],
   args: defaultPublicQaFeedArgs,
   argTypes: {
-    username: {
-      control: "text",
-      description: "Recipient handle used in “@user's Answer”",
-    },
     answers: {
       control: "object",
       description: "Published Q&A items; the feed renders nothing when empty",
@@ -29,7 +22,14 @@ const meta = {
       control: "boolean",
       description: "Shows the spinner (role=status)",
     },
+    username: {
+      control: "text",
+      description: "Recipient handle used in “@user's Answer”",
+    },
   },
+  component: PublicQaFeed,
+  tags: ["autodocs"],
+  title: "Patterns/PublicQaFeed",
 } satisfies Meta<typeof PublicQaFeed>;
 
 export default meta;
@@ -71,5 +71,5 @@ export const Empty: Story = {
 export const LongReply: Story = { args: longReplyPublicQaFeedArgs };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

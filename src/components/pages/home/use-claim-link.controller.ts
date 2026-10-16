@@ -16,9 +16,9 @@ export function useClaimLinkController() {
   }, [router, username]);
 
   return {
-    username,
-    setUsername,
     handleSubmit,
     linkPrefix: buildLinkPrefix(isClient ? window.location.host : undefined),
+    setUsername,
+    username,
   };
 }

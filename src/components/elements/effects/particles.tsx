@@ -37,7 +37,7 @@ function Particles({
 }: ParticlesProps) {
   const { ref: localRef, isInView } = useIsInView(
     ref as React.Ref<HTMLDivElement>,
-    { inView, inViewOnce, inViewMargin }
+    { inView, inViewMargin, inViewOnce }
   );
 
   const Component = asChild ? Slot : motion.div;
@@ -139,9 +139,9 @@ function ParticlesEffect({
   );
 
   const containerStyle: React.CSSProperties = {
+    left,
     position: "absolute",
     top,
-    left,
     transform: "translate(-50%, -50%)",
   };
 
@@ -153,9 +153,9 @@ function ParticlesEffect({
     const y = Math.sin(angle) * radius;
     return {
       id: `particle-angle-${angle.toFixed(4)}`,
+      itemDelay: delay + index * holdDelay,
       x,
       y,
-      itemDelay: delay + index * holdDelay,
     };
   });
 
@@ -166,17 +166,17 @@ function ParticlesEffect({
         particles.map((p) => (
           <motion.div
             animate={{
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0],
               x: `${p.x}px`,
               y: `${p.y}px`,
-              scale: [0, 1, 0],
-              opacity: [0, 1, 0],
             }}
-            initial={{ scale: 0, opacity: 0 }}
+            initial={{ opacity: 0, scale: 0 }}
             key={p.id}
             style={{ ...containerStyle, ...style }}
             transition={{
-              duration,
               delay: p.itemDelay,
+              duration,
               ease: "easeOut",
               ...transition,
             }}

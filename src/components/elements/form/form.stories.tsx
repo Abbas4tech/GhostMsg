@@ -55,15 +55,15 @@ function FormDemo({
 }
 
 const meta = {
-  title: "Elements/Form",
-  component: FormDemo,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
-  args: { onSubmit: fn(), defaultValues: defaultFormValues },
+  args: { defaultValues: defaultFormValues, onSubmit: fn() },
   argTypes: {
-    onSubmit: { description: "Called with validated values" },
     defaultValues: { control: "object", description: "Initial form values" },
+    onSubmit: { description: "Called with validated values" },
   },
+  component: FormDemo,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Form",
 } satisfies Meta<typeof FormDemo>;
 
 export default meta;

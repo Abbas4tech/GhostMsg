@@ -73,13 +73,13 @@ export function buildDigestSummary(
   hideMessageText: boolean
 ): DigestSummary {
   return {
-    total,
     previews: hideMessageText
       ? []
       : recent.slice(0, DIGEST_PREVIEW_COUNT).map((message) => ({
-          text: buildAlertPreview(message.content, false),
           sentimentTag: message.sentimentTag,
+          text: buildAlertPreview(message.content, false),
         })),
+    total,
   };
 }
 
@@ -95,10 +95,10 @@ export async function runDailyDigest(
 ): Promise<DailyDigestResult> {
   const result: DailyDigestResult = {
     considered: 0,
-    sent: 0,
     empty: 0,
-    skippedQuietHours: 0,
     failed: 0,
+    sent: 0,
+    skippedQuietHours: 0,
   };
 
   const recipients = await deps.loadRecipients();

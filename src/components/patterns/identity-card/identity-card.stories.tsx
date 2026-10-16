@@ -9,16 +9,6 @@ import {
 const CHANGE_PHOTO_REGEX = /change photo/i;
 
 const meta = {
-  title: "Patterns/IdentityCard",
-  component: IdentityCard,
-  tags: ["autodocs"],
-  decorators: [
-    (Story) => (
-      <div className="max-w-xl">
-        <Story />
-      </div>
-    ),
-  ],
   args: {
     ...defaultIdentityCardArgs,
     onChangeUsername: fn(),
@@ -27,19 +17,29 @@ const meta = {
     onPhotoSelect: fn(),
   },
   argTypes: {
-    username: { control: "text", description: "Current username" },
-    displayName: { control: "text", description: "Controlled display name" },
     avatarUrl: { control: "text", description: "Photo (data URL) or null" },
-    linkPrefix: { control: "text", description: "Shown before the username" },
+    displayName: { control: "text", description: "Controlled display name" },
     isPhotoProcessing: {
       control: "boolean",
       description: "Resizing the chosen photo",
     },
-    onDisplayNameChange: { description: "Display name typed → value" },
-    onPhotoSelect: { description: "File chosen → File" },
-    onPhotoRemove: { description: "Remove photo clicked" },
+    linkPrefix: { control: "text", description: "Shown before the username" },
     onChangeUsername: { description: "Change clicked (opens the dialog)" },
+    onDisplayNameChange: { description: "Display name typed → value" },
+    onPhotoRemove: { description: "Remove photo clicked" },
+    onPhotoSelect: { description: "File chosen → File" },
+    username: { control: "text", description: "Current username" },
   },
+  component: IdentityCard,
+  decorators: [
+    (Story) => (
+      <div className="max-w-xl">
+        <Story />
+      </div>
+    ),
+  ],
+  tags: ["autodocs"],
+  title: "Patterns/IdentityCard",
 } satisfies Meta<typeof IdentityCard>;
 
 export default meta;

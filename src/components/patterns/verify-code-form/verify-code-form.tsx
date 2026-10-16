@@ -1,11 +1,14 @@
 "use client";
 
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { motion, useAnimation } from "motion/react";
 import Link from "next/link";
 import type React from "react";
+import { useEffect } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
+import { Alert, AlertDescription } from "@/components/elements/alert";
 import { Button } from "@/components/elements/button";
 import {
   Form,
@@ -20,6 +23,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/elements/input-otp";
+import { shake } from "@/lib/motion";
 import type { verifySchema } from "@/schemas/verify-schema";
 
 export type VerifyCodeValues = z.infer<typeof verifySchema>;
@@ -28,6 +32,8 @@ export const OTP_LENGTH = 6;
 const OTP_SLOT_INDEXES = Array.from({ length: OTP_LENGTH }, (_, i) => i);
 
 export interface VerifyCodeFormProps {
+  /** Set after a submitted code comes back wrong (cleared on the next change). */
+  codeError?: string | null;
   form: UseFormReturn<VerifyCodeValues>;
   isSubmitting?: boolean;
   onSubmit: (values: VerifyCodeValues) => void | Promise<void>;
@@ -38,7 +44,17 @@ export function VerifyCodeForm({
   form,
   isSubmitting = false,
   onSubmit,
+  codeError,
 }: VerifyCodeFormProps): React.JSX.Element {
+  const shakeControls = useAnimation();
+  const hasCodeError = Boolean(codeError);
+
+  useEffect(() => {
+    if (hasCodeError) {
+      shakeControls.start("shake");
+    }
+  }, [hasCodeError, shakeControls]);
+
   return (
     <Form {...form}>
       <form
@@ -53,28 +69,41 @@ export function VerifyCodeForm({
             <FormItem>
               <FormLabel className="sr-only">Verification Code</FormLabel>
               <FormControl>
-                <InputOTP
-                  autoComplete="one-time-code"
-                  containerClassName="w-full"
-                  maxLength={OTP_LENGTH}
-                  pattern={REGEXP_ONLY_DIGITS}
-                  {...field}
+                <motion.div
+                  animate={shakeControls}
+                  initial="idle"
+                  variants={shake}
                 >
-                  <InputOTPGroup className="grid w-full grid-cols-6 gap-2">
-                    {OTP_SLOT_INDEXES.map((index) => (
-                      <InputOTPSlot
-                        className="h-[60px] w-full rounded-xl border border-input bg-card font-bold font-display text-[26px] tabular-nums shadow-none first:rounded-xl last:rounded-xl data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-2 data-[active=true]:ring-offset-card"
-                        index={index}
-                        key={`otp-${index}`}
-                      />
-                    ))}
-                  </InputOTPGroup>
-                </InputOTP>
+                  <InputOTP
+                    autoComplete="one-time-code"
+                    containerClassName="w-full"
+                    maxLength={OTP_LENGTH}
+                    pattern={REGEXP_ONLY_DIGITS}
+                    {...field}
+                  >
+                    <InputOTPGroup className="grid w-full grid-cols-6 gap-2">
+                      {OTP_SLOT_INDEXES.map((index) => (
+                        <InputOTPSlot
+                          aria-invalid={hasCodeError}
+                          className="h-[60px] w-full rounded-xl border border-input bg-card font-bold font-display text-[26px] tabular-nums shadow-none first:rounded-xl last:rounded-xl data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-2 data-[active=true]:ring-offset-card"
+                          index={index}
+                          key={`otp-${index}`}
+                        />
+                      ))}
+                    </InputOTPGroup>
+                  </InputOTP>
+                </motion.div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        {codeError ? (
+          <Alert variant="destructive">
+            <AlertCircle aria-hidden="true" />
+            <AlertDescription>{codeError}</AlertDescription>
+          </Alert>
+        ) : null}
         <Button
           className="w-full rounded-full"
           disabled={!form.formState.isValid || isSubmitting}

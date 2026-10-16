@@ -46,7 +46,7 @@ export function searchFilter(query: string): Filter | null {
   if (!q) {
     return null;
   }
-  const pattern = { $regex: escapeRegExp(q), $options: "i" };
+  const pattern = { $options: "i", $regex: escapeRegExp(q) };
   return { $or: [{ content: pattern }, { "reply.text": pattern }] };
 }
 
@@ -56,8 +56,8 @@ export function cursorFilter(cursor: InboxCursor): Filter {
     $or: [
       { createdAt: { $lt: cursor.createdAt } },
       {
-        createdAt: cursor.createdAt,
         _id: { $lt: new Types.ObjectId(cursor.id) },
+        createdAt: cursor.createdAt,
       },
     ],
   };
@@ -101,18 +101,18 @@ export const inboxCountsPipeline = (recipientId: Types.ObjectId) => [
   {
     $group: {
       _id: null,
-      total: { $sum: 1 },
       all: sumWhen({ $ne: ["$isQuarantined", true] }),
-      unread: sumWhen({
-        $and: [{ $ne: ["$isQuarantined", true] }, { $ne: ["$isRead", true] }],
-      }),
-      starred: sumWhen({ $eq: ["$isPinned", true] }),
-      quarantined: sumWhen({ $eq: ["$isQuarantined", true] }),
       answered: sumWhen({
         $regexMatch: {
           input: { $ifNull: ["$reply.text", ""] },
           regex: NON_BLANK,
         },
+      }),
+      quarantined: sumWhen({ $eq: ["$isQuarantined", true] }),
+      starred: sumWhen({ $eq: ["$isPinned", true] }),
+      total: { $sum: 1 },
+      unread: sumWhen({
+        $and: [{ $ne: ["$isQuarantined", true] }, { $ne: ["$isRead", true] }],
       }),
     },
   },
@@ -124,10 +124,10 @@ export function toInboxCounts(
 ): InboxCounts {
   return {
     all: row?.all ?? 0,
-    unread: row?.unread ?? 0,
-    starred: row?.starred ?? 0,
-    quarantined: row?.quarantined ?? 0,
     answered: row?.answered ?? 0,
+    quarantined: row?.quarantined ?? 0,
+    starred: row?.starred ?? 0,
     total: row?.total ?? 0,
+    unread: row?.unread ?? 0,
   };
 }

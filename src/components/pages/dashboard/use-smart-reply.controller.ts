@@ -72,9 +72,9 @@ export function useSmartReplyController({
     }
     try {
       await saveReplyAsync({
+        isPublished,
         messageId: String(message._id),
         text: replyText.trim(),
-        isPublished,
       });
       onSaved();
       return true;
@@ -85,13 +85,13 @@ export function useSmartReplyController({
   }, [message, replyText, isPublished, saveReplyAsync, onSaved]);
 
   return {
-    replyText,
-    setReplyText,
-    isPublished,
-    setIsPublished,
     handleGenerate,
     handleSave,
     isGenerating: smartReplyMutation.isPending,
+    isPublished,
     isSaving: replyMutation.isPending,
+    replyText,
+    setIsPublished,
+    setReplyText,
   };
 }

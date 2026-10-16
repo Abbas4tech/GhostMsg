@@ -9,19 +9,19 @@ export function useDeleteAllMessagesMutation() {
 
   return useMutation({
     mutationFn: () => clientFetch(api.DELETE("/api/messages")),
-    onSuccess: (data) => {
-      toast.success(
-        data.deletedCount === 1
-          ? "Deleted 1 message"
-          : `Deleted ${data.deletedCount} messages`
-      );
-    },
     onError: (error: Error) => {
       toast.error(error.message || "Couldn't delete your messages");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.messages.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.public.all });
+    },
+    onSuccess: (data) => {
+      toast.success(
+        data.deletedCount === 1
+          ? "Deleted 1 message"
+          : `Deleted ${data.deletedCount} messages`
+      );
     },
   });
 }

@@ -53,7 +53,7 @@ export function ProfilePanel({
           </Button>
         }
         breadcrumb={[
-          { label: "Dashboard", href: "/dashboard" },
+          { href: "/dashboard", label: "Dashboard" },
           { label: "Profile" },
         ]}
         description="This is how you appear to anyone who opens your link."

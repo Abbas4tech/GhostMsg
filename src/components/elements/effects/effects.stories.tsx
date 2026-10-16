@@ -11,9 +11,9 @@ import { Particles, ParticlesEffect } from "./particles";
 
 /** Motion primitives shared by elements (tabs, icon-button, …). Decorative only. */
 const meta = {
-  title: "Elements/Effects",
-  tags: ["autodocs"],
   parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Effects",
 } satisfies Meta;
 
 export default meta;
@@ -54,18 +54,18 @@ function ParticlesDemo() {
         variant="outline"
       >
         <Heart />
-        <ParticlesEffect className="size-1 rounded-full bg-pink-500" />
+        <ParticlesEffect className="size-1 rounded-full bg-sentiment-sweet" />
       </Button>
     </Particles>
   );
 }
 
 export const ParticleBurst: Story = {
-  render: () => <ParticlesDemo />,
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Like" }));
     await expect(canvas.getByRole("button", { name: "Like" })).toBeVisible();
   },
+  render: () => <ParticlesDemo />,
 };
 
 function AutoHeightDemo() {
@@ -85,11 +85,11 @@ function AutoHeightDemo() {
 }
 
 export const AnimatedHeight: Story = {
-  render: () => <AutoHeightDemo />,
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: "Expand" }));
     await expect(
       await canvas.findByText(autoHeightMockParagraphs[1])
     ).toBeInTheDocument();
   },
+  render: () => <AutoHeightDemo />,
 };

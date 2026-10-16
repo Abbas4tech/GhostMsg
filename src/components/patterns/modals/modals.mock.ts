@@ -16,35 +16,35 @@ import type { SmartReplyModalProps } from "./smart-reply-modal";
 import type { StoryCardModalProps } from "./story-card-modal";
 
 export const defaultBlockSenderModalArgs: BlockSenderModalProps = {
-  open: true,
-  message: sweetMessage,
-  isSenderBlocked: false,
   isPending: false,
+  isSenderBlocked: false,
+  message: sweetMessage,
   onClose: noop,
   onConfirm: noop,
+  open: true,
 };
 
 export const defaultDeleteMessageModalArgs: DeleteMessageModalProps = {
-  open: true,
-  message: sweetMessage,
   isPending: false,
+  message: sweetMessage,
   onClose: noop,
   onConfirm: noop,
+  open: true,
 };
 
 export const defaultSmartReplyModalArgs: SmartReplyModalProps = {
-  isOpen: true,
-  message: sweetMessage,
-  replyText: "",
-  isPublished: true,
   isGenerating: false,
+  isOpen: true,
+  isPublished: true,
   isSaving: false,
+  message: sweetMessage,
   onClose: noop,
   onGenerate: noop,
   onPublishedChange: noop,
   onReplyTextChange: noop,
   onSave: noop,
   onSaveAndShare: noop,
+  replyText: "",
 };
 
 export const editingSmartReplyModalArgs = {
@@ -55,47 +55,47 @@ export const editingSmartReplyModalArgs = {
 export const defaultStoryCardModalArgs: StoryCardModalProps = {
   isOpen: true,
   message: answeredSpicyMessage,
-  username: FIXTURE_USERNAME,
   onClose: noop,
+  username: FIXTURE_USERNAME,
 };
 
 export const defaultRevealMessageModalArgs: RevealMessageModalProps = {
-  open: true,
   message: quarantinedMessage,
   onClose: noop,
   onConfirm: noop,
+  open: true,
 };
 
 export const defaultChangeUsernameModalArgs: ChangeUsernameModalProps = {
-  open: true,
-  value: "maya_writes",
   availability: "available",
-  linkPrefix: "ghostmsg.app/u/",
   isSaving: false,
+  linkPrefix: "ghostmsg.app/u/",
   onOpenChange: noop,
   onSubmit: noop,
   onValueChange: noop,
+  open: true,
+  value: "maya_writes",
 };
 
 export const defaultDeleteAllMessagesModalArgs: DeleteAllMessagesModalProps = {
-  open: true,
-  total: 6,
   onConfirm: noop,
   onOpenChange: noop,
+  open: true,
+  total: 6,
 };
 
 export const defaultDeleteAccountModalArgs: DeleteAccountModalProps = {
-  open: true,
-  username: FIXTURE_USERNAME,
   confirmValue: "",
   isPending: false,
   onConfirm: noop,
   onConfirmValueChange: noop,
   onOpenChange: noop,
+  open: true,
+  username: FIXTURE_USERNAME,
 };
 
 export const defaultDiscardChangesModalArgs: DiscardChangesModalProps = {
-  open: true,
   onDiscard: noop,
   onKeepEditing: noop,
+  open: true,
 };

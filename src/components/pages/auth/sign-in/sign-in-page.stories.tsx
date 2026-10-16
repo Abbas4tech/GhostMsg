@@ -9,14 +9,6 @@ const PAGE_LOAD = { timeout: 15_000 };
 const LOGIN_REGEX = /^sign in$/i;
 
 const meta = {
-  title: "Pages/Auth/SignIn",
-  component: SignInPage,
-  tags: ["autodocs"],
-  parameters: {
-    layout: "fullscreen",
-    pageProviders: true,
-    msw: { handlers: authPageHandlers.default },
-  },
   args: { redirectPath: "/dashboard" },
   argTypes: {
     redirectPath: {
@@ -24,6 +16,14 @@ const meta = {
       description: "Where to go after a successful login",
     },
   },
+  component: SignInPage,
+  parameters: {
+    layout: "fullscreen",
+    msw: { handlers: authPageHandlers.default },
+    pageProviders: true,
+  },
+  tags: ["autodocs"],
+  title: "Pages/Auth/SignIn",
 } satisfies Meta<typeof SignInPage>;
 
 export default meta;
@@ -74,5 +74,5 @@ export const InvalidCredentials: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

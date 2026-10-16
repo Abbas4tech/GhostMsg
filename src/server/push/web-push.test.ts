@@ -26,12 +26,12 @@ import {
 } from "./web-push";
 
 const subscription = (endpoint: string) => ({
-  endpoint,
-  keys: { p256dh: "p256dh", auth: "auth" },
   createdAt: new Date(0),
+  endpoint,
+  keys: { auth: "auth", p256dh: "p256dh" },
 });
 
-const PAYLOAD = { title: "New anonymous message", body: "hi" };
+const PAYLOAD = { body: "hi", title: "New anonymous message" };
 const pushError = (statusCode: number) =>
   new (WebPushError as unknown as new (m: string, s: number) => Error)(
     "push failed",
@@ -51,8 +51,8 @@ describe("getVapidConfig", () => {
         VAPID_PRIVATE_KEY: "priv",
       })
     ).toEqual({
-      publicKey: "pub",
       privateKey: "priv",
+      publicKey: "pub",
       subject: "mailto:support@ghostmsg.app",
     });
   });
@@ -85,7 +85,7 @@ describe("sendPushToUser", () => {
 
     const result = await sendPushToUser("u1", [subscription("a")], PAYLOAD);
 
-    expect(result).toEqual({ sent: 0, removed: 0 });
+    expect(result).toEqual({ removed: 0, sent: 0 });
     expect(sendNotification).not.toHaveBeenCalled();
   });
 
@@ -98,14 +98,14 @@ describe("sendPushToUser", () => {
       PAYLOAD
     );
 
-    expect(result).toEqual({ sent: 2, removed: 0 });
+    expect(result).toEqual({ removed: 0, sent: 2 });
     expect(sendNotification).toHaveBeenCalledWith(
-      { endpoint: "a", keys: { p256dh: "p256dh", auth: "auth" } },
+      { endpoint: "a", keys: { auth: "auth", p256dh: "p256dh" } },
       JSON.stringify(PAYLOAD),
       expect.objectContaining({
         vapidDetails: expect.objectContaining({
-          publicKey: "pub",
           privateKey: "priv",
+          publicKey: "pub",
         }),
       })
     );
@@ -124,7 +124,7 @@ describe("sendPushToUser", () => {
       PAYLOAD
     );
 
-    expect(result).toEqual({ sent: 1, removed: 1 });
+    expect(result).toEqual({ removed: 1, sent: 1 });
     expect(updateOne).toHaveBeenCalledWith(
       { _id: "u1" },
       { $pull: { pushSubscriptions: { endpoint: { $in: ["gone"] } } } }

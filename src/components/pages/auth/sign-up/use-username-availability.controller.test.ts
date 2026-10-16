@@ -9,7 +9,7 @@ import { useUsernameAvailabilityController } from "./use-username-availability.c
 
 function useHarness() {
   const form = useForm<SignUpValues>({
-    defaultValues: { username: "", email: "", password: "" },
+    defaultValues: { email: "", password: "", username: "" },
   });
   return { form, ...useUsernameAvailabilityController(form) };
 }

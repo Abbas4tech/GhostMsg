@@ -9,9 +9,9 @@ export const validSignIn = {
 };
 
 export const validSignUp = {
-  username: FIXTURE_USERNAME,
   email: "johndoe@example.com",
   password: "secret123",
+  username: FIXTURE_USERNAME,
 };
 
 export interface SignInFormStoryArgs {
@@ -36,18 +36,18 @@ export const defaultSignInFormArgs: SignInFormStoryArgs = {
 
 export const defaultSignUpFormArgs: SignUpFormStoryArgs = {
   isSubmitting: false,
-  usernameAvailability: "idle",
   onGoogleSignIn: noop,
   onSubmit: noop,
+  usernameAvailability: "idle",
 };
 
 export const defaultAuthFormFooterArgs: AuthFormFooterProps = {
+  alternateHref: "/sign-up",
+  alternateLabel: "Get your link",
+  alternatePrompt: "New here?",
+  isSubmitDisabled: false,
+  isSubmitting: false,
   submitLabel: "Sign in",
   submittingLabel: "Signing in...",
   submitVariant: "default",
-  alternatePrompt: "New here?",
-  alternateHref: "/sign-up",
-  alternateLabel: "Get your link",
-  isSubmitting: false,
-  isSubmitDisabled: false,
 };

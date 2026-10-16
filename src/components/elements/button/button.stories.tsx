@@ -12,35 +12,35 @@ import {
 } from "./button.mock";
 
 const meta = {
-  title: "Elements/Button",
-  component: Button,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultButtonArgs, onClick: fn() },
   argTypes: {
-    variant: {
-      control: "select",
-      options: BUTTON_VARIANTS,
-      description: "Visual style. `default` is the original shadcn look.",
-      table: { defaultValue: { summary: "default" } },
-    },
-    size: {
-      control: "select",
-      options: [...BUTTON_SIZES, ...BUTTON_ICON_SIZES, "md"],
-      description: "Height/padding preset. `icon*` sizes are square.",
-      table: { defaultValue: { summary: "default" } },
-    },
-    disabled: {
-      control: "boolean",
-      description: "Blocks clicks and dims the button",
-    },
     asChild: {
       control: false,
       description: "Render the child element (e.g. a Link) with button styles",
     },
     children: { control: "text", description: "Label / content" },
+    disabled: {
+      control: "boolean",
+      description: "Blocks clicks and dims the button",
+    },
     onClick: { description: "Click handler" },
+    size: {
+      control: "select",
+      description: "Height/padding preset. `icon*` sizes are square.",
+      options: [...BUTTON_SIZES, ...BUTTON_ICON_SIZES, "md"],
+      table: { defaultValue: { summary: "default" } },
+    },
+    variant: {
+      control: "select",
+      description: "Visual style. `default` is the original shadcn look.",
+      options: BUTTON_VARIANTS,
+      table: { defaultValue: { summary: "default" } },
+    },
   },
+  component: Button,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Button",
 } satisfies Meta<typeof Button>;
 
 export default meta;
@@ -57,6 +57,11 @@ export const Destructive: Story = { args: destructiveButtonArgs };
 
 export const AllVariants: Story = {
   parameters: { controls: { disable: true } },
+  play: async ({ canvas }) => {
+    for (const variant of BUTTON_VARIANTS) {
+      await expect(canvas.getByRole("button", { name: variant })).toBeVisible();
+    }
+  },
   render: (args) => (
     <div className="flex flex-wrap gap-3">
       {BUTTON_VARIANTS.map((variant) => (
@@ -66,11 +71,6 @@ export const AllVariants: Story = {
       ))}
     </div>
   ),
-  play: async ({ canvas }) => {
-    for (const variant of BUTTON_VARIANTS) {
-      await expect(canvas.getByRole("button", { name: variant })).toBeVisible();
-    }
-  },
 };
 
 export const Sizes: Story = {
@@ -123,12 +123,12 @@ export const IconOnly: Story = {
 
 export const Loading: Story = {
   args: {
-    disabled: true,
     children: (
       <>
         <Loader2 className="animate-spin" /> Sending...
       </>
     ),
+    disabled: true,
   },
 };
 

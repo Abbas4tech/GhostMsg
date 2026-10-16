@@ -39,13 +39,13 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
   });
 
   useInboxKeyboardController({
-    messages: inbox.messages,
     focusedId: inbox.focusedId,
-    setFocusedId: inbox.setFocusedId,
-    onToggleSelect: inbox.handleToggleSelect,
-    onStarToggle: inbox.handleStarToggle,
+    messages: inbox.messages,
     onOpenReply: inbox.openReplyModal,
+    onStarToggle: inbox.handleStarToggle,
+    onToggleSelect: inbox.handleToggleSelect,
     searchInputId: INBOX_SEARCH_INPUT_ID,
+    setFocusedId: inbox.setFocusedId,
   });
 
   const filters = useMemo(
@@ -92,7 +92,7 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
     if (saved && activeMessage) {
       openStoryModal({
         ...activeMessage,
-        reply: { ...activeMessage.reply, text: replyText.trim(), isPublished },
+        reply: { ...activeMessage.reply, isPublished, text: replyText.trim() },
       });
     }
   }, [handleSave, activeMessage, openStoryModal, replyText, isPublished]);
@@ -120,9 +120,9 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
         revealedIds={inbox.revealedIds}
         searchInputId={INBOX_SEARCH_INPUT_ID}
         selection={{
-          selectedIds: inbox.selectedIds,
-          onToggle: inbox.handleToggleSelect,
           onClear: inbox.handleDeselectAll,
+          onToggle: inbox.handleToggleSelect,
+          selectedIds: inbox.selectedIds,
         }}
         totalMessages={inbox.totalMessages}
         viewMode={inbox.viewMode}

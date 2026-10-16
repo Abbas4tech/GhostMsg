@@ -12,6 +12,7 @@ export const BUTTON_VARIANTS = [
   "glass",
   "link",
   "brand",
+  "dashed",
 ] as const;
 
 export const BUTTON_SIZES = ["sm", "default", "lg", "xl"] as const;
@@ -19,10 +20,10 @@ export const BUTTON_ICON_SIZES = ["icon-sm", "icon", "icon-lg"] as const;
 
 export const defaultButtonArgs: ButtonProps = {
   children: "Send message",
-  variant: "default",
-  size: "default",
   disabled: false,
   onClick: noop,
+  size: "default",
+  variant: "default",
 };
 
 export const destructiveButtonArgs = {

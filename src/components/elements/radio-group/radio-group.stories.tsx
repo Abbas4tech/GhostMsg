@@ -5,20 +5,18 @@ import { RadioGroup, RadioGroupItem } from "./radio-group";
 import { radioGroupMockContent } from "./radio-group.mock";
 
 const meta = {
-  title: "Elements/RadioGroup",
-  component: RadioGroup,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { defaultValue: "instant", onValueChange: fn() },
   argTypes: {
     defaultValue: {
       control: "radio",
-      options: radioGroupMockContent.options.map((option) => option.value),
       description: "Initially selected value",
+      options: radioGroupMockContent.options.map((option) => option.value),
     },
     disabled: { control: "boolean", description: "Disables every option" },
     onValueChange: { description: "Called with the selected value" },
   },
+  component: RadioGroup,
+  parameters: { layout: "centered" },
   render: (args) => (
     <RadioGroup {...args} aria-label={radioGroupMockContent.label}>
       {radioGroupMockContent.options.map((option) => (
@@ -29,6 +27,8 @@ const meta = {
       ))}
     </RadioGroup>
   ),
+  tags: ["autodocs"],
+  title: "Elements/RadioGroup",
 } satisfies Meta<typeof RadioGroup>;
 
 export default meta;

@@ -63,9 +63,7 @@ export function PageHeading({
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-        <h1 className="font-bold text-[34px] leading-tight tracking-tight">
-          {title}
-        </h1>
+        <h1 className="text-h1">{title}</h1>
         {description ? (
           <p className="text-muted-foreground text-sm">{description}</p>
         ) : null}

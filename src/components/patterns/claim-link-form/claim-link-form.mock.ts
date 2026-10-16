@@ -4,10 +4,10 @@ import type { ClaimLinkFormProps } from "./claim-link-form";
 
 export const defaultClaimLinkFormArgs: ClaimLinkFormProps = {
   linkPrefix: "ghostmsg.app/u/",
-  value: "",
-  onValueChange: noop,
-  onSubmit: noop,
   liveProfileHref: `/u/${FIXTURE_USERNAME}`,
+  onSubmit: noop,
+  onValueChange: noop,
+  value: "",
 };
 
 export const filledClaimLinkFormArgs = {

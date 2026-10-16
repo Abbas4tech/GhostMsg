@@ -20,8 +20,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     if (!res.success) {
       return Response.json(
         {
-          success: false,
           message: "Invalid acceptMessages value",
+          success: false,
         },
         {
           status: 400,
@@ -38,9 +38,9 @@ export async function POST(req: NextRequest): Promise<Response> {
     if (!updatedUser) {
       return Response.json(
         {
-          success: false,
           message:
             "Failed to update user status to accept messages - Updated User not found",
+          success: false,
         },
         {
           status: 401,
@@ -50,8 +50,8 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         message: "Message acceptance status updated successfully!",
+        success: true,
       },
       {
         status: 200,
@@ -64,9 +64,9 @@ export async function POST(req: NextRequest): Promise<Response> {
     );
     return Response.json(
       {
-        success: false,
         message:
           "Failed to update user status to accept messages - Internal Server Error",
+        success: false,
       },
       {
         status: 500,
@@ -90,8 +90,8 @@ export async function GET(): Promise<Response> {
     if (!foundUser) {
       return Response.json(
         {
-          success: false,
           message: "User not found",
+          success: false,
         },
         {
           status: 404,
@@ -101,9 +101,9 @@ export async function GET(): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
-        message: "Message acceptance status fetched successfully!",
         isAcceptingMessage: foundUser.isAcceptingMessage,
+        message: "Message acceptance status fetched successfully!",
+        success: true,
       },
 
       {
@@ -117,9 +117,9 @@ export async function GET(): Promise<Response> {
     );
     return Response.json(
       {
-        success: false,
         message:
           "Failed to get user status to accept messages - Internal Server Error",
+        success: false,
       },
       {
         status: 500,

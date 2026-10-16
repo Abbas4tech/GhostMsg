@@ -13,34 +13,34 @@ const PAPER_ITEM = /Playful paper/;
  * palette across the catalog; this story only reports the chosen value.
  */
 const meta = {
-  title: "Elements/PalettePicker",
-  component: PalettePicker,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultPalettePickerArgs, onValueChange: fn() },
   argTypes: {
+    align: {
+      control: "radio",
+      description: "Menu alignment",
+      options: ["start", "center", "end"],
+    },
+    onValueChange: { description: "Called with the picked palette" },
+    size: {
+      control: "radio",
+      description: "Trigger size",
+      options: ["xs", "sm", "default", "lg"],
+    },
     value: {
       control: "select",
-      options: ["spectral", "midnight", "paper"],
       description: "Selected palette",
+      options: ["spectral", "midnight", "paper"],
     },
     variant: {
       control: "select",
-      options: ["default", "accent", "outline", "secondary", "ghost"],
       description: "Trigger style",
+      options: ["default", "accent", "outline", "secondary", "ghost"],
     },
-    size: {
-      control: "radio",
-      options: ["xs", "sm", "default", "lg"],
-      description: "Trigger size",
-    },
-    align: {
-      control: "radio",
-      options: ["start", "center", "end"],
-      description: "Menu alignment",
-    },
-    onValueChange: { description: "Called with the picked palette" },
   },
+  component: PalettePicker,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/PalettePicker",
 } satisfies Meta<typeof PalettePicker>;
 
 export default meta;

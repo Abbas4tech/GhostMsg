@@ -135,3 +135,17 @@ Most formatting and common issues are automatically fixed by Biome. Run `npm exe
 - **Common end-to-end changes** (new setting, endpoint, screen section): follow `docs/agents/feature-recipes.md`.
 - **Finishing any change:** update the docs it affects per `docs/agents/documentation-maintenance.md` (chapters 12–19, `GLOSSARY.md`, ADRs, `pnpm docs:screenshots` for visible UI).
 - **Before push:** follow `.agents/rules/pre-push-quality-checks.md`.
+- **Mobile redesign / typography sweep / Toaster / Command Palette / Sidebar / Settings accordion:** read `docs/agents/redesign-progress.md` first — it tracks what's done, what's blocked, and what's confirmed-but-not-started for the current design-alignment effort, so you don't redo work or re-ask questions already answered.
+
+## GhostMsg UI rules (redesign v2: see `ghostmsg-handoff/ghostmsg-handoff/HANDOFF.md`, gitignored scratch material, not committed)
+
+Base UI, cva variants, colour/type/spacing tokens and the four-tier `elements → patterns → blocks → pages` split already have canonical docs — read `docs/agents/component-architecture.md` and `docs/13-design-system-and-theming.md` before touching components, not this section. This section only covers what the v2 handoff adds on top:
+
+- Base UI = shadcn/Radix (or Animate UI) parts in `src/components/elements` only (ADR 0015). Never create new base primitives; build GhostMsg pieces as compositions in `patterns/`, `blocks/` or `pages/`. There is no `components/ui` or `features/` directory in this repo — ignore any handoff reference to those paths.
+- Type: semantic utilities only (`text-display/h1/h2/h3/title/body-lg/body/sm/xs/overline`). Messages and inputs use `text-body` (16px). Headings use `font-display`.
+- Spacing: `px-gutter`, `py-section`, `p-card`, `gap-stack` for layout rhythm; Tailwind 4px scale for the rest.
+- Mobile first: touch targets ≥44px below `md`; Dialogs become Drawers below `md` (use `ResponsiveDialog`).
+- Motion: import tokens and presets from `src/lib/motion.ts`; the app root wraps children in `<MotionConfig reducedMotion="user">` (`src/app/layout.tsx`); dashboard animations ≤300ms; idle loops only on the landing hero and the first-run empty state.
+- Reversible actions use a Sonner undo toast; AlertDialog only for irreversible or bulk actions.
+- Use the domain terms exactly: Anonymous Message, Recipient, Message Acceptance, Suggested Message, AMA Prompt, Sentiment Tag, Quarantined Message, Public Q&A, Story Card, Verification Code, Sender Hash.
+- Visual target for any screen: `design/ghostmsg-handoff/screenshots/`. Exact values: `design/ghostmsg-handoff/reference/boards/` (design HTML, not app code).

@@ -13,8 +13,8 @@ describe("useInboxFiltersController", () => {
   it("starts from the route's filter and search", () => {
     const { result } = renderHook(() =>
       useInboxFiltersController({
-        initialStatus: "starred",
         initialQuery: "hi",
+        initialStatus: "starred",
       })
     );
 

@@ -44,10 +44,10 @@ export function useProfileLinkController() {
   const canShare = isClient && typeof navigator.share === "function";
 
   return {
-    username,
-    profileUrl,
-    profileLabel: stripProtocol(profileUrl),
     handleCopy,
     handleShare: canShare ? handleShare : undefined,
+    profileLabel: stripProtocol(profileUrl),
+    profileUrl,
+    username,
   };
 }

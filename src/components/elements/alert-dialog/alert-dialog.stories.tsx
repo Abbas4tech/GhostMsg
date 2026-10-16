@@ -18,19 +18,17 @@ import {
 } from "./alert-dialog.mock";
 
 const meta = {
-  title: "Elements/AlertDialog",
-  component: AlertDialog,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultAlertDialogArgs, onOpenChange: fn() },
   argTypes: {
     defaultOpen: {
       control: "boolean",
       description: "Open on mount (uncontrolled)",
     },
-    open: { control: "boolean", description: "Controlled open state" },
     onOpenChange: { description: "Called when the dialog opens or closes" },
+    open: { control: "boolean", description: "Controlled open state" },
   },
+  component: AlertDialog,
+  parameters: { layout: "centered" },
   render: (args) => (
     <AlertDialog {...args}>
       <AlertDialogTrigger asChild>
@@ -52,6 +50,8 @@ const meta = {
       </AlertDialogContent>
     </AlertDialog>
   ),
+  tags: ["autodocs"],
+  title: "Elements/AlertDialog",
 } satisfies Meta<typeof AlertDialog>;
 
 export default meta;

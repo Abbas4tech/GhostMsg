@@ -4,12 +4,12 @@ import { TrustSection } from "./trust-section";
 import { defaultTrustSectionArgs } from "./trust-section.mock";
 
 const meta = {
-  title: "Blocks/TrustSection",
-  component: TrustSection,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: defaultTrustSectionArgs,
   argTypes: { id: { control: "text", description: "Anchor id" } },
+  component: TrustSection,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/TrustSection",
 } satisfies Meta<typeof TrustSection>;
 
 export default meta;

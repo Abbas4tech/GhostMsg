@@ -12,7 +12,7 @@ import UserModel from "@/server/models/user.model";
 import { disablePushWhenNoDevices } from "@/server/push/web-push";
 
 const invalidPayload = (message: string) =>
-  Response.json({ success: false, message }, { status: 400 });
+  Response.json({ message, success: false }, { status: 400 });
 
 export async function POST(request: NextRequest): Promise<Response> {
   try {
@@ -38,21 +38,21 @@ export async function POST(request: NextRequest): Promise<Response> {
     await UserModel.updateOne(
       { _id: userId },
       {
-        $set: { "notificationSettings.webPushEnabled": true },
         $push: {
-          pushSubscriptions: { endpoint, keys, createdAt: new Date() },
+          pushSubscriptions: { createdAt: new Date(), endpoint, keys },
         },
+        $set: { "notificationSettings.webPushEnabled": true },
       }
     );
 
     return Response.json(
-      { success: true, message: "Push subscription registered" },
+      { message: "Push subscription registered", success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to register push subscription:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }
@@ -79,13 +79,13 @@ export async function DELETE(request: NextRequest): Promise<Response> {
     await disablePushWhenNoDevices(userId);
 
     return Response.json(
-      { success: true, message: "Push subscription removed" },
+      { message: "Push subscription removed", success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to remove push subscription:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

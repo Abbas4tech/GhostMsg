@@ -5,7 +5,7 @@ export const FIELD_ORIENTATIONS = [
 ] as const;
 
 export const fieldMockContent = {
-  label: "Display name",
   description: "Shown instead of your username on your page.",
   error: "Keep it under 40 characters.",
+  label: "Display name",
 };

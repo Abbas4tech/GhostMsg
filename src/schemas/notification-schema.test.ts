@@ -29,8 +29,8 @@ describe("notification-schema.ts", () => {
         hideMessageText: false,
         quietHours: {
           enabled: true,
-          start: "22:00",
           end: "08:00",
+          start: "22:00",
           timeZone: "Europe/London",
         },
       });
@@ -41,8 +41,8 @@ describe("notification-schema.ts", () => {
       const result = updateNotificationsRequestSchema.safeParse({
         quietHours: {
           enabled: true,
-          start: "25:00",
           end: "8am",
+          start: "25:00",
           timeZone: "UTC",
         },
       });
@@ -62,8 +62,8 @@ describe("notification-schema.ts", () => {
       const result = pushSubscriptionRequestSchema.safeParse({
         endpoint: "https://fcm.googleapis.com/fcm/send/123",
         keys: {
-          p256dh: "mock_p256dh_key",
           auth: "mock_auth_secret",
+          p256dh: "mock_p256dh_key",
         },
       });
       expect(result.success).toBe(true);
@@ -73,8 +73,8 @@ describe("notification-schema.ts", () => {
       const result = pushSubscriptionRequestSchema.safeParse({
         endpoint: "",
         keys: {
-          p256dh: "mock_key",
           auth: "mock_secret",
+          p256dh: "mock_key",
         },
       });
       expect(result.success).toBe(false);

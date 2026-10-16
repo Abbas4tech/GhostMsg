@@ -29,5 +29,5 @@ export function formatRelativeTime(
   if (seconds < WEEK) {
     return `${Math.floor(seconds / DAY)}d`;
   }
-  return then.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return then.toLocaleDateString("en-US", { day: "numeric", month: "short" });
 }

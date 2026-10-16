@@ -33,10 +33,10 @@ interface Bounds {
 }
 
 const DEFAULT_BOUNDS_OFFSET: Bounds = {
-  top: 0,
-  left: 0,
-  width: 0,
   height: 0,
+  left: 0,
+  top: 0,
+  width: 0,
 };
 
 interface HighlightContextType<T extends string> {
@@ -145,7 +145,7 @@ function Highlight<T extends ElementType = "div">({
     onValueChange,
     className,
     style,
-    transition = { type: "spring", stiffness: 350, damping: 35 },
+    transition = { damping: 35, stiffness: 350, type: "spring" },
     hover = false,
     click = true,
     enabled = true,
@@ -166,18 +166,18 @@ function Highlight<T extends ElementType = "div">({
   const boundsOffsetHeight = boundsOffset.height ?? 0;
 
   const boundsOffsetRef = useRef({
-    top: boundsOffsetTop,
-    left: boundsOffsetLeft,
-    width: boundsOffsetWidth,
     height: boundsOffsetHeight,
+    left: boundsOffsetLeft,
+    top: boundsOffsetTop,
+    width: boundsOffsetWidth,
   });
 
   useEffect(() => {
     boundsOffsetRef.current = {
-      top: boundsOffsetTop,
-      left: boundsOffsetLeft,
-      width: boundsOffsetWidth,
       height: boundsOffsetHeight,
+      left: boundsOffsetLeft,
+      top: boundsOffsetTop,
+      width: boundsOffsetWidth,
     };
   }, [
     boundsOffsetTop,
@@ -215,10 +215,10 @@ function Highlight<T extends ElementType = "div">({
       const containerRect = localRef.current.getBoundingClientRect();
       const offset = boundsOffsetRef.current;
       const newBounds: Bounds = {
-        top: bounds.top - containerRect.top + offset.top,
-        left: bounds.left - containerRect.left + offset.left,
-        width: bounds.width + offset.width,
         height: bounds.height + offset.height,
+        left: bounds.left - containerRect.left + offset.left,
+        top: bounds.top - containerRect.top + offset.top,
+        width: bounds.width + offset.width,
       };
 
       setBoundsState((prev) => {
@@ -292,11 +292,11 @@ function Highlight<T extends ElementType = "div">({
             {boundsState && (
               <motion.div
                 animate={{
-                  top: boundsState.top,
-                  left: boundsState.left,
-                  width: boundsState.width,
                   height: boundsState.height,
+                  left: boundsState.left,
                   opacity: 1,
+                  top: boundsState.top,
+                  width: boundsState.width,
                 }}
                 className={cn(className, activeClassNameState)}
                 data-slot="motion-highlight"
@@ -308,11 +308,11 @@ function Highlight<T extends ElementType = "div">({
                   },
                 }}
                 initial={{
-                  top: boundsState.top,
-                  left: boundsState.left,
-                  width: boundsState.width,
                   height: boundsState.height,
+                  left: boundsState.left,
                   opacity: 0,
+                  top: boundsState.top,
+                  width: boundsState.width,
                 }}
                 style={{ position: "absolute", zIndex: 0, ...style }}
                 transition={transition}
@@ -328,23 +328,23 @@ function Highlight<T extends ElementType = "div">({
   };
 
   const contextValue = {
-    mode,
+    activeClassName: activeClassNameState,
     activeValue,
-    setActiveValue: safeSetActiveValue,
-    id,
-    hover,
-    click,
     className,
-    style,
-    transition,
+    clearBounds,
+    click,
     disabled,
     enabled,
     exitDelay,
-    setBounds: safeSetBounds,
-    clearBounds,
-    activeClassName: activeClassNameState,
-    setActiveClassName: setActiveClassNameState,
     forceUpdateBounds: (props as ParentModeHighlightProps)?.forceUpdateBounds,
+    hover,
+    id,
+    mode,
+    setActiveClassName: setActiveClassNameState,
+    setActiveValue: safeSetActiveValue,
+    setBounds: safeSetBounds,
+    style,
+    transition,
   };
 
   if (!enabled) {
@@ -541,8 +541,8 @@ function HighlightItem<T extends ElementType>({
   const dataAttributes = {
     "data-active": isActive ? "true" : "false",
     "data-disabled": isDisabled,
-    "data-value": childValue,
     "data-highlight": true,
+    "data-value": childValue,
   };
 
   const getCommonHandlers = () => {
@@ -576,9 +576,9 @@ function HighlightItem<T extends ElementType>({
       return cloneElement(
         element,
         {
+          className: cn("relative", element.props.className),
           key: childValue,
           ref: refCallback,
-          className: cn("relative", element.props.className),
           ...getNonOverridingDataAttributes(element, {
             ...dataAttributes,
             "data-slot": "motion-highlight-item-container",
@@ -680,8 +680,8 @@ function HighlightItem<T extends ElementType>({
       )}
 
       {cloneElement(element, {
-        style: { position: "relative", zIndex: 1 },
         className: element.props.className,
+        style: { position: "relative", zIndex: 1 },
         ...getNonOverridingDataAttributes(element, {
           ...dataAttributes,
           "data-slot": "motion-highlight-item",

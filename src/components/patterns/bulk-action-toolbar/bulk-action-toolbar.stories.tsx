@@ -5,29 +5,29 @@ import { defaultBulkActionToolbarArgs } from "./bulk-action-toolbar.mock";
 
 /** Dark pill shown above the cards while messages are selected. */
 const meta = {
-  title: "Patterns/BulkActionToolbar",
-  component: BulkActionToolbar,
-  tags: ["autodocs"],
-  parameters: { layout: "padded" },
   args: {
     ...defaultBulkActionToolbarArgs,
     onAction: fn(),
-    onExport: fn(),
     onClearSelection: fn(),
+    onExport: fn(),
   },
   argTypes: {
-    selectedCount: {
-      control: { type: "number", min: 0 },
-      description: "Selected messages; renders nothing at 0",
-    },
     isPending: {
       control: "boolean",
       description: "Disables mutating actions while a bulk request runs",
     },
     onAction: { description: "`read` | `star` | `delete`" },
-    onExport: { description: "`csv` | `json`" },
     onClearSelection: { description: "X clicked" },
+    onExport: { description: "`csv` | `json`" },
+    selectedCount: {
+      control: { min: 0, type: "number" },
+      description: "Selected messages; renders nothing at 0",
+    },
   },
+  component: BulkActionToolbar,
+  parameters: { layout: "padded" },
+  tags: ["autodocs"],
+  title: "Patterns/BulkActionToolbar",
 } satisfies Meta<typeof BulkActionToolbar>;
 
 export default meta;
@@ -82,5 +82,5 @@ export const NothingSelected: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

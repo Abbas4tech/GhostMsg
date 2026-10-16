@@ -14,10 +14,9 @@ export const useUpdatePreferencesMutation = () =>
     UpdatePreferencesBody,
     unknown
   >({
-    queryKey: queryKeys.user.preferences(),
-    scopeId: "user-preferences",
-    mutationFn: (body) =>
-      clientFetch(api.PATCH("/api/user/preferences", { body })),
+    // Suggestions on/off changes what visitors see.
+    alsoInvalidate: [queryKeys.public.all],
+    errorMessage: "Couldn't save that setting",
     merge: (data, body) => ({
       ...data,
       preferences: {
@@ -25,7 +24,8 @@ export const useUpdatePreferencesMutation = () =>
         safety: { ...data.preferences.safety, ...body.safety },
       },
     }),
-    errorMessage: "Couldn't save that setting",
-    // Suggestions on/off changes what visitors see.
-    alsoInvalidate: [queryKeys.public.all],
+    mutationFn: (body) =>
+      clientFetch(api.PATCH("/api/user/preferences", { body })),
+    queryKey: queryKeys.user.preferences(),
+    scopeId: "user-preferences",
   });

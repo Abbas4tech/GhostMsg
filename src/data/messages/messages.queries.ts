@@ -14,45 +14,45 @@ export interface InboxQueryFilters {
 
 export const messagesQueries = {
   all: () => queryOptions({ queryKey: queryKeys.messages.all }),
+  /** Count per filter + total: badges, unread count, "Delete all N". */
+  counts: () =>
+    queryOptions({
+      queryFn: ({ signal }) =>
+        clientFetch(api.GET("/api/messages/counts", { signal })),
+      queryKey: queryKeys.messages.counts(),
+      refetchOnWindowFocus: true,
+      staleTime: 10 * 1000,
+    }),
   /**
    * The inbox for one filter + search, filtered and paged on the server
    * (newest first). Pages are joined with `data.pages.flatMap(p => p.messages)`.
    */
   inbox: ({ status, q }: InboxQueryFilters) =>
     infiniteQueryOptions({
-      queryKey: queryKeys.messages.list({ status, q }),
+      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+      initialPageParam: undefined as string | undefined,
       queryFn: ({ pageParam, signal }) =>
         clientFetch(
           api.GET("/api/get-messages", {
             params: {
               query: {
-                status,
-                q: q || undefined,
-                limit: String(INBOX_PAGE_SIZE),
                 cursor: pageParam,
+                limit: String(INBOX_PAGE_SIZE),
+                q: q || undefined,
+                status,
               },
             },
             signal,
           })
         ),
-      initialPageParam: undefined as string | undefined,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      staleTime: 10 * 1000,
+      queryKey: queryKeys.messages.list({ q, status }),
       // The inbox changes while the tab is hidden; re-sync when it returns.
       refetchOnWindowFocus: true,
-    }),
-  /** Count per filter + total: badges, unread count, "Delete all N". */
-  counts: () =>
-    queryOptions({
-      queryKey: queryKeys.messages.counts(),
-      queryFn: ({ signal }) =>
-        clientFetch(api.GET("/api/messages/counts", { signal })),
       staleTime: 10 * 1000,
-      refetchOnWindowFocus: true,
     }),
   publicAnswers: (username: string) =>
     queryOptions({
-      queryKey: queryKeys.public.answers(username),
+      enabled: Boolean(username),
       queryFn: ({ signal }) =>
         clientFetch(
           api.GET("/api/public/{username}/answers", {
@@ -62,7 +62,7 @@ export const messagesQueries = {
             signal,
           })
         ),
+      queryKey: queryKeys.public.answers(username),
       staleTime: 60 * 1000,
-      enabled: Boolean(username),
     }),
 };

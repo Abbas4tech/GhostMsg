@@ -6,16 +6,16 @@ import { defaultUnsavedChangesBarArgs } from "./unsaved-changes-bar.mock";
 const SAVE_REGEX = /save changes/i;
 
 const meta = {
-  title: "Patterns/UnsavedChangesBar",
-  component: UnsavedChangesBar,
-  tags: ["autodocs"],
   args: { ...defaultUnsavedChangesBarArgs, onDiscard: fn(), onSave: fn() },
   argTypes: {
-    isVisible: { control: "boolean", description: "Renders only when dirty" },
     isSaving: { control: "boolean", description: "Spinner, both disabled" },
+    isVisible: { control: "boolean", description: "Renders only when dirty" },
     onDiscard: { description: "Discard clicked" },
     onSave: { description: "Save changes clicked" },
   },
+  component: UnsavedChangesBar,
+  tags: ["autodocs"],
+  title: "Patterns/UnsavedChangesBar",
 } satisfies Meta<typeof UnsavedChangesBar>;
 
 export default meta;

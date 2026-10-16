@@ -9,7 +9,7 @@ import { useVerifyController } from "./use-verify.controller";
 const { replace } = vi.hoisted(() => ({ replace: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 const USERNAME = "newghost";
 const CODE = { code: "123456" };

@@ -8,7 +8,7 @@ const { replace } = vi.hoisted(() => ({ replace: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
 vi.mock("next-auth/react", () => ({ signIn: vi.fn() }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 const CREDENTIALS = { identifier: "johndoe", password: "secret123" };
 
@@ -19,8 +19,8 @@ describe("useSignInController", () => {
 
   it("signs in with credentials and redirects to the dashboard", async () => {
     vi.mocked(signIn).mockResolvedValue({
-      ok: true,
       error: null,
+      ok: true,
       status: 200,
       url: "/dashboard",
     });
@@ -38,8 +38,8 @@ describe("useSignInController", () => {
 
   it("honours a custom redirect path", async () => {
     vi.mocked(signIn).mockResolvedValue({
-      ok: true,
       error: null,
+      ok: true,
       status: 200,
       url: "/u/johndoe",
     });
@@ -54,8 +54,8 @@ describe("useSignInController", () => {
 
   it("toasts the NextAuth error and stays on the page", async () => {
     vi.mocked(signIn).mockResolvedValue({
-      ok: false,
       error: "CredentialsSignin",
+      ok: false,
       status: 401,
       url: null,
     });

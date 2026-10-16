@@ -7,8 +7,8 @@ import type { AmaBannerProps } from "./ama-banner";
 export const defaultAmaBannerArgs: AmaBannerProps = {
   eyebrow: `AMA · ${FIXTURE_USERNAME}`,
   prompt: FIXTURE_AMA_PROMPT,
-  tone: "brand",
   size: "md",
+  tone: "brand",
 };
 
 export const longAmaBannerArgs = {

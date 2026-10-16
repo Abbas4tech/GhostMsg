@@ -5,9 +5,9 @@ import {
 import type { PublicQaFeedProps } from "./public-qa-feed";
 
 export const defaultPublicQaFeedArgs: PublicQaFeedProps = {
-  username: FIXTURE_USERNAME,
   answers: publicAnswerScenarios.some,
   isLoading: false,
+  username: FIXTURE_USERNAME,
 };
 
 export const emptyPublicQaFeedArgs = {

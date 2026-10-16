@@ -16,10 +16,6 @@ import {
 const onSelectItem = fn();
 
 const meta = {
-  title: "Elements/DropdownMenu",
-  component: DropdownMenu,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultDropdownMenuArgs, onOpenChange: fn() },
   argTypes: {
     modal: {
@@ -28,6 +24,8 @@ const meta = {
     },
     onOpenChange: { description: "Called when the menu opens or closes" },
   },
+  component: DropdownMenu,
+  parameters: { layout: "centered" },
   render: (args) => (
     <DropdownMenu {...args}>
       <DropdownMenuTrigger asChild>
@@ -43,6 +41,8 @@ const meta = {
       </DropdownMenuContent>
     </DropdownMenu>
   ),
+  tags: ["autodocs"],
+  title: "Elements/DropdownMenu",
 } satisfies Meta<typeof DropdownMenu>;
 
 export default meta;

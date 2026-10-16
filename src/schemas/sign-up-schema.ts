@@ -20,7 +20,6 @@ export const usernameQuerySchema = z
 
 export const signUpSchema = z
   .object({
-    username: usernameValidation,
     email: z.email({ message: "Invalid email address" }).openapi({
       description: "User's email address",
       example: "johndoe@example.com",
@@ -33,5 +32,6 @@ export const signUpSchema = z
         description: "Password (minimum 6 characters)",
         example: "SecurePass123!",
       }),
+    username: usernameValidation,
   })
   .openapi("SignUpRequest");

@@ -28,16 +28,16 @@ export function QaShowcase({
   return (
     <section
       className={cn(
-        "mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center gap-10 px-4 pb-18 sm:px-6",
+        "mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center gap-10 px-gutter pb-18",
         className
       )}
       data-slot="qa-showcase"
     >
       <div className="flex flex-col gap-4">
-        <h2 className="text-balance font-bold text-[clamp(32px,4vw,48px)] leading-[1.05] tracking-tight">
+        <h2 className="text-balance text-h2">
           Answer once. Post it everywhere.
         </h2>
-        <p className="max-w-[480px] text-lg text-muted-foreground">
+        <p className="max-w-[480px] text-body-lg text-muted-foreground">
           Pick a message, write your answer, and publish it as a Public Q&amp;A
           or export a 9:16 Story Card for Instagram and Snapchat.
         </p>

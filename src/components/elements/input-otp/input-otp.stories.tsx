@@ -12,16 +12,8 @@ import { defaultInputOtpArgs, OTP_SLOT_COUNT } from "./input-otp.mock";
 const SLOT_INDEXES = Array.from({ length: OTP_SLOT_COUNT }, (_, i) => i);
 
 const meta = {
-  title: "Elements/InputOTP",
-  component: InputOTP,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: {
     ...defaultInputOtpArgs,
-    pattern: REGEXP_ONLY_DIGITS,
-    onChange: fn(),
-    onComplete: fn(),
-    render: undefined,
     children: (
       <InputOTPGroup>
         {SLOT_INDEXES.map((index) => (
@@ -29,13 +21,21 @@ const meta = {
         ))}
       </InputOTPGroup>
     ),
+    onChange: fn(),
+    onComplete: fn(),
+    pattern: REGEXP_ONLY_DIGITS,
+    render: undefined,
   },
   argTypes: {
-    maxLength: { control: "number", description: "Number of characters" },
     disabled: { control: "boolean", description: "Disables input" },
+    maxLength: { control: "number", description: "Number of characters" },
     onChange: { description: "Called with the current value on every change" },
     onComplete: { description: "Called once all slots are filled" },
   },
+  component: InputOTP,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/InputOTP",
 } satisfies Meta<typeof InputOTP>;
 
 export default meta;

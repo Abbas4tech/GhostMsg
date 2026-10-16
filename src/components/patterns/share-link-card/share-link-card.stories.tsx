@@ -7,9 +7,16 @@ import {
 } from "./share-link-card.mock";
 
 const meta = {
-  title: "Patterns/ShareLinkCard",
+  args: { ...defaultShareLinkCardArgs, onCopy: fn(), onShare: fn() },
+  argTypes: {
+    onCopy: { description: "Copy clicked (page copies + toasts)" },
+    onShare: { description: "Share sheet clicked" },
+    profileUrl: {
+      control: "text",
+      description: "Public profile URL (shown without protocol)",
+    },
+  },
   component: ShareLinkCard,
-  tags: ["autodocs"],
   decorators: [
     (Story) => (
       <div className="max-w-xl">
@@ -17,15 +24,8 @@ const meta = {
       </div>
     ),
   ],
-  args: { ...defaultShareLinkCardArgs, onCopy: fn(), onShare: fn() },
-  argTypes: {
-    profileUrl: {
-      control: "text",
-      description: "Public profile URL (shown without protocol)",
-    },
-    onCopy: { description: "Copy clicked (page copies + toasts)" },
-    onShare: { description: "Share sheet clicked" },
-  },
+  tags: ["autodocs"],
+  title: "Patterns/ShareLinkCard",
 } satisfies Meta<typeof ShareLinkCard>;
 
 export default meta;
@@ -55,5 +55,5 @@ export const WithoutShare: Story = {
 export const LongUrl: Story = { args: longUrlShareLinkCardArgs };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

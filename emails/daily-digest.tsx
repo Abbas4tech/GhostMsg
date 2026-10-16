@@ -36,12 +36,12 @@ export default function DailyDigestEmail({
         <title>Your GhostMsg daily digest</title>
       </Head>
       <Preview>{`You have ${countLabel(total)} on GhostMsg 👻`}</Preview>
-      <Section style={{ padding: "20px", fontFamily: "sans-serif" }}>
+      <Section style={{ fontFamily: "sans-serif", padding: "20px" }}>
         <Row>
           <Heading as="h2">Hey @{username}! 👻</Heading>
         </Row>
         <Row>
-          <Text style={{ fontSize: "16px", color: "#4b5563" }}>
+          <Text style={{ color: "#4b5563", fontSize: "16px" }}>
             Since your last digest you received {countLabel(total)}.
           </Text>
         </Row>
@@ -50,16 +50,16 @@ export default function DailyDigestEmail({
             <Section
               style={{
                 backgroundColor: "#f3f4f6",
-                padding: "14px 16px",
+                borderLeft: "4px solid #9333ea",
                 borderRadius: "12px",
                 margin: "8px 0",
-                borderLeft: "4px solid #9333ea",
+                padding: "14px 16px",
               }}
             >
-              <Text style={{ fontSize: "16px", color: "#111827", margin: 0 }}>
+              <Text style={{ color: "#111827", fontSize: "16px", margin: 0 }}>
                 "{preview.text}"
               </Text>
-              <Text style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>
+              <Text style={{ color: "#6b7280", fontSize: "12px", margin: 0 }}>
                 Tone: {preview.sentimentTag.toUpperCase()}
               </Text>
             </Section>
@@ -67,14 +67,14 @@ export default function DailyDigestEmail({
         ))}
         {previews.length > 0 && remaining > 0 ? (
           <Row>
-            <Text style={{ fontSize: "14px", color: "#6b7280" }}>
+            <Text style={{ color: "#6b7280", fontSize: "14px" }}>
               {`…and ${remaining} more in your inbox.`}
             </Text>
           </Row>
         ) : null}
         {previews.length === 0 ? (
           <Row>
-            <Text style={{ fontSize: "14px", color: "#6b7280" }}>
+            <Text style={{ color: "#6b7280", fontSize: "14px" }}>
               You chose to keep message text out of notifications. Open your
               inbox to read them.
             </Text>
@@ -85,13 +85,13 @@ export default function DailyDigestEmail({
             href={dashboardUrl}
             style={{
               backgroundColor: "#9333ea",
-              color: "#ffffff",
-              padding: "12px 24px",
               borderRadius: "8px",
-              fontWeight: 600,
-              textDecoration: "none",
+              color: "#ffffff",
               display: "inline-block",
+              fontWeight: 600,
               marginTop: "16px",
+              padding: "12px 24px",
+              textDecoration: "none",
             }}
           >
             Open your inbox
@@ -99,7 +99,7 @@ export default function DailyDigestEmail({
         </Row>
         <Row>
           <Text
-            style={{ fontSize: "12px", color: "#9ca3af", marginTop: "24px" }}
+            style={{ color: "#9ca3af", fontSize: "12px", marginTop: "24px" }}
           >
             You get this because email alerts are set to "Daily digest". Change
             it in Settings → Notifications. Quarantined messages are never

@@ -91,8 +91,8 @@ const colorsOf = (value: string): number[] =>
 const ratio = (a: number, b: number): number =>
   (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 
-const text = (fg: string, bg: string): Pair => ({ fg, bg, min: TEXT_MIN });
-const ui = (fg: string, bg: string): Pair => ({ fg, bg, min: UI_MIN });
+const text = (fg: string, bg: string): Pair => ({ bg, fg, min: TEXT_MIN });
+const ui = (fg: string, bg: string): Pair => ({ bg, fg, min: UI_MIN });
 
 const PAIRS: Pair[] = [
   text("foreground", "background"),

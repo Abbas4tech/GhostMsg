@@ -27,7 +27,7 @@ export function Hero({
   return (
     <section
       className={cn(
-        "relative mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center gap-12 px-4 pt-6 pb-14 sm:px-6 md:pt-10",
+        "relative mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center gap-12 px-gutter pt-6 pb-14 md:pt-10",
         className
       )}
       data-slot="hero"
@@ -44,10 +44,8 @@ export function Hero({
 
       <div className="flex flex-col items-start gap-6">
         {eyebrow}
-        <h1 className="text-balance font-bold text-[clamp(44px,6vw,76px)] leading-[0.98] tracking-tight">
-          {title}
-        </h1>
-        <p className="max-w-[520px] text-pretty text-muted-foreground text-xl">
+        <h1 className="text-balance text-display">{title}</h1>
+        <p className="max-w-[520px] text-balance text-body-lg text-muted-foreground">
           {description}
         </p>
         {children}

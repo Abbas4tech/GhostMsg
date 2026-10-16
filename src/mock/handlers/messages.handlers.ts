@@ -23,7 +23,7 @@ import {
   type ScenarioOptions,
 } from "./utils";
 
-const success = (message: string) => ({ success: true, message });
+const success = (message: string) => ({ message, success: true });
 
 const DEFAULT_PAGE_SIZE = 30;
 
@@ -52,11 +52,11 @@ function inboxPage(messages: MessageFixture[], url: URL) {
   const last = page.at(-1);
 
   return {
-    success: true,
     messages: page,
-    total: matching.length,
     nextCursor:
       remaining.length > limit && last ? encodeInboxCursor(last) : null,
+    success: true,
+    total: matching.length,
   };
 }
 
@@ -76,8 +76,8 @@ export const inboxHandlers = (
   http.get(mswPath("/api/messages/counts"), async () => {
     await applyLatency(options);
     return ok("/api/messages/counts", "get", {
-      success: true,
       counts: countInboxStatuses(messages),
+      success: true,
     });
   }),
   http.patch(mswPath("/api/messages/{messageId}"), () =>
@@ -107,11 +107,8 @@ export const inboxHandlers = (
 
 export const messageHandlers = {
   inbox: {
-    mixed: inboxHandlers(messageScenarios.mixed),
-    empty: inboxHandlers(messageScenarios.empty),
     allQuarantined: inboxHandlers(messageScenarios.allQuarantined),
-    longContent: inboxHandlers(messageScenarios.longContent),
-    loading: inboxHandlers(messageScenarios.mixed, { latency: "infinite" }),
+    empty: inboxHandlers(messageScenarios.empty),
     error: [
       http.get(mswPath("/api/get-messages"), () =>
         apiError(500, "Failed to fetch messages")
@@ -120,5 +117,8 @@ export const messageHandlers = {
         apiError(500, "Failed to count messages")
       ),
     ],
+    loading: inboxHandlers(messageScenarios.mixed, { latency: "infinite" }),
+    longContent: inboxHandlers(messageScenarios.longContent),
+    mixed: inboxHandlers(messageScenarios.mixed),
   },
 };

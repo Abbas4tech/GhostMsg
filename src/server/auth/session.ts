@@ -12,6 +12,6 @@ export async function getSessionUserId(): Promise<string | null> {
 /** The standard 401 body every JSON route answers with when signed out. */
 export const unauthorizedResponse = (): Response =>
   Response.json(
-    { success: false, message: "Not authenticated" },
+    { message: "Not authenticated", success: false },
     { status: 401 }
   );

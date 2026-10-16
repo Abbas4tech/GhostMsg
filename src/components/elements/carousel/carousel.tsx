@@ -121,15 +121,15 @@ function Carousel({
   return (
     <CarouselContext.Provider
       value={{
-        carouselRef,
         api,
+        canScrollNext,
+        canScrollPrev,
+        carouselRef,
         opts,
         orientation:
           orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
-        scrollPrev,
         scrollNext,
-        canScrollPrev,
-        canScrollNext,
+        scrollPrev,
       }}
     >
       <div

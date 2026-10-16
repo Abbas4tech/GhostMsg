@@ -24,10 +24,10 @@ export interface MessageFilterCounts {
 }
 
 const FILTERS: { label: string; status: MessageFilterStatus }[] = [
-  { status: "all", label: "All" },
-  { status: "unread", label: "Unread" },
-  { status: "starred", label: "Starred" },
-  { status: "answered", label: "Answered" },
+  { label: "All", status: "all" },
+  { label: "Unread", status: "unread" },
+  { label: "Starred", status: "starred" },
+  { label: "Answered", status: "answered" },
 ];
 
 const isFilterStatus = (value: string): value is MessageFilterStatus =>

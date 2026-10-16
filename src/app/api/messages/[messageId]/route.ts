@@ -21,7 +21,7 @@ export async function PATCH(
 
     if (!mongoose.Types.ObjectId.isValid(messageId)) {
       return Response.json(
-        { success: false, message: "Invalid message ID" },
+        { message: "Invalid message ID", success: false },
         { status: 400 }
       );
     }
@@ -31,7 +31,7 @@ export async function PATCH(
 
     if (!parseResult.success) {
       return Response.json(
-        { success: false, message: "Invalid payload" },
+        { message: "Invalid payload", success: false },
         { status: 400 }
       );
     }
@@ -52,19 +52,19 @@ export async function PATCH(
 
     if (!updated) {
       return Response.json(
-        { success: false, message: "Message not found" },
+        { message: "Message not found", success: false },
         { status: 404 }
       );
     }
 
     return Response.json(
-      { success: true, message: "Message updated successfully" },
+      { message: "Message updated successfully", success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to update message:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

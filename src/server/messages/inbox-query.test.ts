@@ -43,8 +43,8 @@ describe("searchFilter", () => {
   it("matches content or the answer as an escaped, case-insensitive literal", () => {
     expect(searchFilter(" a.b* ")).toEqual({
       $or: [
-        { content: { $regex: "a\\.b\\*", $options: "i" } },
-        { "reply.text": { $regex: "a\\.b\\*", $options: "i" } },
+        { content: { $options: "i", $regex: "a\\.b\\*" } },
+        { "reply.text": { $options: "i", $regex: "a\\.b\\*" } },
       ],
     });
   });
@@ -63,23 +63,23 @@ describe("buildInboxFilter", () => {
       id: "660c1d2e1b9d4c001f3e8a1b",
     };
     const filter = buildInboxFilter(RECIPIENT, {
-      status: "unread",
-      q: "hi",
       cursor,
+      q: "hi",
+      status: "unread",
     });
 
     expect(filter).toMatchObject({
-      recipientId: RECIPIENT,
       isQuarantined: false,
       isRead: false,
+      recipientId: RECIPIENT,
     });
     expect(filter.$and).toHaveLength(2);
   });
 
   it("adds no $and without search or cursor", () => {
     expect(buildInboxFilter(RECIPIENT, { status: "all" })).toEqual({
-      recipientId: RECIPIENT,
       isQuarantined: false,
+      recipientId: RECIPIENT,
     });
   });
 });
@@ -103,23 +103,23 @@ describe("inbox counts", () => {
     expect(match).toEqual({ $match: { recipientId: RECIPIENT } });
     expect(Object.keys(group.$group)).toEqual([
       "_id",
-      "total",
       "all",
-      "unread",
-      "starred",
-      "quarantined",
       "answered",
+      "quarantined",
+      "starred",
+      "total",
+      "unread",
     ]);
   });
 
   it("maps an empty inbox (no row) to zeros", () => {
     expect(toInboxCounts(undefined)).toEqual({
       all: 0,
-      unread: 0,
-      starred: 0,
-      quarantined: 0,
       answered: 0,
+      quarantined: 0,
+      starred: 0,
       total: 0,
+      unread: 0,
     });
   });
 });

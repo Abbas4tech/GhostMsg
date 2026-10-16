@@ -36,11 +36,11 @@ function ToastTriggers() {
 }
 
 const meta = {
-  title: "Elements/Toaster",
   component: Toaster,
-  tags: ["autodocs"],
   parameters: { layout: "centered" },
   render: () => <ToastTriggers />,
+  tags: ["autodocs"],
+  title: "Elements/Toaster",
 } satisfies Meta<typeof Toaster>;
 
 export default meta;

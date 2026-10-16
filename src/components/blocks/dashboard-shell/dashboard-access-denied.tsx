@@ -20,9 +20,7 @@ export function DashboardAccessDenied({
         <span className="grid size-12 place-items-center rounded-2xl bg-accent text-accent-foreground">
           <Lock aria-hidden="true" className="size-6" />
         </span>
-        <h1 className="font-bold text-[26px] leading-tight tracking-tight">
-          Sign in to see your inbox
-        </h1>
+        <h1 className="text-h1">Sign in to see your inbox</h1>
         <p className="text-muted-foreground">
           Your Anonymous Messages are only visible to you.
         </p>

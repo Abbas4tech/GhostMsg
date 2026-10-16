@@ -5,16 +5,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import { defaultTooltipArgs, tooltipMockContent } from "./tooltip.mock";
 
 const meta = {
-  title: "Elements/Tooltip",
-  component: Tooltip,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultTooltipArgs, onOpenChange: fn() },
   argTypes: {
-    open: { control: "boolean", description: "Controlled open state" },
     delayDuration: { control: "number", description: "Hover delay in ms" },
     onOpenChange: { description: "Called when the tooltip shows or hides" },
+    open: { control: "boolean", description: "Controlled open state" },
   },
+  component: Tooltip,
+  parameters: { layout: "centered" },
   render: (args) => (
     <Tooltip {...args}>
       <TooltipTrigger asChild>
@@ -23,6 +21,8 @@ const meta = {
       <TooltipContent>{tooltipMockContent.content}</TooltipContent>
     </Tooltip>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Tooltip",
 } satisfies Meta<typeof Tooltip>;
 
 export default meta;

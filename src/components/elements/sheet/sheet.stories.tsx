@@ -11,15 +11,13 @@ import {
 import { defaultSheetArgs, sheetMockContent } from "./sheet.mock";
 
 const meta = {
-  title: "Elements/Sheet",
-  component: Sheet,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultSheetArgs, onOpenChange: fn() },
   argTypes: {
     defaultOpen: { control: "boolean", description: "Open on mount" },
     onOpenChange: { description: "Called when the sheet opens or closes" },
   },
+  component: Sheet,
+  parameters: { layout: "centered" },
   render: (args) => (
     <Sheet {...args}>
       <SheetTrigger asChild>
@@ -31,6 +29,8 @@ const meta = {
       </SheetContent>
     </Sheet>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Sheet",
 } satisfies Meta<typeof Sheet>;
 
 export default meta;

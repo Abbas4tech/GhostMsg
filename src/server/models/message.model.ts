@@ -39,57 +39,57 @@ export interface IMessage extends Document {
 
 const MessageReplySchema = new Schema<IMessageReply>(
   {
-    text: { type: String, required: true, maxlength: 1000 },
-    isPublished: { type: Boolean, default: false },
+    isPublished: { default: false, type: Boolean },
     publishedAt: { type: Date },
+    text: { maxlength: 1000, required: true, type: String },
   },
   { _id: false }
 );
 
 const MessageSchema = new Schema<IMessage>(
   {
-    recipientId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-      index: true,
-    },
     content: {
-      type: String,
-      required: true,
-      minlength: 10,
       maxlength: 300,
-      trim: true,
-    },
-    sentimentTag: {
-      type: String,
-      enum: ["sweet", "curious", "spicy", "advice", "neutral"],
-      default: "neutral",
+      minlength: 10,
       required: true,
-    },
-    isQuarantined: {
-      type: Boolean,
-      default: false,
-      index: true,
+      trim: true,
+      type: String,
     },
     isPinned: {
-      type: Boolean,
       default: false,
       index: true,
+      type: Boolean,
+    },
+    isQuarantined: {
+      default: false,
+      index: true,
+      type: Boolean,
     },
     isRead: {
-      type: Boolean,
       default: false,
       index: true,
+      type: Boolean,
+    },
+    recipientId: {
+      index: true,
+      ref: "User",
+      required: true,
+      type: Schema.Types.ObjectId,
     },
     reply: {
-      type: MessageReplySchema,
       default: null,
+      type: MessageReplySchema,
     },
     senderHash: {
-      type: String,
-      required: true,
       index: true,
+      required: true,
+      type: String,
+    },
+    sentimentTag: {
+      default: "neutral",
+      enum: ["sweet", "curious", "spicy", "advice", "neutral"],
+      required: true,
+      type: String,
     },
   },
   {
@@ -97,9 +97,9 @@ const MessageSchema = new Schema<IMessage>(
   }
 );
 
-MessageSchema.index({ recipientId: 1, isQuarantined: 1, createdAt: -1 });
-MessageSchema.index({ recipientId: 1, isPinned: 1, createdAt: -1 });
-MessageSchema.index({ recipientId: 1, "reply.isPublished": 1, createdAt: -1 });
+MessageSchema.index({ createdAt: -1, isQuarantined: 1, recipientId: 1 });
+MessageSchema.index({ createdAt: -1, isPinned: 1, recipientId: 1 });
+MessageSchema.index({ createdAt: -1, recipientId: 1, "reply.isPublished": 1 });
 
 const MessageModel =
   (mongoose.models.Message as mongoose.Model<IMessage>) ||

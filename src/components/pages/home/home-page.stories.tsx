@@ -9,14 +9,14 @@ const PAGE_LOAD = { timeout: 15_000 };
 const LOG_OUT_REGEX = /log out/i;
 
 const meta = {
-  title: "Pages/Home",
   component: HomePage,
-  tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
-    pageProviders: true,
     msw: { handlers: withScenario(scenarios.session.unauthenticated) },
+    pageProviders: true,
   },
+  tags: ["autodocs"],
+  title: "Pages/Home",
 } satisfies Meta<typeof HomePage>;
 
 export default meta;
@@ -67,5 +67,5 @@ export const SignedIn: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

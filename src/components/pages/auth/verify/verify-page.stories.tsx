@@ -9,14 +9,6 @@ const PAGE_LOAD = { timeout: 15_000 };
 const SUBMIT_REGEX = /^verify$/i;
 
 const meta = {
-  title: "Pages/Auth/Verify",
-  component: VerifyPage,
-  tags: ["autodocs"],
-  parameters: {
-    layout: "fullscreen",
-    pageProviders: true,
-    msw: { handlers: authPageHandlers.default },
-  },
   args: { username: authCredentials.username },
   argTypes: {
     username: {
@@ -24,6 +16,14 @@ const meta = {
       description: "Route param `/verify/[username]`",
     },
   },
+  component: VerifyPage,
+  parameters: {
+    layout: "fullscreen",
+    msw: { handlers: authPageHandlers.default },
+    pageProviders: true,
+  },
+  tags: ["autodocs"],
+  title: "Pages/Auth/Verify",
 } satisfies Meta<typeof VerifyPage>;
 
 export default meta;

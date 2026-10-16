@@ -19,18 +19,9 @@ export interface PaletteMeta {
 }
 
 export const PALETTE_META: Record<Palette, PaletteMeta> = {
-  spectral: {
-    label: "Soft spectral",
-    description: "Misty lavender, violet and coral",
-    swatch: [
-      "oklch(0.48 0.21 292)",
-      "oklch(0.5 0.22 320)",
-      "oklch(0.55 0.17 30)",
-    ],
-  },
   midnight: {
-    label: "Midnight confessional",
     description: "Warm black, amber ember, serif letters",
+    label: "Midnight confessional",
     swatch: [
       "oklch(0.15 0.012 40)",
       "oklch(0.47 0.11 50)",
@@ -38,12 +29,21 @@ export const PALETTE_META: Record<Palette, PaletteMeta> = {
     ],
   },
   paper: {
-    label: "Playful paper",
     description: "Cream paper, ink outlines, bright stickers",
+    label: "Playful paper",
     swatch: [
       "oklch(0.97 0.03 95)",
       "oklch(0.56 0.19 38)",
       "oklch(0.89 0.09 350)",
+    ],
+  },
+  spectral: {
+    description: "Misty lavender, violet and coral",
+    label: "Soft spectral",
+    swatch: [
+      "oklch(0.48 0.21 292)",
+      "oklch(0.5 0.22 320)",
+      "oklch(0.55 0.17 30)",
     ],
   },
 };

@@ -15,10 +15,10 @@ function minutesInZone(date: Date, timeZone: string): number {
   let parts: Intl.DateTimeFormatPart[];
   try {
     parts = new Intl.DateTimeFormat("en-GB", {
-      timeZone,
       hour: "2-digit",
-      minute: "2-digit",
       hourCycle: "h23",
+      minute: "2-digit",
+      timeZone,
     }).formatToParts(date);
   } catch {
     return date.getUTCHours() * MINUTES_PER_HOUR + date.getUTCMinutes();

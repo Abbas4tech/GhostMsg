@@ -13,8 +13,8 @@ const ToggleGroupContext = createContext<
   }
 >({
   size: "default",
-  variant: "default",
   spacing: 0,
+  variant: "default",
 });
 
 function ToggleGroup({
@@ -43,7 +43,7 @@ function ToggleGroup({
       style={{ "--gap": spacing } as React.CSSProperties}
       {...props}
     >
-      <ToggleGroupContext.Provider value={{ variant, size, spacing }}>
+      <ToggleGroupContext.Provider value={{ size, spacing, variant }}>
         {children}
       </ToggleGroupContext.Provider>
     </ToggleGroupPrimitive.Root>
@@ -67,8 +67,8 @@ function ToggleGroupItem({
     <ToggleGroupPrimitive.Item
       className={cn(
         toggleVariants({
-          variant: context.variant || variant,
           size: context.size || size,
+          variant: context.variant || variant,
         }),
         "w-auto min-w-0 shrink-0 px-3 focus:z-10 focus-visible:z-10",
         !isPill &&

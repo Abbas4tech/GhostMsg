@@ -1,3 +1,3 @@
 import type { BrandMarkProps } from "./brand-mark";
 
-export const defaultBrandMarkArgs: BrandMarkProps = { size: "md", href: "/" };
+export const defaultBrandMarkArgs: BrandMarkProps = { href: "/", size: "md" };

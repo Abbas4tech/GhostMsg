@@ -4,34 +4,32 @@ import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 import { toggleGroupMockContent } from "./toggle-group.mock";
 
 const meta = {
-  title: "Elements/ToggleGroup",
-  component: ToggleGroup,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: {
-    type: "single",
-    variant: "segment",
-    size: "touch",
     defaultValue: "balanced",
     onValueChange: fn(),
+    size: "touch",
+    type: "single",
+    variant: "segment",
   },
   argTypes: {
-    variant: {
-      control: "select",
-      options: ["default", "outline", "chip", "segment"],
-      description: "`segment` = track with a raised thumb, `chip` = pills",
-    },
+    onValueChange: { description: "Called with the selected value" },
     size: {
       control: "radio",
-      options: ["sm", "default", "lg", "touch"],
       description: "Item height",
+      options: ["sm", "default", "lg", "touch"],
     },
     spacing: {
       control: "number",
       description: "Gap between items (0 = joined)",
     },
-    onValueChange: { description: "Called with the selected value" },
+    variant: {
+      control: "select",
+      description: "`segment` = track with a raised thumb, `chip` = pills",
+      options: ["default", "outline", "chip", "segment"],
+    },
   },
+  component: ToggleGroup,
+  parameters: { layout: "centered" },
   render: (args) => (
     <ToggleGroup {...args} aria-label={toggleGroupMockContent.label}>
       {toggleGroupMockContent.options.map((option) => (
@@ -41,6 +39,8 @@ const meta = {
       ))}
     </ToggleGroup>
   ),
+  tags: ["autodocs"],
+  title: "Elements/ToggleGroup",
 } satisfies Meta<typeof ToggleGroup>;
 
 export default meta;
@@ -54,6 +54,6 @@ export const Segment: Story = {
   },
 };
 
-export const Chips: Story = { args: { variant: "chip", spacing: 2 } };
+export const Chips: Story = { args: { spacing: 2, variant: "chip" } };
 
-export const Outline: Story = { args: { variant: "outline", size: "default" } };
+export const Outline: Story = { args: { size: "default", variant: "outline" } };

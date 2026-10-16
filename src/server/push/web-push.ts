@@ -38,8 +38,8 @@ export function getVapidConfig(
     return null;
   }
   return {
-    publicKey,
     privateKey,
+    publicKey,
     subject: env.VAPID_SUBJECT || "mailto:support@ghostmsg.app",
   };
 }
@@ -60,7 +60,7 @@ export async function sendPushToUser(
 ): Promise<{ sent: number; removed: number }> {
   const vapid = getVapidConfig();
   if (!vapid || subscriptions.length === 0) {
-    return { sent: 0, removed: 0 };
+    return { removed: 0, sent: 0 };
   }
 
   const body = JSON.stringify(payload);
@@ -72,9 +72,9 @@ export async function sendPushToUser(
         {
           TTL: PUSH_TTL_SECONDS,
           vapidDetails: {
-            subject: vapid.subject,
-            publicKey: vapid.publicKey,
             privateKey: vapid.privateKey,
+            publicKey: vapid.publicKey,
+            subject: vapid.subject,
           },
         }
       )
@@ -101,7 +101,7 @@ export async function sendPushToUser(
     await disablePushWhenNoDevices(userId);
   }
 
-  return { sent, removed: goneEndpoints.length };
+  return { removed: goneEndpoints.length, sent };
 }
 
 /**

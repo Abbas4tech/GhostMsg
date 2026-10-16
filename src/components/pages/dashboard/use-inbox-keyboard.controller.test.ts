@@ -7,17 +7,17 @@ import {
 import { useInboxKeyboardController } from "./use-inbox-keyboard.controller";
 
 const press = (key: string) =>
-  window.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+  window.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key }));
 
 function setup(focusedId: string | null = null) {
   const options = {
-    messages: [sweetMessage, curiousMessage],
     focusedId,
-    setFocusedId: vi.fn(),
-    onToggleSelect: vi.fn(),
-    onStarToggle: vi.fn(),
+    messages: [sweetMessage, curiousMessage],
     onOpenReply: vi.fn(),
+    onStarToggle: vi.fn(),
+    onToggleSelect: vi.fn(),
     searchInputId: "inbox-search",
+    setFocusedId: vi.fn(),
   };
   renderHook(() => useInboxKeyboardController(options));
   return options;

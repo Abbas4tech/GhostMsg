@@ -34,8 +34,8 @@ describe("unauthorizedResponse", () => {
 
     expect(response.status).toBe(401);
     await expect(response.json()).resolves.toEqual({
-      success: false,
       message: "Not authenticated",
+      success: false,
     });
   });
 });

@@ -7,16 +7,16 @@ import { DashboardLayout } from "@/components/pages/dashboard";
 import AuthProvider from "@/providers/auth-provider";
 
 export const metadata: Metadata = {
-  title: {
-    default: "Dashboard",
-    template: "%s · Dashboard | GhostMsg 👻",
-  },
   description:
     "Manage your anonymous messages, view your ghost profile, and control your settings on GhostMsg.",
   openGraph: {
-    title: "Dashboard",
     description:
       "Your command center for sending and receiving anonymous messages.",
+    title: "Dashboard",
+  },
+  title: {
+    default: "Dashboard",
+    template: "%s · Dashboard | GhostMsg 👻",
   },
 };
 

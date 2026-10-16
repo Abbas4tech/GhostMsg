@@ -4,11 +4,11 @@ import { SiteFooter } from "./site-footer";
 import { defaultSiteFooterArgs } from "./site-footer.mock";
 
 const meta = {
-  title: "Blocks/SiteFooter",
-  component: SiteFooter,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: defaultSiteFooterArgs,
+  component: SiteFooter,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/SiteFooter",
 } satisfies Meta<typeof SiteFooter>;
 
 export default meta;

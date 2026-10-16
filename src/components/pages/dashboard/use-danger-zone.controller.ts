@@ -40,7 +40,6 @@ export function useDangerZoneController(username: string) {
     setIsDeleteAllOpen(false);
     pendingRef.current = setTimeout(commitDeleteAll, DELETE_ALL_UNDO_MS);
     toast("Deleting all messages…", {
-      duration: DELETE_ALL_UNDO_MS,
       action: {
         label: "Undo",
         onClick: () => {
@@ -51,6 +50,7 @@ export function useDangerZoneController(username: string) {
           toast.success("Nothing was deleted");
         },
       },
+      duration: DELETE_ALL_UNDO_MS,
     });
   }, [commitDeleteAll]);
 
@@ -70,17 +70,17 @@ export function useDangerZoneController(username: string) {
   }, []);
 
   return {
-    username,
-    isDeleteAllOpen,
-    setIsDeleteAllOpen,
-    openDeleteAll: () => setIsDeleteAllOpen(true),
+    confirmValue,
+    handleConfirmDeleteAccount,
     handleConfirmDeleteAll,
     isDeleteAccountOpen,
-    setIsDeleteAccountOpen,
-    openDeleteAccount,
-    confirmValue,
-    setConfirmValue,
+    isDeleteAllOpen,
     isDeletingAccount: deleteAccountMutation.isPending,
-    handleConfirmDeleteAccount,
+    openDeleteAccount,
+    openDeleteAll: () => setIsDeleteAllOpen(true),
+    setConfirmValue,
+    setIsDeleteAccountOpen,
+    setIsDeleteAllOpen,
+    username,
   };
 }

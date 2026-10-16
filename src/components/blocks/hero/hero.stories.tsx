@@ -8,18 +8,18 @@ import { Hero } from "./hero";
 import { defaultHeroArgs } from "./hero.mock";
 
 const meta = {
-  title: "Blocks/Hero",
-  component: Hero,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: defaultHeroArgs,
   argTypes: {
-    title: { control: "text", description: "Page h1" },
+    children: { control: false, description: "Call to action slot" },
     description: { control: "text", description: "Lead paragraph" },
     eyebrow: { control: false, description: "Pill above the headline" },
-    children: { control: false, description: "Call to action slot" },
     showcase: { control: false, description: "Right-hand illustration" },
+    title: { control: "text", description: "Page h1" },
   },
+  component: Hero,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/Hero",
 } satisfies Meta<typeof Hero>;
 
 export default meta;
@@ -50,5 +50,5 @@ export const CopyOnly: Story = {};
 
 export const Mobile: Story = {
   args: Landing.args,
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

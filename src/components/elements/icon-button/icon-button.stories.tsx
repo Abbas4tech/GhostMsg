@@ -9,28 +9,28 @@ import {
 } from "./icon-button.mock";
 
 const meta = {
-  title: "Elements/IconButton",
-  component: IconButton,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
-  args: { ...defaultIconButtonArgs, onClick: fn(), children: <Star /> },
+  args: { ...defaultIconButtonArgs, children: <Star />, onClick: fn() },
   argTypes: {
-    variant: {
-      control: "select",
-      options: ICON_BUTTON_VARIANTS,
-      description: "Visual style",
-    },
-    size: {
-      control: "radio",
-      options: ICON_BUTTON_SIZES,
-      description: "Square size",
-    },
     "aria-label": {
       control: "text",
       description: "Required accessible name (icon-only control)",
     },
     onClick: { description: "Click handler; also bursts the particle effect" },
+    size: {
+      control: "radio",
+      description: "Square size",
+      options: ICON_BUTTON_SIZES,
+    },
+    variant: {
+      control: "select",
+      description: "Visual style",
+      options: ICON_BUTTON_VARIANTS,
+    },
   },
+  component: IconButton,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/IconButton",
 } satisfies Meta<typeof IconButton>;
 
 export default meta;

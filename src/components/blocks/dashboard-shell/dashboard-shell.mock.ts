@@ -7,17 +7,17 @@ export const dashboardShellSlotText = "Routed page content";
 
 export const defaultDashboardShellArgs: Omit<DashboardShellProps, "children"> =
   {
+    acceptance: { isAccepting: true, isPending: false, onToggle: noop },
     activeNav: "inbox",
-    unreadCount: 3,
-    username: FIXTURE_USERNAME,
+    onOpenCommand: noop,
+    onSignOut: noop,
     profileLink: {
       label: `ghostmsg.app/u/${FIXTURE_USERNAME}`,
       onCopy: noop,
       onShare: noop,
     },
-    acceptance: { isAccepting: true, isPending: false, onToggle: noop },
-    onOpenCommand: noop,
-    onSignOut: noop,
+    unreadCount: 3,
+    username: FIXTURE_USERNAME,
   };
 
 export const pausedDashboardShellArgs = {

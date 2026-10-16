@@ -58,13 +58,15 @@ export function SiteHeader({
             <Button asChild className="rounded-full" variant="ghost">
               <Link href="/sign-in">Sign in</Link>
             </Button>
-            <Button asChild className="rounded-full">
+            <Button asChild className="hidden rounded-full sm:inline-flex">
               <Link href="/sign-up">Get your link</Link>
             </Button>
           </>
         )}
-        <PalettePickerButton />
-        <ThemeTogglerButton modes={["dark", "light"]} variant="ghost" />
+        <span className="hidden items-center gap-1 sm:flex sm:gap-2">
+          <PalettePickerButton />
+          <ThemeTogglerButton modes={["dark", "light"]} variant="ghost" />
+        </span>
       </nav>
     </header>
   );

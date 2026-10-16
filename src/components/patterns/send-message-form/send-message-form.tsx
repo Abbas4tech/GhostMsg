@@ -61,7 +61,7 @@ export function SendMessageForm({
               <FormControl>
                 <Textarea
                   {...field}
-                  className="min-h-[124px] resize-none rounded-md bg-card text-base"
+                  className="min-h-[124px] resize-none rounded-md bg-card text-body"
                   maxLength={MESSAGE_MAX_LENGTH}
                   placeholder="Write something honest…"
                 />

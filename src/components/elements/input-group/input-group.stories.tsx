@@ -8,28 +8,26 @@ import {
 } from "./input-group.mock";
 
 const meta = {
-  title: "Elements/InputGroup",
-  component: InputGroup,
-  tags: ["autodocs"],
-  parameters: { layout: "padded" },
   args: defaultInputGroupArgs,
   argTypes: {
-    tone: {
+    shape: {
       control: "radio",
-      options: ["default", "success"],
-      description: "Validation tone of the border",
+      description: "Corner style",
+      options: ["default", "pill"],
     },
     size: {
       control: "radio",
-      options: ["default", "lg"],
       description: "Height",
+      options: ["default", "lg"],
     },
-    shape: {
+    tone: {
       control: "radio",
-      options: ["default", "pill"],
-      description: "Corner style",
+      description: "Validation tone of the border",
+      options: ["default", "success"],
     },
   },
+  component: InputGroup,
+  parameters: { layout: "padded" },
   render: (args) => (
     <div className="flex max-w-sm flex-col gap-1.5">
       <label className="font-semibold text-sm" htmlFor="input-group-demo">
@@ -51,6 +49,8 @@ const meta = {
       </InputGroup>
     </div>
   ),
+  tags: ["autodocs"],
+  title: "Elements/InputGroup",
 } satisfies Meta<typeof InputGroup>;
 
 export default meta;

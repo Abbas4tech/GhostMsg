@@ -19,15 +19,6 @@ const LOAD_MORE_REGEX = /load more/i;
 
 /** Callback spies for every grouped prop, so the Actions panel logs them. */
 const spies = () => ({
-  onRefresh: fn(),
-  onViewModeChange: fn(),
-  onCopyLink: fn(),
-  filters: {
-    ...defaultInboxArgs.filters,
-    onSearchChange: fn(),
-    onStatusChange: fn(),
-  },
-  selection: { ...defaultInboxArgs.selection, onToggle: fn(), onClear: fn() },
   bulkActions: {
     ...defaultInboxArgs.bulkActions,
     onAction: fn(),
@@ -41,48 +32,57 @@ const spies = () => ({
     onReveal: fn(),
     onStarToggle: fn(),
   },
+  filters: {
+    ...defaultInboxArgs.filters,
+    onSearchChange: fn(),
+    onStatusChange: fn(),
+  },
+  onCopyLink: fn(),
+  onRefresh: fn(),
+  onViewModeChange: fn(),
+  selection: { ...defaultInboxArgs.selection, onClear: fn(), onToggle: fn() },
 });
 
 const meta = {
-  title: "Blocks/Inbox",
-  component: Inbox,
-  tags: ["autodocs"],
   args: { ...defaultInboxArgs, ...spies() },
   argTypes: {
+    bulkActions: { control: "object", description: "Bulk toolbar callbacks" },
+    cardActions: { control: false, description: "Per-card callbacks" },
+    filters: { control: "object", description: "Status, counts, search" },
+    focusedId: { control: "text", description: "j/k cursor message id" },
+    isLoading: { control: "boolean", description: "First load skeletons" },
+    isRefreshing: {
+      control: "boolean",
+      description: "Spins the refresh icon and disables it",
+    },
+    isSenderBlocked: { control: false, description: "senderHash → blocked?" },
     messages: {
       control: "object",
       description: "Messages after filtering/search (page-computed)",
     },
+    now: { control: false, description: "Reference time for ages" },
+    onCopyLink: { description: "Empty state: copy my link" },
+    onRefresh: { description: "Refresh clicked" },
+    onViewModeChange: { description: "Grid/List toggle clicked" },
     pagination: {
       control: "object",
       description: "Server paging: Load more when more pages exist",
     },
+    revealedIds: { control: "object", description: "Revealed quarantined ids" },
+    selection: { control: "object", description: "Selected ids + callbacks" },
     totalMessages: {
       control: "number",
       description: "All messages before filtering (drives the empty state)",
     },
     viewMode: {
       control: "radio",
-      options: ["grid", "list"],
       description: "Card grid or compact list",
+      options: ["grid", "list"],
     },
-    isLoading: { control: "boolean", description: "First load skeletons" },
-    isRefreshing: {
-      control: "boolean",
-      description: "Spins the refresh icon and disables it",
-    },
-    focusedId: { control: "text", description: "j/k cursor message id" },
-    revealedIds: { control: "object", description: "Revealed quarantined ids" },
-    filters: { control: "object", description: "Status, counts, search" },
-    selection: { control: "object", description: "Selected ids + callbacks" },
-    bulkActions: { control: "object", description: "Bulk toolbar callbacks" },
-    cardActions: { control: false, description: "Per-card callbacks" },
-    isSenderBlocked: { control: false, description: "senderHash → blocked?" },
-    now: { control: false, description: "Reference time for ages" },
-    onRefresh: { description: "Refresh clicked" },
-    onViewModeChange: { description: "Grid/List toggle clicked" },
-    onCopyLink: { description: "Empty state: copy my link" },
   },
+  component: Inbox,
+  tags: ["autodocs"],
+  title: "Blocks/Inbox",
 } satisfies Meta<typeof Inbox>;
 
 export default meta;
@@ -231,5 +231,5 @@ export const LastPage: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

@@ -61,7 +61,7 @@ export function SettingsPanel({
     <div className="flex flex-col gap-5" data-slot="settings-panel">
       <PageHeading
         breadcrumb={[
-          { label: "Dashboard", href: "/dashboard" },
+          { href: "/dashboard", label: "Dashboard" },
           { label: "Settings" },
         ]}
         title="Settings"

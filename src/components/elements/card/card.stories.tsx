@@ -18,23 +18,21 @@ import {
 } from "./card.mock";
 
 const meta = {
-  title: "Elements/Card",
-  component: Card,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: defaultCardArgs,
   argTypes: {
-    variant: {
-      control: "select",
-      options: CARD_VARIANTS,
-      description: "Surface style. `default` is the original shadcn card.",
-    },
     size: {
       control: "radio",
-      options: CARD_SIZES,
       description: "Vertical padding/gap preset",
+      options: CARD_SIZES,
+    },
+    variant: {
+      control: "select",
+      description: "Surface style. `default` is the original shadcn card.",
+      options: CARD_VARIANTS,
     },
   },
+  component: Card,
+  parameters: { layout: "centered" },
   render: (args) => (
     <Card {...args}>
       <CardHeader>
@@ -51,6 +49,8 @@ const meta = {
       </CardFooter>
     </Card>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Card",
 } satisfies Meta<typeof Card>;
 
 export default meta;
@@ -66,16 +66,16 @@ export const Default: Story = {
 
 export const Glass: Story = {
   args: { variant: "glass" },
-  parameters: {
-    backgrounds: { disable: true },
-  },
   decorators: [
     (Story) => (
-      <div className="rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 p-8">
+      <div className="rounded-xl bg-brand-gradient p-8">
         <Story />
       </div>
     ),
   ],
+  parameters: {
+    backgrounds: { disable: true },
+  },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('[data-slot="card"]')).toHaveClass(
       "backdrop-blur-md"

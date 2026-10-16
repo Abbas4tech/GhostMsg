@@ -35,17 +35,13 @@ function UsernameFieldHarness({
 }
 
 const meta = {
-  title: "Patterns/UsernameField",
-  component: UsernameFieldHarness,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: defaultUsernameFieldArgs,
   argTypes: {
     availability: {
       control: "radio",
-      options: USERNAME_AVAILABILITIES,
       description:
         "Availability computed by the page controller (debounced server check)",
+      options: USERNAME_AVAILABILITIES,
     },
     availabilityMessage: {
       control: "text",
@@ -53,6 +49,10 @@ const meta = {
     },
     defaultUsername: { control: "text", description: "Initial field value" },
   },
+  component: UsernameFieldHarness,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Patterns/UsernameField",
 } satisfies Meta<typeof UsernameFieldHarness>;
 
 export default meta;

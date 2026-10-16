@@ -5,10 +5,10 @@ import { NotFoundPage } from "./not-found-page";
 const HOME_REGEX = /home/i;
 
 const meta = {
-  title: "Pages/NotFound",
   component: NotFoundPage,
-  tags: ["autodocs"],
   parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Pages/NotFound",
 } satisfies Meta<typeof NotFoundPage>;
 
 export default meta;

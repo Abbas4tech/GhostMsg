@@ -5,12 +5,12 @@ import { generateText } from "ai";
 export type ReplyTone = "witty" | "wholesome" | "thoughtful";
 
 const TONE_INSTRUCTIONS: Record<ReplyTone, string> = {
-  witty:
-    "Respond with sharp wit, clever humor, or lighthearted playful sarcasm. Keep it funny and memorable without being genuinely cruel.",
-  wholesome:
-    "Respond with genuine gratitude, warmth, positive energy, and kindness. Make the sender feel appreciated.",
   thoughtful:
     "Respond with reflective depth, honesty, maturity, and insight. Give a meaningful, well-considered perspective.",
+  wholesome:
+    "Respond with genuine gratitude, warmth, positive energy, and kindness. Make the sender feel appreciated.",
+  witty:
+    "Respond with sharp wit, clever humor, or lighthearted playful sarcasm. Keep it funny and memorable without being genuinely cruel.",
 };
 
 export async function generateSmartReply(
@@ -20,10 +20,10 @@ export async function generateSmartReply(
   const apiKey = process.env.GOOGLE_AI_STUDIO_SECRET;
   if (!apiKey) {
     const fallbacks: Record<ReplyTone, string> = {
-      witty: "Haha, thanks for keeping me on my toes! 😉",
-      wholesome: "Thank you so much! That means a lot to me. ✨",
       thoughtful:
         "That's a really interesting point. It definitely got me thinking!",
+      wholesome: "Thank you so much! That means a lot to me. ✨",
+      witty: "Haha, thanks for keeping me on my toes! 😉",
     };
     return fallbacks[tone];
   }

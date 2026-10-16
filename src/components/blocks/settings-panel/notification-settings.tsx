@@ -21,9 +21,9 @@ import {
 export type EmailAlertMode = "instant" | "daily" | "off";
 
 const EMAIL_OPTIONS: { label: string; value: EmailAlertMode }[] = [
-  { value: "instant", label: "Instantly" },
-  { value: "daily", label: "Daily digest" },
-  { value: "off", label: "Never" },
+  { label: "Instantly", value: "instant" },
+  { label: "Daily digest", value: "daily" },
+  { label: "Never", value: "off" },
 ];
 
 const isEmailAlertMode = (value: string): value is EmailAlertMode =>

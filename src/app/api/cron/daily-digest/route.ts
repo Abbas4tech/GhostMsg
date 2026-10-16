@@ -15,13 +15,13 @@ export async function GET(request: NextRequest): Promise<Response> {
   const secret = process.env.CRON_SECRET;
   if (!secret) {
     return Response.json(
-      { success: false, message: "Daily digest is not configured" },
+      { message: "Daily digest is not configured", success: false },
       { status: 503 }
     );
   }
   if (!isBearerTokenValid(request.headers.get("authorization"), secret)) {
     return Response.json(
-      { success: false, message: "Unauthorized" },
+      { message: "Unauthorized", success: false },
       { status: 401 }
     );
   }
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest): Promise<Response> {
   } catch (error) {
     console.error("Daily digest run failed:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

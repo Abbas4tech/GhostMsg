@@ -4,19 +4,19 @@ import { DiscardChangesModal } from "./discard-changes-modal";
 import { defaultDiscardChangesModalArgs } from "./modals.mock";
 
 const meta = {
-  title: "Patterns/Modals/DiscardChangesModal",
-  component: DiscardChangesModal,
-  tags: ["autodocs"],
   args: {
     ...defaultDiscardChangesModalArgs,
     onDiscard: fn(),
     onKeepEditing: fn(),
   },
   argTypes: {
-    open: { control: "boolean", description: "Dialog visibility" },
     onDiscard: { description: "Discard and leave clicked" },
     onKeepEditing: { description: "Keep editing / Escape" },
+    open: { control: "boolean", description: "Dialog visibility" },
   },
+  component: DiscardChangesModal,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/DiscardChangesModal",
 } satisfies Meta<typeof DiscardChangesModal>;
 
 export default meta;

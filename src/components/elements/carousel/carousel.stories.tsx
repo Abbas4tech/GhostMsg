@@ -11,22 +11,20 @@ import {
 import { carouselMockSlides, defaultCarouselArgs } from "./carousel.mock";
 
 const meta = {
-  title: "Elements/Carousel",
-  component: Carousel,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: defaultCarouselArgs,
   argTypes: {
-    orientation: {
-      control: "radio",
-      options: ["horizontal", "vertical"],
-      description: "Scroll axis",
-    },
     opts: {
       control: "object",
       description: "Embla options (e.g. `{ loop: true }`)",
     },
+    orientation: {
+      control: "radio",
+      description: "Scroll axis",
+      options: ["horizontal", "vertical"],
+    },
   },
+  component: Carousel,
+  parameters: { layout: "centered" },
   render: (args) => (
     <Carousel {...args} className="mx-14 w-64">
       <CarouselContent>
@@ -44,6 +42,8 @@ const meta = {
       <CarouselNext />
     </Carousel>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Carousel",
 } satisfies Meta<typeof Carousel>;
 
 export default meta;

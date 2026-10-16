@@ -1,9 +1,26 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import {
+  Copy,
+  ExternalLink,
+  Inbox,
+  Mail,
+  Pause,
+  Play,
+  Settings,
+  Star,
+  User,
+} from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  createElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { CommandGroupDefinition } from "@/components/patterns/command-palette";
 import { messagesQueries } from "@/data/messages/messages.queries";
 import { useAcceptMessageMutation } from "@/data/user/use-accept-message-mutation";
@@ -71,11 +88,13 @@ export function useDashboardShellController() {
         heading: "Actions",
         items: [
           {
+            icon: createElement(Copy),
             id: "copy-link",
             label: "Copy my Public Profile Link",
             onSelect: link.handleCopy,
           },
           {
+            icon: createElement(isAccepting ? Pause : Play),
             id: "acceptance",
             label: isAccepting
               ? "Pause Message Acceptance"
@@ -83,6 +102,7 @@ export function useDashboardShellController() {
             onSelect: handleToggleAcceptance,
           },
           {
+            icon: createElement(ExternalLink),
             id: "visit",
             label: "View my public profile",
             onSelect: () => router.push(`/u/${link.username}`),
@@ -93,26 +113,31 @@ export function useDashboardShellController() {
         heading: "Go to",
         items: [
           {
+            icon: createElement(Inbox),
             id: "inbox",
             label: "Inbox",
             onSelect: () => router.push("/dashboard"),
           },
           {
+            icon: createElement(Mail),
             id: "inbox-unread",
             label: "Inbox · Unread",
             onSelect: () => router.push("/dashboard?filter=unread"),
           },
           {
+            icon: createElement(Star),
             id: "inbox-starred",
             label: "Inbox · Starred",
             onSelect: () => router.push("/dashboard?filter=starred"),
           },
           {
+            icon: createElement(User),
             id: "profile",
             label: "Profile",
             onSelect: () => router.push("/dashboard/profile"),
           },
           {
+            icon: createElement(Settings),
             id: "settings",
             label: "Settings",
             onSelect: () => router.push("/dashboard/settings"),
@@ -130,26 +155,26 @@ export function useDashboardShellController() {
   );
 
   return {
-    status,
-    username: link.username,
-    activeNav: getActiveNav(pathname),
-    unreadCount,
-    avatarUrl: profileData?.profile.avatarUrl ?? null,
-    profileLink: {
-      label: link.profileLabel,
-      onCopy: link.handleCopy,
-      onShare: link.handleShare,
-    },
     acceptance: {
       isAccepting,
       isPending: acceptMutation.isPending,
       onToggle: handleToggleAcceptance,
     },
-    isCommandOpen,
-    setIsCommandOpen,
-    handleOpenCommand,
+    activeNav: getActiveNav(pathname),
+    avatarUrl: profileData?.profile.avatarUrl ?? null,
     commandGroups,
-    handleSignOut,
     handleGoToLogin,
+    handleOpenCommand,
+    handleSignOut,
+    isCommandOpen,
+    profileLink: {
+      label: link.profileLabel,
+      onCopy: link.handleCopy,
+      onShare: link.handleShare,
+    },
+    setIsCommandOpen,
+    status,
+    unreadCount,
+    username: link.username,
   };
 }

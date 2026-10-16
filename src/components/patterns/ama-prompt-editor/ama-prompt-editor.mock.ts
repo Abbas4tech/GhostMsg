@@ -6,13 +6,13 @@ import {
 } from "./ama-prompt-editor";
 
 export const defaultAmaPromptEditorArgs: AmaPromptEditorProps = {
-  value: FIXTURE_AMA_PROMPT,
-  showBanner: true,
-  isSuggesting: false,
   aiIdeas: [],
+  isSuggesting: false,
   onChange: noop,
   onShowBannerChange: noop,
   onSuggest: noop,
+  showBanner: true,
+  value: FIXTURE_AMA_PROMPT,
 };
 
 export const aiIdeasAmaPromptEditorArgs = {

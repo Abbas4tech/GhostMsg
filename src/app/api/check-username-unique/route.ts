@@ -21,8 +21,8 @@ export async function GET(req: NextRequest): Promise<Response> {
     if (!success) {
       return Response.json(
         {
-          success: false,
           message: error.format().username?._errors.join(","),
+          success: false,
         },
         {
           status: 400,
@@ -33,15 +33,15 @@ export async function GET(req: NextRequest): Promise<Response> {
     const { username } = data;
 
     const exisitingVerifiedUser = await UserModel.findOne({
-      username,
       isVerified: true,
+      username,
     });
 
     if (exisitingVerifiedUser) {
       return Response.json(
         {
-          success: false,
           message: "Username is already taken",
+          success: false,
         },
         {
           status: 400,
@@ -51,8 +51,8 @@ export async function GET(req: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         message: "Username is unique",
+        success: true,
       },
       { status: 200 }
     );
@@ -60,8 +60,8 @@ export async function GET(req: NextRequest): Promise<Response> {
     console.error("Error checking username: ", error);
     return Response.json(
       {
-        success: false,
         message: "Error checking username: Internal Server Error",
+        success: false,
       },
       { status: 500 }
     );

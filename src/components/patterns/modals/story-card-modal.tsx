@@ -5,14 +5,14 @@ import type React from "react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/elements/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/elements/dialog";
 import { Switch } from "@/components/elements/switch";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/patterns/responsive-dialog";
 import { cn } from "@/lib/utils";
 import type { MessageDto } from "@/types/api";
 import {
@@ -34,21 +34,21 @@ export interface StoryCardModalProps {
 }
 
 const SENTIMENT_LABELS: Record<string, string> = {
-  sweet: "💖 Sweet",
-  curious: "🤔 Curious",
-  spicy: "🔥 Spicy",
   advice: "💡 Advice",
+  curious: "🤔 Curious",
   neutral: "👻 Note",
+  spicy: "🔥 Spicy",
+  sweet: "💖 Sweet",
 };
 
 const FORMATS: { label: string; value: StoryCardFormat }[] = [
-  { value: "story", label: "Story 9:16" },
-  { value: "square", label: "Square 1:1" },
+  { label: "Story 9:16", value: "story" },
+  { label: "Square 1:1", value: "square" },
 ];
 
 const LOOKS: { label: string; value: StoryCardLook }[] = [
-  { value: "gradient", label: "Gradient" },
-  { value: "plain", label: "Plain" },
+  { label: "Gradient", value: "gradient" },
+  { label: "Plain", value: "plain" },
 ];
 
 function Segmented<T extends string>({
@@ -104,10 +104,7 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex flex-col">
-        <label
-          className="cursor-pointer font-semibold text-[15px]"
-          htmlFor={id}
-        >
+        <label className="cursor-pointer text-title" htmlFor={id}>
           {title}
         </label>
         <p className="text-muted-foreground text-sm" id={`${id}-hint`}>
@@ -160,13 +157,13 @@ export const StoryCardModal = ({
     const theme = readStoryCardTheme(document.documentElement);
     drawStoryCard(canvas, {
       ...theme,
-      format,
-      look,
-      question: message.content,
       answer: includeAnswer ? answer : undefined,
+      format,
       label: SENTIMENT_LABELS[message.sentimentTag ?? "neutral"],
-      username,
+      look,
       profileLabel: showLink ? profileLabel : null,
+      question: message.content,
+      username,
     });
   }, [
     message,
@@ -219,16 +216,17 @@ export const StoryCardModal = ({
   }, [fileName, handleDownload]);
 
   return (
-    <Dialog onOpenChange={(open: boolean) => !open && onClose()} open={isOpen}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="font-bold text-[22px]">
-            Share as Story Card
-          </DialogTitle>
-          <DialogDescription>
+    <ResponsiveDialog
+      onOpenChange={(open: boolean) => !open && onClose()}
+      open={isOpen}
+    >
+      <ResponsiveDialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Share as Story Card</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             What you see is the exact image you&apos;ll post.
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="grid gap-6 md:grid-cols-[auto_minmax(0,1fr)]">
           <div className="flex justify-center rounded-xl bg-muted p-3">
@@ -311,8 +309,8 @@ export const StoryCardModal = ({
             </p>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 };
 

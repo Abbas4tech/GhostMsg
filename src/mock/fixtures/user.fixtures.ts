@@ -17,14 +17,14 @@ export function buildNotificationSettings(
 ): NotificationSettingsFixture {
   return {
     emailAlerts: "instant",
-    webPushEnabled: false,
     hideMessageText: true,
     quietHours: {
       enabled: false,
-      start: "22:00",
       end: "08:00",
+      start: "22:00",
       timeZone: "Europe/London",
     },
+    webPushEnabled: false,
     ...overrides,
   };
 }
@@ -42,8 +42,8 @@ export function buildBlockedHashes(count: number): string[] {
 /** Blocked senders with stable dates (one per 10 days back). */
 export function buildBlockedSenders(hashes: string[]): BlockedSenderDto[] {
   return hashes.map((hash, i) => ({
-    hash,
     blockedAt: fixtureDate(24 * 10 * (i + 1)),
+    hash,
   }));
 }
 
@@ -51,12 +51,12 @@ export function buildUserProfile(
   overrides: Partial<UserProfileDto> = {}
 ): UserProfileDto {
   return {
-    username: FIXTURE_USERNAME,
-    email: "johndoe@example.com",
-    displayName: "John",
-    avatarUrl: null,
     amaPrompt: FIXTURE_AMA_PROMPT,
+    avatarUrl: null,
+    displayName: "John",
+    email: "johndoe@example.com",
     showAmaBanner: true,
+    username: FIXTURE_USERNAME,
     ...overrides,
   };
 }
@@ -74,9 +74,9 @@ export function buildUserPreferences(
       ...overrides.messages,
     },
     safety: {
+      blurSpicy: false,
       quarantineEnabled: true,
       sensitivity: "balanced",
-      blurSpicy: false,
       ...overrides.safety,
     },
   };
@@ -85,32 +85,32 @@ export function buildUserPreferences(
 const closedHashes = buildBlockedHashes(3);
 
 export const userSettingsScenarios = {
-  defaults: {
-    isAcceptingMessage: true,
-    notificationSettings: buildNotificationSettings(),
-    blockedSenderHashes: [] as string[],
-    blockedSenders: [] as BlockedSenderDto[],
-    profile: buildUserProfile(),
-    preferences: buildUserPreferences(),
-  },
   closedWithBlocks: {
+    blockedSenderHashes: closedHashes,
+    blockedSenders: buildBlockedSenders(closedHashes),
     isAcceptingMessage: false,
     notificationSettings: buildNotificationSettings({
       emailAlerts: "daily",
-      webPushEnabled: true,
       quietHours: {
         enabled: true,
-        start: "22:00",
         end: "08:00",
+        start: "22:00",
         timeZone: "Europe/London",
       },
+      webPushEnabled: true,
     }),
-    blockedSenderHashes: closedHashes,
-    blockedSenders: buildBlockedSenders(closedHashes),
-    profile: buildUserProfile({ displayName: "", showAmaBanner: false }),
     preferences: buildUserPreferences({
       messages: { publishByDefault: true },
-      safety: { sensitivity: "strict", blurSpicy: true },
+      safety: { blurSpicy: true, sensitivity: "strict" },
     }),
+    profile: buildUserProfile({ displayName: "", showAmaBanner: false }),
+  },
+  defaults: {
+    blockedSenderHashes: [] as string[],
+    blockedSenders: [] as BlockedSenderDto[],
+    isAcceptingMessage: true,
+    notificationSettings: buildNotificationSettings(),
+    preferences: buildUserPreferences(),
+    profile: buildUserProfile(),
   },
 };

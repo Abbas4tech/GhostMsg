@@ -1,7 +1,7 @@
 export const sheetMockContent = {
-  trigger: "Open menu",
-  title: "Menu",
   description: "Your link, Message Acceptance and theme.",
+  title: "Menu",
+  trigger: "Open menu",
 };
 
 export const defaultSheetArgs = { defaultOpen: false };

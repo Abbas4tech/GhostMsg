@@ -1,4 +1,4 @@
 export const breadcrumbMockContent = {
-  parent: { label: "Dashboard", href: "/dashboard" },
   current: "Settings",
+  parent: { href: "/dashboard", label: "Dashboard" },
 };

@@ -3,16 +3,16 @@ import { scenarios, withScenario } from "@/mock/handlers";
 import type { PublicProfilePageProps } from "./public-profile-page";
 
 export const defaultPublicProfilePageArgs: PublicProfilePageProps = {
-  username: FIXTURE_USERNAME,
   autoFetchSuggestions: true,
+  username: FIXTURE_USERNAME,
 };
 
 export const publicProfileHandlers = {
+  answersLoading: withScenario(scenarios.answers.loading),
   default: withScenario(),
   noAnswers: withScenario(scenarios.answers.none),
-  answersLoading: withScenario(scenarios.answers.loading),
-  userNotFound: withScenario(scenarios.answers.error),
+  notAccepting: withScenario(scenarios.send.notAccepting),
   paused: withScenario(scenarios.answers.paused),
   suggestionsError: withScenario(scenarios.ai.error),
-  notAccepting: withScenario(scenarios.send.notAccepting),
+  userNotFound: withScenario(scenarios.answers.error),
 };

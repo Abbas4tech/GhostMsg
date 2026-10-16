@@ -98,10 +98,6 @@ export function useInboxKeyboardController({
     const ids = messages.map((message) => String(message._id));
     const context: ShortcutContext = {
       focused: messages.find((m) => String(m._id) === focusedId),
-      onOpenReply,
-      onStarToggle,
-      onToggleSelect,
-      searchInputId,
       move: (delta) => {
         const id = moveFocus(ids, focusedId, delta);
         setFocusedId(id);
@@ -111,6 +107,10 @@ export function useInboxKeyboardController({
             ?.scrollIntoView({ block: "nearest" });
         }
       },
+      onOpenReply,
+      onStarToggle,
+      onToggleSelect,
+      searchInputId,
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {

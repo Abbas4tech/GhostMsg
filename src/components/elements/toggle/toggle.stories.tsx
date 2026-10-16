@@ -9,31 +9,31 @@ import {
 } from "./toggle.mock";
 
 const meta = {
-  title: "Elements/Toggle",
-  component: Toggle,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
-  args: { variant: "default", size: "default", onPressedChange: fn() },
+  args: { onPressedChange: fn(), size: "default", variant: "default" },
   argTypes: {
-    variant: {
-      control: "select",
-      options: TOGGLE_VARIANTS,
-      description: "`chip` = filter pill, `segment` = segmented control",
-    },
-    size: {
-      control: "radio",
-      options: TOGGLE_SIZES,
-      description: "`touch` = 44px tap target",
-    },
     disabled: { control: "boolean", description: "Prevents toggling" },
     onPressedChange: { description: "Called with the next pressed state" },
+    size: {
+      control: "radio",
+      description: "`touch` = 44px tap target",
+      options: TOGGLE_SIZES,
+    },
+    variant: {
+      control: "select",
+      description: "`chip` = filter pill, `segment` = segmented control",
+      options: TOGGLE_VARIANTS,
+    },
   },
+  component: Toggle,
+  parameters: { layout: "centered" },
   render: (args) => (
     <Toggle {...args}>
       <StarIcon />
       {toggleMockContent.label}
     </Toggle>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Toggle",
 } satisfies Meta<typeof Toggle>;
 
 export default meta;
@@ -50,7 +50,7 @@ export const Default: Story = {
   },
 };
 
-export const Chip: Story = { args: { variant: "chip", size: "touch" } };
+export const Chip: Story = { args: { size: "touch", variant: "chip" } };
 
 export const AllVariants: Story = {
   parameters: { controls: { disable: true } },

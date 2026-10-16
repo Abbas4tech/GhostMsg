@@ -16,13 +16,13 @@ export async function DELETE(): Promise<Response> {
     });
 
     return Response.json(
-      { success: true, message: "All messages deleted", deletedCount },
+      { deletedCount, message: "All messages deleted", success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to delete all messages:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

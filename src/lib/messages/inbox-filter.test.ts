@@ -21,7 +21,7 @@ describe("hasReplyText", () => {
   it("is false for missing or whitespace-only replies", () => {
     expect(hasReplyText(sweetMessage)).toBe(false);
     expect(
-      hasReplyText(buildMessage({ reply: { text: "   ", isPublished: false } }))
+      hasReplyText(buildMessage({ reply: { isPublished: false, text: "   " } }))
     ).toBe(false);
     expect(hasReplyText(answeredSpicyMessage)).toBe(true);
   });

@@ -26,9 +26,6 @@ function StatefulDeleteAccountModal(args: DeleteAccountModalProps) {
 }
 
 const meta = {
-  title: "Patterns/Modals/DeleteAccountModal",
-  component: DeleteAccountModal,
-  tags: ["autodocs"],
   args: {
     ...defaultDeleteAccountModalArgs,
     onConfirm: fn(),
@@ -36,15 +33,18 @@ const meta = {
     onOpenChange: fn(),
   },
   argTypes: {
-    open: { control: "boolean", description: "Dialog visibility" },
-    username: { control: "text", description: "What must be typed" },
     confirmValue: { control: "text", description: "Typed confirmation" },
     isPending: { control: "boolean", description: "Deleting (spinner)" },
-    onConfirmValueChange: { description: "Confirmation typed → value" },
     onConfirm: { description: "Delete account clicked" },
+    onConfirmValueChange: { description: "Confirmation typed → value" },
     onOpenChange: { description: "Cancel / Escape" },
+    open: { control: "boolean", description: "Dialog visibility" },
+    username: { control: "text", description: "What must be typed" },
   },
+  component: DeleteAccountModal,
   render: (args) => <StatefulDeleteAccountModal {...args} />,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/DeleteAccountModal",
 } satisfies Meta<typeof DeleteAccountModal>;
 
 export default meta;

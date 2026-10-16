@@ -9,16 +9,16 @@ export const sentimentTagEnum = z
 
 export const messageReplySchema = z
   .object({
-    text: z.string().trim().min(1).max(1000).openapi({
-      description: "Recipient's published reply text",
-      example: "Thank you so much! Really appreciate the kind words.",
-    }),
     isPublished: z.boolean().default(false).openapi({
       description: "Whether the reply is visible publicly on /u/[username]",
       example: true,
     }),
     publishedAt: z.string().datetime().optional().openapi({
       description: "ISO timestamp when the reply was published",
+    }),
+    text: z.string().trim().min(1).max(1000).openapi({
+      description: "Recipient's published reply text",
+      example: "Thank you so much! Really appreciate the kind words.",
     }),
   })
   .openapi("MessageReply");
@@ -29,36 +29,36 @@ export const messageObjectSchema = z
       description: "Unique Message ID",
       example: "64e0a123bc4567def8901234",
     }),
-    recipientId: z
-      .string()
-      .optional()
-      .openapi({ description: "Recipient User ID" }),
     content: z.string().openapi({
       description: "Anonymous message text content",
       example: "You are doing an amazing job!",
     }),
-    sentimentTag: sentimentTagEnum,
-    isQuarantined: z.boolean().default(false).openapi({
-      description:
-        "Flag indicating whether the message was isolated by content moderation",
-      example: false,
+    createdAt: z.string().datetime().openapi({
+      description: "Timestamp when the message was sent",
     }),
     isPinned: z.boolean().default(false).openapi({
       description: "Whether the message is starred/pinned by the recipient",
+      example: false,
+    }),
+    isQuarantined: z.boolean().default(false).openapi({
+      description:
+        "Flag indicating whether the message was isolated by content moderation",
       example: false,
     }),
     isRead: z.boolean().default(false).openapi({
       description: "Whether the message has been viewed by the recipient",
       example: true,
     }),
+    recipientId: z
+      .string()
+      .optional()
+      .openapi({ description: "Recipient User ID" }),
     reply: messageReplySchema.nullable().optional(),
     senderHash: z.string().optional().openapi({
       description:
         "Cryptographic hash fingerprint of sender for recipient blocklists",
     }),
-    createdAt: z.string().datetime().openapi({
-      description: "Timestamp when the message was sent",
-    }),
+    sentimentTag: sentimentTagEnum,
     updatedAt: z.string().datetime().optional(),
   })
   .openapi("Message");
@@ -79,10 +79,6 @@ export const messageSchema = z
 
 export const sendMessageSchema = z
   .object({
-    username: z.string().trim().min(1, "Username is required").openapi({
-      description: "Recipient's public username",
-      example: "johndoe",
-    }),
     content: z
       .string()
       .trim()
@@ -92,6 +88,10 @@ export const sendMessageSchema = z
         description: "Anonymous message text content (10-300 characters)",
         example: "Hey! Just wanted to say you are doing great work.",
       }),
+    username: z.string().trim().min(1, "Username is required").openapi({
+      description: "Recipient's public username",
+      example: "johndoe",
+    }),
   })
   .openapi("SendMessageRequest");
 
@@ -107,6 +107,11 @@ export const updateMessageSchema = z
 
 export const replyMessageSchema = z
   .object({
+    isPublished: z.boolean().default(false).openapi({
+      description:
+        "Whether to publish this response to the public profile showcase",
+      example: true,
+    }),
     text: z
       .string()
       .trim()
@@ -116,11 +121,6 @@ export const replyMessageSchema = z
         description: "Author's response text",
         example: "Thanks a lot for the support!",
       }),
-    isPublished: z.boolean().default(false).openapi({
-      description:
-        "Whether to publish this response to the public profile showcase",
-      example: true,
-    }),
   })
   .openapi("ReplyMessageRequest");
 

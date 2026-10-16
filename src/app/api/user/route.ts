@@ -23,13 +23,13 @@ export async function DELETE(request: NextRequest): Promise<Response> {
     const userDoc = await UserModel.findById(userId).select("username");
     if (!userDoc) {
       return Response.json(
-        { success: false, message: "User not found" },
+        { message: "User not found", success: false },
         { status: 404 }
       );
     }
     if (!parsed.success || parsed.data.confirmUsername !== userDoc.username) {
       return Response.json(
-        { success: false, message: "Type your username exactly to confirm" },
+        { message: "Type your username exactly to confirm", success: false },
         { status: 400 }
       );
     }
@@ -38,13 +38,13 @@ export async function DELETE(request: NextRequest): Promise<Response> {
     await UserModel.deleteOne({ _id: userDoc._id });
 
     return Response.json(
-      { success: true, message: "Account deleted" },
+      { message: "Account deleted", success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to delete account:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

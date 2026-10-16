@@ -4,19 +4,19 @@ import { Badge } from "./badge";
 import { BADGE_VARIANTS, countBadgeArgs, defaultBadgeArgs } from "./badge.mock";
 
 const meta = {
-  title: "Elements/Badge",
-  component: Badge,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: defaultBadgeArgs,
   argTypes: {
+    children: { control: "text", description: "Badge text" },
     variant: {
       control: "select",
-      options: BADGE_VARIANTS,
       description: "Visual style",
+      options: BADGE_VARIANTS,
     },
-    children: { control: "text", description: "Badge text" },
   },
+  component: Badge,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Badge",
 } satisfies Meta<typeof Badge>;
 
 export default meta;

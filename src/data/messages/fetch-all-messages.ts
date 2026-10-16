@@ -19,7 +19,7 @@ export async function fetchAllMessages(
     const result = await clientFetch(
       api.GET("/api/get-messages", {
         params: {
-          query: { status, limit: String(EXPORT_PAGE_SIZE), cursor },
+          query: { cursor, limit: String(EXPORT_PAGE_SIZE), status },
         },
       })
     );

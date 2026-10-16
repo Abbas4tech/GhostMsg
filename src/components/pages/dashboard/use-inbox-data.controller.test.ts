@@ -11,7 +11,7 @@ import { renderHookWithProviders } from "@/test/test-utils";
 import { useInboxDataController } from "./use-inbox-data.controller";
 
 vi.mock("sonner", () => ({
-  toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
+  toast: { error: vi.fn(), info: vi.fn(), success: vi.fn() },
 }));
 
 describe("useInboxDataController", () => {
@@ -21,7 +21,7 @@ describe("useInboxDataController", () => {
 
   it("loads one filter from the server with the server counts", async () => {
     const { result } = renderHookWithProviders(() =>
-      useInboxDataController({ status: "quarantined", q: "" })
+      useInboxDataController({ q: "", status: "quarantined" })
     );
 
     await waitFor(() => expect(result.current.messages).toHaveLength(1));
@@ -35,7 +35,7 @@ describe("useInboxDataController", () => {
 
   it("polls while the live stream is not connected", () => {
     const { result } = renderHookWithProviders(() =>
-      useInboxDataController({ status: "all", q: "" })
+      useInboxDataController({ q: "", status: "all" })
     );
 
     // No session in this harness, so the stream never connects.
@@ -44,7 +44,7 @@ describe("useInboxDataController", () => {
 
   it("toasts a failed refresh and confirms a good one", async () => {
     const { result } = renderHookWithProviders(() =>
-      useInboxDataController({ status: "all", q: "" })
+      useInboxDataController({ q: "", status: "all" })
     );
     await waitFor(() =>
       expect(result.current.messages.length).toBeGreaterThan(0)

@@ -1,6 +1,6 @@
 export const toastMockMessages = {
-  success: "Messages refreshed successfully",
+  description: "You light up every room you walk into!",
   error: "Failed to fetch messages",
   info: "New anonymous message received! 👻",
-  description: "You light up every room you walk into!",
+  success: "Messages refreshed successfully",
 };

@@ -8,9 +8,26 @@ import { AmaBanner, DEFAULT_AMA_PROMPT } from "./ama-banner";
 import { defaultAmaBannerArgs, longAmaBannerArgs } from "./ama-banner.mock";
 
 const meta = {
-  title: "Patterns/AmaBanner",
+  args: defaultAmaBannerArgs,
+  argTypes: {
+    children: { control: false, description: "Custom body (paused note)" },
+    eyebrow: { control: "text", description: "Small line above the prompt" },
+    prompt: {
+      control: "text",
+      description: "AMA Prompt; empty/null falls back to the default",
+    },
+    size: {
+      control: "radio",
+      description: "Padding",
+      options: ["sm", "md", "lg"],
+    },
+    tone: {
+      control: "radio",
+      description: "brand = accepting, soft = preview, quiet = paused",
+      options: ["brand", "soft", "quiet"],
+    },
+  },
   component: AmaBanner,
-  tags: ["autodocs"],
   decorators: [
     (Story) => (
       <div className="max-w-md">
@@ -18,25 +35,8 @@ const meta = {
       </div>
     ),
   ],
-  args: defaultAmaBannerArgs,
-  argTypes: {
-    prompt: {
-      control: "text",
-      description: "AMA Prompt; empty/null falls back to the default",
-    },
-    eyebrow: { control: "text", description: "Small line above the prompt" },
-    tone: {
-      control: "radio",
-      options: ["brand", "soft", "quiet"],
-      description: "brand = accepting, soft = preview, quiet = paused",
-    },
-    size: {
-      control: "radio",
-      options: ["sm", "md", "lg"],
-      description: "Padding",
-    },
-    children: { control: false, description: "Custom body (paused note)" },
-  },
+  tags: ["autodocs"],
+  title: "Patterns/AmaBanner",
 } satisfies Meta<typeof AmaBanner>;
 
 export default meta;
@@ -56,13 +56,13 @@ export const DefaultPrompt: Story = {
   },
 };
 
-export const Soft: Story = { args: { tone: "soft", size: "sm" } };
+export const Soft: Story = { args: { size: "sm", tone: "soft" } };
 
 export const QuietPaused: Story = {
   args: {
-    tone: "quiet",
-    eyebrow: "Paused",
     children: <p className="text-muted-foreground">Messages are paused.</p>,
+    eyebrow: "Paused",
+    tone: "quiet",
   },
 };
 
@@ -70,5 +70,5 @@ export const LongContent: Story = { args: longAmaBannerArgs };
 
 export const Mobile: Story = {
   args: longAmaBannerArgs,
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

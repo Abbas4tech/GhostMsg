@@ -13,19 +13,19 @@ const UNREAD_REGEX = /unread/i;
 const ALL_REGEX = /^all/i;
 
 const meta = {
-  title: "Patterns/FilterBar",
-  component: FilterBar,
-  tags: ["autodocs"],
   args: { ...defaultFilterBarArgs, onStatusChange: fn() },
   argTypes: {
     activeStatus: {
       control: "select",
-      options: ["all", "unread", "starred", "answered", "quarantined"],
       description: "Selected chip",
+      options: ["all", "unread", "starred", "answered", "quarantined"],
     },
     counts: { control: "object", description: "Count per status" },
     onStatusChange: { description: "Chip clicked → status" },
   },
+  component: FilterBar,
+  tags: ["autodocs"],
+  title: "Patterns/FilterBar",
 } satisfies Meta<typeof FilterBar>;
 
 export default meta;
@@ -66,5 +66,5 @@ export const QuarantinedActive: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

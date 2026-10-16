@@ -40,7 +40,7 @@ export function ShareLinkCard({
     <Card data-slot="share-link-card" variant="elevated">
       <CardHeader>
         <CardTitle>
-          <h2 className="font-bold text-xl">Your Public Profile Link</h2>
+          <h2 className="text-h2">Your Public Profile Link</h2>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">

@@ -11,14 +11,6 @@ const LOGOUT_REGEX = /log out/i;
 
 /** Wires the real next-auth session (via MSW) into the SiteHeader block. */
 const meta = {
-  title: "Pages/Layouts/SiteLayout",
-  component: SiteLayout,
-  tags: ["autodocs"],
-  parameters: {
-    layout: "fullscreen",
-    pageProviders: true,
-    msw: { handlers: withScenario(scenarios.session.authenticated) },
-  },
   args: {
     children: (
       <main className="container mx-auto p-8 text-muted-foreground">
@@ -29,6 +21,14 @@ const meta = {
   argTypes: {
     children: { control: false, description: "Page rendered under the header" },
   },
+  component: SiteLayout,
+  parameters: {
+    layout: "fullscreen",
+    msw: { handlers: withScenario(scenarios.session.authenticated) },
+    pageProviders: true,
+  },
+  tags: ["autodocs"],
+  title: "Pages/Layouts/SiteLayout",
 } satisfies Meta<typeof SiteLayout>;
 
 export default meta;

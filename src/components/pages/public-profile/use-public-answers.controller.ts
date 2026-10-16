@@ -31,12 +31,12 @@ export function usePublicAnswersController(
   return {
     amaPrompt: data?.amaPrompt,
     answers: data?.answers ?? EMPTY_ANSWERS,
-    isAccepting: data?.isAcceptingMessages ?? true,
-    displayName: data?.displayName,
     avatarUrl: data?.avatarUrl ?? null,
-    showAmaBanner: data?.showAmaBanner ?? true,
-    offerSuggestions: data?.offerSuggestions ?? true,
-    isNotFound: isNotFound(error),
+    displayName: data?.displayName,
+    isAccepting: data?.isAcceptingMessages ?? true,
     isLoading,
+    isNotFound: isNotFound(error),
+    offerSuggestions: data?.offerSuggestions ?? true,
+    showAmaBanner: data?.showAmaBanner ?? true,
   };
 }

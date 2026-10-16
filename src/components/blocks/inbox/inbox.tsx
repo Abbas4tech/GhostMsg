@@ -126,8 +126,8 @@ const VIEW_MODES: {
   label: string;
   mode: InboxViewMode;
 }[] = [
-  { mode: "grid", label: "Grid view", icon: LayoutGrid },
-  { mode: "list", label: "List view", icon: LayoutList },
+  { icon: LayoutGrid, label: "Grid view", mode: "grid" },
+  { icon: LayoutList, label: "List view", mode: "list" },
 ];
 
 const KEYBOARD_HINTS = [
@@ -218,7 +218,7 @@ function InboxEmptyState({
         >
           <Ghost />
         </EmptyMedia>
-        <EmptyTitle className="font-bold font-display text-2xl">
+        <EmptyTitle className="font-display text-h2">
           No Anonymous Messages yet
         </EmptyTitle>
         <EmptyDescription>
@@ -276,10 +276,7 @@ export function Inbox({
     >
       <header className="flex flex-wrap items-center justify-between gap-3.5">
         <div>
-          <h1
-            className="font-bold text-[34px] leading-tight tracking-tight"
-            id="inbox-title"
-          >
+          <h1 className="text-h1" id="inbox-title">
             Inbox
           </h1>
           <p className="text-muted-foreground text-sm">

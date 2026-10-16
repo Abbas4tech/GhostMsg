@@ -31,13 +31,13 @@ if (import.meta.env.MODE === "test") {
 const startMswWorker = async () => {
   const worker = setupWorker();
   await worker.start({
-    quiet: true,
-    serviceWorker: { url: "/mockServiceWorker.js" },
     onUnhandledRequest: (request, print) => {
       if (new URL(request.url).pathname.startsWith("/api/")) {
         print.error();
       }
     },
+    quiet: true,
+    serviceWorker: { url: "/mockServiceWorker.js" },
   });
   return worker;
 };
@@ -72,8 +72,8 @@ function PageProviders({ children }: { children: React.ReactNode }) {
     () =>
       new QueryClient({
         defaultOptions: {
-          queries: { retry: false, refetchOnWindowFocus: false },
           mutations: { retry: false },
+          queries: { refetchOnWindowFocus: false, retry: false },
         },
       })
   );
@@ -96,47 +96,47 @@ const withPageProviders: Decorator = (Story, context) =>
 
 const preview: Preview = {
   decorators: [withPageProviders, withTheme],
-  loaders: [mswLoader(startMswWorker)],
   globalTypes: {
-    theme: {
-      description: "Color theme",
-      toolbar: {
-        title: "Theme",
-        icon: "mirror",
-        items: [
-          { value: "light", title: "Light", icon: "sun" },
-          { value: "dark", title: "Dark", icon: "moon" },
-        ],
-        dynamicTitle: true,
-      },
-    },
     palette: {
       description: "Color palette",
       toolbar: {
-        title: "Palette",
+        dynamicTitle: true,
         icon: "paintbrush",
         items: [
-          { value: "spectral", title: "Soft spectral" },
-          { value: "midnight", title: "Midnight confessional" },
-          { value: "paper", title: "Playful paper" },
+          { title: "Soft spectral", value: "spectral" },
+          { title: "Midnight confessional", value: "midnight" },
+          { title: "Playful paper", value: "paper" },
         ],
+        title: "Palette",
+      },
+    },
+    theme: {
+      description: "Color theme",
+      toolbar: {
         dynamicTitle: true,
+        icon: "mirror",
+        items: [
+          { icon: "sun", title: "Light", value: "light" },
+          { icon: "moon", title: "Dark", value: "dark" },
+        ],
+        title: "Theme",
       },
     },
   },
   initialGlobals: {
-    theme: "light",
     palette: "spectral",
+    theme: "light",
   },
+  loaders: [mswLoader(startMswWorker)],
   parameters: {
-    layout: "padded",
-    nextjs: { appDirectory: true },
-    msw: { handlers: defaultHandlers },
     a11y: { test: "error" },
     controls: {
       expanded: true,
       matchers: { color: /(background|color)$/i, date: /Date$/i },
     },
+    layout: "padded",
+    msw: { handlers: defaultHandlers },
+    nextjs: { appDirectory: true },
   },
   tags: ["autodocs"],
 };

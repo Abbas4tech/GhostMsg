@@ -7,19 +7,19 @@ import { cn } from "@/lib/utils";
 const brandMarkTileVariants = cva(
   "grid shrink-0 place-items-center bg-brand-gradient text-brand-foreground",
   {
+    defaultVariants: { size: "md" },
     variants: {
       size: {
-        sm: "size-7 rounded-[9px] [&_svg]:size-4",
         md: "size-9 rounded-xl [&_svg]:size-5",
+        sm: "size-7 rounded-[9px] [&_svg]:size-4",
       },
     },
-    defaultVariants: { size: "md" },
   }
 );
 
 const wordmarkVariants = cva("font-bold font-display tracking-tight", {
-  variants: { size: { sm: "text-base", md: "text-[22px]" } },
   defaultVariants: { size: "md" },
+  variants: { size: { md: "text-[22px]", sm: "text-base" } },
 });
 
 export interface BrandMarkProps

@@ -6,19 +6,19 @@ import { PageHeading } from "./page-heading";
 import { defaultPageHeadingArgs } from "./page-heading.mock";
 
 const meta = {
-  title: "Patterns/PageHeading",
-  component: PageHeading,
-  tags: ["autodocs"],
   args: defaultPageHeadingArgs,
   argTypes: {
+    actions: { control: false, description: "Right-aligned actions" },
     breadcrumb: {
       control: "object",
       description: "Crumbs; the last (no href) is the current page",
     },
-    title: { control: "text", description: "Page <h1>" },
     description: { control: "text", description: "Muted line under the title" },
-    actions: { control: false, description: "Right-aligned actions" },
+    title: { control: "text", description: "Page <h1>" },
   },
+  component: PageHeading,
+  tags: ["autodocs"],
+  title: "Patterns/PageHeading",
 } satisfies Meta<typeof PageHeading>;
 
 export default meta;
@@ -59,10 +59,10 @@ export const WithActions: Story = {
 export const TitleOnly: Story = {
   args: {
     breadcrumb: [
-      { label: "Dashboard", href: "/dashboard" },
+      { href: "/dashboard", label: "Dashboard" },
       { label: "Settings" },
     ],
-    title: "Settings",
     description: undefined,
+    title: "Settings",
   },
 };

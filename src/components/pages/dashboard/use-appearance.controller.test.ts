@@ -4,13 +4,13 @@ import { renderHookWithProviders } from "@/test/test-utils";
 import { useAppearanceController } from "./use-appearance.controller";
 
 const { setTheme, setPalette, theme } = vi.hoisted(() => ({
-  setTheme: vi.fn(),
   setPalette: vi.fn(),
+  setTheme: vi.fn(),
   theme: { current: "dark" as string | undefined },
 }));
 
 vi.mock("next-themes", () => ({
-  useTheme: () => ({ theme: theme.current, setTheme }),
+  useTheme: () => ({ setTheme, theme: theme.current }),
 }));
 vi.mock("@/providers/palette-provider", () => ({
   usePalette: () => ({ palette: "spectral", setPalette }),

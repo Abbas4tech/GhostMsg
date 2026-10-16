@@ -18,13 +18,13 @@ export async function GET(): Promise<Response> {
 
     const userDoc = await UserModel.findById(userId).select(PREFERENCE_FIELDS);
     return Response.json(
-      { success: true, preferences: toUserPreferences(userDoc ?? {}) },
+      { preferences: toUserPreferences(userDoc ?? {}), success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to fetch preferences:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }
@@ -43,7 +43,7 @@ export async function PATCH(request: NextRequest): Promise<Response> {
     );
     if (!parsed.success) {
       return Response.json(
-        { success: false, message: "Invalid preferences" },
+        { message: "Invalid preferences", success: false },
         { status: 400 }
       );
     }
@@ -65,16 +65,16 @@ export async function PATCH(request: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         message: "Preferences updated",
         preferences: toUserPreferences(updated ?? {}),
+        success: true,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to update preferences:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

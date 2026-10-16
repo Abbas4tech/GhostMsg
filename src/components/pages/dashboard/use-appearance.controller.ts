@@ -25,10 +25,10 @@ export function useAppearanceController() {
   );
 
   return {
-    mode: isColorMode(theme) ? theme : "system",
     handleModeChange: setTheme as (mode: ColorMode) => void,
+    handlePaletteChange,
+    mode: isColorMode(theme) ? theme : "system",
     palette,
     palettes: PALETTE_OPTIONS,
-    handlePaletteChange,
   };
 }

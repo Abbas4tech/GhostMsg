@@ -7,15 +7,15 @@ export const FIXTURE_AVATAR_DATA_URL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8+P9/PQAJZAPm1iBb+gAAAABJRU5ErkJggg==";
 
 export const defaultIdentityCardArgs: IdentityCardProps = {
-  username: FIXTURE_USERNAME,
-  displayName: "John",
   avatarUrl: null,
-  linkPrefix: "ghostmsg.app/u/",
+  displayName: "John",
   isPhotoProcessing: false,
+  linkPrefix: "ghostmsg.app/u/",
   onChangeUsername: noop,
   onDisplayNameChange: noop,
   onPhotoRemove: noop,
   onPhotoSelect: noop,
+  username: FIXTURE_USERNAME,
 };
 
 export const withPhotoIdentityCardArgs = {

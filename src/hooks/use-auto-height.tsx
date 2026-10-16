@@ -100,5 +100,5 @@ export function useAutoHeight<T extends HTMLElement = HTMLDivElement>(
     }
   }, [height, measure]);
 
-  return { ref, height } as const;
+  return { height, ref } as const;
 }

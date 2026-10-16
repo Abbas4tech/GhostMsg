@@ -5,9 +5,19 @@ import { VisitorPreview } from "./visitor-preview";
 import { defaultVisitorPreviewArgs } from "./visitor-preview.mock";
 
 const meta = {
-  title: "Patterns/VisitorPreview",
+  args: defaultVisitorPreviewArgs,
+  argTypes: {
+    amaPrompt: { control: "text", description: "Draft AMA Prompt" },
+    avatarUrl: { control: "text", description: "Photo (data URL) or null" },
+    displayName: {
+      control: "text",
+      description: "Shown instead of the username when set",
+    },
+    isAccepting: { control: "boolean", description: "Message Acceptance" },
+    showAmaBanner: { control: "boolean", description: "Banner on/off" },
+    username: { control: "text", description: "Recipient handle" },
+  },
   component: VisitorPreview,
-  tags: ["autodocs"],
   decorators: [
     (Story) => (
       <div className="max-w-md">
@@ -15,18 +25,8 @@ const meta = {
       </div>
     ),
   ],
-  args: defaultVisitorPreviewArgs,
-  argTypes: {
-    username: { control: "text", description: "Recipient handle" },
-    displayName: {
-      control: "text",
-      description: "Shown instead of the username when set",
-    },
-    avatarUrl: { control: "text", description: "Photo (data URL) or null" },
-    amaPrompt: { control: "text", description: "Draft AMA Prompt" },
-    showAmaBanner: { control: "boolean", description: "Banner on/off" },
-    isAccepting: { control: "boolean", description: "Message Acceptance" },
-  },
+  tags: ["autodocs"],
+  title: "Patterns/VisitorPreview",
 } satisfies Meta<typeof VisitorPreview>;
 
 export default meta;

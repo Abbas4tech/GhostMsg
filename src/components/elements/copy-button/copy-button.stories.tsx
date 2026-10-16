@@ -4,15 +4,26 @@ import { CopyButton } from "./copy-button";
 import { defaultCopyButtonArgs } from "./copy-button.mock";
 
 const meta = {
-  title: "Elements/CopyButton",
-  component: CopyButton,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultCopyButtonArgs, onClick: fn(), onCopiedChange: fn() },
   argTypes: {
     content: { control: "text", description: "Text written to the clipboard" },
+    copied: { control: "boolean", description: "Controlled copied state" },
+    delay: {
+      control: "number",
+      description: "ms before the check icon reverts to copy",
+    },
+    onClick: { description: "Click handler (fires before copying)" },
+    onCopiedChange: {
+      description: "Called with `true` after copying and `false` after `delay`",
+    },
+    size: {
+      control: "radio",
+      description: "Square size",
+      options: ["xs", "sm", "default", "lg"],
+    },
     variant: {
       control: "select",
+      description: "Visual style",
       options: [
         "default",
         "accent",
@@ -22,23 +33,12 @@ const meta = {
         "ghost",
         "link",
       ],
-      description: "Visual style",
-    },
-    size: {
-      control: "radio",
-      options: ["xs", "sm", "default", "lg"],
-      description: "Square size",
-    },
-    delay: {
-      control: "number",
-      description: "ms before the check icon reverts to copy",
-    },
-    copied: { control: "boolean", description: "Controlled copied state" },
-    onClick: { description: "Click handler (fires before copying)" },
-    onCopiedChange: {
-      description: "Called with `true` after copying and `false` after `delay`",
     },
   },
+  component: CopyButton,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/CopyButton",
 } satisfies Meta<typeof CopyButton>;
 
 export default meta;

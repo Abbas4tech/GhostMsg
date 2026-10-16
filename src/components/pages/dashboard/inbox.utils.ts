@@ -20,12 +20,12 @@ export type InboxShortcut =
   | "search";
 
 const SHORTCUT_KEYS: Record<string, InboxShortcut> = {
+  "/": "search",
   j: "next",
   k: "prev",
-  x: "select",
-  s: "star",
   r: "reply",
-  "/": "search",
+  s: "star",
+  x: "select",
 };
 
 /** Maps a bare key press to an inbox shortcut (modifiers are handled by the caller). */
@@ -91,8 +91,8 @@ export function toggleScopedSelection(
 ): ScopedSelection {
   const ids = selection.scope === scope ? selection.ids : [];
   return {
-    scope,
     ids: ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id],
+    scope,
   };
 }
 

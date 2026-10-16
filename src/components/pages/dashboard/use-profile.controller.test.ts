@@ -10,7 +10,7 @@ import { useProfileController } from "./use-profile.controller";
 const { push } = vi.hoisted(() => ({ push: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 describe("useProfileController", () => {
   beforeEach(() => {
@@ -62,7 +62,7 @@ describe("useProfileController", () => {
     expect(toast.success).toHaveBeenCalledWith("Profile saved");
     await waitFor(() => expect(result.current.isDirty).toBe(false));
     expect(bodies).toEqual([
-      { displayName: "Maya R.", amaPrompt: "Ask me about design" },
+      { amaPrompt: "Ask me about design", displayName: "Maya R." },
     ]);
     server.events.removeListener("request:start", captureBody);
   });

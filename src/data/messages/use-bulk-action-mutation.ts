@@ -41,23 +41,23 @@ export const useBulkActionMutation = () => {
           body: { action, ids },
         })
       ),
+    onError: (err: Error, _variables, context) => {
+      restoreCachedMessages(queryClient, context?.snapshot);
+      toast.error(err.message || "Failed to perform bulk action");
+    },
     onMutate: async (variables: BulkActionParams) => {
       const snapshot = await updateCachedMessages(queryClient, (messages) =>
         applyBulkAction(messages, variables)
       );
       return { snapshot };
     },
+    onSettled: () => {
+      invalidateCachedMessages(queryClient);
+    },
     onSuccess: (_, variables) => {
       toast.success(
         `Bulk ${variables.action} applied to ${variables.ids.length} message(s)`
       );
-    },
-    onError: (err: Error, _variables, context) => {
-      restoreCachedMessages(queryClient, context?.snapshot);
-      toast.error(err.message || "Failed to perform bulk action");
-    },
-    onSettled: () => {
-      invalidateCachedMessages(queryClient);
     },
   });
 };

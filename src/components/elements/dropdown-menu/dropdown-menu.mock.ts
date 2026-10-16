@@ -1,7 +1,7 @@
 export const dropdownMenuMockContent = {
-  trigger: "Export",
-  label: "Download as",
   items: ["CSV", "JSON"],
+  label: "Download as",
+  trigger: "Export",
 };
 
 export const defaultDropdownMenuArgs = { modal: false };

@@ -5,10 +5,10 @@ import { Spinner } from "./spinner";
 import { spinnerMockContent } from "./spinner.mock";
 
 const meta = {
-  title: "Elements/Spinner",
   component: Spinner,
-  tags: ["autodocs"],
   parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Spinner",
 } satisfies Meta<typeof Spinner>;
 
 export default meta;
@@ -21,13 +21,13 @@ export const Default: Story = {
 };
 
 export const InButton: Story = {
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("button")).toBeDisabled();
+  },
   render: (args) => (
     <Button disabled>
       <Spinner {...args} data-icon="inline-start" />
       {spinnerMockContent.button}
     </Button>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("button")).toBeDisabled();
-  },
 };

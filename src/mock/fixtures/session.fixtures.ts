@@ -6,15 +6,15 @@ export function buildSession(
   overrides: Partial<Session["user"]> = {}
 ): Session {
   return {
+    expires: "2099-01-01T00:00:00.000Z",
     user: {
       _id: "user-1",
-      username: FIXTURE_USERNAME,
       email: "johndoe@example.com",
-      name: FIXTURE_USERNAME,
       isVerified: true,
+      name: FIXTURE_USERNAME,
+      username: FIXTURE_USERNAME,
       ...overrides,
     },
-    expires: "2099-01-01T00:00:00.000Z",
   };
 }
 

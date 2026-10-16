@@ -59,7 +59,7 @@ function ThemeTogglerButton({
       {({ effective, resolved, toggleTheme }) => (
         <button
           aria-label="Toggle theme"
-          className={cn(buttonVariants({ variant, size, className }))}
+          className={cn(buttonVariants({ className, size, variant }))}
           data-slot="theme-toggler-button"
           onClick={(e) => {
             onClick?.(e);

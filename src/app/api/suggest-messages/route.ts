@@ -4,5 +4,5 @@ export const runtime = "edge";
 
 export async function GET(): Promise<Response> {
   const messages = await getSuggestedMessages();
-  return Response.json({ success: true, messages }, { status: 200 });
+  return Response.json({ messages, success: true }, { status: 200 });
 }

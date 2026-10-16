@@ -24,13 +24,13 @@ export async function GET(): Promise<Response> {
     );
 
     return Response.json(
-      { success: true, counts: toInboxCounts(row) },
+      { counts: toInboxCounts(row), success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to count messages:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

@@ -26,8 +26,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     ) {
       return Response.json(
         {
-          success: false,
           message: "Message content must be between 10 and 300 characters",
+          success: false,
         },
         { status: 400 }
       );
@@ -41,8 +41,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     if (!user) {
       return Response.json(
         {
-          success: false,
           message: "Recipient not found",
+          success: false,
         },
         { status: 404 }
       );
@@ -51,8 +51,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     if (!user.isAcceptingMessage) {
       return Response.json(
         {
-          success: false,
           message: "Recipient is not accepting messages at this time",
+          success: false,
         },
         { status: 404 }
       );
@@ -66,9 +66,9 @@ export async function POST(req: NextRequest): Promise<Response> {
     if (!rateLimit.success) {
       return Response.json(
         {
-          success: false,
           message:
             "Too many messages sent. Please wait a few minutes before trying again.",
+          success: false,
         },
         { status: 429 }
       );
@@ -80,8 +80,8 @@ export async function POST(req: NextRequest): Promise<Response> {
       // Silent shadowban: return 200 OK so attacker is unaware they are blocked, but drop the payload
       return Response.json(
         {
-          success: true,
           message: "Message sent successfully!",
+          success: true,
         },
         { status: 200 }
       );
@@ -97,24 +97,24 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     // 5. Create Standalone Message Document
     const messageDoc = await MessageModel.create({
-      recipientId: user._id,
       content: content.trim(),
-      sentimentTag: moderation.sentimentTag,
-      isQuarantined,
       isPinned: false,
+      isQuarantined,
       isRead: false,
+      recipientId: user._id,
       senderHash,
+      sentimentTag: moderation.sentimentTag,
     });
 
     // 6. Publish real-time event
     publishNewMessage(String(user._id), {
       _id: String(messageDoc._id),
       content: messageDoc.content,
-      sentimentTag: messageDoc.sentimentTag,
-      isQuarantined: messageDoc.isQuarantined,
-      isPinned: messageDoc.isPinned,
-      isRead: messageDoc.isRead,
       createdAt: messageDoc.createdAt.toISOString(),
+      isPinned: messageDoc.isPinned,
+      isQuarantined: messageDoc.isQuarantined,
+      isRead: messageDoc.isRead,
+      sentimentTag: messageDoc.sentimentTag,
     });
 
     // 7–8. Alerts: never for quarantined messages or during quiet hours;
@@ -129,9 +129,9 @@ export async function POST(req: NextRequest): Promise<Response> {
     if (canAlert && user.email && settings?.emailAlerts === "instant") {
       sendMessageAlertEmail({
         email: user.email,
-        username: user.username,
         preview: hideText ? null : preview,
         sentimentTag: messageDoc.sentimentTag,
+        username: user.username,
       }).catch((e) => console.warn("Email alert error:", e));
     }
 
@@ -141,16 +141,16 @@ export async function POST(req: NextRequest): Promise<Response> {
       user.pushSubscriptions?.length
     ) {
       sendPushToUser(String(user._id), user.pushSubscriptions, {
-        title: "New anonymous message 👻",
         body: preview,
+        title: "New anonymous message 👻",
         url: "/dashboard",
       }).catch((e) => console.warn("Web push error:", e));
     }
 
     return Response.json(
       {
-        success: true,
         message: "Message sent successfully!",
+        success: true,
       },
       { status: 200 }
     );
@@ -158,8 +158,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     console.error("Failed to send message:", error);
     return Response.json(
       {
-        success: false,
         message: "Failed to send message - Internal Server Error",
+        success: false,
       },
       { status: 500 }
     );

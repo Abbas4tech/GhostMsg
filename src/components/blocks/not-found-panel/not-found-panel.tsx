@@ -28,9 +28,7 @@ export function NotFoundPanel({
         <p className="font-bold font-display text-muted-foreground text-sm uppercase tracking-wider">
           404
         </p>
-        <h1 className="font-bold text-3xl leading-tight tracking-tight">
-          This page vanished like a ghost.
-        </h1>
+        <h1 className="text-h1">This page vanished like a ghost.</h1>
         <p className="text-muted-foreground">
           The link may be mistyped, or the page was removed.
         </p>

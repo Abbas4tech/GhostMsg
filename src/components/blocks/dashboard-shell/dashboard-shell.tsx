@@ -47,6 +47,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarSeparator,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/elements/sidebar";
 import { Switch } from "@/components/elements/switch";
@@ -62,18 +63,18 @@ const NAV_ITEMS: {
   id: DashboardNavId;
   label: string;
 }[] = [
-  { id: "inbox", href: "/dashboard", label: "Inbox", icon: InboxIcon },
+  { href: "/dashboard", icon: InboxIcon, id: "inbox", label: "Inbox" },
   {
-    id: "profile",
     href: "/dashboard/profile",
-    label: "Profile",
     icon: UserIcon,
+    id: "profile",
+    label: "Profile",
   },
   {
-    id: "settings",
     href: "/dashboard/settings",
-    label: "Settings",
     icon: SlidersHorizontalIcon,
+    id: "settings",
+    label: "Settings",
   },
 ];
 
@@ -169,10 +170,16 @@ function DashboardSidebar({
   onOpenCommand,
   onSignOut,
 }: SidebarParts): React.JSX.Element {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
   return (
-    <Sidebar aria-label="Sidebar" collapsible="offcanvas">
+    <Sidebar aria-label="Sidebar" collapsible="icon">
       <SidebarHeader className="gap-5 px-3.5 pt-5">
-        <BrandMark className="px-1.5" href="/" />
+        <div className="flex items-center justify-between gap-2 group-data-[collapsible=icon]:flex-col-reverse">
+          <BrandMark className="px-1.5" href="/" iconOnly={isCollapsed} />
+          <SidebarTrigger />
+        </div>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -308,9 +315,7 @@ function MobileTopBar({
   return (
     <header className="sticky top-0 z-30 flex items-center gap-2 border-b bg-background/90 px-4 py-2.5 backdrop-blur md:hidden">
       <BrandMark href="/" iconOnly size="sm" />
-      <span className="flex-1 truncate font-bold font-display text-lg">
-        {title}
-      </span>
+      <span className="flex-1 truncate font-display text-h3">{title}</span>
       <Button
         aria-label="Open command palette"
         className="size-11 rounded-full"
@@ -357,7 +362,7 @@ function MobileTabBar({
             <Icon aria-hidden="true" className="size-6" />
             {label}
             {id === "inbox" && unreadCount > 0 ? (
-              <span className="absolute top-1.5 left-[calc(50%+6px)] grid h-[18px] min-w-[18px] place-items-center rounded-full bg-primary px-1 text-[11px] text-primary-foreground tabular-nums">
+              <span className="absolute top-1.5 left-[calc(50%+6px)] grid h-[18px] min-w-[18px] place-items-center rounded-full bg-primary px-1 text-primary-foreground text-xs tabular-nums">
                 <span className="sr-only">Unread: </span>
                 {unreadCount}
               </span>

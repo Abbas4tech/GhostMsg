@@ -55,15 +55,15 @@ export function useChangeUsernameController(currentUsername: string) {
   }, [mutateAsync, value, update, router]);
 
   return {
-    isOpen,
-    open,
-    setIsOpen,
-    value,
-    setValue,
     // The current username is never "checking" or "taken" (it is theirs).
     availability: value.trim() === currentUsername ? "idle" : availability,
     errorMessage: error?.message,
-    isSaving: mutation.isPending,
     handleSubmit,
+    isOpen,
+    isSaving: mutation.isPending,
+    open,
+    setIsOpen,
+    setValue,
+    value,
   } as const;
 }

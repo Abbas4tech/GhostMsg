@@ -18,7 +18,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     if (!parseResult.success) {
       return Response.json(
-        { success: false, message: "Invalid bulk action payload" },
+        { message: "Invalid bulk action payload", success: false },
         { status: 400 }
       );
     }
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     if (validIds.length === 0) {
       return Response.json(
-        { success: false, message: "No valid message IDs provided" },
+        { message: "No valid message IDs provided", success: false },
         { status: 400 }
       );
     }
@@ -49,13 +49,13 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
 
     return Response.json(
-      { success: true, message: `Bulk ${action} executed successfully` },
+      { message: `Bulk ${action} executed successfully`, success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to execute bulk action:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

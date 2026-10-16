@@ -22,7 +22,7 @@ export async function POST(request: NextRequest): Promise<Response> {
   } catch (error) {
     console.error("Failed to suggest AMA prompts:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

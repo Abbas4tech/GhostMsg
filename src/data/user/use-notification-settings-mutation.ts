@@ -14,13 +14,13 @@ export const useNotificationSettingsMutation = () =>
     NotificationSettingsPayload,
     unknown
   >({
-    queryKey: queryKeys.user.notifications(),
-    scopeId: "user-notifications",
-    mutationFn: (body) =>
-      clientFetch(api.PATCH("/api/user/notifications", { body })),
+    errorMessage: "Failed to update notifications",
     merge: (data, payload) => ({
       ...data,
       notificationSettings: { ...data.notificationSettings, ...payload },
     }),
-    errorMessage: "Failed to update notifications",
+    mutationFn: (body) =>
+      clientFetch(api.PATCH("/api/user/notifications", { body })),
+    queryKey: queryKeys.user.notifications(),
+    scopeId: "user-notifications",
   });

@@ -32,8 +32,8 @@ describe("moderateAndClassifyMessage", () => {
 
     expect(result).toEqual({
       isToxic: false,
-      toxicity: "none",
       sentimentTag: "neutral",
+      toxicity: "none",
     });
     expect(generateObject).not.toHaveBeenCalled();
   });
@@ -44,12 +44,12 @@ describe("moderateAndClassifyMessage", () => {
     ["hurtful", true],
     ["severe", true],
   ] as const)("reads toxicity %s (isToxic = %s)", async (toxicity, isToxic) => {
-    replyWith({ toxicity, sentimentTag: "curious" });
+    replyWith({ sentimentTag: "curious", toxicity });
 
     await expect(moderateAndClassifyMessage("A message")).resolves.toEqual({
-      toxicity,
       isToxic,
       sentimentTag: "curious",
+      toxicity,
     });
   });
 
@@ -59,9 +59,9 @@ describe("moderateAndClassifyMessage", () => {
     await expect(
       moderateAndClassifyMessage("A message")
     ).resolves.toMatchObject({
-      toxicity: "none",
       isToxic: false,
       sentimentTag: "neutral",
+      toxicity: "none",
     });
   });
 });

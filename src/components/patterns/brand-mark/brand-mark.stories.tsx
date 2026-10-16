@@ -4,20 +4,20 @@ import { BrandMark } from "./brand-mark";
 import { defaultBrandMarkArgs } from "./brand-mark.mock";
 
 const meta = {
-  title: "Patterns/BrandMark",
-  component: BrandMark,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: defaultBrandMarkArgs,
   argTypes: {
-    size: {
-      control: "radio",
-      options: ["sm", "md"],
-      description: "Tile size",
-    },
     href: { control: "text", description: "Optional link target" },
     iconOnly: { control: "boolean", description: "Hide the wordmark" },
+    size: {
+      control: "radio",
+      description: "Tile size",
+      options: ["sm", "md"],
+    },
   },
+  component: BrandMark,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Patterns/BrandMark",
 } satisfies Meta<typeof BrandMark>;
 
 export default meta;
@@ -31,6 +31,6 @@ export const HomeLink: Story = {
   },
 };
 
-export const Small: Story = { args: { size: "sm", href: undefined } };
+export const Small: Story = { args: { href: undefined, size: "sm" } };
 
 export const IconOnly: Story = { args: { iconOnly: true } };

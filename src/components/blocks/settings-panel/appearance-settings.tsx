@@ -32,14 +32,14 @@ export interface AppearanceSettingsProps {
 
 /** Fixed preview colours so each tile shows its mode, whatever is active. */
 const MODE_PREVIEW = {
-  light: { bg: "oklch(0.985 0.006 295)", ink: "oklch(0.21 0.03 285)" },
   dark: { bg: "oklch(0.16 0.03 285)", ink: "oklch(0.95 0.01 295)" },
+  light: { bg: "oklch(0.985 0.006 295)", ink: "oklch(0.21 0.03 285)" },
 } as const;
 
 const MODES: { label: string; value: ColorMode }[] = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
+  { label: "Light", value: "light" },
+  { label: "Dark", value: "dark" },
+  { label: "System", value: "system" },
 ];
 
 const isColorMode = (value: string): value is ColorMode =>

@@ -4,9 +4,16 @@ import { SectionNav } from "./section-nav";
 import { defaultSectionNavArgs } from "./section-nav.mock";
 
 const meta = {
-  title: "Patterns/SectionNav",
+  args: defaultSectionNavArgs,
+  argTypes: {
+    activeId: {
+      control: "select",
+      description: "Section in view (scroll-spy)",
+      options: defaultSectionNavArgs.items.map((item) => item.id),
+    },
+    items: { control: "object", description: "Section ids and labels" },
+  },
   component: SectionNav,
-  tags: ["autodocs"],
   decorators: [
     (Story) => (
       <div className="w-[180px]">
@@ -14,15 +21,8 @@ const meta = {
       </div>
     ),
   ],
-  args: defaultSectionNavArgs,
-  argTypes: {
-    items: { control: "object", description: "Section ids and labels" },
-    activeId: {
-      control: "select",
-      options: defaultSectionNavArgs.items.map((item) => item.id),
-      description: "Section in view (scroll-spy)",
-    },
-  },
+  tags: ["autodocs"],
+  title: "Patterns/SectionNav",
 } satisfies Meta<typeof SectionNav>;
 
 export default meta;

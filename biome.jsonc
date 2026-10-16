@@ -10,6 +10,7 @@
       "!**/node_modules",
       "!**/.next",
       "!**/public",
+      "!ghostmsg-handoff",
       "src/**",
       ".storybook/**",
       "emails/**",
@@ -24,6 +25,9 @@
   },
   "linter": {
     "rules": {
+      "nursery": {
+        "noTailwindRawColors": "error"
+      },
       "performance": {
         "noBarrelFile": "off"
       },
@@ -52,13 +56,33 @@
   },
   "overrides": [
     {
+      // Upstream shadcn uses compound bracket selectors ([[data-x=y]_&]:class) that
+      // crash noTailwindRawColors's candidate parser (biomejs/biome#11342), unrelated
+      // to raw colors. Stock parts, so losing coverage here is low-risk.
+      "includes": [
+        "src/components/elements/field/**",
+        "src/components/elements/input-group/**",
+        "src/components/elements/item/**",
+        "src/components/elements/kbd/**",
+        "src/components/elements/sidebar/**"
+      ],
+      "linter": {
+        "rules": {
+          "nursery": {
+            "noTailwindRawColors": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": [
         "src/components/elements/carousel/**",
         "src/components/elements/input-otp/**",
         "src/components/elements/breadcrumb/**",
         "src/components/elements/field/**",
         "src/components/elements/input-group/**",
-        "src/components/elements/item/**"
+        "src/components/elements/item/**",
+        "src/components/elements/button-group/**"
       ],
       "linter": {
         "rules": {

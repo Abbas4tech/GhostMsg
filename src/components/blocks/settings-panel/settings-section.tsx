@@ -49,10 +49,7 @@ export function SettingsSection({
       <CardHeader className="flex flex-wrap items-baseline justify-between gap-3">
         <CardTitle>
           <h2
-            className={cn(
-              "font-bold text-xl",
-              tone === "danger" && "text-destructive"
-            )}
+            className={cn("text-h2", tone === "danger" && "text-destructive")}
             id={titleId}
           >
             {title}
@@ -91,11 +88,11 @@ export function SettingRow({
       <FieldContent>
         <div className="flex flex-wrap items-center gap-2">
           {htmlFor ? (
-            <FieldLabel className="font-bold text-[15px]" htmlFor={htmlFor}>
+            <FieldLabel className="text-title" htmlFor={htmlFor}>
               {title}
             </FieldLabel>
           ) : (
-            <b className="text-[15px]">{title}</b>
+            <b className="text-title">{title}</b>
           )}
           {badge}
         </div>

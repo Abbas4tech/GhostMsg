@@ -12,7 +12,6 @@ export const publicQueries = {
    */
   suggestions: () =>
     queryOptions({
-      queryKey: queryKeys.public.suggestions(),
       queryFn: async ({ signal }) => {
         try {
           return await clientFetch(
@@ -29,8 +28,9 @@ export const publicQueries = {
           throw error;
         }
       },
-      staleTime: SUGGESTIONS_STALE_MS,
-      retry: false,
+      queryKey: queryKeys.public.suggestions(),
       refetchOnWindowFocus: false,
+      retry: false,
+      staleTime: SUGGESTIONS_STALE_MS,
     }),
 };

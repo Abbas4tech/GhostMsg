@@ -20,8 +20,8 @@ export async function PATCH(request: NextRequest): Promise<Response> {
     if (!parsed.success) {
       return Response.json(
         {
-          success: false,
           message: parsed.error.issues[0]?.message ?? "Invalid username",
+          success: false,
         },
         { status: 400 }
       );
@@ -29,12 +29,12 @@ export async function PATCH(request: NextRequest): Promise<Response> {
 
     const { username } = parsed.data;
     const taken = await UserModel.exists({
-      username,
       _id: { $ne: userId },
+      username,
     });
     if (taken) {
       return Response.json(
-        { success: false, message: "Username is already taken" },
+        { message: "Username is already taken", success: false },
         { status: 409 }
       );
     }
@@ -42,13 +42,13 @@ export async function PATCH(request: NextRequest): Promise<Response> {
     await UserModel.updateOne({ _id: userId }, { $set: { username } });
 
     return Response.json(
-      { success: true, message: "Username updated", username },
+      { message: "Username updated", success: true, username },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to change username:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

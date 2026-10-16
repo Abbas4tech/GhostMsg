@@ -38,10 +38,10 @@ export function RevealMessageModal({
     <AlertDialog onOpenChange={(isOpen) => !isOpen && onClose()} open={open}>
       <AlertDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
         <AlertDialogHeader className="text-left sm:text-left">
-          <AlertDialogTitle className="font-bold text-xl">
+          <AlertDialogTitle className="text-h2">
             Reveal this message?
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-[15px]">
+          <AlertDialogDescription className="text-sm">
             It was flagged for hurtful language. You don&apos;t have to read it.
             Keeping it hidden is always fine.
           </AlertDialogDescription>

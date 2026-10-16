@@ -16,11 +16,11 @@ const DAY = 24 * HOUR;
 const recipient = (
   overrides: Partial<DigestRecipient> = {}
 ): DigestRecipient => ({
-  id: "u1",
   email: "maya@example.com",
-  username: "maya",
   hideMessageText: true,
+  id: "u1",
   lastDigestSentAt: null,
+  username: "maya",
   ...overrides,
 });
 
@@ -35,10 +35,10 @@ const messages: DigestMessage[] = [
 ];
 
 const deps = (overrides: Partial<DailyDigestDeps> = {}): DailyDigestDeps => ({
+  loadNewMessages: vi.fn(async () => ({ recent: messages, total: 4 })),
   loadRecipients: vi.fn(async () => [recipient()]),
-  loadNewMessages: vi.fn(async () => ({ total: 4, recent: messages })),
-  sendDigest: vi.fn(async () => true),
   markSent: vi.fn(async () => undefined),
+  sendDigest: vi.fn(async () => true),
   ...overrides,
 });
 
@@ -63,8 +63,8 @@ describe("digestWindowStart", () => {
 describe("buildDigestSummary", () => {
   it("keeps only the count when message text is hidden", () => {
     expect(buildDigestSummary(4, messages, true)).toEqual({
-      total: 4,
       previews: [],
+      total: 4,
     });
   });
 
@@ -72,8 +72,8 @@ describe("buildDigestSummary", () => {
     const summary = buildDigestSummary(4, messages, false);
     expect(summary.previews).toHaveLength(3);
     expect(summary.previews[0]).toEqual({
-      text: messages[0].content,
       sentimentTag: "sweet",
+      text: messages[0].content,
     });
     expect(summary.previews.map((p) => p.text)).not.toContain(
       HIDDEN_ALERT_TEXT
@@ -91,22 +91,22 @@ describe("runDailyDigest", () => {
       new Date(NOW.getTime() - DAY)
     );
     expect(d.sendDigest).toHaveBeenCalledWith(recipient(), {
-      total: 4,
       previews: [],
+      total: 4,
     });
     expect(d.markSent).toHaveBeenCalledWith("u1", NOW);
     expect(result).toEqual({
       considered: 1,
-      sent: 1,
       empty: 0,
-      skippedQuietHours: 0,
       failed: 0,
+      sent: 1,
+      skippedQuietHours: 0,
     });
   });
 
   it("sends nothing when no new messages arrived", async () => {
     const d = deps({
-      loadNewMessages: vi.fn(async () => ({ total: 0, recent: [] })),
+      loadNewMessages: vi.fn(async () => ({ recent: [], total: 0 })),
     });
     const result = await runDailyDigest(d, NOW);
 
@@ -121,8 +121,8 @@ describe("runDailyDigest", () => {
         recipient({
           quietHours: {
             enabled: true,
-            start: "16:00",
             end: "20:00",
+            start: "16:00",
             timeZone: "UTC",
           },
         }),
@@ -145,21 +145,21 @@ describe("runDailyDigest", () => {
 
   it("continues with other recipients when one throws", async () => {
     const d = deps({
+      loadNewMessages: vi.fn((id: string) =>
+        id === "broken"
+          ? Promise.reject(new Error("db down"))
+          : Promise.resolve({ recent: messages.slice(0, 1), total: 1 })
+      ),
       loadRecipients: vi.fn(async () => [
         recipient({ id: "broken" }),
         recipient({ id: "u2" }),
       ]),
-      loadNewMessages: vi.fn((id: string) =>
-        id === "broken"
-          ? Promise.reject(new Error("db down"))
-          : Promise.resolve({ total: 1, recent: messages.slice(0, 1) })
-      ),
     });
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const result = await runDailyDigest(d, NOW);
     warn.mockRestore();
 
-    expect(result).toMatchObject({ considered: 2, sent: 1, failed: 1 });
+    expect(result).toMatchObject({ considered: 2, failed: 1, sent: 1 });
     expect(d.markSent).toHaveBeenCalledWith("u2", NOW);
   });
 });

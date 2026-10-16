@@ -10,15 +10,15 @@ import { server } from "@/test/msw-server";
 import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
 import { useSendMessageController } from "./use-send-message.controller";
 
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 const SUGGESTION = "What is your favorite book of all time?";
 
 const renderController = (autoFetchSuggestions = false) =>
   renderHookWithProviders(() =>
     useSendMessageController({
-      username: FIXTURE_USERNAME,
       autoFetchSuggestions,
+      username: FIXTURE_USERNAME,
     })
   );
 

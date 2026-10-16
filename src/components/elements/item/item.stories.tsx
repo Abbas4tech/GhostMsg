@@ -11,19 +11,17 @@ import {
 import { ITEM_SIZES, ITEM_VARIANTS, itemMockContent } from "./item.mock";
 
 const meta = {
-  title: "Elements/Item",
-  component: Item,
-  tags: ["autodocs"],
-  parameters: { layout: "padded" },
-  args: { variant: "outline", size: "default" },
+  args: { size: "default", variant: "outline" },
   argTypes: {
+    size: { control: "radio", description: "Padding", options: ITEM_SIZES },
     variant: {
       control: "radio",
-      options: ITEM_VARIANTS,
       description: "Surface",
+      options: ITEM_VARIANTS,
     },
-    size: { control: "radio", options: ITEM_SIZES, description: "Padding" },
   },
+  component: Item,
+  parameters: { layout: "padded" },
   render: (args) => (
     <Item {...args} className="max-w-sm">
       <ItemContent>
@@ -37,6 +35,8 @@ const meta = {
       </ItemActions>
     </Item>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Item",
 } satisfies Meta<typeof Item>;
 
 export default meta;
@@ -51,4 +51,4 @@ export const Default: Story = {
   },
 };
 
-export const Muted: Story = { args: { variant: "muted", size: "sm" } };
+export const Muted: Story = { args: { size: "sm", variant: "muted" } };

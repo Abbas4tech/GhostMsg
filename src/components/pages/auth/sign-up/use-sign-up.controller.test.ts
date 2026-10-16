@@ -9,12 +9,12 @@ import { useSignUpController } from "./use-sign-up.controller";
 const { replace } = vi.hoisted(() => ({ replace: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 const NEW_USER = {
-  username: "newghost",
   email: "newghost@example.com",
   password: "secret123",
+  username: "newghost",
 };
 
 describe("useSignUpController", () => {

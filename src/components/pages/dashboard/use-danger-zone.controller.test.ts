@@ -6,7 +6,7 @@ import { useDangerZoneController } from "./use-danger-zone.controller";
 
 const { signOut, toast } = vi.hoisted(() => ({
   signOut: vi.fn(),
-  toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }),
+  toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }),
 }));
 
 vi.mock("next-auth/react", async (importOriginal) => ({

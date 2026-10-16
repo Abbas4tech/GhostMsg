@@ -29,17 +29,17 @@ export async function migrateLegacyMessages() {
 
     const docsToInsert = legacyMessages.map((msg) => ({
       _id: msg._id,
-      recipientId: rawUser._id,
       content: msg.content,
-      sentimentTag: "neutral",
-      isQuarantined: false,
+      createdAt: msg.createdAt || new Date(),
       isPinned: false,
+      isQuarantined: false,
       isRead: true,
+      recipientId: rawUser._id,
       senderHash: crypto
         .createHash("sha256")
         .update(`legacy-${rawUser._id}`)
         .digest("hex"),
-      createdAt: msg.createdAt || new Date(),
+      sentimentTag: "neutral",
       updatedAt: msg.createdAt || new Date(),
     }));
 

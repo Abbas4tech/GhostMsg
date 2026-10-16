@@ -195,8 +195,8 @@ function GravityStarsBackground({
   const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const [dpr, setDpr] = useState(1);
   const [canvasSize, setCanvasSize] = useState({
-    width: 800,
     height: 600,
+    width: 800,
   });
 
   const readColor = useCallback(() => {
@@ -214,16 +214,16 @@ function GravityStarsBackground({
         const angle = Math.random() * Math.PI * 2;
         const speed = movementSpeed * (0.5 + Math.random() * 0.5);
         return {
-          x: Math.random() * w,
-          y: Math.random() * h,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: Math.random() * starsSize + 1,
-          opacity: starsOpacity,
           baseOpacity: starsOpacity,
-          mass: Math.random() * 0.5 + 0.5,
           glowMultiplier: 1,
           glowVelocity: 0,
+          mass: Math.random() * 0.5 + 0.5,
+          opacity: starsOpacity,
+          size: Math.random() * starsSize + 1,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          x: Math.random() * w,
+          y: Math.random() * h,
         };
       });
     },
@@ -250,7 +250,7 @@ function GravityStarsBackground({
     canvas.height = Math.max(1, Math.floor(rect.height * nextDpr));
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
-    setCanvasSize({ width: rect.width, height: rect.height });
+    setCanvasSize({ height: rect.height, width: rect.width });
     if (starsRef.current.length === 0) {
       initStars(rect.width, rect.height);
     } else {

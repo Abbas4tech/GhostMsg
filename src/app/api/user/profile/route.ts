@@ -20,19 +20,19 @@ export async function GET(): Promise<Response> {
     const userDoc = await UserModel.findById(userId).select(PROFILE_FIELDS);
     if (!userDoc) {
       return Response.json(
-        { success: false, message: "User not found" },
+        { message: "User not found", success: false },
         { status: 404 }
       );
     }
 
     return Response.json(
-      { success: true, profile: toUserProfile(userDoc) },
+      { profile: toUserProfile(userDoc), success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to fetch profile:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }
@@ -53,8 +53,8 @@ export async function PATCH(request: NextRequest): Promise<Response> {
     if (!parsed.success) {
       return Response.json(
         {
-          success: false,
           message: parsed.error.issues[0]?.message ?? "Invalid profile",
+          success: false,
         },
         { status: 400 }
       );
@@ -83,16 +83,16 @@ export async function PATCH(request: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         message: "Profile updated",
         profile: toUserProfile(updated ?? {}),
+        success: true,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to update profile:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

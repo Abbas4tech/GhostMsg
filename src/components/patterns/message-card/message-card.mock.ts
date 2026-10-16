@@ -12,13 +12,13 @@ import type { MessageCardProps } from "./message-card";
 
 /** Every interactive callback stubbed — stories replace them with `fn()`. */
 export const messageCardCallbacks = {
-  onToggleSelect: noop,
-  onStarToggle: noop,
-  onOpenReply: noop,
-  onOpenStoryCard: noop,
   onOpenBlock: noop,
   onOpenDelete: noop,
+  onOpenReply: noop,
+  onOpenStoryCard: noop,
   onReveal: noop,
+  onStarToggle: noop,
+  onToggleSelect: noop,
 } satisfies Partial<MessageCardProps>;
 
 /** Fixed "now" two minutes after the base fixture date, so ages are stable. */
@@ -27,12 +27,12 @@ export const MESSAGE_CARD_NOW = new Date(
 );
 
 export const defaultMessageCardArgs: MessageCardProps = {
-  message: sweetMessage,
-  isSelected: false,
-  isSenderBlocked: false,
   isFocused: false,
   isRevealed: false,
+  isSelected: false,
+  isSenderBlocked: false,
   layout: "grid",
+  message: sweetMessage,
   now: MESSAGE_CARD_NOW,
   ...messageCardCallbacks,
 };
@@ -62,8 +62,8 @@ export const longContentMessageCardArgs = {
 } satisfies Partial<MessageCardProps>;
 
 export const revealedQuarantinedMessageCardArgs = {
-  message: quarantinedMessage,
   isRevealed: true,
+  message: quarantinedMessage,
 } satisfies Partial<MessageCardProps>;
 
 export const listMessageCardArgs = {

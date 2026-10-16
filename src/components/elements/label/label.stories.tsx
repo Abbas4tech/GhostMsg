@@ -5,21 +5,21 @@ import { Label } from "./label";
 import { defaultLabelArgs } from "./label.mock";
 
 const meta = {
-  title: "Elements/Label",
-  component: Label,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: defaultLabelArgs,
   argTypes: {
-    htmlFor: { control: "text", description: "id of the labelled control" },
     children: { control: "text", description: "Label text" },
+    htmlFor: { control: "text", description: "id of the labelled control" },
   },
+  component: Label,
+  parameters: { layout: "centered" },
   render: (args) => (
     <div className="flex w-80 flex-col gap-2">
       <Label {...args} />
       <Input id={args.htmlFor} placeholder="Type your message here..." />
     </div>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Label",
 } satisfies Meta<typeof Label>;
 
 export default meta;

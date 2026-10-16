@@ -56,8 +56,8 @@ async function getOrCreateSubscription(
   }
   await existing?.unsubscribe();
   return registration.pushManager.subscribe({
-    userVisibleOnly: true,
     applicationServerKey: applicationServerKey as BufferSource,
+    userVisibleOnly: true,
   });
 }
 
@@ -190,10 +190,10 @@ export function usePushNotification(): PushNotificationState {
 
   return {
     isConfigured,
-    isSupported,
-    permission,
     isPending,
     isSubscribedHere,
+    isSupported,
+    permission,
     subscribe,
     unsubscribe,
   };

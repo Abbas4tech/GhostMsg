@@ -7,8 +7,8 @@ import {
 
 const overnight = {
   enabled: true,
-  start: "22:00",
   end: "08:00",
+  start: "22:00",
   timeZone: "UTC",
 };
 
@@ -39,7 +39,7 @@ describe("isWithinQuietHours", () => {
   });
 
   it("handles same-day windows", () => {
-    const lunch = { ...overnight, start: "12:00", end: "13:00" };
+    const lunch = { ...overnight, end: "13:00", start: "12:00" };
     expect(isWithinQuietHours(new Date("2026-10-12T12:30:00Z"), lunch)).toBe(
       true
     );

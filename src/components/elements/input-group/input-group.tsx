@@ -22,22 +22,22 @@ const inputGroupVariants = cva(
     "has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40",
   ],
   {
+    defaultVariants: { shape: "default", size: "default", tone: "default" },
     variants: {
+      shape: {
+        default: "",
+        pill: "rounded-full has-[>[data-align=inline-start]]:[&>input]:pl-1",
+      },
       size: {
         default: "h-9",
         /** GhostMsg 48px field with 16px text (no iOS zoom). */
         lg: "h-12 bg-card [&_[data-slot=input-group-control]]:text-base",
-      },
-      shape: {
-        default: "",
-        pill: "rounded-full has-[>[data-align=inline-start]]:[&>input]:pl-1",
       },
       tone: {
         default: "",
         success: "border-success",
       },
     },
-    defaultVariants: { size: "default", shape: "default", tone: "default" },
   }
 );
 
@@ -50,7 +50,7 @@ function InputGroup({
 }: React.ComponentProps<"div"> & VariantProps<typeof inputGroupVariants>) {
   return (
     <div
-      className={cn(inputGroupVariants({ size, shape, tone }), className)}
+      className={cn(inputGroupVariants({ shape, size, tone }), className)}
       data-size={size ?? "default"}
       data-slot="input-group"
       role="group"
@@ -62,20 +62,20 @@ function InputGroup({
 const inputGroupAddonVariants = cva(
   "flex h-auto cursor-text select-none items-center justify-center gap-2 py-1.5 font-medium text-muted-foreground text-sm group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4",
   {
-    variants: {
-      align: {
-        "inline-start":
-          "order-first pl-3 has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]",
-        "inline-end":
-          "order-last pr-3 has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]",
-        "block-start":
-          "order-first w-full justify-start px-3 pt-3 group-has-[>input]/input-group:pt-2.5 [.border-b]:pb-3",
-        "block-end":
-          "order-last w-full justify-start px-3 pb-3 group-has-[>input]/input-group:pb-2.5 [.border-t]:pt-3",
-      },
-    },
     defaultVariants: {
       align: "inline-start",
+    },
+    variants: {
+      align: {
+        "block-end":
+          "order-last w-full justify-start px-3 pb-3 group-has-[>input]/input-group:pb-2.5 [.border-t]:pt-3",
+        "block-start":
+          "order-first w-full justify-start px-3 pt-3 group-has-[>input]/input-group:pt-2.5 [.border-b]:pb-3",
+        "inline-end":
+          "order-last pr-3 has-[>button]:mr-[-0.45rem] has-[>kbd]:mr-[-0.35rem]",
+        "inline-start":
+          "order-first pl-3 has-[>button]:ml-[-0.45rem] has-[>kbd]:ml-[-0.35rem]",
+      },
     },
   }
 );
@@ -105,17 +105,17 @@ function InputGroupAddon({
 const inputGroupButtonVariants = cva(
   "flex items-center gap-2 text-sm shadow-none",
   {
-    variants: {
-      size: {
-        xs: "h-6 gap-1 rounded-[calc(var(--radius)-5px)] px-2 has-[>svg]:px-2 [&>svg:not([class*='size-'])]:size-3.5",
-        sm: "h-8 gap-1.5 rounded-md px-2.5 has-[>svg]:px-2.5",
-        "icon-xs":
-          "size-6 rounded-[calc(var(--radius)-5px)] p-0 has-[>svg]:p-0",
-        "icon-sm": "size-8 p-0 has-[>svg]:p-0",
-      },
-    },
     defaultVariants: {
       size: "xs",
+    },
+    variants: {
+      size: {
+        "icon-sm": "size-8 p-0 has-[>svg]:p-0",
+        "icon-xs":
+          "size-6 rounded-[calc(var(--radius)-5px)] p-0 has-[>svg]:p-0",
+        sm: "h-8 gap-1.5 rounded-md px-2.5 has-[>svg]:px-2.5",
+        xs: "h-6 gap-1 rounded-[calc(var(--radius)-5px)] px-2 has-[>svg]:px-2 [&>svg:not([class*='size-'])]:size-3.5",
+      },
     },
   }
 );

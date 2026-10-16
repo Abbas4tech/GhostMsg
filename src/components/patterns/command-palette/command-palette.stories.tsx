@@ -24,19 +24,19 @@ const withSpies = (
 
 /** ⌘K command palette. Items bring their own callbacks. */
 const meta = {
-  title: "Patterns/CommandPalette",
-  component: CommandPalette,
-  tags: ["autodocs"],
   args: {
     ...defaultCommandPaletteArgs,
     groups: withSpies(defaultCommandPaletteArgs.groups),
     onOpenChange: fn(),
   },
   argTypes: {
-    open: { control: "boolean", description: "Dialog visibility" },
     groups: { control: "object", description: "Command groups" },
     onOpenChange: { description: "Open state changed" },
+    open: { control: "boolean", description: "Dialog visibility" },
   },
+  component: CommandPalette,
+  tags: ["autodocs"],
+  title: "Patterns/CommandPalette",
 } satisfies Meta<typeof CommandPalette>;
 
 export default meta;
@@ -74,7 +74,7 @@ export const NoMatches: Story = {
   parameters: {
     // cmdk keeps an empty role="listbox" while showing its Empty state.
     a11y: {
-      config: { rules: [{ id: "aria-required-children", enabled: false }] },
+      config: { rules: [{ enabled: false, id: "aria-required-children" }] },
     },
   },
   play: async ({ userEvent }) => {

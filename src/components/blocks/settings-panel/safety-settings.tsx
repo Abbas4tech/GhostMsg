@@ -31,9 +31,9 @@ import {
 } from "./settings-section";
 
 const SENSITIVITIES: { label: string; value: QuarantineSensitivity }[] = [
-  { value: "relaxed", label: "Relaxed" },
-  { value: "balanced", label: "Balanced" },
-  { value: "strict", label: "Strict" },
+  { label: "Relaxed", value: "relaxed" },
+  { label: "Balanced", value: "balanced" },
+  { label: "Strict", value: "strict" },
 ];
 
 const isSensitivity = (value: string): value is QuarantineSensitivity =>
@@ -127,7 +127,7 @@ export function SafetySettings({
       <SettingsDivider />
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
-          <b className="text-[15px]">Blocked senders</b>
+          <b className="text-title">Blocked senders</b>
           <Badge variant="neutral">
             {count} {count === 1 ? "Sender Hash" : "Sender Hashes"}
           </Badge>

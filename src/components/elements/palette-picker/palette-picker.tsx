@@ -72,7 +72,7 @@ function PalettePicker({
       <DropdownMenuTrigger asChild>
         <button
           aria-label={label}
-          className={cn(buttonVariants({ variant, size, className }))}
+          className={cn(buttonVariants({ className, size, variant }))}
           data-slot="palette-picker-trigger"
           type="button"
           {...props}
