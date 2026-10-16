@@ -1,26 +1,20 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { blockSenderSchema } from "@/schemas/message-schema";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 import dbConnect from "@/server/db/db-connect";
 import UserModel from "@/server/models/user.model";
 import { toBlockedSenders } from "@/server/users/user-dto";
 
 export async function GET(): Promise<Response> {
-  await dbConnect();
-
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
+    await dbConnect();
+    const userId = await getSessionUserId();
 
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
-    const userDoc = await UserModel.findById(user._id).select(
+    const userDoc = await UserModel.findById(userId).select(
       "blockedSenderHashes blockedSenders"
     );
     const hashes = userDoc?.blockedSenderHashes || [];
@@ -43,17 +37,12 @@ export async function GET(): Promise<Response> {
 }
 
 export async function POST(request: NextRequest): Promise<Response> {
-  await dbConnect();
-
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
+    await dbConnect();
+    const userId = await getSessionUserId();
 
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     const body = await request.json();
@@ -70,11 +59,11 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     // Record the date once; re-blocking keeps the original date.
     await UserModel.updateOne(
-      { _id: user._id, "blockedSenders.hash": { $ne: senderHash } },
+      { _id: userId, "blockedSenders.hash": { $ne: senderHash } },
       { $push: { blockedSenders: { hash: senderHash, blockedAt: new Date() } } }
     );
     await UserModel.updateOne(
-      { _id: user._id },
+      { _id: userId },
       { $addToSet: { blockedSenderHashes: senderHash } }
     );
 
@@ -92,17 +81,12 @@ export async function POST(request: NextRequest): Promise<Response> {
 }
 
 export async function DELETE(request: NextRequest): Promise<Response> {
-  await dbConnect();
-
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
+    await dbConnect();
+    const userId = await getSessionUserId();
 
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     const body = await request.json().catch(() => ({}));
@@ -110,7 +94,7 @@ export async function DELETE(request: NextRequest): Promise<Response> {
 
     if (senderHash === "ALL") {
       await UserModel.updateOne(
-        { _id: user._id },
+        { _id: userId },
         { $set: { blockedSenderHashes: [], blockedSenders: [] } }
       );
       return Response.json(
@@ -129,7 +113,7 @@ export async function DELETE(request: NextRequest): Promise<Response> {
     }
 
     await UserModel.updateOne(
-      { _id: user._id },
+      { _id: userId },
       {
         $pull: {
           blockedSenderHashes: parseResult.data.senderHash,

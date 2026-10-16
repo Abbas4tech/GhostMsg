@@ -1,23 +1,18 @@
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 import dbConnect from "@/server/db/db-connect";
 import MessageModel from "@/server/models/message.model";
 
 /** Danger zone: deletes every message (and so every public answer). */
 export async function DELETE(): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     const { deletedCount } = await MessageModel.deleteMany({
-      recipientId: user._id,
+      recipientId: userId,
     });
 
     return Response.json(

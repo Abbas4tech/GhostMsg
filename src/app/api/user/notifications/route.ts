@@ -1,25 +1,19 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { updateNotificationsRequestSchema } from "@/schemas/notification-schema";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 import dbConnect from "@/server/db/db-connect";
 import UserModel from "@/server/models/user.model";
 import { toNotificationSettings } from "@/server/users/user-dto";
 
 export async function GET(): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
-    const userDoc = await UserModel.findById(user._id).select(
+    const userDoc = await UserModel.findById(userId).select(
       "notificationSettings isAcceptingMessage"
     );
 
@@ -43,16 +37,11 @@ export async function GET(): Promise<Response> {
 }
 
 export async function PATCH(request: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     const parsed = updateNotificationsRequestSchema.safeParse(
@@ -74,7 +63,7 @@ export async function PATCH(request: NextRequest): Promise<Response> {
     }
 
     const updated = await UserModel.findByIdAndUpdate(
-      user._id,
+      userId,
       { $set: updateFields },
       { new: true }
     ).select("notificationSettings");

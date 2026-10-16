@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { changeUsernameRequestSchema } from "@/schemas/user-settings-schema";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 import dbConnect from "@/server/db/db-connect";
 import UserModel from "@/server/models/user.model";
 
@@ -10,15 +9,11 @@ import UserModel from "@/server/models/user.model";
  * refreshes the session (NextAuth `update`) after a 200.
  */
 export async function PATCH(request: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     const parsed = changeUsernameRequestSchema.safeParse(await request.json());
@@ -35,7 +30,7 @@ export async function PATCH(request: NextRequest): Promise<Response> {
     const { username } = parsed.data;
     const taken = await UserModel.exists({
       username,
-      _id: { $ne: user._id },
+      _id: { $ne: userId },
     });
     if (taken) {
       return Response.json(
@@ -44,7 +39,7 @@ export async function PATCH(request: NextRequest): Promise<Response> {
       );
     }
 
-    await UserModel.updateOne({ _id: user._id }, { $set: { username } });
+    await UserModel.updateOne({ _id: userId }, { $set: { username } });
 
     return Response.json(
       { success: true, message: "Username updated", username },

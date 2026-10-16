@@ -44,8 +44,11 @@ src/
 │                            #   palette-provider (+ test)
 ├── schemas/                 # universal Zod contracts (+ zod.ts OpenAPI-extended z, + tests)
 ├── server/                  # SERVER ONLY: every file starts with `import "server-only"`
-│   ├── ai/                  # moderation.ts, quarantine-policy.ts, smart-reply.ts, ama-suggestions.ts (+ tests)
-│   ├── db/                  # db-connect.ts
+│   ├── ai/                  # moderation.ts (generateObject, structured output), quarantine-policy.ts,
+│   │                        #   smart-reply.ts, ama-suggestions.ts, suggested-messages.ts (15 min in-memory cache) (+ tests)
+│   ├── auth/                # session.ts: getSessionUserId, unauthorizedResponse (shared by every
+│   │                        #   authenticated route; + test)
+│   ├── db/                  # db-connect.ts: cached connection promise, pool size, selection timeout
 │   ├── email/               # mailer.ts, send-{verification,message-alert,daily-digest}-email.ts, email-result.ts
 │   ├── messages/            # inbox-query.ts: MongoDB filter, page size, counts pipeline (+ test)
 │   ├── models/              # user.model.ts, message.model.ts

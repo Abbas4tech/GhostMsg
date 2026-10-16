@@ -1,22 +1,22 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { moderateAndClassifyMessage } from "./moderation";
 
-const { generateText } = vi.hoisted(() => ({ generateText: vi.fn() }));
+const { generateObject } = vi.hoisted(() => ({ generateObject: vi.fn() }));
 
-vi.mock("ai", () => ({ generateText }));
+vi.mock("ai", () => ({ generateObject }));
 vi.mock("@ai-sdk/google", () => ({
   createGoogleGenerativeAI: () => ({ chat: () => ({}) }),
 }));
 
-const replyWith = (text: string) =>
-  generateText.mockResolvedValueOnce({ text });
+const replyWith = (object: Record<string, unknown>) =>
+  generateObject.mockResolvedValueOnce({ object });
 
 describe("moderateAndClassifyMessage", () => {
   const originalKey = process.env.GOOGLE_AI_STUDIO_SECRET;
 
   beforeEach(() => {
     process.env.GOOGLE_AI_STUDIO_SECRET = "test-key";
-    generateText.mockReset();
+    generateObject.mockReset();
     vi.spyOn(console, "warn").mockImplementation(() => undefined);
   });
 
@@ -35,7 +35,7 @@ describe("moderateAndClassifyMessage", () => {
       toxicity: "none",
       sentimentTag: "neutral",
     });
-    expect(generateText).not.toHaveBeenCalled();
+    expect(generateObject).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -44,7 +44,7 @@ describe("moderateAndClassifyMessage", () => {
     ["hurtful", true],
     ["severe", true],
   ] as const)("reads toxicity %s (isToxic = %s)", async (toxicity, isToxic) => {
-    replyWith(JSON.stringify({ toxicity, sentimentTag: "curious" }));
+    replyWith({ toxicity, sentimentTag: "curious" });
 
     await expect(moderateAndClassifyMessage("A message")).resolves.toEqual({
       toxicity,
@@ -53,55 +53,15 @@ describe("moderateAndClassifyMessage", () => {
     });
   });
 
-  it("strips markdown code fences around the JSON", async () => {
-    replyWith('```json\n{"toxicity":"borderline","sentimentTag":"spicy"}\n```');
+  it("fails open when the structured call throws (schema mismatch, quota, network)", async () => {
+    generateObject.mockRejectedValueOnce(new Error("quota exceeded"));
 
     await expect(
       moderateAndClassifyMessage("A message")
     ).resolves.toMatchObject({
-      toxicity: "borderline",
-      sentimentTag: "spicy",
-    });
-  });
-
-  it("maps the legacy { isToxic: true } shape to severe", async () => {
-    replyWith(JSON.stringify({ isToxic: true, sentimentTag: "neutral" }));
-
-    await expect(
-      moderateAndClassifyMessage("A message")
-    ).resolves.toMatchObject({
-      toxicity: "severe",
-      isToxic: true,
-    });
-  });
-
-  it("falls back to neutral for an unknown sentiment and none for an unknown level", async () => {
-    replyWith(JSON.stringify({ toxicity: "extreme", sentimentTag: "angry" }));
-
-    await expect(moderateAndClassifyMessage("A message")).resolves.toEqual({
       toxicity: "none",
       isToxic: false,
       sentimentTag: "neutral",
-    });
-  });
-
-  it("fails open on invalid JSON", async () => {
-    replyWith("I think this message is fine.");
-
-    await expect(moderateAndClassifyMessage("A message")).resolves.toEqual({
-      toxicity: "none",
-      isToxic: false,
-      sentimentTag: "neutral",
-    });
-  });
-
-  it("fails open when the AI call throws", async () => {
-    generateText.mockRejectedValueOnce(new Error("quota exceeded"));
-
-    await expect(
-      moderateAndClassifyMessage("A message")
-    ).resolves.toMatchObject({
-      toxicity: "none",
     });
   });
 });

@@ -1,8 +1,10 @@
 import "server-only";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { generateText } from "ai";
+import { generateObject } from "ai";
+import { z } from "zod";
+import { sentimentTagEnum } from "@/schemas/message-schema";
 import type { SentimentTag } from "@/server/models/message.model";
-import { isToxicityLevel, type ToxicityLevel } from "./quarantine-policy";
+import { TOXICITY_LEVELS, type ToxicityLevel } from "./quarantine-policy";
 
 export interface ModerationResult {
   /** Kept for callers that only need a yes/no (hurtful or worse). */
@@ -10,6 +12,17 @@ export interface ModerationResult {
   sentimentTag: SentimentTag;
   toxicity: ToxicityLevel;
 }
+
+/**
+ * Constrains the model's output to this exact shape (Gemini's structured-
+ * output mode), so there is no markdown-fenced JSON to strip and no manual
+ * parsing or validity checks: an object that doesn't fit the schema fails
+ * the call outright, which the caller already treats as fail-open.
+ */
+const moderationSchema = z.object({
+  toxicity: z.enum(TOXICITY_LEVELS),
+  sentimentTag: sentimentTagEnum,
+});
 
 const MODERATION_PROMPT = `Analyze the following anonymous message submitted to a social platform:
 Evaluate carefully:
@@ -23,10 +36,7 @@ Evaluate carefully:
    - "curious": Questions, inquiries, asking about opinions, thoughts, or life.
    - "spicy": Playful roasts, daring banter, confessions, secrets, teasing.
    - "advice": Constructive suggestions, life tips, supportive guidance.
-   - "neutral": Plain greetings or casual statements.
-
-Respond ONLY with valid JSON in this exact structure without markdown or explanation:
-{"toxicity": "none", "sentimentTag": "neutral"}`;
+   - "neutral": Plain greetings or casual statements.`;
 
 export async function moderateAndClassifyMessage(
   content: string
@@ -41,44 +51,16 @@ export async function moderateAndClassifyMessage(
       apiKey,
     }).chat("gemini-2.5-flash-lite");
 
-    const response = await generateText({
+    const { object } = await generateObject({
       model,
+      schema: moderationSchema,
       prompt: `${MODERATION_PROMPT}\n\nMessage:\n"${content}"`,
     });
 
-    const cleanText = response.text
-      .replace(/```json/gi, "")
-      .replace(/```/g, "")
-      .trim();
-
-    const parsed = JSON.parse(cleanText);
-
-    const validSentiments: SentimentTag[] = [
-      "sweet",
-      "curious",
-      "spicy",
-      "advice",
-      "neutral",
-    ];
-
-    const sentimentTag: SentimentTag = validSentiments.includes(
-      parsed.sentimentTag
-    )
-      ? parsed.sentimentTag
-      : "neutral";
-
-    // Older prompt shape ({ isToxic }) still maps onto a level.
-    let toxicity: ToxicityLevel = "none";
-    if (isToxicityLevel(parsed.toxicity)) {
-      toxicity = parsed.toxicity;
-    } else if (parsed.isToxic) {
-      toxicity = "severe";
-    }
-
     return {
-      isToxic: toxicity === "hurtful" || toxicity === "severe",
-      toxicity,
-      sentimentTag,
+      isToxic: object.toxicity === "hurtful" || object.toxicity === "severe",
+      toxicity: object.toxicity,
+      sentimentTag: object.sentimentTag,
     };
   } catch (err) {
     console.warn("AI moderation/sentiment fallback used due to error:", err);

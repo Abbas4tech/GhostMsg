@@ -1,32 +1,22 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import {
   pushSubscriptionRequestSchema,
   pushUnsubscribeRequestSchema,
 } from "@/schemas/notification-schema";
+import {
+  getSessionUserId,
+  unauthorizedResponse as notAuthenticated,
+} from "@/server/auth/session";
 import dbConnect from "@/server/db/db-connect";
 import UserModel from "@/server/models/user.model";
 import { disablePushWhenNoDevices } from "@/server/push/web-push";
-
-async function getSessionUserId(): Promise<string | null> {
-  const session = await getServerSession(authOptions);
-  const user = session?.user as User | undefined;
-  return user?._id ? String(user._id) : null;
-}
-
-const notAuthenticated = () =>
-  Response.json(
-    { success: false, message: "Not authenticated" },
-    { status: 401 }
-  );
 
 const invalidPayload = (message: string) =>
   Response.json({ success: false, message }, { status: 400 });
 
 export async function POST(request: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
+    await dbConnect();
     const userId = await getSessionUserId();
     if (!userId) {
       return notAuthenticated();
@@ -69,8 +59,8 @@ export async function POST(request: NextRequest): Promise<Response> {
 }
 
 export async function DELETE(request: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
+    await dbConnect();
     const userId = await getSessionUserId();
     if (!userId) {
       return notAuthenticated();

@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 import dbConnect from "@/server/db/db-connect";
 import {
   inboxCountsPipeline,
@@ -13,19 +12,15 @@ import MessageModel from "@/server/models/message.model";
  * "Delete all N messages" (independent of how many pages are loaded).
  */
 export async function GET(): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-    if (!(user?._id && mongoose.Types.ObjectId.isValid(user._id as string))) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!(userId && mongoose.Types.ObjectId.isValid(userId))) {
+      return unauthorizedResponse();
     }
 
     const [row] = await MessageModel.aggregate(
-      inboxCountsPipeline(new mongoose.Types.ObjectId(user._id))
+      inboxCountsPipeline(new mongoose.Types.ObjectId(userId))
     );
 
     return Response.json(

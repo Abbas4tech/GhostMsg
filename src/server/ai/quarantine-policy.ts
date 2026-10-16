@@ -1,8 +1,15 @@
 import "server-only";
 import type { SafetySettings } from "@/server/models/user.model";
 
-/** Graded toxicity from moderation (ADR 0022). */
-export type ToxicityLevel = "none" | "borderline" | "hurtful" | "severe";
+/** Graded toxicity from moderation (ADR 0022). Single source for the level set. */
+export const TOXICITY_LEVELS = [
+  "none",
+  "borderline",
+  "hurtful",
+  "severe",
+] as const;
+
+export type ToxicityLevel = (typeof TOXICITY_LEVELS)[number];
 
 const TOXICITY_RANK: Record<ToxicityLevel, number> = {
   none: 0,

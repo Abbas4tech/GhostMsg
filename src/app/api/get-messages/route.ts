@@ -1,16 +1,15 @@
 import mongoose from "mongoose";
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
 import {
   decodeInboxCursor,
   encodeInboxCursor,
 } from "@/lib/messages/inbox-cursor";
 import { isInboxQueryStatus } from "@/lib/messages/inbox-filter";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 import dbConnect from "@/server/db/db-connect";
 import { buildInboxFilter, parsePageSize } from "@/server/messages/inbox-query";
 import MessageModel from "@/server/models/message.model";
 import UserModel from "@/server/models/user.model";
-import { authOptions } from "../auth/[...nextauth]/options";
 
 const badRequest = (message: string) =>
   Response.json({ success: false, message }, { status: 400 });
@@ -20,23 +19,19 @@ const badRequest = (message: string) =>
  * `nextCursor` and the `total` matching the filter (Chapter 16 §6).
  */
 export async function GET(req: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
+    await dbConnect();
+    const sessionUserId = await getSessionUserId();
 
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated, please login first!" },
-        { status: 401 }
-      );
+    if (!sessionUserId) {
+      return unauthorizedResponse();
     }
 
-    if (!mongoose.Types.ObjectId.isValid(user._id as string)) {
+    if (!mongoose.Types.ObjectId.isValid(sessionUserId)) {
       return badRequest("Invalid user ID format");
     }
 
-    const userId = new mongoose.Types.ObjectId(user._id);
+    const userId = new mongoose.Types.ObjectId(sessionUserId);
     const userExists = await UserModel.exists({ _id: userId });
     if (!userExists) {
       return Response.json(

@@ -82,7 +82,7 @@ Body `{ username, code }` (6 digits). **200** when correct and unexpired (`isVer
 Side effects, in order: rate limit → Sender Hash → blocklist check (silent 200) → moderation (`toxicity`, `sentimentTag`) → `shouldQuarantine` → create Message → publish SSE event → email (instant, if allowed) → Web Push (if allowed). Alerts are skipped for quarantined messages and inside quiet hours. With `hideMessageText` (default) push says "New Anonymous Message" and the email shows a neutral sentence without text or tone. Full diagram: [Chapter 17 §3](17-trust-safety-and-privacy.md#3-the-send-pipeline). Client: `useSendMessageMutation`.
 
 ### `GET /api/suggest-messages` (Edge)
-**200** `{ success: true, messages: "q1||q2||q3" }`, a single string split by `||` on the client. Falls back to a fixed set without an AI key or on error (still 200). Client: `publicQueries.suggestions()` (a cached query, no retries, failure toasted once; "New ideas" refetches); only enabled when the profile's `offerSuggestions` is true.
+**200** `{ success: true, messages: "q1||q2||q3" }`, a single string split by `||` on the client. Falls back to a fixed set without an AI key or on error (still 200). Client: `publicQueries.suggestions()` (a cached query, no retries, failure toasted once; "New ideas" refetches); only enabled when the profile's `offerSuggestions` is true. Not personalized, so the server caches one AI result for 15 minutes (`src/server/ai/suggested-messages.ts`) and serves it to every visitor in that window instead of calling the model per request; the no-key/error fallback is picked fresh (not cached) each time.
 
 ## 5. Public Q&A
 

@@ -1,19 +1,13 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { smartReplySchema } from "@/schemas/message-schema";
 import { generateSmartReply } from "@/server/ai/smart-reply";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 
 export async function POST(request: NextRequest): Promise<Response> {
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     const body = await request.json();

@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { deleteAccountRequestSchema } from "@/schemas/user-settings-schema";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 import dbConnect from "@/server/db/db-connect";
 import MessageModel from "@/server/models/message.model";
 import UserModel from "@/server/models/user.model";
@@ -11,21 +10,17 @@ import UserModel from "@/server/models/user.model";
  * the username; the client signs out after a 200.
  */
 export async function DELETE(request: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     const parsed = deleteAccountRequestSchema.safeParse(
       await request.json().catch(() => ({}))
     );
-    const userDoc = await UserModel.findById(user._id).select("username");
+    const userDoc = await UserModel.findById(userId).select("username");
     if (!userDoc) {
       return Response.json(
         { success: false, message: "User not found" },

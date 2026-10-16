@@ -14,7 +14,12 @@ const PUBLIC_ANSWERS_LIMIT = 50;
  */
 export const getPublicProfile = cache(async (username: string) => {
   await dbConnect();
-  const user = await UserModel.findOne({ username });
+  // Projected to just what this page needs: still includes avatarUrl (it's
+  // rendered here), but drops email, password, blocked-sender lists and
+  // push subscriptions, which this route never reads.
+  const user = await UserModel.findOne({ username }).select(
+    "username amaPrompt displayName avatarUrl showAmaBanner messagePreferences.offerSuggestions isAcceptingMessage"
+  );
   if (!user) {
     return null;
   }

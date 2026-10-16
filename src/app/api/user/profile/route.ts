@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { updateUserProfileRequestSchema } from "@/schemas/user-settings-schema";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 import dbConnect from "@/server/db/db-connect";
 import UserModel from "@/server/models/user.model";
 import { toUserProfile } from "@/server/users/user-dto";
@@ -9,23 +8,16 @@ import { toUserProfile } from "@/server/users/user-dto";
 const PROFILE_FIELDS =
   "username email displayName avatarUrl amaPrompt showAmaBanner";
 
-const unauthorized = () =>
-  Response.json(
-    { success: false, message: "Not authenticated" },
-    { status: 401 }
-  );
-
 /** Identity card + AMA banner switch for the signed-in recipient. */
 export async function GET(): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-    if (!user?._id) {
-      return unauthorized();
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
-    const userDoc = await UserModel.findById(user._id).select(PROFILE_FIELDS);
+    const userDoc = await UserModel.findById(userId).select(PROFILE_FIELDS);
     if (!userDoc) {
       return Response.json(
         { success: false, message: "User not found" },
@@ -48,12 +40,11 @@ export async function GET(): Promise<Response> {
 
 /** Display name, photo (data URL or null), AMA Prompt and "Show the AMA banner". */
 export async function PATCH(request: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-    if (!user?._id) {
-      return unauthorized();
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     const parsed = updateUserProfileRequestSchema.safeParse(
@@ -85,7 +76,7 @@ export async function PATCH(request: NextRequest): Promise<Response> {
     }
 
     const updated = await UserModel.findByIdAndUpdate(
-      user._id,
+      userId,
       { $set: update },
       { new: true }
     ).select(PROFILE_FIELDS);

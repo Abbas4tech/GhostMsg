@@ -14,8 +14,8 @@ import { publishNewMessage } from "@/server/realtime/event-bus";
 import { checkRateLimit, computeSenderHash } from "@/server/security/security";
 
 export async function POST(req: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
+    await dbConnect();
     const body = await req.json();
     const { username, content } = body;
 
@@ -33,8 +33,11 @@ export async function POST(req: NextRequest): Promise<Response> {
       );
     }
 
-    // 1. Find recipient
-    const user = await UserModel.findOne({ username });
+    // 1. Find recipient (projected: this is the hottest write path, and the
+    // document otherwise carries an avatar blob and unbounded block lists).
+    const user = await UserModel.findOne({ username }).select(
+      "username email isAcceptingMessage safetySettings notificationSettings pushSubscriptions"
+    );
     if (!user) {
       return Response.json(
         {

@@ -26,8 +26,8 @@ export async function GET(request: NextRequest): Promise<Response> {
     );
   }
 
-  await dbConnect();
   try {
+    await dbConnect();
     const result = await runDailyDigest(createMongoDigestDeps());
     return Response.json({ success: true, ...result }, { status: 200 });
   } catch (error) {

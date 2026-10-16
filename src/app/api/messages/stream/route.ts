@@ -1,20 +1,19 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { getSessionUserId } from "@/server/auth/session";
 import { subscribeToMessages } from "@/server/realtime/event-bus";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest): Promise<Response> {
-  const session = await getServerSession(authOptions);
-  const user = session?.user as User;
+  const userId = await getSessionUserId();
 
-  if (!user?._id) {
+  if (!userId) {
+    // Not the route's own JSON envelope: this is an EventSource connection,
+    // not a fetch the client parses as JSON.
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const userId = String(user._id);
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
