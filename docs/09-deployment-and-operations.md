@@ -2,6 +2,35 @@
 
 This chapter covers deployment architecture on Vercel, MongoDB Atlas production clustering, SMTP email provider setup, and operational monitoring.
 
+The Vercel project's settings and environment variables, and the Atlas project/cluster/database users, are managed as code in [`terraform/`](../terraform/) ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)) rather than by hand in each dashboard. Start at [`terraform/README.md`](../terraform/README.md) for setup and day-to-day commands; the sections below describe what that config produces, not a dashboard-first workflow.
+
+```mermaid
+flowchart TB
+    subgraph Dev["Your machine"]
+        TF["terraform/ (plan / apply)"]
+    end
+    TF -->|manages| VP
+
+    subgraph VP["Vercel Project: ghost-msg"]
+        ENV["Env vars: Production · Preview"]
+        EDGE["Edge Function<br/>/api/suggest-messages"]
+        SERV["Serverless Functions<br/>/api/**"]
+        CRON["vercel.json cron<br/>/api/cron/daily-digest, 17:00 UTC"]
+    end
+
+    TF -->|manages| AP
+
+    subgraph AP["Atlas Project: Project 0 / cluster Abbas-Shaikh"]
+        DBU["db users: production, preview"]
+        DB["honest_feedback · honest_feedback_preview"]
+        DBU --> DB
+    end
+
+    ENV -. "MONGODB_URI, built per environment" .-> DB
+    SERV -->|mongoose| DB
+    CRON --> SERV
+```
+
 ---
 
 ## 1. Production Deployment on Vercel
@@ -25,13 +54,13 @@ Vercel detects pnpm from `packageManager` (`pnpm@10.29.1`) and `pnpm-lock.yaml`,
 
 ## 2. Production Environment Variables Checklist
 
-Ensure these variables are added in your Vercel Project Settings. [`.env.example`](../.env.example) is the complete, commented list, and [Chapter 2 §2.1](02-getting-started.md#21-every-variable-the-code-reads) shows where each one is read. Vercel variables the code doesn't read (`RESEND_API_KEY`, `GOOGLE_OAUTH_CALLBACK_URL`) can be deleted ([§2.2](02-getting-started.md#22-set-automatically-or-not-used)):
+These are set via [`terraform/`](../terraform/)'s `app_env_vars` input, not by hand in Vercel Project Settings ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)): editing one in the dashboard directly gets overwritten on the next `terraform apply`. `MONGODB_URI` isn't in that list: it's computed from the Atlas cluster and a per-environment database user (`terraform/vercel.tf`), one value for Production and a separate one for Preview, each scoped to its own database. [`.env.example`](../.env.example) is still the complete, commented reference for what each variable does, and [Chapter 2 §2.1](02-getting-started.md#21-every-variable-the-code-reads) shows where each one is read. Vercel variables the code doesn't read (`RESEND_API_KEY`, `GOOGLE_OAUTH_CALLBACK_URL`) can be deleted ([§2.2](02-getting-started.md#22-set-automatically-or-not-used)):
 
 | Variable | Description |
 | :--- | :--- |
 | `MONGODB_URI` | Production MongoDB Atlas connection string with replica set. |
 | `NEXT_AUTH_SECRET` | 32-byte secure base64 secret (`openssl rand -base64 32`). |
-| `NEXTAUTH_URL` | Production public domain (e.g. `https://ghost-msg.vercel.app`). |
+| `NEXTAUTH_URL` | Production public domain (e.g. `https://ghost-msg.vercel.app`). Terraform leaves it unset for Preview on purpose: a Preview deployment's URL is unique per deployment, so a single static value would be wrong, and Google sign-in on any Preview deployment would otherwise redirect to the production domain instead ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)). |
 | `SMTP_HOST` | Production SMTP host server. |
 | `SMTP_PORT` | Production SMTP port (e.g. 587 or 465). |
 | `SMTP_USER` | Production SMTP authentication username. |
@@ -86,6 +115,8 @@ Both sit behind small function signatures (`checkRateLimit`, `publishNewMessage`
 | Daily digest email | `0 17 * * *` (17:00 UTC) | `GET /api/cron/daily-digest` | `Authorization: Bearer ${CRON_SECRET}` |
 
 Run it by hand to test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/daily-digest`. The response counts `considered, sent, empty, skippedQuietHours, failed`. Logs show per-recipient failures; a failed send retries on the next run.
+
+`vercel.json` is the only place this cron is declared; it's deliberately outside `terraform/`'s scope because the Vercel Terraform provider has no cron resource ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md) D3). `CRON_SECRET` itself is still set through Terraform like any other env var.
 
 ---
 

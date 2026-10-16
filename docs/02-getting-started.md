@@ -49,6 +49,8 @@ This is the complete list, checked against every `process.env`, `import.meta.env
 
 Google sign-in needs no callback variable: register `<NEXTAUTH_URL>/api/auth/callback/google` as the redirect URI in Google Cloud.
 
+Keep `NEXTAUTH_URL` at `http://localhost:3000` in `.env.local` for local dev, always. Running `vercel env pull` overwrites it with whatever Terraform set for the pulled environment ([terraform/README.md](../terraform/README.md) §7), which is the production domain for both Production and (currently) unset for Preview, never `localhost`. If Google sign-in starts redirecting to `https://ghost-msg.vercel.app/...` with `error=OAuthCallback` after a pull, this is why: change the value back.
+
 ### 2.2 Set automatically, or not used
 
 | Name | Status |

@@ -68,6 +68,7 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0029: Daily Digest Scheduling and Alert Privacy Fixes**](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)
 - [**ADR 0030: Server-Side Inbox Filtering, Keyset Paging and Counts**](adr/0030-server-side-inbox-filtering-paging-and-counts.md)
 - [**ADR 0031: State Management Consistency and Structure**](adr/0031-state-management-consistency-and-structure.md)
+- [**ADR 0032: Terraform-Managed Vercel and MongoDB Atlas Infrastructure**](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)
 
 ---
 

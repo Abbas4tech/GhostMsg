@@ -45,3 +45,11 @@ next-env.d.ts
 # Storybook
 storybook-static/
 *storybook.log
+
+# terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+terraform/*.auto.tfvars
+terraform/crash.log

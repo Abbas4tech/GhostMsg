@@ -117,6 +117,7 @@ GhostMsg/
 │   ├── server/                 # server-only: db/, models/, email/, ai/, push/, security/, realtime/, openapi/
 │   ├── test/                   # Unit setup (msw/node server, polyfills), render + renderHook utilities
 │   └── types/                  # API DTOs (api.ts, from OpenAPI) & ambient declarations
+├── terraform/                   # IaC: Vercel project + env vars, MongoDB Atlas cluster (ADR 0032)
 ├── AGENTS.md                   # Agent system guidelines
 ├── GLOSSARY.md                 # Domain model glossary
 └── package.json
@@ -246,6 +247,7 @@ Explore the numbered engineering chapters in [`docs/`](docs/README.md):
 - [`0029-daily-digest-scheduling-and-alert-privacy-fixes.md`](docs/adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md): Vercel Cron daily digest, allow-listed exports, safe live toast, hidden-text emails.
 - [`0030-server-side-inbox-filtering-paging-and-counts.md`](docs/adr/0030-server-side-inbox-filtering-paging-and-counts.md): Server-side inbox filters, keyset paging, counts endpoint, mark-read, per-device push.
 - [`0031-state-management-consistency-and-structure.md`](docs/adr/0031-state-management-consistency-and-structure.md): Optimistic-resource factory, live cache inserts, URL view state, inbox split, Profile on react-hook-form + leave guard, server session and public profile.
+- [`0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md`](docs/adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md): Terraform (HCP Terraform state) manages the Vercel project, per-environment env vars and the Atlas cluster; cron stays in `vercel.json`.
 
 ---
 
