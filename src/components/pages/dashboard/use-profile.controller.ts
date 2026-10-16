@@ -1,47 +1,173 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { useIsClient } from "usehooks-ts";
-import { DEFAULT_AMA_PROMPT } from "@/components/patterns/ama-banner";
-import { useAmaPromptMutation } from "@/hooks/mutations/use-ama-prompt-mutation";
+import { useAmaSuggestionsMutation } from "@/data/user/use-ama-suggestions-mutation";
+import { useUpdateProfileMutation } from "@/data/user/use-update-profile-mutation";
+import { userQueries } from "@/data/user/user.queries";
+import { useLeaveGuard } from "@/hooks/use-leave-guard";
+import { resizeImageToDataUrl } from "@/lib/browser/resize-image";
+import { toLinkPrefix } from "./dashboard.utils";
+import { buildProfilePatch, type ProfileFormValues } from "./profile.utils";
+import { useProfileLinkController } from "./use-profile-link.controller";
 
-/** Profile tab state: shareable profile URL and the AMA banner editor. */
+const EMPTY_PROFILE: ProfileFormValues = {
+  displayName: "",
+  avatarUrl: null,
+  amaPrompt: "",
+  showAmaBanner: true,
+};
+
+/** Programmatic edits count as user edits (dirty) for the unsaved bar. */
+const AS_EDIT = { shouldDirty: true } as const;
+
+/**
+ * Profile page: identity, link, AMA Prompt and the live preview. Edits live
+ * in a react-hook-form draft fed by the server profile (`values`), shown in
+ * the preview, saved as one atomic PATCH, and protected from accidental
+ * navigation by the leave guard.
+ */
 export function useProfileController() {
-  const { data: session } = useSession();
-  const isClient = useIsClient();
-  const [amaPrompt, setAmaPrompt] = useState(DEFAULT_AMA_PROMPT);
-  const amaMutation = useAmaPromptMutation();
+  const router = useRouter();
+  const link = useProfileLinkController();
+  const { data: profileData } = useQuery(userQueries.profile());
+  const { data: acceptanceData } = useQuery(userQueries.acceptance());
+  const { mutateAsync: saveProfile, isPending: isSaving } =
+    useUpdateProfileMutation();
+  const suggestMutation = useAmaSuggestionsMutation();
 
-  const profileUrl = useMemo(() => {
-    const origin = isClient ? window.location.origin : "";
-    return `${origin}/u/${session?.user?.username || ""}`;
-  }, [isClient, session?.user?.username]);
+  const saved = profileData?.profile;
+  const serverValues = useMemo<ProfileFormValues>(
+    () =>
+      saved
+        ? {
+            displayName: saved.displayName ?? "",
+            avatarUrl: saved.avatarUrl ?? null,
+            amaPrompt: saved.amaPrompt ?? "",
+            showAmaBanner: saved.showAmaBanner ?? true,
+          }
+        : EMPTY_PROFILE,
+    [saved]
+  );
 
-  const handleCopyProfileUrl = useCallback(() => {
-    toast.success("Profile link copied to clipboard!");
-  }, []);
+  // `values` keeps the form in step with the server; fields the recipient is
+  // editing are kept (keepDirtyValues) when a refetch lands.
+  const form = useForm<ProfileFormValues>({
+    values: serverValues,
+    resetOptions: { keepDirtyValues: true },
+  });
+  const values = useWatch({ control: form.control }) as ProfileFormValues;
+  const { isDirty, dirtyFields } = form.formState;
 
-  const { mutateAsync } = amaMutation;
-  const handleSaveAmaPrompt = useCallback(async () => {
-    const trimmed = amaPrompt.trim();
-    if (!trimmed) {
+  const [isPhotoProcessing, setIsPhotoProcessing] = useState(false);
+  const [aiIdeas, setAiIdeas] = useState<string[]>([]);
+
+  const { setValue, reset, getValues } = form;
+  const setDisplayName = useCallback(
+    (displayName: string) => setValue("displayName", displayName, AS_EDIT),
+    [setValue]
+  );
+  const setAmaPrompt = useCallback(
+    (amaPrompt: string) => setValue("amaPrompt", amaPrompt, AS_EDIT),
+    [setValue]
+  );
+  const setShowAmaBanner = useCallback(
+    (showAmaBanner: boolean) =>
+      setValue("showAmaBanner", showAmaBanner, AS_EDIT),
+    [setValue]
+  );
+  const setAvatarUrl = useCallback(
+    (avatarUrl: string | null) => setValue("avatarUrl", avatarUrl, AS_EDIT),
+    [setValue]
+  );
+
+  const handlePhotoSelect = useCallback(
+    async (file: File) => {
+      setIsPhotoProcessing(true);
+      try {
+        setAvatarUrl(await resizeImageToDataUrl(file));
+      } catch {
+        toast.error("Couldn't read that image. Try a PNG, JPEG or WebP.");
+      } finally {
+        setIsPhotoProcessing(false);
+      }
+    },
+    [setAvatarUrl]
+  );
+
+  const handleDiscard = useCallback(() => reset(), [reset]);
+
+  const handleSave = useCallback(async () => {
+    const current = getValues();
+    const patch = buildProfilePatch(current, dirtyFields);
+    if (Object.keys(patch).length === 0) {
+      reset();
       return;
     }
     try {
-      await mutateAsync(trimmed);
+      await saveProfile(patch);
+      // The saved values become the new baseline (no longer dirty).
+      reset({
+        ...current,
+        displayName: current.displayName.trim(),
+        amaPrompt: patch.amaPrompt ?? serverValues.amaPrompt,
+      });
     } catch {
-      // Handled by mutation toast
+      // Rolled back + toasted by the mutation
     }
-  }, [amaPrompt, mutateAsync]);
+  }, [getValues, dirtyFields, saveProfile, reset, serverValues.amaPrompt]);
+
+  const { mutateAsync: suggest } = suggestMutation;
+  const handleSuggest = useCallback(async () => {
+    try {
+      const result = await suggest(getValues("amaPrompt") || undefined);
+      setAiIdeas(result.suggestions);
+    } catch {
+      // Toasted by the mutation
+    }
+  }, [suggest, getValues]);
+
+  // Leaving with unsaved edits asks first (DiscardChangesModal).
+  const leave = useLeaveGuard(isDirty);
+  const { pendingHref, clearPendingHref } = leave;
+  const handleConfirmLeave = useCallback(() => {
+    if (!pendingHref) {
+      return;
+    }
+    clearPendingHref();
+    reset();
+    router.push(pendingHref);
+  }, [pendingHref, clearPendingHref, reset, router]);
 
   return {
-    profileUrl,
-    handleCopyProfileUrl,
-    amaPrompt,
+    username: saved?.username ?? link.username,
+    displayName: values.displayName ?? "",
+    avatarUrl: values.avatarUrl ?? null,
+    amaPrompt: values.amaPrompt ?? "",
+    showAmaBanner: values.showAmaBanner ?? true,
+    profileUrl: link.profileUrl,
+    linkPrefix: toLinkPrefix(link.profileLabel),
+    isAccepting: Boolean(acceptanceData?.isAcceptingMessage ?? true),
+    setDisplayName,
     setAmaPrompt,
-    handleSaveAmaPrompt,
-    isSavingAmaPrompt: amaMutation.isPending,
+    setShowAmaBanner,
+    handlePhotoSelect,
+    handlePhotoRemove: () => setAvatarUrl(null),
+    isPhotoProcessing,
+    aiIdeas,
+    handleSuggest,
+    isSuggesting: suggestMutation.isPending,
+    handleCopyProfileUrl: link.handleCopy,
+    handleShareProfileUrl: link.handleShare,
+    isDirty,
+    isSaving,
+    handleDiscard,
+    handleSave,
+    isLeaveConfirmOpen: pendingHref !== null,
+    handleConfirmLeave,
+    handleCancelLeave: clearPendingHref,
   };
 }

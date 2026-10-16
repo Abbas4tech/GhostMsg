@@ -8,16 +8,20 @@ import { noop } from "@/mock/noop";
 
 /**
  * Args for the PublicProfile story harness (the block needs a react-hook-form
- * instance, which the harness creates — see the stories file).
+ * instance, which the harness creates; see the stories file).
  */
 export interface PublicProfileStoryArgs {
   amaPrompt?: string | null;
   answers: typeof publicAnswerScenarios.some;
+  isAccepting: boolean;
   isLoadingAnswers: boolean;
   isLoadingSuggestions: boolean;
+  isNotFound: boolean;
+  isSent: boolean;
   isSubmitting: boolean;
   onRefreshSuggestions: () => void;
   onSelectSuggestion: (suggestion: string) => void;
+  onSendAnother: () => void;
   onSubmit: (values: { content: string }) => void;
   suggestions: string[];
   username: string;
@@ -28,11 +32,15 @@ export const defaultPublicProfileArgs: PublicProfileStoryArgs = {
   amaPrompt: FIXTURE_AMA_PROMPT,
   answers: publicAnswerScenarios.some,
   suggestions: suggestionScenarios.default,
+  isAccepting: true,
+  isNotFound: false,
+  isSent: false,
   isLoadingAnswers: false,
   isLoadingSuggestions: false,
   isSubmitting: false,
   onRefreshSuggestions: noop,
   onSelectSuggestion: noop,
+  onSendAnother: noop,
   onSubmit: noop,
 };
 

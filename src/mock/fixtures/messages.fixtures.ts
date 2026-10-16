@@ -1,7 +1,8 @@
-import type { components } from "@/generated/api-schema";
+import type { InboxCounts } from "@/lib/messages/inbox-filter";
+import type { MessageDto } from "@/types/api";
 
-/** Inbox message exactly as `GET /api/get-messages` returns it. Assignable to the `Message` model. */
-export type MessageFixture = components["schemas"]["MessageItem"];
+/** Inbox message exactly as `GET /api/get-messages` returns it. */
+export type MessageFixture = MessageDto;
 
 const BASE_DATE = Date.parse("2026-10-09T10:00:00.000Z");
 const HOUR_MS = 60 * 60 * 1000;
@@ -114,11 +115,12 @@ export const messageScenarios = {
   single: [sweetMessage],
 } satisfies Record<string, MessageFixture[]>;
 
-/** Filter counts matching `messageScenarios.mixed`. */
+/** Expected `GET /api/messages/counts` for `messageScenarios.mixed`. */
 export const mixedMessageCounts = {
   all: 5,
   unread: 2,
   starred: 1,
   answered: 2,
   quarantined: 1,
-};
+  total: messageScenarios.mixed.length,
+} satisfies InboxCounts;

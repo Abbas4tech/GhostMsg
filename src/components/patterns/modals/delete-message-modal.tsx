@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import type React from "react";
 import {
   AlertDialog,
@@ -11,17 +11,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/elements/alert-dialog";
-import { LiquidButton } from "@/components/elements/liquid-button";
-import type { Message } from "@/model/user.model";
+import { Button } from "@/components/elements/button";
+import type { MessageDto } from "@/types/api";
 
 export interface DeleteMessageModalProps {
   isPending?: boolean;
-  message: Message | null;
+  message: MessageDto | null;
   onClose: () => void;
-  onConfirm: (message: Message) => Promise<void> | void;
+  onConfirm: (message: MessageDto) => Promise<void> | void;
   open: boolean;
 }
 
+/** Confirm deleting one Anonymous Message (warns when its answer is public). */
 export function DeleteMessageModal({
   open,
   message,
@@ -33,31 +34,43 @@ export function DeleteMessageModal({
     return null;
   }
 
-  const handleConfirm = async () => {
-    await onConfirm(message);
-  };
+  const hasPublicAnswer = Boolean(message.reply?.isPublished);
 
   return (
     <AlertDialog onOpenChange={(isOpen) => !isOpen && onClose()} open={open}>
-      <AlertDialogContent className="sm:max-w-md">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Message?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This message will be permanently deleted from your inbox.
+      <AlertDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
+        <AlertDialogHeader className="gap-3 text-left sm:text-left">
+          <span className="grid size-11 place-items-center rounded-[14px] bg-destructive/15 text-destructive">
+            <Trash2 aria-hidden="true" className="size-5" />
+          </span>
+          <AlertDialogTitle className="font-bold text-[22px]">
+            Delete this message?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-[15px]">
+            {hasPublicAnswer
+              ? "It has a public answer on your profile, so that answer goes too. This can't be undone."
+              : "It will be removed from your inbox for good. This can't be undone."}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending} onClick={onClose}>
-            Cancel
-          </AlertDialogCancel>
-          <LiquidButton
+          <AlertDialogCancel
+            className="rounded-full"
             disabled={isPending}
-            onClick={handleConfirm}
+            onClick={onClose}
+          >
+            Keep it
+          </AlertDialogCancel>
+          <Button
+            className="rounded-full"
+            disabled={isPending}
+            onClick={() => onConfirm(message)}
             variant="destructive"
           >
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isPending ? (
+              <Loader2 aria-hidden="true" className="animate-spin" />
+            ) : null}
             {isPending ? "Deleting..." : "Delete"}
-          </LiquidButton>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

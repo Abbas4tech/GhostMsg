@@ -1,18 +1,16 @@
 import type { NextRequest } from "next/server";
 import z from "zod";
-
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
 import { usernameValidation } from "@/schemas/sign-up-schema";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
 
 const usernameQuerySchema = z.object({
   username: usernameValidation,
 });
 
 export async function GET(req: NextRequest): Promise<Response> {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const { searchParams } = req.nextUrl;
 
     const queryParams = {

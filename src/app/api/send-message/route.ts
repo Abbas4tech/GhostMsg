@@ -1,15 +1,21 @@
 import type { NextRequest } from "next/server";
-import { sendMessageAlertEmail } from "@/helpers/send-message-alert-email";
-import { moderateAndClassifyMessage } from "@/lib/ai-moderation";
-import dbConnect from "@/lib/db-connect";
-import { publishNewMessage } from "@/lib/event-bus";
-import { checkRateLimit, computeSenderHash } from "@/lib/security";
-import MessageModel from "@/model/message.model";
-import UserModel from "@/model/user.model";
+import { moderateAndClassifyMessage } from "@/server/ai/moderation";
+import { shouldQuarantine } from "@/server/ai/quarantine-policy";
+import dbConnect from "@/server/db/db-connect";
+import { sendMessageAlertEmail } from "@/server/email/send-message-alert-email";
+import MessageModel from "@/server/models/message.model";
+import UserModel from "@/server/models/user.model";
+import {
+  buildAlertPreview,
+  isWithinQuietHours,
+} from "@/server/notifications/delivery-policy";
+import { sendPushToUser } from "@/server/push/web-push";
+import { publishNewMessage } from "@/server/realtime/event-bus";
+import { checkRateLimit, computeSenderHash } from "@/server/security/security";
 
 export async function POST(req: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
+    await dbConnect();
     const body = await req.json();
     const { username, content } = body;
 
@@ -27,8 +33,11 @@ export async function POST(req: NextRequest): Promise<Response> {
       );
     }
 
-    // 1. Find recipient
-    const user = await UserModel.findOne({ username });
+    // 1. Find recipient (projected: this is the hottest write path, and the
+    // document otherwise carries an avatar blob and unbounded block lists).
+    const user = await UserModel.findOne({ username }).select(
+      "username email isAcceptingMessage safetySettings notificationSettings pushSubscriptions"
+    );
     if (!user) {
       return Response.json(
         {
@@ -80,13 +89,18 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     // 4. Synchronous AI Moderation & Sentiment Classification
     const moderation = await moderateAndClassifyMessage(content.trim());
+    // The recipient's Safety settings decide what is held back.
+    const isQuarantined = shouldQuarantine(
+      moderation.toxicity,
+      user.safetySettings
+    );
 
     // 5. Create Standalone Message Document
     const messageDoc = await MessageModel.create({
       recipientId: user._id,
       content: content.trim(),
       sentimentTag: moderation.sentimentTag,
-      isQuarantined: moderation.isToxic,
+      isQuarantined,
       isPinned: false,
       isRead: false,
       senderHash,
@@ -103,18 +117,34 @@ export async function POST(req: NextRequest): Promise<Response> {
       createdAt: messageDoc.createdAt.toISOString(),
     });
 
-    // 7. Dispatch instant email alert if enabled and not quarantined
+    // 7–8. Alerts: never for quarantined messages or during quiet hours;
+    // the text is hidden unless the recipient opted to show it.
+    const settings = user.notificationSettings;
+    const canAlert = !(
+      isQuarantined || isWithinQuietHours(new Date(), settings?.quietHours)
+    );
+    const hideText = settings?.hideMessageText ?? true;
+    const preview = buildAlertPreview(messageDoc.content, hideText);
+
+    if (canAlert && user.email && settings?.emailAlerts === "instant") {
+      sendMessageAlertEmail({
+        email: user.email,
+        username: user.username,
+        preview: hideText ? null : preview,
+        sentimentTag: messageDoc.sentimentTag,
+      }).catch((e) => console.warn("Email alert error:", e));
+    }
+
     if (
-      user.email &&
-      user.notificationSettings?.emailAlerts === "instant" &&
-      !moderation.isToxic
+      canAlert &&
+      settings?.webPushEnabled &&
+      user.pushSubscriptions?.length
     ) {
-      sendMessageAlertEmail(
-        user.email,
-        user.username,
-        messageDoc.content,
-        messageDoc.sentimentTag
-      ).catch((e) => console.warn("Email alert error:", e));
+      sendPushToUser(String(user._id), user.pushSubscriptions, {
+        title: "New anonymous message 👻",
+        body: preview,
+        url: "/dashboard",
+      }).catch((e) => console.warn("Web push error:", e));
     }
 
     return Response.json(

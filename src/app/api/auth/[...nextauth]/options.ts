@@ -3,8 +3,8 @@ import type { NextAuthOptions, User as NextAuthUser } from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
 
 import { controlGoogleSignInFlow } from "./controller/google-signin";
 
@@ -91,16 +91,18 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user._id = token._id;
         session.user.isVerified = token.isVerified;
-        session.user.isAcceptingMessage = token.isAcceptingMessage;
         session.user.username = token.username;
       }
       return session;
     },
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
+      // `useSession().update({ username })` after a username change.
+      if (trigger === "update" && typeof session?.username === "string") {
+        token.username = session.username;
+      }
       if (user) {
         token._id = user._id;
         token.isVerified = user.isVerified;
-        token.isAcceptingMessage = user.isAcceptingMessage;
         token.username = user.username;
       }
       return token;

@@ -6,7 +6,7 @@ import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { VerifyCodeValues } from "@/components/patterns/verify-code-form";
-import { useVerifyCodeMutation } from "@/hooks/mutations/use-verify-code-mutation";
+import { useVerifyCodeMutation } from "@/data/auth/use-verify-code-mutation";
 import { verifySchema } from "@/schemas/verify-schema";
 
 export function useVerifyController(username: string) {

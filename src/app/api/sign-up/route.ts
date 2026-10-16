@@ -1,11 +1,11 @@
 import bcrypt from "bcryptjs";
 import type { NextRequest } from "next/server";
-import { sendVerificationEmail } from "@/helpers/send-verification-email";
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
+import dbConnect from "@/server/db/db-connect";
+import { sendVerificationEmail } from "@/server/email/send-verification-email";
+import UserModel from "@/server/models/user.model";
 export async function POST(req: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
+    await dbConnect();
     const { username, email, password } = await req.json();
     const existingUserVerifiedByUsername = await UserModel.findOne({
       username,

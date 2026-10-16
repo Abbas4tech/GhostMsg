@@ -3,7 +3,7 @@
 ## Status
 **Accepted**
 
-> **Update (2026-10-12):** `urlBase64ToUint8Array` and the Web Push flow moved to `src/lib/push-notification-adapter.ts`, consumed by `src/components/pages/dashboard/use-settings.controller.ts` ([ADR 0014](file:///d:/Projects/GhostMsg/docs/adr/0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md), [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
+> **Update (2026-10-12):** `urlBase64ToUint8Array` and the Web Push flow moved to `src/lib/push-notification-adapter.ts`, consumed by `src/components/pages/dashboard/use-settings.controller.ts` ([ADR 0014](0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md), [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
 
 ---
 
@@ -39,8 +39,8 @@ Step 4: Consumer (React Query + api.*) ◀── Step 3: pnpm typegen (api-schem
 
 ### 2. Nodemailer SMTP Transporter & React Email
 - Removed `resend` package completely from `package.json`.
-- Created [`src/lib/mailer.ts`](file:///d:/Projects/GhostMsg/src/lib/mailer.ts) using Nodemailer configured via standard environment variables (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`).
-- Render HTML email bodies using `@react-email/render` in [`send-verification-email.ts`](file:///d:/Projects/GhostMsg/src/helpers/send-verification-email.ts) and [`send-message-alert-email.ts`](file:///d:/Projects/GhostMsg/src/helpers/send-message-alert-email.ts).
+- Created [`src/lib/mailer.ts`](../../src/server/email/mailer.ts) using Nodemailer configured via standard environment variables (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`).
+- Render HTML email bodies using `@react-email/render` in [`send-verification-email.ts`](../../src/server/email/send-verification-email.ts) and [`send-message-alert-email.ts`](../../src/server/email/send-message-alert-email.ts).
 
 ### 3. Reversible Sender Unblocking & Blocklist Management
 - **API Endpoints**:
@@ -52,7 +52,7 @@ Step 4: Consumer (React Query + api.*) ◀── Step 3: pnpm typegen (api-schem
   - **Settings Tab**: Includes a **Blocked Senders Management Card** displaying blocked fingerprints (`hash...1234`), individual unblock buttons, and an **Unblock All Senders** action.
 
 ### 4. Web Push Notification Fixes
-- Implemented `urlBase64ToUint8Array` helper in [`src/components/dashboard/settings-tab.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/settings-tab.tsx) to convert base64 VAPID public keys to `BufferSource` (`Uint8Array`) as required by the W3C Push API.
+- Implemented `urlBase64ToUint8Array` helper in [`src/components/dashboard/settings-tab.tsx`](../../src/components/pages/dashboard/settings-page.tsx) to convert base64 VAPID public keys to `BufferSource` (`Uint8Array`) as required by the W3C Push API.
 - Added `await navigator.serviceWorker.ready` before `pushManager.subscribe()` and implemented error toast notifications.
 
 ---
@@ -71,8 +71,8 @@ Step 4: Consumer (React Query + api.*) ◀── Step 3: pnpm typegen (api-schem
 ---
 
 ## References & Code Pointers
-- OpenAPI Registry: [`src/lib/openapi.ts`](file:///d:/Projects/GhostMsg/src/lib/openapi.ts)
-- API Patterns Guide: [`docs/agents/api-patterns.md`](file:///d:/Projects/GhostMsg/docs/agents/api-patterns.md)
-- Mailer Transporter: [`src/lib/mailer.ts`](file:///d:/Projects/GhostMsg/src/lib/mailer.ts)
-- Block Sender Route: [`src/app/api/block-sender/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/block-sender/route.ts)
-- Settings Tab: [`src/components/dashboard/settings-tab.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/settings-tab.tsx)
+- OpenAPI Registry: [`src/lib/openapi.ts`](../../src/server/openapi/openapi.ts)
+- API Patterns Guide: [`docs/agents/api-patterns.md`](../agents/api-patterns.md)
+- Mailer Transporter: [`src/lib/mailer.ts`](../../src/server/email/mailer.ts)
+- Block Sender Route: [`src/app/api/block-sender/route.ts`](../../src/app/api/block-sender/route.ts)
+- Settings Tab: [`src/components/dashboard/settings-tab.tsx`](../../src/components/pages/dashboard/settings-page.tsx)

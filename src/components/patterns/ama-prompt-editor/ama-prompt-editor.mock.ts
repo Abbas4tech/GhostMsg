@@ -7,10 +7,17 @@ import {
 
 export const defaultAmaPromptEditorArgs: AmaPromptEditorProps = {
   value: FIXTURE_AMA_PROMPT,
-  isSaving: false,
+  showBanner: true,
+  isSuggesting: false,
+  aiIdeas: [],
   onChange: noop,
-  onSave: noop,
+  onShowBannerChange: noop,
+  onSuggest: noop,
 };
+
+export const aiIdeasAmaPromptEditorArgs = {
+  aiIdeas: ["What should I build next?", "Roast my portfolio"],
+} satisfies Partial<AmaPromptEditorProps>;
 
 export const atLimitAmaPromptEditorArgs = {
   value: "x".repeat(AMA_PROMPT_MAX_LENGTH),

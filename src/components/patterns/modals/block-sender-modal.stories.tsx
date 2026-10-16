@@ -28,7 +28,9 @@ const meta = {
       control: "boolean",
       description: "Spinner + disabled confirm",
     },
-    onConfirm: { description: "Confirm clicked → (senderHash, isBlocked)" },
+    onConfirm: {
+      description: "Confirm clicked → (senderHash, isBlocked, alsoDelete)",
+    },
     onClose: { description: "Cancel / Escape / overlay" },
   },
 } satisfies Meta<typeof BlockSenderModal>;
@@ -41,10 +43,14 @@ export const Block: Story = {
     await expect(
       await screen.findByRole("alertdialog", { name: "Block this sender?" })
     ).toBeVisible();
+    await expect(
+      screen.getByRole("radio", { name: "Block and delete this message" })
+    ).toBeChecked();
     await userEvent.click(screen.getByRole("button", { name: BLOCK_REGEX }));
     await expect(args.onConfirm).toHaveBeenCalledWith(
       args.message?.senderHash,
-      false
+      false,
+      true
     );
   },
 };
@@ -55,10 +61,26 @@ export const Unblock: Story = {
     await expect(
       await screen.findByRole("alertdialog", { name: "Unblock this sender?" })
     ).toBeVisible();
+    await expect(screen.queryByRole("radio")).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: UNBLOCK_REGEX }));
     await expect(args.onConfirm).toHaveBeenCalledWith(
       args.message?.senderHash,
-      true
+      true,
+      false
+    );
+  },
+};
+
+export const BlockOnly: Story = {
+  play: async ({ args, userEvent }) => {
+    await userEvent.click(
+      await screen.findByRole("radio", { name: "Block only" })
+    );
+    await userEvent.click(screen.getByRole("button", { name: BLOCK_REGEX }));
+    await expect(args.onConfirm).toHaveBeenCalledWith(
+      args.message?.senderHash,
+      false,
+      false
     );
   },
 };

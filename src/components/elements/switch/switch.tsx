@@ -14,12 +14,14 @@ const switchVariants = cva(
         default:
           "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80",
         success:
-          "data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80",
+          "data-[state=checked]:bg-success data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80",
       },
       size: {
         sm: "h-4 w-7",
         md: "h-[1.15rem] w-8",
         lg: "h-6 w-11",
+        /** 48×28 touch-friendly switch used in settings rows. */
+        xl: "h-7 w-12 p-[3px]",
       },
     },
     defaultVariants: {
@@ -37,6 +39,7 @@ const thumbVariants = cva(
         sm: "size-3.5 data-[state=checked]:translate-x-3",
         md: "size-4 data-[state=checked]:translate-x-[calc(100%-2px)]",
         lg: "size-5 data-[state=checked]:translate-x-5",
+        xl: "size-[22px] data-[state=checked]:translate-x-5",
       },
     },
     defaultVariants: {

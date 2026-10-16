@@ -5,12 +5,13 @@ import {
 import type { AmaBannerProps } from "./ama-banner";
 
 export const defaultAmaBannerArgs: AmaBannerProps = {
-  username: FIXTURE_USERNAME,
+  eyebrow: `AMA · ${FIXTURE_USERNAME}`,
   prompt: FIXTURE_AMA_PROMPT,
+  tone: "brand",
+  size: "md",
 };
 
 export const longAmaBannerArgs = {
-  username: "a_really_long_username_20",
   prompt:
     "Ask me anything about tech, design, careers, the books I'm reading, or roast my portfolio — I can take it!",
 } satisfies Partial<AmaBannerProps>;

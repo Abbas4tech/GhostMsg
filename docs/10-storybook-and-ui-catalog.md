@@ -1,6 +1,6 @@
 # Chapter 10: Storybook & UI Component Catalog
 
-GhostMsg uses **Storybook 10** (`@storybook/nextjs-vite`) as the component catalog and the primary component test harness. Stories run as **Vitest browser tests** in headless Chromium through `@storybook/addon-vitest`, with axe accessibility checks. Page stories isolate their dependencies with **MSW** at the network layer. Rationale: [ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md).
+GhostMsg uses **Storybook 10** (`@storybook/nextjs-vite`) as the component catalog and the primary component test harness. Stories run as **Vitest browser tests** in headless Chromium through `@storybook/addon-vitest`, with axe accessibility checks. Page stories isolate their dependencies with **MSW** at the network layer. Rationale: [ADR 0016](adr/0016-storybook-msw-and-story-driven-component-testing.md).
 
 ---
 
@@ -8,8 +8,9 @@ GhostMsg uses **Storybook 10** (`@storybook/nextjs-vite`) as the component catal
 
 | Command | What it does |
 | :--- | :--- |
-| `pnpm storybook` | Dev server at `http://localhost:6006` with autodocs, controls, actions, a11y panel and the theme toolbar |
+| `pnpm storybook` | Dev server at `http://localhost:6006` with autodocs, controls, actions, a11y panel and the **Theme** + **Palette** toolbars |
 | `pnpm build-storybook` | Static build into `storybook-static/` (manual/CI step) |
+| `pnpm docs:screenshots [names…]` | Renders stories from `storybook-static/` in headless Chromium and writes the documentation screenshots to `docs/assets/screenshots/` ([Chapter 14 §10](14-ui-screens-and-user-flows.md#10-how-screenshots-are-produced)) |
 | `pnpm test:stories` | Runs every story as a Vitest browser test (smoke + `play()` + axe) |
 | `pnpm test` | Unit project only (happy-dom): logic, controllers, page integration |
 | `pnpm test:all` | Both projects; this is the pre-push gate |
@@ -62,7 +63,7 @@ flowchart TD
 
 ## 4. The story standard
 
-Every `*.stories.tsx` must meet all five points ([ADR 0016, Q6](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md)):
+Every `*.stories.tsx` must meet all five points ([ADR 0016, Q6](adr/0016-storybook-msw-and-story-driven-component-testing.md)):
 
 1. **CSF3, typed.** `satisfies Meta<typeof X>`, `type Story = StoryObj<typeof meta>`, `tags: ["autodocs"]`, and a tier title (`Elements/…`, `Patterns/…`, `Blocks/…`, `Pages/…`).
 2. **Controls and actions.** `argTypes` with a description for every prop, select/radio controls for variants and sizes, and `fn()` for every callback.
@@ -108,10 +109,15 @@ export const LongUrl: Story = { args: { profileUrl: "https://ghostmsg.app/u/a-ve
 ```tsx
 const meta = {
   title: "Pages/Dashboard",
-  component: DashboardPage,
+  component: DashboardLayout,
   tags: ["autodocs"],
   parameters: { layout: "fullscreen", pageProviders: true, msw: { handlers: defaultHandlers } },
-} satisfies Meta<typeof DashboardPage>;
+  render: () => (
+    <DashboardLayout>
+      <InboxPage />
+    </DashboardLayout>
+  ),
+} satisfies Meta<typeof DashboardLayout>;
 
 export const EmptyInbox: Story = { parameters: { msw: { handlers: [...scenarios.inbox.empty, ...defaultHandlers] } } };
 export const SignedOut: Story = { parameters: { msw: { handlers: [...scenarios.session.unauthenticated, ...defaultHandlers] } } };
@@ -121,7 +127,7 @@ export const SignedOut: Story = { parameters: { msw: { handlers: [...scenarios.s
 
 ## 5. Mock data rules
 
-Full catalog of fixtures and scenarios: [Chapter 11](file:///d:/Projects/GhostMsg/docs/11-component-registry.md).
+Full catalog of fixtures and scenarios: [Chapter 11](11-component-registry.md).
 
 
 - **Domain shapes come only from `src/mock/fixtures`** (`buildMessage`, `buildPublicAnswer`, `buildSession`, `messageScenarios.*`, …). Builders accept `Partial<T>` overrides and return fully typed objects.
@@ -143,7 +149,7 @@ Full catalog of fixtures and scenarios: [Chapter 11](file:///d:/Projects/GhostMs
 | `openapi-fetch` (`api`) | pages | real; MSW answers the HTTP |
 | `motion`, `embla-carousel`, `input-otp`, Radix | elements | real browser, no mocking needed |
 
-Nothing below `pages/` imports data modules (enforced by Biome, [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)), so elements, patterns and blocks stories need args only.
+Nothing below `pages/` imports data modules (enforced by Biome, [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)), so elements, patterns and blocks stories need args only.
 
 ---
 
@@ -155,7 +161,9 @@ Nothing below `pages/` imports data modules (enforced by Biome, [ADR 0015](file:
 | **Controlled inputs use a local-state wrapper component**, e.g. `StatefulAmaPromptEditor`, never `useArgs`. | `useArgs` doesn't re-render inside Vitest, so typed text gets lost. A named component also satisfies Biome's hook rules. |
 | **Form patterns use a harness component** that creates `useForm` with the real `zodResolver(schema)`. | Patterns receive `form` from a page controller, so the harness plays the controller's role. |
 | **Page stories wait with `PAGE_LOAD` (`{ timeout: 15_000 }`)** as the third `findBy*` argument: `findByRole(role, { name }, PAGE_LOAD)`. The storybook project's `testTimeout` is 30s. | The first story of a file chains MSW worker start → session → lazy chunk → query. |
-| **Preload `next/dynamic` chunks with a meta `loaders` entry** (see `dashboard-page.stories.tsx`). | Otherwise the first story races Vite's on-demand transform. |
+| **Preload `next/dynamic` chunks with a meta `loaders` entry** when a page lazy-loads parts of itself. | Otherwise the first story races Vite's on-demand transform. |
+| **Story tests run at 1280×900** (`browser.viewport` in `vitest.config.ts`), so `lg:` layouts such as the dashboard sidebar are present. Mobile stories are visual only. | Vitest's default 414px iframe hides desktop-only UI from queries. |
+| **Use the Palette toolbar** to review every story in Soft spectral, Midnight confessional and Playful paper. | Tokens differ per palette (fonts, radius, shadows), not just colours. |
 | **Scenario order: most specific override first**, e.g. `withScenario(scenarios.credentials.invalid, scenarios.session.unauthenticated)`. | MSW uses the first matching handler, and session sets include NextAuth callbacks. |
 | **Portals** (dialogs, tooltips, toasts) are queried with `screen`, not `canvas`. | They render outside the story root. |
 | **Override args are partial objects** (`satisfies Partial<Props>`) that never spread `default*Args`. | Spreading would replace the meta's `fn()` spies with `noop`. |
@@ -181,7 +189,11 @@ Nothing below `pages/` imports data modules (enforced by Biome, [ADR 0015](file:
 - Wait for data with `PAGE_LOAD`, and assert toasts with `screen`.
 - Preload `next/dynamic` chunks in meta `loaders`.
 
+**Add a documentation screenshot**
+- Find the story id: `title` in lower kebab case + `--` + the export name in kebab case (`Pages/Dashboard` › `Settings` → `pages-dashboard--settings`; `Patterns/Modals/SmartReplyModal` › `NewReply` → `patterns-modals-smartreplymodal--new-reply`).
+- Add an entry to `SHOTS` in `scripts/capture-doc-screenshots.ts` (viewport, optional `palette`, `mode`, `fullPage`), then `pnpm build-storybook && pnpm docs:screenshots <name>` and review the PNG.
+
 ---
 
 ## 9. Next Chapter
-Return to the [Documentation Index](file:///d:/Projects/GhostMsg/docs/README.md).
+Return to the [Documentation Index](README.md).

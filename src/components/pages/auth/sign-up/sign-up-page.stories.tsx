@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, screen, waitFor } from "storybook/test";
-import { authCredentials, authPageHandlers } from "../auth-pages.mock";
+import { authCredentials, authPageHandlers } from "../shared/auth-pages.mock";
 import { SignUpPage } from "./sign-up-page";
 
 /** Page stories chain MSW worker start → session → lazy chunk → query; allow realistic load time under parallel runs. */
 const PAGE_LOAD = { timeout: 15_000 };
 
-const SIGN_UP_REGEX = /^sign up$/i;
+const SIGN_UP_REGEX = /^send my verification code$/i;
 
 const meta = {
   title: "Pages/Auth/SignUp",
@@ -25,33 +25,37 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: async ({ canvas }) => {
     await expect(
-      canvas.getByRole("heading", { level: 2, name: "Join GhostMsg" })
+      canvas.getByRole("heading", { level: 1, name: "Make your link" })
     ).toBeVisible();
   },
 };
 
 export const UsernameAvailable: Story = {
-  play: async ({ canvas, canvasElement, userEvent }) => {
+  play: async ({ canvas, userEvent }) => {
     await userEvent.type(
-      canvas.getByLabelText("Username *"),
+      canvas.getByLabelText("Username"),
       authCredentials.username
     );
-    await waitFor(() =>
-      expect(canvasElement.querySelector(".text-green-500")).toBeInTheDocument()
-    );
+    await expect(
+      await canvas.findByRole(
+        "img",
+        { name: "Username is available" },
+        PAGE_LOAD
+      )
+    ).toBeVisible();
   },
 };
 
 export const UsernameTaken: Story = {
   parameters: { msw: { handlers: authPageHandlers.usernameTaken } },
-  play: async ({ canvas, canvasElement, userEvent }) => {
+  play: async ({ canvas, userEvent }) => {
     await userEvent.type(
-      canvas.getByLabelText("Username *"),
+      canvas.getByLabelText("Username"),
       authCredentials.username
     );
-    await waitFor(() =>
-      expect(canvasElement.querySelector(".text-red-500")).toBeInTheDocument()
-    );
+    await expect(
+      await canvas.findByRole("img", { name: "Username is taken" }, PAGE_LOAD)
+    ).toBeVisible();
     await expect(
       await canvas.findByText("Username is already taken", undefined, PAGE_LOAD)
     ).toBeVisible();
@@ -61,15 +65,12 @@ export const UsernameTaken: Story = {
 export const SignsUp: Story = {
   play: async ({ canvas, userEvent }) => {
     await userEvent.type(
-      canvas.getByLabelText("Username *"),
+      canvas.getByLabelText("Username"),
       authCredentials.username
     );
+    await userEvent.type(canvas.getByLabelText("Email"), authCredentials.email);
     await userEvent.type(
-      canvas.getByLabelText("Email *"),
-      authCredentials.email
-    );
-    await userEvent.type(
-      canvas.getByLabelText("Password *"),
+      canvas.getByLabelText("Password"),
       authCredentials.password
     );
     const submit = canvas.getByRole("button", { name: SIGN_UP_REGEX });

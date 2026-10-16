@@ -1,4 +1,5 @@
 import {
+  fixtureDate,
   type MessageFixture,
   messageScenarios,
   mixedMessageCounts,
@@ -26,6 +27,7 @@ export const defaultInboxArgs: InboxProps = {
     onOpenDelete: noop,
     onOpenReply: noop,
     onOpenStoryCard: noop,
+    onReveal: noop,
     onStarToggle: noop,
   },
   viewMode: "grid",
@@ -33,7 +35,18 @@ export const defaultInboxArgs: InboxProps = {
   onViewModeChange: noop,
   onRefresh: noop,
   isSenderBlocked: (hash?: string) => hash === "hash-sender-2",
+  isLoading: false,
+  focusedId: null,
+  revealedIds: [],
+  onCopyLink: noop,
+  /** Three hours after the newest fixture, so ages render as 3h, 6h, 1d… */
+  now: new Date(new Date(fixtureDate()).getTime() + 3 * 60 * 60 * 1000),
 };
+
+export const loadingInboxArgs = {
+  isLoading: true,
+  messages: [],
+} satisfies Partial<InboxProps>;
 
 export const emptyInboxArgs = {
   messages: [],
@@ -53,4 +66,12 @@ export const quarantinedInboxArgs = {
 export const longContentInboxArgs = {
   messages: messageScenarios.longContent,
   totalMessages: messageScenarios.longContent.length,
+} satisfies Partial<InboxProps>;
+
+export const moreToLoadInboxArgs = {
+  pagination: { hasMore: true, isLoadingMore: false, onLoadMore: noop },
+} satisfies Partial<InboxProps>;
+
+export const loadingMoreInboxArgs = {
+  pagination: { hasMore: true, isLoadingMore: true, onLoadMore: noop },
 } satisfies Partial<InboxProps>;

@@ -15,7 +15,7 @@ const buttonVariants = cva(
         default:
           "text-primary shadow-xs [--liquid-button-background-color:var(--accent)] [--liquid-button-color:var(--primary)] hover:text-primary-foreground",
         destructive:
-          "text-white shadow-xs [--liquid-button-background-color:var(--accent)] [--liquid-button-color:var(--destructive)] focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "text-destructive-foreground shadow-xs [--liquid-button-background-color:var(--accent)] [--liquid-button-color:var(--destructive)] focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
         secondary:
           "text-secondary shadow-xs [--liquid-button-background-color:var(--accent)] [--liquid-button-color:var(--secondary)] hover:text-secondary-foreground",
         ghost:

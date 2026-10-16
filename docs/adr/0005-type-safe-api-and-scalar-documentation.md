@@ -37,8 +37,8 @@ This architecture introduced several critical challenges:
 
 ### Option C: Zod OpenAPI + openapi-typescript + openapi-fetch + Scalar UI (Chosen)
 - **Pros**:
-  - **Zod as Single Source of Truth**: `@asteasolutions/zod-to-openapi` extends runtime validation schemas to generate OpenAPI 3.1 specifications in [`src/lib/openapi.ts`](file:///d:/Projects/GhostMsg/src/lib/openapi.ts).
-  - **Automated Type Generation**: `openapi-typescript` compiles the specification into [`src/generated/api-schema.d.ts`](file:///d:/Projects/GhostMsg/src/generated/api-schema.d.ts) via `pnpm typegen`.
+  - **Zod as Single Source of Truth**: `@asteasolutions/zod-to-openapi` extends runtime validation schemas to generate OpenAPI 3.1 specifications in [`src/lib/openapi.ts`](../../src/server/openapi/openapi.ts).
+  - **Automated Type Generation**: `openapi-typescript` compiles the specification into [`src/generated/api-schema.d.ts`](../../src/generated/api-schema.d.ts) via `pnpm typegen`.
   - **Lightweight SDK**: `openapi-fetch` provides a 5-line, <5kB type-safe client with native `AbortSignal` and TypeScript path autocompletion.
   - **Interactive Documentation**: Scalar (`@scalar/nextjs-api-reference`) serves modern, interactive documentation at `/docs`.
   - **React Query Integration**: Seamlessly connects with `@tanstack/react-query` for query caching, loading states, and mutation invalidation.
@@ -91,14 +91,14 @@ flowchart TD
 - **Zero Schema Drift**: `pnpm build` automatically triggers `pnpm typegen` to guarantee synchronized client types in CI/CD.
 
 ### Negative & Mitigations
-- **Generated File Policy**: `src/generated/api-schema.d.ts` is auto-generated and must not be edited manually. Enforced via repository rules in [`AGENTS.md`](file:///d:/Projects/GhostMsg/AGENTS.md).
+- **Generated File Policy**: `src/generated/api-schema.d.ts` is auto-generated and must not be edited manually. Enforced via repository rules in [`AGENTS.md`](../../AGENTS.md).
 
 ---
 
 ## References & Code Pointers
-- OpenAPI Registry: [`src/lib/openapi.ts`](file:///d:/Projects/GhostMsg/src/lib/openapi.ts)
-- Typegen Script: [`scripts/generate-api-types.ts`](file:///d:/Projects/GhostMsg/scripts/generate-api-types.ts)
-- Client SDK: [`src/lib/api-client.ts`](file:///d:/Projects/GhostMsg/src/lib/api-client.ts)
-- Scalar Docs Route: [`src/app/docs/route.ts`](file:///d:/Projects/GhostMsg/src/app/docs/route.ts)
-- React Query Provider: [`src/context/query-provider.tsx`](file:///d:/Projects/GhostMsg/src/context/query-provider.tsx)
-- Agent API Guidelines: [`docs/agents/api-patterns.md`](file:///d:/Projects/GhostMsg/docs/agents/api-patterns.md)
+- OpenAPI Registry: [`src/lib/openapi.ts`](../../src/server/openapi/openapi.ts)
+- Typegen Script: [`scripts/generate-api-types.ts`](../../scripts/generate-api-types.ts)
+- Client SDK: [`src/lib/api-client.ts`](../../src/data/api-client.ts)
+- Scalar Docs Route: [`src/app/docs/route.ts`](../../src/app/docs/route.ts)
+- React Query Provider: [`src/context/query-provider.tsx`](../../src/providers/query-provider.tsx)
+- Agent API Guidelines: [`docs/agents/api-patterns.md`](../agents/api-patterns.md)

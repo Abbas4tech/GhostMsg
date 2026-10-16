@@ -11,7 +11,7 @@ const meta = {
   args: { ...defaultDashboardAccessDeniedArgs, onGoToLogin: fn() },
   argTypes: {
     onGoToLogin: {
-      description: "Go to Login clicked (page navigates to /sign-in)",
+      description: "Sign in clicked (page navigates to /sign-in)",
     },
   },
 } satisfies Meta<typeof DashboardAccessDenied>;
@@ -21,8 +21,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   play: async ({ args, canvas, userEvent }) => {
-    await expect(canvas.getByText("Access Denied")).toBeVisible();
-    await userEvent.click(canvas.getByRole("button", { name: "Go to Login" }));
+    await expect(
+      canvas.getByRole("heading", { name: "Sign in to see your inbox" })
+    ).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Sign in" }));
     await expect(args.onGoToLogin).toHaveBeenCalledOnce();
   },
 };

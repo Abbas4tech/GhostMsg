@@ -1,284 +1,507 @@
 "use client";
 
+import { cva } from "class-variance-authority";
 import {
   Ban,
-  CheckSquare,
-  MessageSquare,
+  Check,
+  Eye,
+  Flag,
+  Reply,
+  Share2,
   ShieldOff,
-  Sparkles,
-  Square,
   Star,
   Trash2,
 } from "lucide-react";
 import type React from "react";
 import { memo } from "react";
 import { Button } from "@/components/elements/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  type CardProps,
-  CardTitle,
-} from "@/components/elements/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/elements/tooltip";
+import { Checkbox } from "@/components/elements/checkbox";
 import { SentimentBadge } from "@/components/patterns/sentiment-badge";
+import { formatRelativeTime } from "@/lib/format/relative-time";
 import { cn } from "@/lib/utils";
-import type { Message } from "@/model/user.model";
+import type { MessageDto } from "@/types/api";
 
-const TIMESTAMP_FORMAT: Intl.DateTimeFormatOptions = {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-  hour: "numeric",
-  minute: "numeric",
-  hour12: true,
-};
+export type MessageCardLayout = "grid" | "list";
 
-export interface MessageCardProps extends Omit<CardProps, "children"> {
+export type MessageCardState =
+  | "default"
+  | "unread"
+  | "selected"
+  | "answered"
+  | "quarantined";
+
+const messageCardVariants = cva(
+  "relative flex min-w-0 rounded-xl border bg-card text-card-foreground shadow-soft transition-[box-shadow,background-color,border-color] duration-200",
+  {
+    variants: {
+      state: {
+        default: "",
+        unread:
+          "before:absolute before:top-[18px] before:-left-px before:h-5 before:w-1 before:rounded-r before:bg-primary",
+        selected: "border-primary bg-primary/[0.07] ring-1 ring-primary",
+        answered: "bg-muted",
+        quarantined: "border-input border-dashed bg-muted shadow-none",
+      },
+      layout: {
+        grid: "flex-col gap-3 p-4",
+        list: "flex-row items-center gap-3 px-3 py-2.5 sm:px-4",
+      },
+      focused: {
+        true: "outline-2 outline-ring outline-offset-2",
+        false: "",
+      },
+    },
+    defaultVariants: { state: "default", layout: "grid", focused: false },
+  }
+);
+
+const hasAnswer = (message: MessageDto): boolean =>
+  Boolean(message.reply?.text?.trim());
+
+/** Visual state, most important first: selected > quarantined > unread > answered. */
+export function getMessageCardState(
+  message: MessageDto,
+  isSelected: boolean
+): MessageCardState {
+  if (isSelected) {
+    return "selected";
+  }
+  if (message.isQuarantined) {
+    return "quarantined";
+  }
+  if (!message.isRead) {
+    return "unread";
+  }
+  return hasAnswer(message) ? "answered" : "default";
+}
+
+export interface MessageCardProps
+  extends Omit<React.HTMLAttributes<HTMLElement>, "children"> {
+  /** Blur Spicy messages until revealed (Settings → Safety). */
+  concealSpicy?: boolean;
+  /** j/k keyboard cursor (adds a focus ring). */
+  isFocused?: boolean;
+  /** Concealed (quarantined or Spicy) body was revealed by the recipient. */
+  isRevealed?: boolean;
   isSelected?: boolean;
   isSenderBlocked?: boolean;
-  message: Message;
-  onOpenBlock?: (message: Message) => void;
-  onOpenDelete?: (message: Message) => void;
-  onOpenReply?: (message: Message) => void;
-  onOpenStoryCard?: (message: Message) => void;
-  onStarToggle?: (message: Message) => void;
+  layout?: MessageCardLayout;
+  message: MessageDto;
+  /** Reference time for "2m" style ages (stories pin it). */
+  now?: Date;
+  onOpenBlock?: (message: MessageDto) => void;
+  onOpenDelete?: (message: MessageDto) => void;
+  onOpenReply?: (message: MessageDto) => void;
+  onOpenStoryCard?: (message: MessageDto) => void;
+  onReveal?: (message: MessageDto) => void;
+  onStarToggle?: (message: MessageDto) => void;
   onToggleSelect?: (messageId: string) => void;
 }
 
-type MessageCardFooterProps = Pick<
+type CardCallbacks = Pick<
   MessageCardProps,
-  | "isSenderBlocked"
-  | "message"
   | "onOpenBlock"
   | "onOpenDelete"
   | "onOpenReply"
   | "onOpenStoryCard"
-> & { hasReply: boolean };
+  | "onReveal"
+  | "onStarToggle"
+  | "onToggleSelect"
+>;
 
-/** Action footer bar: reply / story card on the left, block / delete on the right. */
-function MessageCardFooter({
+export type ConcealReason = "quarantined" | "spicy";
+
+/** Why a card's text is hidden, if it is (quarantine always wins). */
+export function getConcealReason(
+  message: MessageDto,
+  concealSpicy: boolean
+): ConcealReason | null {
+  if (message.isQuarantined) {
+    return "quarantined";
+  }
+  return concealSpicy && message.sentimentTag === "spicy" ? "spicy" : null;
+}
+
+const CONCEAL_NOTE: Record<ConcealReason, string> = {
+  quarantined: "Hidden. Flagged as hurtful.",
+  spicy: "Spicy 🔥 Reveal to read.",
+};
+
+interface CardModel extends CardCallbacks {
+  concealReason: ConcealReason | null;
+  isAnswered: boolean;
+  isHidden: boolean;
+  isSelected: boolean;
+  isSenderBlocked: boolean;
+  message: MessageDto;
+  now?: Date;
+}
+
+function SelectCheckbox({
+  checked,
+  onToggle,
+}: {
+  checked: boolean;
+  onToggle: () => void;
+}): React.JSX.Element {
+  // 44px hit area around the 22px box.
+  return (
+    <span className="-m-2.5 grid size-11 shrink-0 place-items-center">
+      <Checkbox
+        aria-label="Select message"
+        checked={checked}
+        onCheckedChange={onToggle}
+        size="lg"
+      />
+    </span>
+  );
+}
+
+function IconAction({
+  label,
+  onClick,
+  tone = "default",
+  children,
+}: {
+  children: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  tone?: "default" | "danger" | "active";
+}): React.JSX.Element {
+  return (
+    <Button
+      aria-label={label}
+      className={cn(
+        "size-10 rounded-[10px] text-muted-foreground hover:text-foreground sm:size-9",
+        tone === "danger" && "hover:text-destructive",
+        tone === "active" && "text-destructive hover:text-destructive/80"
+      )}
+      onClick={onClick}
+      size="icon"
+      title={label}
+      variant="ghost"
+    >
+      {children}
+    </Button>
+  );
+}
+
+function StarToggle({ message, onStarToggle }: CardModel) {
+  if (message.isQuarantined || !onStarToggle) {
+    return null;
+  }
+  const isPinned = Boolean(message.isPinned);
+  const label = isPinned ? "Unstar message" : "Star message";
+  return (
+    <Button
+      aria-label={label}
+      aria-pressed={isPinned}
+      className="size-10 rounded-[10px] text-muted-foreground hover:text-star sm:size-9"
+      onClick={() => onStarToggle(message)}
+      size="icon"
+      title={label}
+      variant="ghost"
+    >
+      <Star
+        aria-hidden="true"
+        className={cn(
+          isPinned &&
+            "motion-safe:zoom-in-75 fill-star text-star motion-safe:animate-in"
+        )}
+      />
+    </Button>
+  );
+}
+
+function CardCheckbox({ message, isSelected, onToggleSelect }: CardModel) {
+  if (!onToggleSelect) {
+    return null;
+  }
+  return (
+    <SelectCheckbox
+      checked={isSelected}
+      onToggle={() => onToggleSelect(String(message._id))}
+    />
+  );
+}
+
+function CardBadge({ message }: { message: MessageDto }): React.JSX.Element {
+  if (message.isQuarantined) {
+    return (
+      <span className="inline-flex h-7 shrink-0 items-center gap-1.5 rounded-full border border-sentiment-neutral/30 bg-sentiment-neutral-subtle px-2.5 font-semibold text-[13px] text-sentiment-neutral">
+        <Flag aria-hidden="true" className="size-3.5" />
+        Quarantined
+      </span>
+    );
+  }
+  return <SentimentBadge sentiment={message.sentimentTag} size="md" />;
+}
+
+function Age({ message, now }: CardModel): React.JSX.Element {
+  const created = new Date(message.createdAt);
+  return (
+    <time
+      className="shrink-0 text-muted-foreground text-sm tabular-nums"
+      dateTime={created.toISOString()}
+      title={created.toLocaleString("en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })}
+    >
+      {formatRelativeTime(created, now)}
+    </time>
+  );
+}
+
+/** Story Card, Block/Unblock and Delete icon buttons (each only when wired). */
+function SecondaryActions({
   message,
-  hasReply,
   isSenderBlocked,
-  onOpenReply,
   onOpenStoryCard,
   onOpenBlock,
   onOpenDelete,
-}: MessageCardFooterProps): React.JSX.Element {
+}: CardModel): React.JSX.Element {
   return (
-    <div className="flex items-center justify-between border-t bg-muted/20 px-4 py-2 text-xs">
-      <div className="flex items-center gap-1.5">
-        {onOpenReply && (
-          <Button
-            className="h-7 text-xs"
-            onClick={() => onOpenReply(message)}
-            size="sm"
-            variant="outline"
-          >
-            <MessageSquare className="mr-1 h-3.5 w-3.5" />
-            {hasReply ? "Edit Reply" : "Reply"}
-          </Button>
-        )}
+    <>
+      {!message.isQuarantined && onOpenStoryCard ? (
+        <IconAction
+          label="Share as Story Card"
+          onClick={() => onOpenStoryCard(message)}
+        >
+          <Share2 aria-hidden="true" />
+        </IconAction>
+      ) : null}
+      {message.senderHash && onOpenBlock ? (
+        <IconAction
+          label={isSenderBlocked ? "Unblock sender" : "Block sender"}
+          onClick={() => onOpenBlock(message)}
+          tone={isSenderBlocked ? "active" : "default"}
+        >
+          {isSenderBlocked ? (
+            <ShieldOff aria-hidden="true" />
+          ) : (
+            <Ban aria-hidden="true" />
+          )}
+        </IconAction>
+      ) : null}
+      {onOpenDelete ? (
+        <IconAction
+          label="Delete message"
+          onClick={() => onOpenDelete(message)}
+          tone="danger"
+        >
+          <Trash2 aria-hidden="true" />
+        </IconAction>
+      ) : null}
+    </>
+  );
+}
 
-        {onOpenStoryCard && (
-          <Button
-            className="h-7 text-xs"
-            onClick={() => onOpenStoryCard(message)}
-            size="sm"
-            variant="ghost"
-          >
-            <Sparkles className="mr-1 h-3.5 w-3.5 text-purple-500" /> Story Card
-          </Button>
-        )}
+/** Reveal (hidden quarantined) or Reply / Edit answer. */
+function PrimaryAction({
+  message,
+  isHidden,
+  isAnswered,
+  onReveal,
+  onOpenReply,
+  compact,
+}: CardModel & { compact: boolean }) {
+  if (isHidden) {
+    if (!onReveal) {
+      return null;
+    }
+    return compact ? (
+      <IconAction label="Reveal" onClick={() => onReveal(message)}>
+        <Eye aria-hidden="true" />
+      </IconAction>
+    ) : (
+      <Button
+        className="rounded-full"
+        onClick={() => onReveal(message)}
+        size="sm"
+        variant="outline"
+      >
+        <Eye aria-hidden="true" />
+        Reveal
+      </Button>
+    );
+  }
+  if (!onOpenReply) {
+    return null;
+  }
+  const label = isAnswered ? "Edit answer" : "Reply";
+  return compact ? (
+    <IconAction label={label} onClick={() => onOpenReply(message)}>
+      <Reply aria-hidden="true" />
+    </IconAction>
+  ) : (
+    <Button
+      className="rounded-full"
+      onClick={() => onOpenReply(message)}
+      size="sm"
+      variant={isAnswered ? "secondary" : "default"}
+    >
+      {isAnswered ? null : <Reply aria-hidden="true" />}
+      {label}
+    </Button>
+  );
+}
+
+function GridBody(model: CardModel): React.JSX.Element {
+  const { message, isHidden, isAnswered, isSenderBlocked } = model;
+  return (
+    <>
+      <div className="flex min-w-0 items-center gap-2.5">
+        <CardCheckbox {...model} />
+        <CardBadge message={message} />
+        {isAnswered ? (
+          <span className="inline-flex items-center gap-1 font-semibold text-sm text-success">
+            <Check aria-hidden="true" className="size-4" />
+            Answered
+          </span>
+        ) : null}
+        {isSenderBlocked ? (
+          <span className="font-semibold text-destructive text-sm">
+            Blocked
+          </span>
+        ) : null}
+        <span className="ml-auto" />
+        <Age {...model} />
+        <StarToggle {...model} />
       </div>
 
-      <div className="flex items-center gap-1">
-        {message.senderHash && onOpenBlock && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                aria-label={isSenderBlocked ? "Unblock sender" : "Block sender"}
-                className={cn(
-                  "h-7 w-7",
-                  isSenderBlocked
-                    ? "text-red-500 hover:text-red-600"
-                    : "text-muted-foreground hover:text-destructive"
-                )}
-                onClick={() => onOpenBlock(message)}
-                size="icon"
-                variant="ghost"
-              >
-                {isSenderBlocked ? (
-                  <ShieldOff className="h-3.5 w-3.5" />
-                ) : (
-                  <Ban className="h-3.5 w-3.5" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {isSenderBlocked ? "Unblock this sender" : "Block this sender"}
-            </TooltipContent>
-          </Tooltip>
-        )}
+      {isHidden ? (
+        <div className="relative">
+          <p
+            aria-hidden="true"
+            className="select-none font-message text-base leading-relaxed blur-[7px]"
+          >
+            This message contains language we think you would rather not read.
+          </p>
+          <span className="absolute inset-0 grid place-items-center">
+            <span className="rounded-full bg-muted px-2.5 py-0.5 font-semibold text-foreground text-sm">
+              {CONCEAL_NOTE[model.concealReason ?? "quarantined"]}
+            </span>
+          </span>
+        </div>
+      ) : (
+        <p className="text-pretty font-message text-base leading-relaxed">
+          {message.content}
+        </p>
+      )}
 
-        {onOpenDelete && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                aria-label="Delete message"
-                className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                onClick={() => onOpenDelete(message)}
-                size="icon"
-                variant="ghost"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Delete message</TooltipContent>
-          </Tooltip>
-        )}
+      {isAnswered && !isHidden ? (
+        <div className="rounded-xl bg-accent px-3 py-2.5 text-accent-foreground text-sm">
+          <b>You:</b> {message.reply?.text}
+          {message.reply?.isPublished ? (
+            <span className="ml-2 inline-flex rounded-full bg-background/60 px-2 py-0.5 font-semibold text-[11px]">
+              Public
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="mt-auto flex items-center gap-0.5">
+        <PrimaryAction {...model} compact={false} />
+        <span className="flex-1" />
+        <SecondaryActions {...model} />
       </div>
-    </div>
+    </>
+  );
+}
+
+function ListBody(model: CardModel): React.JSX.Element {
+  const { message, isHidden } = model;
+  return (
+    <>
+      <CardCheckbox {...model} />
+      <span className="hidden sm:contents">
+        <CardBadge message={message} />
+      </span>
+      <p className="min-w-0 flex-1 truncate font-message text-[15px]">
+        {isHidden ? (
+          <span className="text-muted-foreground">
+            {CONCEAL_NOTE[model.concealReason ?? "quarantined"]}
+          </span>
+        ) : (
+          message.content
+        )}
+      </p>
+      <Age {...model} />
+      <div className="flex shrink-0 items-center">
+        <StarToggle {...model} />
+        <PrimaryAction {...model} compact />
+        <span className="hidden sm:contents">
+          <SecondaryActions {...model} onOpenDelete={undefined} />
+        </span>
+        <SecondaryActions
+          {...model}
+          onOpenBlock={undefined}
+          onOpenStoryCard={undefined}
+        />
+      </div>
+    </>
   );
 }
 
 /**
- * Pure presentational message card. Owns no queries, mutations or dialogs —
- * every interaction is emitted through a callback so the parent block decides
- * what happens (ADR 0014).
+ * Pure presentational message card (grid card or compact list row). Owns no
+ * queries, mutations or dialogs: every interaction is a callback (ADR 0014).
  */
 export const MessageCard = memo(function MessageCardInner({
   message,
+  layout = "grid",
   isSelected = false,
+  isFocused = false,
   isSenderBlocked = false,
+  isRevealed = false,
+  concealSpicy = false,
+  now,
   onToggleSelect,
   onStarToggle,
   onOpenReply,
   onOpenStoryCard,
   onOpenBlock,
   onOpenDelete,
+  onReveal,
   className,
   ...props
 }: MessageCardProps): React.JSX.Element {
   const messageId = String(message._id);
-  const isPinned = Boolean(message.isPinned);
-  const hasReply = Boolean(message.reply?.text);
+  const state = getMessageCardState(message, isSelected);
+  const concealReason = getConcealReason(message, concealSpicy);
+  const model: CardModel = {
+    message,
+    now,
+    isSelected,
+    isSenderBlocked,
+    isAnswered: hasAnswer(message),
+    concealReason,
+    isHidden: concealReason !== null && !isRevealed,
+    onToggleSelect,
+    onStarToggle,
+    onOpenReply,
+    onOpenStoryCard,
+    onOpenBlock,
+    onOpenDelete,
+    onReveal,
+  };
 
   return (
-    <Card
+    <article
       className={cn(
-        "relative w-full rounded-xl transition-all duration-200 hover:shadow-md",
-        isSelected && "border-purple-500 ring-2 ring-purple-500/20",
-        message.isQuarantined && "border-red-500/50 bg-red-500/5",
+        messageCardVariants({ state, layout, focused: isFocused }),
         className
       )}
+      data-state={state}
       data-testid={`message-card-${messageId}`}
+      id={`message-${messageId}`}
       {...props}
     >
-      <CardHeader className="pb-2">
-        {/* Header Row: Checkbox, Sentiment Badge, Star, and Status Badges */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            {onToggleSelect && (
-              <button
-                aria-label={isSelected ? "Deselect message" : "Select message"}
-                aria-pressed={isSelected}
-                className="text-muted-foreground hover:text-foreground"
-                onClick={() => onToggleSelect(messageId)}
-                type="button"
-              >
-                {isSelected ? (
-                  <CheckSquare className="h-4 w-4 text-purple-600" />
-                ) : (
-                  <Square className="h-4 w-4" />
-                )}
-              </button>
-            )}
-
-            <SentimentBadge sentiment={message.sentimentTag} size="md" />
-
-            {isSenderBlocked && (
-              <span className="inline-flex items-center rounded-full bg-red-500/10 px-2 py-0.5 font-semibold text-red-700 text-xs dark:text-red-400">
-                🚫 Blocked Sender
-              </span>
-            )}
-
-            {message.isQuarantined && (
-              <span className="inline-flex items-center rounded-full bg-red-500/10 px-2 py-0.5 font-semibold text-red-700 text-xs dark:text-red-400">
-                🛡️ Quarantined
-              </span>
-            )}
-          </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                aria-label={isPinned ? "Unstar message" : "Star message"}
-                className="text-muted-foreground transition hover:text-yellow-500"
-                onClick={() => onStarToggle?.(message)}
-                type="button"
-              >
-                <Star
-                  className={cn(
-                    "h-4 w-4",
-                    isPinned
-                      ? "fill-yellow-400 text-yellow-500"
-                      : "text-muted-foreground"
-                  )}
-                />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {isPinned ? "Unstar message" : "Star message"}
-            </TooltipContent>
-          </Tooltip>
-        </div>
-
-        <CardTitle className="pt-2 font-medium text-base text-foreground leading-relaxed">
-          {message.content}
-        </CardTitle>
-
-        <CardDescription className="text-xs">
-          {new Date(message.createdAt).toLocaleString(
-            "en-US",
-            TIMESTAMP_FORMAT
-          )}
-        </CardDescription>
-      </CardHeader>
-
-      {/* Existing Reply Preview if Available */}
-      {hasReply && (
-        <CardContent className="pt-0 pb-3">
-          <div className="rounded-lg border bg-muted/40 p-3 text-xs">
-            <div className="flex items-center justify-between font-semibold text-purple-600 dark:text-purple-400">
-              <span>💬 Your Reply:</span>
-              {message.reply?.isPublished && (
-                <span className="rounded bg-purple-500/10 px-1.5 py-0.5 text-[10px]">
-                  Public
-                </span>
-              )}
-            </div>
-            <p className="mt-1 text-foreground">{message.reply?.text}</p>
-          </div>
-        </CardContent>
-      )}
-
-      <MessageCardFooter
-        hasReply={hasReply}
-        isSenderBlocked={isSenderBlocked}
-        message={message}
-        onOpenBlock={onOpenBlock}
-        onOpenDelete={onOpenDelete}
-        onOpenReply={onOpenReply}
-        onOpenStoryCard={onOpenStoryCard}
-      />
-    </Card>
+      {layout === "list" ? <ListBody {...model} /> : <GridBody {...model} />}
+    </article>
   );
 });
 
+export { messageCardVariants };
 export default MessageCard;

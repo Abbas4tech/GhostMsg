@@ -48,7 +48,7 @@ export const Empty: Story = {};
 export const Reveals: Story = {
   args: { defaultPassword: "secret123" },
   play: async ({ canvas, userEvent }) => {
-    const input = canvas.getByLabelText("Password *");
+    const input = canvas.getByLabelText("Password");
     await expect(input).toHaveAttribute("type", "password");
     await userEvent.click(
       canvas.getByRole("button", { name: "Show password" })

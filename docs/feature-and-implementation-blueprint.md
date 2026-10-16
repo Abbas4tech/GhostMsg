@@ -1,8 +1,10 @@
 # GhostMsg: Comprehensive Feature & Implementation Blueprint 📘
 
-> **Note (2026-10-12):** Component file paths in this blueprint predate the four-tier structure. Current locations: [Chapter 11: Component Registry](file:///d:/Projects/GhostMsg/docs/11-component-registry.md). Rules: [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md), [ADR 0016](file:///d:/Projects/GhostMsg/docs/adr/0016-storybook-msw-and-story-driven-component-testing.md).
+> **Status (2026-10-14): historical plan.** This was the original implementation plan. Where it differs from the code, the code and the current chapters win: rate limiting and the live-message bus are **in-process** (no Upstash Redis), moderation is graded with a Recipient-controlled quarantine policy, and Profile/Settings gained a full backend. The inbox is filtered, searched and paged on the server ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)), and the AMA Prompt is saved with the rest of the Profile through `PATCH /api/user/profile`. Current references: [12 Product Guide](12-product-guide-and-features.md), [15 Data Model](15-data-model-and-database.md), [16 API Reference](16-api-reference.md), [17 Trust & Safety](17-trust-safety-and-privacy.md), [18 Notifications](18-notifications-and-realtime.md), [20 State Management](20-state-management.md).
 
-This blueprint specifies the technical architecture, data structures, cryptographic algorithms, AI pipelines, API contracts, UI state machines, and implementation workflows for the expanded GhostMsg feature suite as formalized in [ADR 0010](file:///d:/Projects/GhostMsg/docs/adr/0010-standalone-messages-schema-and-feature-architecture.md).
+> **Note (2026-10-12):** Component file paths in this blueprint predate the four-tier structure. Current locations: [Chapter 11: Component Registry](11-component-registry.md). Rules: [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md), [ADR 0016](adr/0016-storybook-msw-and-story-driven-component-testing.md).
+
+This blueprint specifies the technical architecture, data structures, cryptographic algorithms, AI pipelines, API contracts, UI state machines, and implementation workflows for the expanded GhostMsg feature suite as formalized in [ADR 0010](adr/0010-standalone-messages-schema-and-feature-architecture.md).
 
 ---
 
@@ -61,7 +63,7 @@ flowchart TD
 
 ## 2. Data Models & Database Migration
 
-### 2.1 Standalone `Message` Model (`src/model/message.model.ts`)
+### 2.1 Standalone `Message` Model (`src/server/models/message.model.ts`)
 
 ```typescript
 import mongoose, { type Document, Schema, type Types } from "mongoose";
@@ -160,7 +162,7 @@ const MessageModel =
 export default MessageModel;
 ```
 
-### 2.2 `User` Model Updates (`src/model/user.model.ts`)
+### 2.2 `User` Model Updates (`src/server/models/user.model.ts`)
 
 ```typescript
 export interface IUser extends Document {
@@ -195,9 +197,9 @@ export interface IUser extends Document {
 To ensure backward compatibility without data loss:
 
 ```typescript
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
-import MessageModel from "@/model/message.model";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
+import MessageModel from "@/server/models/message.model";
 import crypto from "crypto";
 
 export async function migrateLegacyMessages() {

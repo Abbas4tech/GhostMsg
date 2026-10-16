@@ -1,22 +1,15 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
 import { amaPromptSchema } from "@/schemas/message-schema";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
 
 export async function PATCH(request: NextRequest): Promise<Response> {
-  await dbConnect();
-
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     const body = await request.json();
@@ -31,7 +24,7 @@ export async function PATCH(request: NextRequest): Promise<Response> {
 
     const { amaPrompt } = parseResult.data;
 
-    await UserModel.updateOne({ _id: user._id }, { $set: { amaPrompt } });
+    await UserModel.updateOne({ _id: userId }, { $set: { amaPrompt } });
 
     return Response.json(
       {

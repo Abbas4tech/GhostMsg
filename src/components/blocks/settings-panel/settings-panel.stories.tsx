@@ -1,67 +1,61 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn } from "storybook/test";
-import { SettingsPanel } from "./settings-panel";
+import { SettingsPanel, type SettingsPanelProps } from "./settings-panel";
 import {
   closedWithBlocksSettingsPanelArgs,
   defaultSettingsPanelArgs,
 } from "./settings-panel.mock";
 
-const ACCEPT_REGEX = /accept messages/i;
-const WEB_PUSH_REGEX = /web push notifications/i;
-const DAILY_REGEX = /daily digest/i;
-const UNBLOCK_ALL_REGEX = /unblock all senders/i;
-const UNBLOCK_REGEX = /^unblock$/i;
+const ACCEPT_REGEX = /^message acceptance$/i;
+const WEB_PUSH_REGEX = /^push notifications$/i;
+const DARK_REGEX = /^dark/i;
+const UNBLOCK_REGEX = /^unblock sender #/i;
+
+const withSpies = (args: SettingsPanelProps): SettingsPanelProps => ({
+  messages: {
+    ...args.messages,
+    onToggleAcceptance: fn(),
+    onOfferSuggestionsChange: fn(),
+    onPublishByDefaultChange: fn(),
+  },
+  safety: {
+    ...args.safety,
+    onQuarantineChange: fn(),
+    onSensitivityChange: fn(),
+    onBlurSpicyChange: fn(),
+    onUnblock: fn(),
+  },
+  notifications: {
+    ...args.notifications,
+    onEmailAlertChange: fn(),
+    onToggleWebPush: fn(),
+    onHideMessageTextChange: fn(),
+    onQuietHoursChange: fn(),
+  },
+  appearance: {
+    ...args.appearance,
+    onModeChange: fn(),
+    onPaletteChange: fn(),
+  },
+  data: { onExport: fn() },
+  danger: { onDeleteAll: fn(), onDeleteAccount: fn() },
+});
 
 const meta = {
   title: "Blocks/SettingsPanel",
   component: SettingsPanel,
   tags: ["autodocs"],
-  args: {
-    ...defaultSettingsPanelArgs,
-    onToggleAcceptance: fn(),
-    onEmailAlertChange: fn(),
-    onToggleWebPush: fn(),
-    onUnblock: fn(),
-    onUnblockAll: fn(),
-  },
+  args: withSpies(defaultSettingsPanelArgs),
   argTypes: {
-    isAccepting: {
-      control: "boolean",
-      description: "Message acceptance switch",
-    },
-    emailAlerts: {
-      control: "radio",
-      options: ["instant", "daily", "off"],
-      description: "Email alert frequency",
-    },
-    webPushEnabled: { control: "boolean", description: "Web push switch" },
-    blockedHashes: {
+    messages: { control: "object", description: "Messages section" },
+    safety: { control: "object", description: "Safety & blocking section" },
+    notifications: {
       control: "object",
-      description: "Blocked sender fingerprints",
+      description: "Notifications section",
     },
-    isAcceptancePending: {
-      control: "boolean",
-      description: "Disables the acceptance switch",
-    },
-    isNotificationPending: {
-      control: "boolean",
-      description: "Disables email alert buttons",
-    },
-    isWebPushPending: {
-      control: "boolean",
-      description: "Disables the web push switch",
-    },
-    isUnblockPending: {
-      control: "boolean",
-      description: "Disables unblock buttons",
-    },
-    onToggleAcceptance: { description: "Acceptance switch toggled" },
-    onEmailAlertChange: {
-      description: "Email mode chosen → `instant` | `daily` | `off`",
-    },
-    onToggleWebPush: { description: "Web push toggled → boolean" },
-    onUnblock: { description: "Unblock clicked → senderHash" },
-    onUnblockAll: { description: "Unblock All Senders clicked" },
+    appearance: { control: "object", description: "Mode + palette" },
+    data: { control: "object", description: "Export" },
+    danger: { control: "object", description: "Delete all / account" },
   },
 } satisfies Meta<typeof SettingsPanel>;
 
@@ -70,75 +64,92 @@ type Story = StoryObj<typeof meta>;
 
 export const Defaults: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Message Acceptance")).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { level: 1, name: "Settings" })
+    ).toBeVisible();
     await expect(
       canvas.getByRole("switch", { name: ACCEPT_REGEX })
     ).toBeChecked();
-    await expect(canvas.getByText("Blocked Senders (0)")).toBeVisible();
-    await expect(
-      canvas.getByText("No senders are currently blocked.")
-    ).toBeVisible();
+    await expect(canvas.getByText("0 Sender Hashes")).toBeVisible();
+    await expect(canvas.getByText("No one is blocked")).toBeVisible();
   },
 };
 
 export const EmitsChanges: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("switch", { name: ACCEPT_REGEX }));
-    await expect(args.onToggleAcceptance).toHaveBeenCalledOnce();
+    await expect(args.messages.onToggleAcceptance).toHaveBeenCalledOnce();
 
     await userEvent.click(canvas.getByRole("switch", { name: WEB_PUSH_REGEX }));
-    await expect(args.onToggleWebPush).toHaveBeenCalledWith(true);
+    await expect(args.notifications.onToggleWebPush).toHaveBeenCalledWith(true);
 
-    await userEvent.click(canvas.getByRole("button", { name: DAILY_REGEX }));
-    await expect(args.onEmailAlertChange).toHaveBeenCalledWith("daily");
+    await userEvent.click(canvas.getByRole("radio", { name: "Strict" }));
+    await expect(args.safety.onSensitivityChange).toHaveBeenCalledWith(
+      "strict"
+    );
+
+    await userEvent.click(canvas.getByRole("radio", { name: DARK_REGEX }));
+    await expect(args.appearance.onModeChange).toHaveBeenCalledWith("dark");
+
+    await userEvent.click(canvas.getByRole("button", { name: "JSON" }));
+    await expect(args.data.onExport).toHaveBeenCalledWith("json");
+
+    await userEvent.click(canvas.getByRole("button", { name: "Delete all" }));
+    await expect(args.danger.onDeleteAll).toHaveBeenCalledOnce();
   },
 };
 
 export const ClosedWithBlockedSenders: Story = {
-  args: closedWithBlocksSettingsPanelArgs,
+  args: withSpies(closedWithBlocksSettingsPanelArgs),
   play: async ({ args, canvas, userEvent }) => {
     await expect(
-      canvas.getByText(
-        "Your public profile is closed and not accepting messages"
-      )
-    ).toBeVisible();
-    await expect(canvas.getByText("3 blocked senders")).toBeVisible();
+      canvas.getByRole("switch", { name: ACCEPT_REGEX })
+    ).not.toBeChecked();
+    await expect(canvas.getByText("3 Sender Hashes")).toBeVisible();
 
     await userEvent.click(
       canvas.getAllByRole("button", { name: UNBLOCK_REGEX })[0]
     );
-    await expect(args.onUnblock).toHaveBeenCalledWith(
-      closedWithBlocksSettingsPanelArgs.blockedHashes[0]
+    await expect(args.safety.onUnblock).toHaveBeenCalledWith(
+      closedWithBlocksSettingsPanelArgs.safety.blockedSenders[0]?.hash
     );
-
-    await userEvent.click(
-      canvas.getByRole("button", { name: UNBLOCK_ALL_REGEX })
-    );
-    await expect(args.onUnblockAll).toHaveBeenCalledOnce();
   },
 };
 
 export const AllPending: Story = {
   args: {
-    ...closedWithBlocksSettingsPanelArgs,
-    isAcceptancePending: true,
-    isNotificationPending: true,
-    isWebPushPending: true,
-    isUnblockPending: true,
+    ...withSpies(closedWithBlocksSettingsPanelArgs),
+    messages: {
+      ...closedWithBlocksSettingsPanelArgs.messages,
+      isAcceptancePending: true,
+    },
+    safety: {
+      ...closedWithBlocksSettingsPanelArgs.safety,
+      isUnblockPending: true,
+    },
   },
   play: async ({ canvas }) => {
     await expect(
       canvas.getByRole("switch", { name: ACCEPT_REGEX })
     ).toBeDisabled();
-    await expect(
-      canvas.getByRole("button", { name: UNBLOCK_ALL_REGEX })
-    ).toBeDisabled();
+    for (const button of canvas.getAllByRole("button", {
+      name: UNBLOCK_REGEX,
+    })) {
+      await expect(button).toBeDisabled();
+    }
   },
 };
 
-export const EmailOff: Story = { args: { emailAlerts: "off" } };
+export const QuarantineOff: Story = {
+  args: {
+    safety: { ...defaultSettingsPanelArgs.safety, quarantineEnabled: false },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("radio", { name: "Strict" })).toBeDisabled();
+  },
+};
 
 export const Mobile: Story = {
-  args: closedWithBlocksSettingsPanelArgs,
+  args: withSpies(closedWithBlocksSettingsPanelArgs),
   globals: { viewport: { value: "mobile1", isRotated: false } },
 };

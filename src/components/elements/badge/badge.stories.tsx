@@ -1,12 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect } from "storybook/test";
 import { Badge } from "./badge";
-import {
-  BADGE_SIZES,
-  BADGE_VARIANTS,
-  countBadgeArgs,
-  defaultBadgeArgs,
-} from "./badge.mock";
+import { BADGE_VARIANTS, countBadgeArgs, defaultBadgeArgs } from "./badge.mock";
 
 const meta = {
   title: "Elements/Badge",
@@ -19,11 +14,6 @@ const meta = {
       control: "select",
       options: BADGE_VARIANTS,
       description: "Visual style",
-    },
-    size: {
-      control: "radio",
-      options: BADGE_SIZES,
-      description: "Padding + text size",
     },
     children: { control: "text", description: "Badge text" },
   },
@@ -41,7 +31,15 @@ export const Default: Story = {
   },
 };
 
-export const Count: Story = { args: countBadgeArgs };
+export const Count: Story = {
+  args: countBadgeArgs,
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("12")).toHaveAttribute(
+      "data-variant",
+      "count"
+    );
+  },
+};
 
 export const AllVariants: Story = {
   parameters: { controls: { disable: true } },
@@ -50,19 +48,6 @@ export const AllVariants: Story = {
       {BADGE_VARIANTS.map((variant) => (
         <Badge {...args} key={variant} variant={variant}>
           {variant}
-        </Badge>
-      ))}
-    </div>
-  ),
-};
-
-export const Sizes: Story = {
-  parameters: { controls: { disable: true } },
-  render: (args) => (
-    <div className="flex items-center gap-2">
-      {BADGE_SIZES.map((size) => (
-        <Badge {...args} key={size} size={size}>
-          {size}
         </Badge>
       ))}
     </div>

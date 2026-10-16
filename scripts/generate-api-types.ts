@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import openapiTS, { astToString } from "openapi-typescript";
-import { getOpenApiSpec } from "../src/lib/openapi";
+import { getOpenApiSpec } from "../src/server/openapi/openapi";
 
 async function generate(): Promise<void> {
   const spec = getOpenApiSpec();

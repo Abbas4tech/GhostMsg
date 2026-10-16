@@ -1,7 +1,7 @@
 # ADR 0015: Four-Tier Component Architecture: Pages Layer, Logic Isolation & Vendor Consolidation
 
 ## Status
-**Accepted**. Extends [ADR 0013](file:///d:/Projects/GhostMsg/docs/adr/0013-elements-patterns-blocks-composable-architecture.md) and [ADR 0014](file:///d:/Projects/GhostMsg/docs/adr/0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md). It supersedes their rules on where controllers live and on `src/components/ui` and `src/components/animate-ui`.
+**Accepted**. Extends [ADR 0013](0013-elements-patterns-blocks-composable-architecture.md) and [ADR 0014](0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md). It supersedes their rules on where controllers live and on `src/components/ui` and `src/components/animate-ui`.
 
 ---
 

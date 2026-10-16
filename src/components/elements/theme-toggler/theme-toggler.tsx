@@ -12,6 +12,7 @@ import {
   ThemeToggler as ThemeTogglerPrimitive,
   type ThemeTogglerProps as ThemeTogglerPrimitiveProps,
 } from "./theme-toggler.primitive";
+import { getNextTheme } from "./theme-toggler.utils";
 
 const getIcon = (
   effective: ThemeSelection,
@@ -26,17 +27,6 @@ const getIcon = (
     return <Moon />;
   }
   return <Sun />;
-};
-
-const getNextTheme = (
-  effective: ThemeSelection,
-  modes: ThemeSelection[]
-): ThemeSelection => {
-  const i = modes.indexOf(effective);
-  if (i === -1) {
-    return modes[0];
-  }
-  return modes[(i + 1) % modes.length];
 };
 
 type ThemeTogglerButtonProps = React.ComponentProps<"button"> &

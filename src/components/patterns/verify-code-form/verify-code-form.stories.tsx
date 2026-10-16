@@ -12,8 +12,8 @@ import {
   type VerifyCodeFormStoryArgs,
 } from "./verify-code-form.mock";
 
-const SUBMIT_REGEX = /^submit$/i;
-const CHECKING_REGEX = /checking your otp/i;
+const SUBMIT_REGEX = /^verify$/i;
+const CHECKING_REGEX = /checking your code/i;
 
 /** Creates the form with the real schema, as the verify page controller does. */
 function VerifyCodeFormHarness({
@@ -56,7 +56,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("One-Time Password")).toBeVisible();
+    await expect(canvas.getByLabelText("Verification Code")).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: SUBMIT_REGEX })
     ).toBeDisabled();

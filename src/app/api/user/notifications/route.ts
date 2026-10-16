@@ -1,33 +1,28 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
+import { updateNotificationsRequestSchema } from "@/schemas/notification-schema";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
+import { toNotificationSettings } from "@/server/users/user-dto";
 
 export async function GET(): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
-    const userDoc = await UserModel.findById(user._id).select(
+    const userDoc = await UserModel.findById(userId).select(
       "notificationSettings isAcceptingMessage"
     );
 
     return Response.json(
       {
         success: true,
-        notificationSettings: userDoc?.notificationSettings || {
-          emailAlerts: "instant",
-          webPushEnabled: false,
-        },
+        notificationSettings: toNotificationSettings(
+          userDoc?.notificationSettings
+        ),
         isAcceptingMessage: userDoc?.isAcceptingMessage ?? true,
       },
       { status: 200 }
@@ -42,31 +37,33 @@ export async function GET(): Promise<Response> {
 }
 
 export async function PATCH(request: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
+    }
 
-    if (!user?._id) {
+    const parsed = updateNotificationsRequestSchema.safeParse(
+      await request.json()
+    );
+    if (!parsed.success) {
       return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
+        { success: false, message: "Invalid notification settings" },
+        { status: 400 }
       );
     }
 
-    const body = await request.json();
-    const { emailAlerts, webPushEnabled } = body;
-
+    // Dot paths so one control never resets its siblings.
     const updateFields: Record<string, unknown> = {};
-    if (["instant", "daily", "off"].includes(emailAlerts)) {
-      updateFields["notificationSettings.emailAlerts"] = emailAlerts;
-    }
-    if (typeof webPushEnabled === "boolean") {
-      updateFields["notificationSettings.webPushEnabled"] = webPushEnabled;
+    for (const [key, value] of Object.entries(parsed.data)) {
+      if (value !== undefined) {
+        updateFields[`notificationSettings.${key}`] = value;
+      }
     }
 
     const updated = await UserModel.findByIdAndUpdate(
-      user._id,
+      userId,
       { $set: updateFields },
       { new: true }
     ).select("notificationSettings");
@@ -75,7 +72,9 @@ export async function PATCH(request: NextRequest): Promise<Response> {
       {
         success: true,
         message: "Notification settings updated successfully!",
-        notificationSettings: updated?.notificationSettings,
+        notificationSettings: toNotificationSettings(
+          updated?.notificationSettings
+        ),
       },
       { status: 200 }
     );

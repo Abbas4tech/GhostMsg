@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
-import dbConnect from "@/lib/db-connect";
-import MessageModel from "@/model/message.model";
-import UserModel from "@/model/user.model";
+import dbConnect from "@/server/db/db-connect";
+import MessageModel from "@/server/models/message.model";
+import UserModel from "@/server/models/user.model";
 
 interface LegacyMessageDoc {
   _id: string;

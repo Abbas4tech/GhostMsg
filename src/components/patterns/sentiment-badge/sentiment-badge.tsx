@@ -10,20 +10,25 @@ export type SentimentType =
   | "neutral";
 
 const sentimentBadgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-full font-medium",
+  "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border font-semibold",
   {
     variants: {
       sentiment: {
-        sweet: "bg-pink-500/10 text-pink-700 dark:text-pink-400",
-        curious: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-        spicy: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
-        advice: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-        neutral: "bg-muted text-muted-foreground",
+        sweet:
+          "border-sentiment-sweet/30 bg-sentiment-sweet-subtle text-sentiment-sweet",
+        curious:
+          "border-sentiment-curious/30 bg-sentiment-curious-subtle text-sentiment-curious",
+        spicy:
+          "border-sentiment-spicy/30 bg-sentiment-spicy-subtle text-sentiment-spicy",
+        advice:
+          "border-sentiment-advice/30 bg-sentiment-advice-subtle text-sentiment-advice",
+        neutral:
+          "border-sentiment-neutral/30 bg-sentiment-neutral-subtle text-sentiment-neutral",
       },
       size: {
-        sm: "px-2 py-0.5 text-xs",
-        md: "px-2.5 py-0.5 text-xs",
-        lg: "px-3 py-1 text-sm",
+        sm: "h-6 px-2 text-xs",
+        md: "h-7 px-2.5 text-[13px]",
+        lg: "h-8 px-3 text-sm",
       },
     },
     defaultVariants: {

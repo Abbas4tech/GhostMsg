@@ -5,6 +5,7 @@ import type { ShareLinkCardProps } from "./share-link-card";
 export const defaultShareLinkCardArgs: ShareLinkCardProps = {
   profileUrl: `https://ghostmsg.app/u/${FIXTURE_USERNAME}`,
   onCopy: noop,
+  onShare: noop,
 };
 
 export const longUrlShareLinkCardArgs = {

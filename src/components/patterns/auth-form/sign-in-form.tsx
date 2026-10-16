@@ -1,5 +1,6 @@
 "use client";
 
+import { Mail } from "lucide-react";
 import type React from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
@@ -11,9 +12,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/elements/form";
-import { Input } from "@/components/elements/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/elements/input-group";
 import type { signInSchema } from "@/schemas/sign-in-schema";
-import { AuthFormFooter } from "./auth-form-footer";
+import { AuthFormFooter, AuthOAuthHeader } from "./auth-form-footer";
 import { PasswordField } from "./password-field";
 
 export type SignInValues = z.infer<typeof signInSchema>;
@@ -34,47 +39,50 @@ export function SignInForm({
   return (
     <Form {...form}>
       <form
-        className="space-y-4"
+        className="flex flex-col gap-4"
         data-slot="sign-in-form"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <div className="flex flex-col gap-3 md:gap-6">
-          <div className="grid gap-2">
-            <FormField
-              control={form.control}
-              name="identifier"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username/Email *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter your username/email.."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+        <AuthOAuthHeader onGoogleSignIn={onGoogleSignIn} />
 
-          <div className="grid gap-2">
-            <PasswordField
-              control={form.control}
-              name="password"
-              placeholder="Enter your password.."
-            />
-          </div>
-        </div>
+        <FormField
+          control={form.control}
+          name="identifier"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username or email</FormLabel>
+              <InputGroup size="lg">
+                <InputGroupAddon>
+                  <Mail aria-hidden="true" />
+                </InputGroupAddon>
+                <FormControl>
+                  <InputGroupInput
+                    autoCapitalize="none"
+                    autoComplete="username"
+                    placeholder="maya@example.com"
+                    {...field}
+                  />
+                </FormControl>
+              </InputGroup>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <PasswordField
+          control={form.control}
+          name="password"
+          placeholder="Your password"
+        />
 
         <AuthFormFooter
           alternateHref="/sign-up"
-          alternateLabel="Create an account!"
+          alternateLabel="Get your link"
+          alternatePrompt="New here?"
           isSubmitDisabled={!form.formState.isValid || isSubmitting}
           isSubmitting={isSubmitting}
-          onGoogleSignIn={onGoogleSignIn}
-          submitLabel="Login"
-          submittingLabel="Logging in..."
+          submitLabel="Sign in"
+          submittingLabel="Signing in..."
         />
       </form>
     </Form>

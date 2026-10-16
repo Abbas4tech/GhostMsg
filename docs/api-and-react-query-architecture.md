@@ -1,6 +1,10 @@
 # API Calling & React Query Architecture Blueprint
 
-> **Note (2026-10-11):** File paths under `src/components/{auth,dashboard,profile}` in this blueprint are historical. Components now follow the four-tier layout in [ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md): pure forms and cards live in `patterns/`, sections in `blocks/`, and every query and mutation lives in `pages/<route>/` controllers.
+> **Current endpoint and hook map (2026-10-14):** [Chapter 16 §11: Client data-layer map](16-api-reference.md#11-client-data-layer-map) lists every query key, query/mutation hook and the controllers that use them, including the Profile & Settings hooks added in the redesign.
+
+> **State rules (2026-10-14):** [Chapter 20: State Management](20-state-management.md) is the current reference. Several samples below are historical: the inbox no longer loads every message with `messagesQueries.list()` and filters on the client; it pages one server-filtered view with `messagesQueries.inbox({ status, q })` plus `messagesQueries.counts()` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). `useSuggestMessagesMutation` became the `publicQueries.suggestions()` query, and settings mutations are built with `useOptimisticResourceMutation` ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)). The inbox and counts queries opt in to `refetchOnWindowFocus`; the global default stays off.
+
+> **Note (2026-10-11):** File paths under `src/components/{auth,dashboard,profile}` in this blueprint are historical. Components now follow the four-tier layout in [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md): pure forms and cards live in `patterns/`, sections in `blocks/`, and every query and mutation lives in `pages/<route>/` controllers.
 
 This document specifies the standard architecture, patterns, performance optimizations, component segregation, and optimistic UI implementation guidelines for API consumption across GhostMsg.
 
@@ -12,17 +16,17 @@ GhostMsg standardizes on a **4-layer client architecture** connecting OpenAPI 3.
 
 ```mermaid
 flowchart TD
-    subgraph Layer1["1. Transport Layer (src/lib/api-client.ts)"]
+    subgraph Layer1["1. Transport Layer (src/data/api-client.ts)"]
         API["openapi-fetch client (api)"]
         ERR["ApiError & clientFetch helper"]
     end
 
-    subgraph Layer2["2. Query Definitions (src/queries/)"]
+    subgraph Layer2["2. Query Definitions (src/data/<domain>/*.queries.ts)"]
         KEYS["queryKeys (Hierarchical Key Factories)"]
         OPTS["queryOptions (Pure Query Configurations)"]
     end
 
-    subgraph Layer3["3. Granular Hooks (src/hooks/)"]
+    subgraph Layer3["3. Mutation & Live Hooks (src/data/<domain>/use-*.ts)"]
         QHOOKS["Query Hooks (useMessages, useUsernameCheck)"]
         MHOOKS["Mutation Hooks (useDeleteMessage, useAcceptMessage, useSignUp)"]
     end
@@ -55,12 +59,12 @@ flowchart TD
 1. **Zero Direct `api.*` in UI**: All API operations are consumed via React Query hooks (`useQuery`, `useMutation`).
 2. **Throwing Transport Unwrapper**: Transport calls unpack `data` and throw typed `ApiError` instances so React Query error handling is seamless and consistent.
 3. **Pure Query Options (`queryOptions`)**: Query definitions are pure objects decoupled from React hooks, enabling reuse across client hooks, prefetching, and cache invalidators.
-4. **Deterministic Cache-Level Optimism**: Stateful interactions ([`Message Acceptance`](file:///d:/Projects/GhostMsg/GLOSSARY.md#L19-L22), [`Anonymous Message`](file:///d:/Projects/GhostMsg/GLOSSARY.md#L7-L10) deletion) execute optimistic cache transformations with automated rollback on failure.
+4. **Deterministic Cache-Level Optimism**: Stateful interactions ([`Message Acceptance`](../GLOSSARY.md), [`Anonymous Message`](../GLOSSARY.md) deletion) execute optimistic cache transformations with automated rollback on failure.
 5. **Component Segregation & Render Boundary Isolation**: Heavy pages and multi-state forms are split into focused single-responsibility components so state changes (e.g. typing or spinners) never re-render unrelated siblings.
 
 ---
 
-## 2. Layer 1: Transport & Error Unwrapping (`src/lib/api-client.ts`)
+## 2. Layer 1: Transport & Error Unwrapping (`src/data/api-client.ts`)
 
 ### `ApiError` Class
 A structured error class capturing HTTP status code, server error message, and validation details:
@@ -112,9 +116,9 @@ export async function clientFetch<TData>(
 
 ---
 
-## 3. Layer 2: Query Key Factories & `queryOptions` (`src/queries/`)
+## 3. Layer 2: Query Key Factories & `queryOptions` (`src/data/`)
 
-### Hierarchical Query Key Factory (`src/queries/query-keys.ts`)
+### Hierarchical Query Key Factory (`src/data/query-keys.ts`)
 
 Centralizing all query keys prevents typos and enables fine-grained or broad cache invalidations:
 
@@ -136,13 +140,13 @@ export const queryKeys = {
 } as const;
 ```
 
-### Domain Query Options (`src/queries/messages.queries.ts`)
+### Domain Query Options (`src/data/messages/messages.queries.ts`)
 
 Query options define the fetch contract independently from React component lifecycle:
 
 ```typescript
 import { queryOptions } from "@tanstack/react-query";
-import { api, clientFetch } from "@/lib/api-client";
+import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "./query-keys";
 
 export const messagesQueries = {
@@ -156,11 +160,11 @@ export const messagesQueries = {
 };
 ```
 
-### User & Settings Query Options (`src/queries/user.queries.ts`)
+### User & Settings Query Options (`src/data/user/user.queries.ts`)
 
 ```typescript
 import { queryOptions } from "@tanstack/react-query";
-import { api, clientFetch } from "@/lib/api-client";
+import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "./query-keys";
 
 export const userQueries = {
@@ -174,11 +178,11 @@ export const userQueries = {
 };
 ```
 
-### Auth & Validation Query Options (`src/queries/auth.queries.ts`)
+### Auth & Validation Query Options (`src/data/auth/auth.queries.ts`)
 
 ```typescript
 import { queryOptions } from "@tanstack/react-query";
-import { api, clientFetch } from "@/lib/api-client";
+import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "./query-keys";
 
 export const authQueries = {
@@ -201,17 +205,17 @@ export const authQueries = {
 
 ---
 
-## 4. Layer 3: Optimistic Mutations & Granular Hooks (`src/hooks/`)
+## 4. Layer 3: Optimistic Mutations & Granular Hooks (`src/data/<domain>/`)
 
-### Optimistic Message Acceptance Toggle (`src/hooks/mutations/use-accept-message-mutation.ts`)
+### Optimistic Message Acceptance Toggle (`src/data/user/use-accept-message-mutation.ts`)
 
 Replaces React 19 `useOptimistic` + `useTransition` with TanStack Query cache-level optimistic updates:
 
 ```typescript
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { api, clientFetch } from "@/lib/api-client";
-import { queryKeys } from "@/queries/query-keys";
+import { api, clientFetch } from "@/data/api-client";
+import { queryKeys } from "@/data/query-keys";
 
 export function useAcceptMessageMutation() {
   const queryClient = useQueryClient();
@@ -258,64 +262,41 @@ export function useAcceptMessageMutation() {
 }
 ```
 
-### Optimistic Message Deletion (`src/hooks/mutations/use-delete-message-mutation.ts`)
+### Optimistic Message Deletion & Bulk Actions ([ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md))
 
-Instantly removes deleted messages from UI list and restores them if network fails:
+Every inbox mutation shares `src/data/messages/messages-cache.ts`, which snapshots and patches **all** cached inbox lists (any filter key) and restores them on failure. The controller closes the dialog *before* awaiting, so the card and the dialog disappear immediately.
 
 ```typescript
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { api, clientFetch } from "@/lib/api-client";
-import { queryKeys } from "@/queries/query-keys";
-import type { Message } from "@/model/user.model";
-
-interface MessagesResponse {
-  messages: Message[];
-  success: boolean;
-}
-
-export function useDeleteMessageMutation() {
+// src/data/messages/use-delete-message-mutation.ts
+export function useDeleteMessageMutation(options?: UseDeleteMessageMutationOptions) {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (messageId: string) =>
-      clientFetch(
-        api.DELETE("/api/delete-message/{messageId}", {
-          params: { path: { messageId } },
-        })
-      ),
-
-    onMutate: async (messageId: string) => {
-      await queryClient.cancelQueries({ queryKey: queryKeys.messages.list() });
-      const previousData = queryClient.getQueryData<MessagesResponse>(queryKeys.messages.list());
-
-      if (previousData) {
-        queryClient.setQueryData<MessagesResponse>(queryKeys.messages.list(), {
-          ...previousData,
-          messages: previousData.messages.filter((msg) => String(msg._id) !== messageId),
-        });
-      }
-
-      return { previousData };
+      clientFetch(api.DELETE("/api/delete-message/{messageId}", { params: { path: { messageId } } })),
+    onMutate: async (messageId) => {
+      const snapshot = await updateCachedMessages(queryClient, (messages) =>
+        messages.filter((msg) => String(msg._id) !== messageId)
+      );
+      return { snapshot };
     },
-
     onError: (error, _id, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(queryKeys.messages.list(), context.previousData);
-      }
+      restoreCachedMessages(queryClient, context?.snapshot);
       toast.error(error.message || "Failed to delete message");
     },
-
-    onSuccess: (data) => {
-      toast.success(data.message || "Message deleted successfully");
-    },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.messages.list() });
-    },
+    onSuccess: (data) => toast.success(data.message || "Message deleted successfully!"),
+    onSettled: () => invalidateCachedMessages(queryClient),
   });
 }
+
+// src/components/pages/dashboard/use-inbox.controller.ts: close first, then mutate
+const handleDeleteConfirm = useCallback(async (message: MessageDto) => {
+  closeModal();
+  setSelectedIds((prev) => prev.filter((id) => id !== String(message._id)));
+  try { await deleteMutation.mutateAsync(String(message._id)); } catch { /* rolled back + toasted */ }
+}, [deleteMutation, closeModal]);
 ```
+
+`useBulkActionMutation` uses the same helpers: `delete` removes the selected ids, `read` sets `isRead: true` and `star` sets `isPinned: true`, mirroring `/api/messages/bulk`.
 
 ### Form Action Mutations (`useSignUpMutation`, `useVerifyCodeMutation`, `useSendMessageMutation`, `useSuggestMessagesMutation`)
 
@@ -533,7 +514,7 @@ A lean container binding `SuggestedMessagesSection` selection into `SendMessageF
 
 ## 6. Performance & Rerender Mitigation Strategy
 
-### Global QueryClient Configuration (`src/context/query-provider.tsx`)
+### Global QueryClient Configuration (`src/providers/query-provider.tsx`)
 
 ```typescript
 export function makeQueryClient(): QueryClient {
@@ -560,7 +541,7 @@ export function makeQueryClient(): QueryClient {
 
 | Entity / Endpoint | Stale Time | GC Time | Invalidation Trigger | Optimistic UI |
 | :--- | :--- | :--- | :--- | :--- |
-| **Messages List** (`/api/get-messages`) | 30s | 5m | Message Deleted, Manual Refresh | Yes (`onMutate` delete) |
+| **Messages List** (`/api/get-messages`) | 10s | 5m | Delete, bulk action, SSE `new_message`, manual refresh | Yes: delete + bulk delete/read/star via `messages-cache.ts` (ADR 0021) |
 | **Acceptance Status** (`/api/accept-message`) | 60s | 5m | Status Toggled | Yes (`onMutate` toggle) |
 | **Username Uniqueness** (`/api/check-username-unique`) | 60s | 5m | N/A (Read Cache) | N/A (Debounced query) |
 | **Suggested Messages** (`/api/suggest-messages`) | 0s | 0s | On-Demand Generation | N/A (useMutation) |
@@ -594,27 +575,27 @@ export function makeQueryClient(): QueryClient {
 ## 7. Migration Checklist for Agents & Developers
 
 - [ ] **Milestone 1: Transport Helper**
-  - Update [`src/lib/api-client.ts`](file:///d:/Projects/GhostMsg/src/lib/api-client.ts) with `ApiError` and `clientFetch`.
+  - Update [`src/data/api-client.ts`](../src/data/api-client.ts) with `ApiError` and `clientFetch`.
 - [ ] **Milestone 2: Query Keys & Pure Options**
-  - Create `src/queries/query-keys.ts`.
-  - Create `src/queries/messages.queries.ts`, `src/queries/user.queries.ts`, `src/queries/auth.queries.ts`.
+  - Create `src/data/query-keys.ts`.
+  - Create `src/data/messages/messages.queries.ts`, `src/data/user/user.queries.ts`, `src/data/auth/auth.queries.ts`.
 - [ ] **Milestone 3: Mutation Hooks with Optimistic Rollback**
-  - Create `src/hooks/mutations/use-delete-message-mutation.ts` (with `onMutate` list filtering).
-  - Create `src/hooks/mutations/use-accept-message-mutation.ts` (with `onMutate` boolean toggle).
-  - Create `src/hooks/mutations/use-send-message-mutation.ts`.
-  - Create `src/hooks/mutations/use-sign-up-mutation.ts`.
-  - Create `src/hooks/mutations/use-verify-code-mutation.ts`.
-  - Create `src/hooks/mutations/use-suggest-messages-mutation.ts`.
+  - Create `src/data/messages/use-delete-message-mutation.ts` (with `onMutate` list filtering).
+  - Create `src/data/user/use-accept-message-mutation.ts` (with `onMutate` boolean toggle).
+  - Create `src/data/public/use-send-message-mutation.ts`.
+  - Create `src/data/auth/use-sign-up-mutation.ts`.
+  - Create `src/data/auth/use-verify-code-mutation.ts`.
+  - Create `src/data/public/use-suggest-messages-mutation.ts`.
 - [ ] **Milestone 4: Global Query Provider Configuration**
-  - Configure `QueryClient` defaults in [`src/context/query-provider.tsx`](file:///d:/Projects/GhostMsg/src/context/query-provider.tsx).
+  - Configure `QueryClient` defaults in [`src/providers/query-provider.tsx`](../src/providers/query-provider.tsx).
 - [ ] **Milestone 5: Public Profile Component Segregation**
   - Create `src/components/profile/send-message-form.tsx`.
   - Create `src/components/profile/suggested-messages-section.tsx`.
-  - Refactor [`src/app/u/[username]/page.tsx`](file:///d:/Projects/GhostMsg/src/app/u/[username]/page.tsx) to assemble the segregated components.
+  - Refactor [`src/app/u/[username]/page.tsx`](../src/app/u/[username]/page.tsx) to assemble the segregated components.
 - [ ] **Milestone 6: Auth Component Segregation**
   - Create `src/components/auth/username-field.tsx` with isolated debounced query.
   - Create `src/components/auth/sign-in-form.tsx` and `src/components/auth/sign-up-form.tsx`.
-  - Refactor [`src/components/auth/verify-code-form.tsx`](file:///d:/Projects/GhostMsg/src/components/auth/verify-code-form.tsx) to consume `useVerifyCodeMutation`.
+  - Refactor [`src/components/auth/verify-code-form.tsx`](../src/components/patterns/verify-code-form/verify-code-form.tsx) to consume `useVerifyCodeMutation`.
 - [ ] **Milestone 7: Dashboard Decoupling & Optimistic Delete**
-  - Refactor [`src/components/dashboard/message-tab.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/message-tab.tsx) and [`src/components/dashboard/message-card.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/message-card.tsx) to subscribe directly to queries and mutations.
-  - Refactor [`src/components/dashboard/settings-tab.tsx`](file:///d:/Projects/GhostMsg/src/components/dashboard/settings-tab.tsx) for direct acceptance state subscription.
+  - Refactor [`src/components/dashboard/message-tab.tsx`](../src/components/pages/dashboard/inbox-page.tsx) and [`src/components/dashboard/message-card.tsx`](../src/components/patterns/message-card/message-card.tsx) to subscribe directly to queries and mutations.
+  - Refactor [`src/components/dashboard/settings-tab.tsx`](../src/components/pages/dashboard/settings-page.tsx) for direct acceptance state subscription.

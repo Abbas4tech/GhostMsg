@@ -1,28 +1,49 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
+import {
+  pushSubscriptionRequestSchema,
+  pushUnsubscribeRequestSchema,
+} from "@/schemas/notification-schema";
+import {
+  getSessionUserId,
+  unauthorizedResponse as notAuthenticated,
+} from "@/server/auth/session";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
+import { disablePushWhenNoDevices } from "@/server/push/web-push";
+
+const invalidPayload = (message: string) =>
+  Response.json({ success: false, message }, { status: 400 });
 
 export async function POST(request: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return notAuthenticated();
     }
 
-    const subscription = await request.json();
+    const parsed = pushSubscriptionRequestSchema.safeParse(
+      await request.json()
+    );
+    if (!parsed.success) {
+      return invalidPayload("Invalid push subscription");
+    }
+    const { endpoint, keys } = parsed.data;
 
-    await UserModel.findByIdAndUpdate(user._id, {
-      $set: { "notificationSettings.webPushEnabled": true },
-      $addToSet: { pushSubscriptions: subscription },
-    });
+    // Replace any previous record for this device (keys rotate on resubscribe).
+    await UserModel.updateOne(
+      { _id: userId },
+      { $pull: { pushSubscriptions: { endpoint } } }
+    );
+    await UserModel.updateOne(
+      { _id: userId },
+      {
+        $set: { "notificationSettings.webPushEnabled": true },
+        $push: {
+          pushSubscriptions: { endpoint, keys, createdAt: new Date() },
+        },
+      }
+    );
 
     return Response.json(
       { success: true, message: "Push subscription registered" },
@@ -38,23 +59,24 @@ export async function POST(request: NextRequest): Promise<Response> {
 }
 
 export async function DELETE(request: NextRequest): Promise<Response> {
-  await dbConnect();
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return notAuthenticated();
     }
 
-    const { endpoint } = await request.json();
+    const parsed = pushUnsubscribeRequestSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return invalidPayload("Invalid push subscription endpoint");
+    }
 
-    await UserModel.findByIdAndUpdate(user._id, {
-      $pull: { pushSubscriptions: { endpoint } },
-    });
+    await UserModel.updateOne(
+      { _id: userId },
+      { $pull: { pushSubscriptions: { endpoint: parsed.data.endpoint } } }
+    );
+    // Push stays on while any other device is still subscribed.
+    await disablePushWhenNoDevices(userId);
 
     return Response.json(
       { success: true, message: "Push subscription removed" },

@@ -36,7 +36,7 @@ In practice, this setup creates several friction points:
 ### Option C: Ultracite powered by Biome (Chosen)
 - **Pros**:
   - **Rust-Powered Speed**: Checks and formats 100+ files in under 150ms.
-  - **Single Unified Configuration**: Configured in [`biome.jsonc`](file:///d:/Projects/GhostMsg/biome.jsonc).
+  - **Single Unified Configuration**: Configured in [`biome.jsonc`](../../biome.jsonc).
   - **Comprehensive Rule Set**: Enforces type safety, React 19 best practices, Next.js optimization rules, and strict styling.
   - **Lightweight Git Hooks**: Enables pre-commit checks with zero noticeable delay.
 - **Cons**: Smaller third-party plugin ecosystem than ESLint, but all necessary web/React/TypeScript rules are built-in natively.
@@ -81,6 +81,6 @@ We chose **Option C**: Adopt Ultracite with the Biome engine as the sole formatt
 ---
 
 ## References & Code Pointers
-- Configuration: [`biome.jsonc`](file:///d:/Projects/GhostMsg/biome.jsonc)
-- Pre-Commit Hook: [`.husky/pre-commit`](file:///d:/Projects/GhostMsg/.husky/pre-commit)
-- Quality Guide: [`docs/08-code-quality.md`](file:///d:/Projects/GhostMsg/docs/08-code-quality.md)
+- Configuration: [`biome.jsonc`](../../biome.jsonc)
+- Pre-Commit Hook: [`.husky/pre-commit`](../../.husky/pre-commit)
+- Quality Guide: [`docs/08-code-quality.md`](../08-code-quality.md)

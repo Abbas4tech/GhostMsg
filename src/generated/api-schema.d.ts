@@ -125,6 +125,63 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/ai/ama-suggestions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Suggest AMA Prompts
+     * @description Three short AMA Prompt ideas from Gemini (fixed ideas without a key).
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AmaSuggestionsRequest"];
+        };
+      };
+      responses: {
+        /** @description Suggestions */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AmaSuggestionsResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/ai/smart-reply": {
     parameters: {
       query?: never;
@@ -377,6 +434,66 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/cron/daily-digest": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Run Daily Digest
+     * @description Emails a summary to every recipient with emailAlerts = daily: new non-quarantined messages since their last digest, text only when they show message text. Skips recipients inside quiet hours. Scheduler only.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Run summary */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DailyDigestRunResponse"];
+          };
+        };
+        /** @description Missing or wrong bearer secret */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description CRON_SECRET is not configured */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/delete-message/{messageId}": {
     parameters: {
       query?: never;
@@ -460,13 +577,19 @@ export interface paths {
     get: {
       parameters: {
         query?: {
-          /** @description Filter by message category */
-          status?: "all" | "unread" | "starred" | "quarantined" | "answered";
+          /** @description Inbox filter (default all = not quarantined); any = every message */
+          status?:
+            | "all"
+            | "unread"
+            | "starred"
+            | "quarantined"
+            | "answered"
+            | "any";
           /** @description Search query string */
           q?: string;
-          /** @description Limit number of results */
+          /** @description Page size 1-100 (default 30) */
           limit?: string;
-          /** @description Cursor for pagination */
+          /** @description `nextCursor` from the previous page */
           cursor?: string;
         };
         header?: never;
@@ -507,6 +630,59 @@ export interface paths {
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/messages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete All Messages
+     * @description Danger zone: deletes every message and so every public answer.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Messages deleted */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DeleteAllMessagesResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     options?: never;
     head?: never;
     patch?: never;
@@ -589,7 +765,7 @@ export interface paths {
     put?: never;
     /**
      * Author & Publish Message Reply
-     * @description Author a reply to an anonymous message and optionally publish to public profile.
+     * @description Author a reply to an anonymous message and optionally publish to public profile. Answering also marks the message read.
      */
     post: {
       parameters: {
@@ -708,6 +884,59 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/messages/counts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Inbox Counts
+     * @description Count of messages for every inbox filter plus the overall total, independent of paging.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Counts */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["InboxCountsResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/public/{username}/answers": {
     parameters: {
       query?: never;
@@ -717,7 +946,7 @@ export interface paths {
     };
     /**
      * Get Public Q&A Answers Feed
-     * @description Retrieve all published responses for a user's public profile link.
+     * @description Public profile (display name, photo, AMA Prompt, acceptance, banner and suggestion settings) plus up to 50 published answers, newest published first.
      */
     get: {
       parameters: {
@@ -942,6 +1171,77 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/user": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete Account
+     * @description Deletes the account, its link and messages. Requires the typed username.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DeleteAccountRequest"];
+        };
+      };
+      responses: {
+        /** @description Account deleted */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DeleteAccountResponse"];
+          };
+        };
+        /** @description Username did not match */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description User not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/user/ama-prompt": {
     parameters: {
       query?: never;
@@ -957,7 +1257,7 @@ export interface paths {
     head?: never;
     /**
      * Update Custom AMA Prompt Banner
-     * @description Set the custom topic/banner displayed to visitors on /u/[username].
+     * @description Legacy: set the AMA Prompt shown to visitors on /u/[username]. The app saves it with PATCH /api/user/profile (amaPrompt) instead.
      */
     patch: {
       parameters: {
@@ -1093,6 +1393,215 @@ export interface paths {
     };
     trace?: never;
   };
+  "/api/user/preferences": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Preferences
+     * @description Messages and Safety settings.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Preferences */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GetUserPreferencesResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update Preferences
+     * @description Partial update of Messages and Safety settings.
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateUserPreferencesRequest"];
+        };
+      };
+      responses: {
+        /** @description Preferences updated */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["UpdateUserPreferencesResponse"];
+          };
+        };
+        /** @description Invalid payload */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/api/user/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Profile
+     * @description Identity card fields and the AMA banner switch.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Profile */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GetUserProfileResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description User not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update Profile
+     * @description Partial update in one request: display name, photo (data URL, or null to remove), AMA Prompt and AMA banner switch.
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateUserProfileRequest"];
+        };
+      };
+      responses: {
+        /** @description Profile updated */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["UpdateUserProfileResponse"];
+          };
+        };
+        /** @description Invalid payload */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    trace?: never;
+  };
   "/api/user/push-subscription": {
     parameters: {
       query?: never;
@@ -1144,10 +1653,129 @@ export interface paths {
         };
       };
     };
-    delete?: never;
+    /**
+     * Remove Web Push Subscription
+     * @description Forget this device's PushSubscription so the server stops sending it notifications. When no device is left, notificationSettings.webPushEnabled becomes false.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["PushUnsubscribeRequest"];
+        };
+      };
+      responses: {
+        /** @description Push subscription removed */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Invalid payload */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/user/username": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Change Username
+     * @description Changes the username and so the Public Profile Link.
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["ChangeUsernameRequest"];
+        };
+      };
+      responses: {
+        /** @description Username updated */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ChangeUsernameResponse"];
+          };
+        };
+        /** @description Invalid username */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Username already taken */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     trace?: never;
   };
   "/api/verify-code": {
@@ -1377,8 +2005,16 @@ export interface components {
       success: boolean;
       /** @description List of received messages */
       messages: components["schemas"]["MessageItem"][];
-      /** @example 42 */
+      /**
+       * @description Messages matching the filter
+       * @example 42
+       */
       total?: number;
+      /**
+       * @description Pass as `cursor` for the next page; null on the last page
+       * @example 2026-10-06T12:00:00.000Z_660c1d2e1b9d4c001f3e8a1a
+       */
+      nextCursor?: string | null;
     };
     AcceptMessageRequest: {
       /**
@@ -1464,6 +2100,19 @@ export interface components {
       success: boolean;
       username: string;
       amaPrompt?: string;
+      /** @example Maya */
+      displayName?: string;
+      /** @example null */
+      avatarUrl?: string | null;
+      /** @example true */
+      showAmaBanner?: boolean;
+      /** @example true */
+      offerSuggestions?: boolean;
+      /**
+       * @description Message Acceptance: false shows the profile's paused state
+       * @example true
+       */
+      isAcceptingMessages?: boolean;
       answers: components["schemas"]["PublicAnswerItem"][];
     };
     PublicAnswerItem: {
@@ -1509,6 +2158,26 @@ export interface components {
        * @example false
        */
       webPushEnabled: boolean;
+      /**
+       * @description Alerts say 'New Anonymous Message' without the text
+       * @default true
+       * @example true
+       */
+      hideMessageText: boolean;
+      quietHours?: components["schemas"]["QuietHours"];
+    };
+    QuietHours: {
+      /** @example false */
+      enabled: boolean;
+      /** @example 22:00 */
+      start: string;
+      /** @example 08:00 */
+      end: string;
+      /**
+       * @description IANA time zone the window is in
+       * @example Europe/London
+       */
+      timeZone: string;
     };
     GetNotificationsResponse: {
       /** @example true */
@@ -1524,6 +2193,9 @@ export interface components {
       emailAlerts?: "instant" | "daily" | "off";
       /** @description Enable/disable browser push notifications */
       webPushEnabled?: boolean;
+      /** @description Hide message text in notifications */
+      hideMessageText?: boolean;
+      quietHours?: components["schemas"]["QuietHours"];
     };
     UpdateNotificationsResponse: {
       /** @example true */
@@ -1539,24 +2211,257 @@ export interface components {
        * @example https://fcm.googleapis.com/fcm/send/...
        */
       endpoint: string;
-      keys?: {
+      keys: {
         /** @description ECDH public key */
         p256dh: string;
         /** @description Authentication secret */
         auth: string;
       };
     };
+    PushUnsubscribeRequest: {
+      /**
+       * Format: uri
+       * @description Endpoint of the subscription to remove
+       * @example https://fcm.googleapis.com/fcm/send/...
+       */
+      endpoint: string;
+    };
     GetBlockedSendersResponse: {
       /** @example true */
       success: boolean;
       /** @description List of blocked sender cryptographic hashes */
       blockedSenderHashes: string[];
+      blockedSenders?: components["schemas"]["BlockedSender"][];
+    };
+    BlockedSender: {
+      hash: string;
+      /** @description ISO date (missing for blocks made before dates were kept) */
+      blockedAt?: string;
     };
     UsernameUniqueResponse: {
       /** @example true */
       success: boolean;
       /** @example Username is unique */
       message: string;
+    };
+    GetUserProfileResponse: {
+      /** @example true */
+      success: boolean;
+      profile: components["schemas"]["UserProfile"];
+    };
+    UserProfile: {
+      /** @example maya_writes */
+      username: string;
+      /** @example maya@example.com */
+      email: string;
+      /** @example Maya */
+      displayName: string;
+      /** @example null */
+      avatarUrl: string | null;
+      /** @example Ask me anything about moving countries for work. */
+      amaPrompt: string;
+      /** @example true */
+      showAmaBanner: boolean;
+    };
+    UpdateUserProfileResponse: {
+      /** @example true */
+      success: boolean;
+      /** @example Profile updated */
+      message: string;
+      profile: components["schemas"]["UserProfile"];
+    };
+    UpdateUserProfileRequest: {
+      /**
+       * @description Name shown on the public profile (empty = username)
+       * @example Maya
+       */
+      displayName?: string;
+      /**
+       * @description AMA Prompt shown on the public profile
+       * @example Ask me anything about moving countries for work.
+       */
+      amaPrompt?: string;
+      /**
+       * @description Square avatar as a base64 data URL (resized in the browser)
+       * @example data:image/webp;base64,UklGR…
+       */
+      avatarUrl?: string | null;
+      showAmaBanner?: boolean;
+    };
+    ChangeUsernameResponse: {
+      /** @example true */
+      success: boolean;
+      /** @example Username updated */
+      message: string;
+      /** @example maya_writes */
+      username: string;
+    };
+    ChangeUsernameRequest: {
+      /**
+       * @description Unique username (alphanumeric and underscore, 2-20 characters)
+       * @example johndoe
+       */
+      username: string;
+    };
+    GetUserPreferencesResponse: {
+      /** @example true */
+      success: boolean;
+      preferences: components["schemas"]["UserPreferences"];
+    };
+    UserPreferences: {
+      messages: components["schemas"]["MessagePreferences"];
+      safety: components["schemas"]["SafetySettings"];
+    };
+    MessagePreferences: {
+      /**
+       * @description Show AI Suggested Messages to visitors
+       * @example true
+       */
+      offerSuggestions: boolean;
+      /**
+       * @description Smart Reply starts with 'Show in my Public Q&A' on
+       * @example false
+       */
+      publishByDefault: boolean;
+    };
+    SafetySettings: {
+      /**
+       * @description Hold toxic and spam messages in Quarantined
+       * @example true
+       */
+      quarantineEnabled: boolean;
+      /**
+       * @description How strict quarantine is
+       * @example balanced
+       * @enum {string}
+       */
+      sensitivity: "relaxed" | "balanced" | "strict";
+      /**
+       * @description Blur Spicy messages until opened
+       * @example false
+       */
+      blurSpicy: boolean;
+    };
+    UpdateUserPreferencesResponse: {
+      /** @example true */
+      success: boolean;
+      /** @example Preferences updated */
+      message: string;
+      preferences: components["schemas"]["UserPreferences"];
+    };
+    UpdateUserPreferencesRequest: {
+      messages?: {
+        /**
+         * @description Show AI Suggested Messages to visitors
+         * @example true
+         */
+        offerSuggestions?: boolean;
+        /**
+         * @description Smart Reply starts with 'Show in my Public Q&A' on
+         * @example false
+         */
+        publishByDefault?: boolean;
+      };
+      safety?: {
+        /**
+         * @description Hold toxic and spam messages in Quarantined
+         * @example true
+         */
+        quarantineEnabled?: boolean;
+        /**
+         * @description How strict quarantine is
+         * @example balanced
+         * @enum {string}
+         */
+        sensitivity?: "relaxed" | "balanced" | "strict";
+        /**
+         * @description Blur Spicy messages until opened
+         * @example false
+         */
+        blurSpicy?: boolean;
+      };
+    };
+    DeleteAllMessagesResponse: {
+      /** @example true */
+      success: boolean;
+      /** @example All messages deleted */
+      message: string;
+      /** @example 24 */
+      deletedCount: number;
+    };
+    DeleteAccountResponse: {
+      /** @example true */
+      success: boolean;
+      /** @example Account deleted */
+      message: string;
+    };
+    DeleteAccountRequest: {
+      /**
+       * @description Must equal the account's username
+       * @example maya_writes
+       */
+      confirmUsername: string;
+    };
+    AmaSuggestionsResponse: {
+      /** @example true */
+      success: boolean;
+      /**
+       * @example [
+       *       "Ask me anything about switching careers",
+       *       "Roast my music taste",
+       *       "What should I read next?"
+       *     ]
+       */
+      suggestions: string[];
+    };
+    AmaSuggestionsRequest: {
+      /** @description Riff on this prompt when given */
+      currentPrompt?: string;
+    };
+    InboxCountsResponse: {
+      /** @example true */
+      success: boolean;
+      counts: components["schemas"]["InboxCounts"];
+    };
+    InboxCounts: {
+      /** @example 24 */
+      all: number;
+      /** @example 3 */
+      unread: number;
+      /** @example 5 */
+      starred: number;
+      /** @example 9 */
+      answered: number;
+      /** @example 2 */
+      quarantined: number;
+      /**
+       * @description Every message, quarantined included
+       * @example 26
+       */
+      total: number;
+    };
+    DailyDigestRunResponse: {
+      /** @example true */
+      success: boolean;
+      /**
+       * @description Recipients with emailAlerts = daily
+       * @example 12
+       */
+      considered: number;
+      /** @example 7 */
+      sent: number;
+      /**
+       * @description No new non-quarantined messages since the last digest
+       * @example 4
+       */
+      empty: number;
+      /**
+       * @description Inside quiet hours now; their messages roll into the next run
+       * @example 1
+       */
+      skippedQuietHours: number;
+      /** @example 0 */
+      failed: number;
     };
   };
 }

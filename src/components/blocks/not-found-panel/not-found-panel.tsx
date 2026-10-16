@@ -1,56 +1,46 @@
-import { Home, SearchX } from "lucide-react";
+import { Ghost, Home } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { Button } from "@/components/elements/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/elements/card";
+import { BrandMark } from "@/components/patterns/brand-mark";
 
 export interface NotFoundPanelProps {
   homeHref?: string;
 }
 
-/** Full-screen 404 card with a link back home. */
+/** Full-screen 404: a floating ghost, a calm line and a way home. */
 export function NotFoundPanel({
   homeHref = "/",
 }: NotFoundPanelProps): React.JSX.Element {
   return (
     <div
-      className="flex min-h-screen items-center justify-center bg-gradient-to-br px-4"
+      className="flex min-h-screen flex-col items-center justify-center gap-8 bg-brand-mist px-4"
       data-slot="not-found-panel"
     >
-      <Card className="w-full max-w-md rounded-sm shadow-lg">
-        <CardHeader className="gap-4">
-          <div className="flex justify-center">
-            <div className="flex items-center justify-center rounded-full bg-red-200 p-4">
-              <SearchX className="h-12 w-12 text-red-600" />
-            </div>
-          </div>
-          <CardTitle className="text-center font-bold text-2xl md:text-3xl">
-            404
-          </CardTitle>
-          <CardDescription className="text-center font-semibold text-lg capitalize md:text-xl">
-            page not found
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-center text-muted-foreground">
-            You are trying to access page that doesn&#39;t exist.
-          </p>
-          <div className="flex flex-col gap-3">
-            <Button asChild className="gap-2" variant="default">
-              <Link href={homeHref}>
-                <Home className="h-4 w-4" />
-                Home
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <BrandMark href={homeHref} />
+      <section className="flex w-full max-w-[400px] flex-col items-center gap-4 text-center">
+        <span
+          aria-hidden="true"
+          className="grid size-24 place-items-center rounded-t-[48px] rounded-b-[14px] bg-accent text-accent-foreground motion-safe:animate-float"
+        >
+          <Ghost className="size-11" />
+        </span>
+        <p className="font-bold font-display text-muted-foreground text-sm uppercase tracking-wider">
+          404
+        </p>
+        <h1 className="font-bold text-3xl leading-tight tracking-tight">
+          This page vanished like a ghost.
+        </h1>
+        <p className="text-muted-foreground">
+          The link may be mistyped, or the page was removed.
+        </p>
+        <Button asChild className="w-full rounded-full" size="xl">
+          <Link href={homeHref}>
+            <Home aria-hidden="true" />
+            Home
+          </Link>
+        </Button>
+      </section>
     </div>
   );
 }

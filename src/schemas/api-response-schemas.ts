@@ -1,4 +1,4 @@
-import { z } from "@/lib/openapi-zod";
+import { z } from "@/schemas/zod";
 import { messageReplySchema, sentimentTagEnum } from "./message-schema";
 
 export const baseResponseSchema = z
@@ -75,9 +75,37 @@ export const getMessagesResponseSchema = z
     messages: z
       .array(messageItemSchema)
       .openapi({ description: "List of received messages" }),
-    total: z.number().optional().openapi({ example: 42 }),
+    total: z
+      .number()
+      .optional()
+      .openapi({ description: "Messages matching the filter", example: 42 }),
+    nextCursor: z.string().nullable().optional().openapi({
+      description: "Pass as `cursor` for the next page; null on the last page",
+      example: "2026-10-06T12:00:00.000Z_660c1d2e1b9d4c001f3e8a1a",
+    }),
   })
   .openapi("GetMessagesResponse");
+
+export const inboxCountsSchema = z
+  .object({
+    all: z.number().int().openapi({ example: 24 }),
+    unread: z.number().int().openapi({ example: 3 }),
+    starred: z.number().int().openapi({ example: 5 }),
+    answered: z.number().int().openapi({ example: 9 }),
+    quarantined: z.number().int().openapi({ example: 2 }),
+    total: z.number().int().openapi({
+      description: "Every message, quarantined included",
+      example: 26,
+    }),
+  })
+  .openapi("InboxCounts");
+
+export const inboxCountsResponseSchema = z
+  .object({
+    success: z.boolean().openapi({ example: true }),
+    counts: inboxCountsSchema,
+  })
+  .openapi("InboxCountsResponse");
 
 export const acceptMessageGetResponseSchema = z
   .object({
@@ -125,6 +153,14 @@ export const publicAnswersResponseSchema = z
     success: z.boolean().openapi({ example: true }),
     username: z.string(),
     amaPrompt: z.string().optional(),
+    displayName: z.string().optional().openapi({ example: "Maya" }),
+    avatarUrl: z.string().nullable().optional().openapi({ example: null }),
+    showAmaBanner: z.boolean().optional().openapi({ example: true }),
+    offerSuggestions: z.boolean().optional().openapi({ example: true }),
+    isAcceptingMessages: z.boolean().optional().openapi({
+      description: "Message Acceptance: false shows the profile's paused state",
+      example: true,
+    }),
     answers: z.array(publicAnswerItemSchema),
   })
   .openapi("PublicAnswersResponse");
@@ -145,5 +181,18 @@ export const getBlockedSendersResponseSchema = z
     blockedSenderHashes: z
       .array(z.string())
       .openapi({ description: "List of blocked sender cryptographic hashes" }),
+    blockedSenders: z
+      .array(
+        z
+          .object({
+            hash: z.string(),
+            blockedAt: z.string().optional().openapi({
+              description:
+                "ISO date (missing for blocks made before dates were kept)",
+            }),
+          })
+          .openapi("BlockedSender")
+      )
+      .optional(),
   })
   .openapi("GetBlockedSendersResponse");

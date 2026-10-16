@@ -48,6 +48,50 @@ _Avoid_: Bio, status, custom headline, bio title
 A classification label representing the emotional tone of an anonymous message.
 _Avoid_: Vibe, mood score, AI emotion, category
 
+**Display Name**:
+The optional name a recipient shows on their public profile instead of their username (max 40 characters; empty means the username).
+_Avoid_: Nickname, full name, screen name
+
+**Toxicity Level**:
+The graded moderation verdict for an anonymous message: `none`, `borderline`, `hurtful` or `severe`. Decides quarantine together with the recipient's Quarantine Sensitivity.
+_Avoid_: Toxicity score, spam score, abuse flag
+
+**Quarantine Sensitivity**:
+A recipient's chosen threshold for holding messages back: Relaxed (severe only), Balanced (hurtful and up, default) or Strict (borderline and up).
+_Avoid_: Filter level, strictness, moderation mode
+
+**Spicy Blur**:
+A recipient preference that conceals messages tagged Spicy until the recipient taps to reveal them. A presentation choice, not moderation.
+_Avoid_: NSFW filter, spicy quarantine
+
+**Quiet Hours**:
+A daily window, in the recipient's time zone, during which no email or push alerts are sent. Messages still arrive in the inbox.
+_Avoid_: Do not disturb, mute, snooze
+
+**Daily Digest**:
+A once-a-day email (for recipients whose email alerts are set to "Daily digest") summarising new non-quarantined messages since the previous digest: a count, plus up to three previews unless message text is hidden.
+_Avoid_: Newsletter, summary email, batch alert
+
+**Hidden Preview**:
+An alert that says "New Anonymous Message" instead of showing the message text. The default for every recipient.
+_Avoid_: Private notification, redacted alert
+
+**Smart Reply**:
+An AI-drafted answer to an anonymous message in a chosen tone (witty, wholesome or thoughtful) that the recipient edits before saving.
+_Avoid_: Auto-reply, AI answer, canned response
+
+**Story Card**:
+A shareable PNG image (9:16 or 1:1) of an anonymous message and optionally its answer and the recipient's link, rendered from the live palette. Never shows the sender.
+_Avoid_: Screenshot, share image, social card
+
+**Blocked Sender**:
+A Sender Hash on the recipient's blocklist, with the date it was blocked. Messages from it are silently dropped.
+_Avoid_: Banned user, blocked account, blocked IP
+
+**Danger Zone**:
+The Settings section for irreversible actions: deleting all messages (with a 10-second undo) and deleting the account (typed username confirmation).
+_Avoid_: Account deletion page, advanced settings
+
 ## Engineering Language (UI architecture)
 
 **Element**:
@@ -101,3 +145,93 @@ _Avoid_: Wrapper story, test container
 **Component Registry**:
 The generated inventory `docs/11-component-registry.md` (`pnpm docs:registry`) of every module, story, mock, controller, fixture and scenario.
 _Avoid_: Component list, catalog doc
+
+**Server module**:
+Code under `src/server/` that may only run on the server (DB, mail, AI, secrets). Every file starts with `import "server-only"`.
+_Avoid_: Backend util, helper, lib function
+
+**Data layer**:
+`src/data/`: the client API client, query keys, `queryOptions` factories, mutation hooks and live-update hooks. Imported only by page controllers.
+_Avoid_: Services, API helpers, fetchers
+
+**Utility (`*.utils.ts`)**:
+A pure function colocated with the one module that uses it. Promoted to `src/lib/<domain>/` once two or more modules use it.
+_Avoid_: Helper file, misc, common
+
+**Controller test**:
+A colocated `use-*.controller.test.ts` that renders one page controller with `renderHookWithProviders` and drives it against MSW scenarios. Only edges (router, toasts, `signIn`, browser side effects) are mocked (ADR 0019).
+_Avoid_: Hook test, integration test (for this file type)
+
+**Request recording**:
+`recordRequests()` from `src/test/test-utils.tsx`: a per-test list of `"METHOD /path"` strings for every request MSW saw, used to assert that a controller did or did not call the API.
+_Avoid_: Spy on fetch, mock the mutation
+
+**Push subscription**:
+One device's browser `PushSubscription` (`endpoint` + `keys`) stored in `User.pushSubscriptions`. Created when the recipient enables browser push, replaced on resubscribe, and pruned when the push service reports it gone (ADR 0020).
+_Avoid_: Device token, FCM token
+
+**Optimistic update**:
+A cache change applied in `onMutate` before the server answers, rolled back from a snapshot in `onError`. Inbox messages use the helpers in `src/data/messages/messages-cache.ts` (ADR 0021, ADR 0030); settings-like resources use the Optimistic resource mutation.
+_Avoid_: Fake update, local-only change
+
+**Optimistic resource mutation**:
+The factory `useOptimisticResourceMutation` (`src/data/optimistic-resource-mutation.ts`) behind every settings-like save (acceptance, notifications, preferences, profile): optimistic, queued per resource (`scopeId`) so the last change wins, silent on success unless given a message, one error toast and a rollback on failure (ADR 0031).
+_Avoid_: Settings hook, save mutation
+
+**DTO**:
+A client-facing data shape derived from the generated OpenAPI schema (`src/types/api.ts`), e.g. `MessageDto`. Distinct from the Mongoose model types on the server.
+_Avoid_: Model (on the client), entity
+
+**DTO mapper**:
+A pure server function in `src/server/users/user-dto.ts` (`toUserProfile`, `toUserPreferences`, `toNotificationSettings`, `toBlockedSenders`) that turns a user document into an API shape and fills defaults for fields older documents lack.
+_Avoid_: Serializer, transformer, presenter
+
+**Policy (server)**:
+A pure, unit-tested decision function used by a route: `shouldQuarantine` (quarantine policy) and `isWithinQuietHours` / `buildAlertPreview` (delivery policy).
+_Avoid_: Rule engine, service, helper
+
+## Design Language
+
+**Palette**:
+One of three colour, font, radius and shadow systems (`spectral` Soft spectral, `midnight` Midnight confessional, `paper` Playful paper), set as `data-palette` on `<html>` and stored per device.
+_Avoid_: Theme (alone), skin, colour scheme
+
+**Mode**:
+Light, dark or system, owned by `next-themes` through the `.dark` class. Independent of the palette.
+_Avoid_: Theme (alone), appearance
+
+**Design token**:
+A CSS variable in `src/app/globals.css` defined for all six palette × mode combinations and exposed as a Tailwind utility (`bg-primary`, `shadow-soft`, `font-display`).
+_Avoid_: Hard-coded colour, Tailwind palette colour
+
+**Variant (element)**:
+An opt-in CVA option inside an element (`Badge variant="count"`, `ToggleGroup variant="segment"`) that carries a design look. The default variant always stays identical to upstream shadcn.
+_Avoid_: Custom class, override, skin
+
+**Draft (profile)**:
+Unsaved Profile page edits: a react-hook-form form fed by the server profile, shown in the live preview until **Save changes** (one `PATCH` with only the changed fields) or **Discard**. Protected by the Leave guard.
+_Avoid_: Pending state, dirty form
+
+**Inbox counts**:
+The server-computed number of messages per inbox filter plus the overall total (`GET /api/messages/counts`). Badges and "Delete all N" use these, never the loaded page.
+_Avoid_: Local count, page length
+
+**Inbox cursor**:
+The opaque keyset position `"<ISO createdAt>_<id>"` of the last message on an inbox page, passed back as `cursor` to fetch the next page.
+_Avoid_: Offset, page number
+
+**Selection scope**:
+The inbox filter + search a selection belongs to. Changing either starts a new selection, and only loaded messages count as selected, so a bulk action never reaches a message the Recipient can't see (`toggleScopedSelection`, `visibleSelection`).
+_Avoid_: Global selection, checked ids
+
+**Leave guard**:
+The protection for unsaved edits (`useLeaveGuard`): the browser prompt on close/reload, and a "Discard unsaved changes?" dialog before following an in-app link.
+_Avoid_: Navigation blocker, exit popup
+
+**Undo window**:
+The 10-second delay, with an Undo toast, between confirming Delete all and the request being sent. Leaving the page commits it.
+_Avoid_: Soft delete, trash
+
+**Documentation screenshot**:
+A PNG in `docs/assets/screenshots/` generated from a Storybook story by `pnpm docs:screenshots`. Never hand-made.
+_Avoid_: Mockup, hand-captured image

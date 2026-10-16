@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import dbConnect from "@/lib/db-connect";
-import MessageModel from "@/model/message.model";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
+import dbConnect from "@/server/db/db-connect";
+import MessageModel from "@/server/models/message.model";
 
 export async function DELETE(
   _request: NextRequest,
@@ -12,17 +11,11 @@ export async function DELETE(
   const params = await props.params;
   const messageId = params.messageId;
 
-  await dbConnect();
-
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     if (!mongoose.Types.ObjectId.isValid(messageId)) {
@@ -34,7 +27,7 @@ export async function DELETE(
 
     const deleteResult = await MessageModel.deleteOne({
       _id: messageId,
-      recipientId: user._id,
+      recipientId: userId,
     });
 
     if (deleteResult.deletedCount === 0) {

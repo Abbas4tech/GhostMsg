@@ -33,7 +33,8 @@ const meta = {
   parameters: { layout: "fullscreen" },
   args: { ...signInAuthPanelArgs, children: <SignInSlot /> },
   argTypes: {
-    title: { control: "text", description: "h2 heading" },
+    title: { control: "text", description: "h1 heading" },
+    icon: { control: false, description: "Optional icon tile" },
     description: { control: "text", description: "Muted subtitle" },
     children: { control: false, description: "Auth form slot" },
   },
@@ -46,21 +47,24 @@ export const SignIn: Story = {
   play: async ({ canvas }) => {
     await expect(
       canvas.getByRole("heading", {
-        level: 2,
+        level: 1,
         name: signInAuthPanelArgs.title as string,
       })
     ).toBeVisible();
     await expect(
       canvas.getByText(signInAuthPanelArgs.description as string)
     ).toBeVisible();
-    await expect(canvas.getByLabelText("Username/Email *")).toBeVisible();
+    await expect(canvas.getByLabelText("Username or email")).toBeVisible();
   },
 };
 
 export const SignUp: Story = {
   args: { ...signUpAuthPanelArgs, children: <SignUpSlot /> },
   play: async ({ canvas }) => {
-    await expect(canvas.getByLabelText("Email *")).toBeVisible();
+    await expect(canvas.getByLabelText("Email")).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { level: 1, name: "Make your link" })
+    ).toBeVisible();
   },
 };
 

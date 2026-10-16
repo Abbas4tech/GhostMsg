@@ -41,7 +41,7 @@ Traditional serverless Node.js functions suffer from cold-start latencies (500ms
 ---
 
 ## The Decision
-We chose **Option C**: Deploy [`src/app/api/suggest-messages/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/suggest-messages/route.ts) on the Next.js `edge` runtime using Google AI Studio (`gemini-2.5-flash-lite`) via `@ai-sdk/google`.
+We chose **Option C**: Deploy [`src/app/api/suggest-messages/route.ts`](../../src/app/api/suggest-messages/route.ts) on the Next.js `edge` runtime using Google AI Studio (`gemini-2.5-flash-lite`) via `@ai-sdk/google`.
 
 ```typescript
 // src/app/api/suggest-messages/route.ts
@@ -76,6 +76,6 @@ export async function GET() {
 ---
 
 ## References & Code Pointers
-- Edge Route Handler: [`src/app/api/suggest-messages/route.ts`](file:///d:/Projects/GhostMsg/src/app/api/suggest-messages/route.ts)
-- Public Messaging UI: [`src/app/u/[username]/page.tsx`](file:///d:/Projects/GhostMsg/src/app/u/%5Busername%5D/page.tsx)
-- Chapter Guide: [`docs/03-system-architecture.md`](file:///d:/Projects/GhostMsg/docs/03-system-architecture.md)
+- Edge Route Handler: [`src/app/api/suggest-messages/route.ts`](../../src/app/api/suggest-messages/route.ts)
+- Public Messaging UI: [`src/app/u/[username]/page.tsx`](../../src/app/u/[username]/page.tsx)
+- Chapter Guide: [`docs/03-system-architecture.md`](../03-system-architecture.md)

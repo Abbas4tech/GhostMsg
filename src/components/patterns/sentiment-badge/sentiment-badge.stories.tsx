@@ -42,7 +42,7 @@ export const Spicy: Story = {
   args: { sentiment: "spicy" },
   play: async ({ canvas }) => {
     await expect(canvas.getByText("Spicy").parentElement).toHaveClass(
-      "text-orange-700"
+      "text-sentiment-spicy"
     );
   },
 };

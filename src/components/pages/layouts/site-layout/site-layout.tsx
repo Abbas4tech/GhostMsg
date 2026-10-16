@@ -9,7 +9,7 @@ export interface SiteLayoutProps {
   children?: React.ReactNode;
 }
 
-/** Wires the session into the pure SiteHeader and renders the page below it. */
+/** Wires the session into the pure SiteHeader; page sits below on the brand mist. */
 export function SiteLayout({ children }: SiteLayoutProps): React.JSX.Element {
   const { status } = useSession();
   const handleSignOut = useCallback(() => {
@@ -17,13 +17,13 @@ export function SiteLayout({ children }: SiteLayoutProps): React.JSX.Element {
   }, []);
 
   return (
-    <>
+    <div className="min-h-screen bg-brand-mist">
       <SiteHeader
         isAuthenticated={status === "authenticated"}
         onSignOut={handleSignOut}
       />
       {children}
-    </>
+    </div>
   );
 }
 

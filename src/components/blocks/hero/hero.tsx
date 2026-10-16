@@ -1,38 +1,59 @@
+import { Sparkles } from "lucide-react";
 import type React from "react";
-import { Text } from "@/components/elements/text";
 import { cn } from "@/lib/utils";
 
 export interface HeroProps
   extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
-  /** Showcase content rendered under the copy (e.g. a carousel). */
+  /** Call to action under the lead paragraph (e.g. ClaimLinkForm). */
   children?: React.ReactNode;
   description: React.ReactNode;
+  /** Small pill above the headline. */
+  eyebrow?: React.ReactNode;
+  /** Right-hand illustration (e.g. HowItWorks). */
+  showcase?: React.ReactNode;
   title: React.ReactNode;
 }
 
-/** Landing hero: headline, lead paragraph and a showcase slot. */
+/** Landing hero: eyebrow, headline, lead, call to action and a showcase. */
 export function Hero({
+  eyebrow,
   title,
   description,
   children,
+  showcase,
   className,
   ...props
 }: HeroProps): React.JSX.Element {
   return (
     <section
-      className={cn("flex w-full flex-col gap-6 md:gap-12", className)}
+      className={cn(
+        "relative mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center gap-12 px-4 pt-6 pb-14 sm:px-6 md:pt-10",
+        className
+      )}
       data-slot="hero"
       {...props}
     >
-      <Text as="h1" className="text-center" variant="h1">
-        {title}
-      </Text>
+      <Sparkles
+        aria-hidden="true"
+        className="absolute top-2 left-[46%] size-5 text-star motion-safe:animate-float"
+      />
+      <Sparkles
+        aria-hidden="true"
+        className="absolute top-56 right-2 size-4 text-primary motion-safe:animate-float motion-safe:[animation-delay:-2s]"
+      />
 
-      <Text className="text-center" variant="lead">
-        {description}
-      </Text>
+      <div className="flex flex-col items-start gap-6">
+        {eyebrow}
+        <h1 className="text-balance font-bold text-[clamp(44px,6vw,76px)] leading-[0.98] tracking-tight">
+          {title}
+        </h1>
+        <p className="max-w-[520px] text-pretty text-muted-foreground text-xl">
+          {description}
+        </p>
+        {children}
+      </div>
 
-      {children}
+      {showcase ? <div className="relative">{showcase}</div> : null}
     </section>
   );
 }

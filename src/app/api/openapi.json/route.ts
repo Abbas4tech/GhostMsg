@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getOpenApiSpec } from "@/lib/openapi";
+import { getOpenApiSpec } from "@/server/openapi/openapi";
 
 export function GET(): Response {
   const spec = getOpenApiSpec();

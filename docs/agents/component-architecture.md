@@ -30,7 +30,7 @@ flowchart TD
         E["Button · Card · Tabs · Dialog · LiquidButton · effects/ …"]
     end
 
-    DATA[("@tanstack/react-query · @/queries · @/hooks/mutations<br/>next-auth/react · next/navigation<br/>@/lib/push-notification-adapter · @/hooks/use-live-messages")]
+    DATA[("@tanstack/react-query · @/queries · @/hooks/mutations<br/>next-auth/react · next/navigation<br/>@/data/user/use-push-notification · @/data/messages/use-live-messages")]
 
     R1 --> P
     P --> B & PT & E
@@ -52,12 +52,12 @@ Answer the questions in order. The first "yes" decides the tier.
 ```mermaid
 flowchart TD
     Q1{"Does it read/write server data, session,<br/>router, browser APIs, or fire<br/>side-effect toasts?"}
-    Q1 -- yes --> PG["pages/&lt;route&gt;/use-*.controller.ts<br/>(+ the page component that wires it)"]
+    Q1 -- yes --> PG["pages/#lt;route#gt;/use-*.controller.ts<br/>(+ the page component that wires it)"]
     Q1 -- no --> Q2{"Is it a full section of a page<br/>(owns a layout region, composes<br/>several patterns)?"}
-    Q2 -- yes --> BL["blocks/&lt;name&gt;/"]
+    Q2 -- yes --> BL["blocks/#lt;name#gt;/"]
     Q2 -- no --> Q3{"Does it combine elements into a<br/>domain-aware UI unit<br/>(card, form, toolbar, modal)?"}
-    Q3 -- yes --> PA["patterns/&lt;name&gt;/"]
-    Q3 -- no --> EL["elements/&lt;name&gt;/<br/>(domain-agnostic primitive)"]
+    Q3 -- yes --> PA["patterns/#lt;name#gt;/"]
+    Q3 -- no --> EL["elements/#lt;name#gt;/<br/>(domain-agnostic primitive)"]
 ```
 
 Quick reference:
@@ -65,12 +65,12 @@ Quick reference:
 | You are adding… | Tier | Example in repo |
 | :--- | :--- | :--- |
 | A `useQuery`, `useMutation`, `signIn`, `router.replace`, `toast.success` after a mutation | **pages** controller | `pages/dashboard/use-inbox.controller.ts` |
-| A route-level component that wires controllers into blocks | **pages** | `pages/dashboard/dashboard-page.tsx` |
-| A dashboard tab that owns data | **pages** (`*-tab.tsx`) | `pages/dashboard/settings-tab.tsx` |
+| A route-level component that wires controllers into blocks | **pages** | `pages/dashboard/inbox-page.tsx` |
+| A layout shared by several routes (session gate, shell) | **pages** (`*-layout.tsx`) | `pages/dashboard/dashboard-layout.tsx` |
 | A page section with title/controls/list | **blocks** | `blocks/inbox/inbox.tsx` |
 | A form, card, modal, toolbar, badge with domain meaning | **patterns** | `patterns/auth-form/sign-in-form.tsx` |
 | A button, input, dialog, tabs, motion effect | **elements** | `elements/liquid-button/` |
-| A pure helper (formatting, export) | `src/lib/` | `src/lib/export-messages.ts` |
+| A pure helper (formatting, export) | `src/lib/` | `src/lib/messages/export.ts` |
 
 ---
 
@@ -157,25 +157,34 @@ pages/
 ├── layouts/site-layout/        ← app/(app)/layout.tsx, also used by home
 ├── home/                       ← app/page.tsx
 ├── auth/
-│   ├── use-auth-form.controller.ts   (shared: sign-in, sign-up, username availability, Google)
+│   ├── shared/                 (logic used by sibling pages)
+│   │   ├── use-google-sign-in.controller.ts (+ .test.ts)
+│   │   └── auth-pages.mock.ts
 │   ├── sign-in/                ← app/(app)/(auth)/sign-in/page.tsx
+│   │   └── use-sign-in.controller.ts (+ .test.ts)
 │   ├── sign-up/                ← app/(app)/(auth)/sign-up/page.tsx
+│   │   ├── use-sign-up.controller.ts (+ .test.ts)
+│   │   └── use-username-availability.controller.ts (+ .test.ts)   (rules in src/lib/users/username-availability.ts)
 │   └── verify/                 ← app/(app)/(auth)/verify/[username]/page.tsx
-├── dashboard/                  ← app/(app)/(dashboard)/dashboard/page.tsx
-│   ├── dashboard-page.tsx      (session gate + DashboardShell + lazy tabs)
-│   ├── inbox-tab.tsx  profile-tab.tsx  settings-tab.tsx
-│   └── use-{inbox,smart-reply,profile,settings}.controller.ts
+│       └── use-verify.controller.ts (+ .test.ts)
+├── dashboard/                  ← app/(dashboard)/dashboard/{layout,page,profile/page,settings/page}.tsx
+│   ├── dashboard-layout.tsx    (session gate + DashboardShell sidebar + ⌘K palette)
+│   ├── inbox-page.tsx  profile-page.tsx  settings-page.tsx
+│   ├── use-{dashboard-shell,profile-link,inbox,inbox-filters,inbox-data,inbox-keyboard,smart-reply,
+│   │       profile,change-username,settings,appearance,danger-zone}.controller.ts (+ .test.ts each)
+│   └── {inbox,dashboard,profile}.utils.ts (+ .test.ts each)
 ├── public-profile/             ← app/u/[username]/page.tsx
 └── not-found/                  ← app/not-found.tsx
 ```
 
-- **One controller per concern**, named `use<Concern>Controller` in `use-<concern>.controller.ts`. It returns plain values plus `handle*` callbacks wrapped in `useCallback`, and `is*Pending` flags.
-- **Logic shared by sibling pages** lives one folder up (`pages/auth/use-auth-form.controller.ts`). It never moves down into a block.
+- **One controller hook per file**, named `use<Concern>Controller` in `use-<concern>.controller.ts`, with a colocated `use-<concern>.controller.test.ts` ([ADR 0018](../adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q5/Q7). It returns plain values plus `handle*` callbacks wrapped in `useCallback`, and `is*Pending` flags.
+- **Logic shared by sibling pages** lives in `pages/<group>/shared/` (e.g. `pages/auth/shared/use-google-sign-in.controller.ts`). It never moves down into a block.
+- **Pure logic inside a controller** (filters, parsers, status mapping) moves to a colocated `<module>.utils.ts` with a `.utils.test.ts`. Once two or more modules use it, it's promoted to `src/lib/<domain>/`.
 - **Toasts after a side effect belong in controllers.** Purely UI feedback inside a pattern (the story card's "downloaded" toast) is fine.
 
 ```tsx
-// pages/dashboard/settings-tab.tsx: the page-level wiring shape
-export function SettingsTab(props: SettingsTabProps = {}) {
+// pages/dashboard/settings-page.tsx: the page-level wiring shape
+export function SettingsPage(props: SettingsPageProps = {}) {
   const settings = useSettingsController(props);
   return (
     <SettingsPanel
@@ -214,7 +223,7 @@ export default VerifyUserPage;
 | **pages** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **app/** | — | — | — | ✅ | metadata only |
 
-¹ `@tanstack/react-query`, `@/queries/**`, `@/hooks/mutations/**`, `@/hooks/use-live-messages`, `next-auth/react`, `next/navigation`, `@/lib/push-notification-adapter`.
+¹ `@tanstack/react-query`, `@/queries/**`, `@/hooks/mutations/**`, `@/data/messages/use-live-messages`, `next-auth/react`, `next/navigation`, `@/data/user/use-push-notification`.
 
 Also:
 - **Use the module's folder** (`@/components/patterns/message-card`), which resolves to its `index.ts`. Inside a folder, sibling files use relative imports (`./button.primitive`).
@@ -229,19 +238,19 @@ Also:
 
 ```mermaid
 sequenceDiagram
-    participant Route as app/(dashboard)/dashboard/page.tsx
-    participant Page as pages/dashboard/DashboardPage
-    participant Tab as pages/dashboard/InboxTab
+    participant Route as app/(dashboard)/dashboard/{layout,page}.tsx
+    participant Page as pages/dashboard/DashboardLayout
+    participant Tab as pages/dashboard/InboxPage
     participant Ctl as useInboxController
     participant Block as blocks/Inbox
     participant Card as patterns/MessageCard
     participant API as React Query + api.*
 
     Route->>Page: render
-    Page->>Page: useSession() → skeleton / access denied / shell
-    Page->>Tab: DashboardShell messages={<InboxTab/>} (next/dynamic)
+    Page->>Page: useDashboardShellController() → skeleton / access denied / shell
+    Page->>Tab: <DashboardShell>{children = <InboxPage/>}</DashboardShell>
     Tab->>Ctl: useInboxController()
-    Ctl->>API: messagesQueries.list(), mutations, useLiveMessages()
+    Ctl->>API: messagesQueries.inbox() + counts(), mutations, useLiveMessages()
     Tab->>Block: messages, filters, selection, cardActions…
     Block->>Card: message + stable callbacks (memo-safe)
     Card-->>Tab: onOpenDelete(message)
@@ -252,8 +261,9 @@ sequenceDiagram
 ### 5.2 Hoisted overlays
 
 - **Mount each modal once**, as a sibling of the list in the page component, never inside `map()`.
-- The controller holds `activeModal: "block" | "delete" | "reply" | "story" | null` and `activeMessage`.
-- `closeModal` resets only `activeModal`. `activeMessage` is kept so the dialog animates out with its content.
+- The controller holds one modal state `{ kind: "block" | "delete" | "reply" | "reveal" | "story" | null, messageId, snapshot }` (`InboxModalState` in `inbox.utils.ts`).
+- The dialog's message is resolved by id from the live cache (`resolveModalMessage`), so it never shows a stale copy; `snapshot` is used only once the message is gone (e.g. deleted while the dialog closes).
+- `closeModal` clears only `kind`. The id is kept so the dialog animates out with its content.
 - **Openers are stable `useCallback`s** (`openDeleteModal`, …) so memoized cards don't re-render.
 
 ### 5.3 Forms owned by pages
@@ -268,23 +278,26 @@ return { form, handleSubmit, isSubmitting: form.formState.isSubmitting, onGoogle
 <SignInForm form={c.form} isSubmitting={c.isSubmitting} onSubmit={c.handleSubmit} onGoogleSignIn={c.onGoogleSignIn} />
 ```
 
-Cross-field side effects stay in the controller and write back into form state:
+Cross-field side effects stay in the controller:
 - **Suggestion → textarea:** `form.setValue("content", text, { shouldValidate: true })`.
-- **Username availability:** debounce, then query, then `form.setError` / `clearErrors`. The status goes to the pattern as `usernameAvailability: "idle" | "checking" | "available" | "taken"`.
+- **Username availability:** debounce, then query, then **derive** the status (`deriveUsernameAvailability`); it is never written into form state with effects. The status goes to the pattern as `usernameAvailability: "idle" | "checking" | "available" | "taken"`, the form disables submit while taken, and the controller re-checks before sending.
+- **Forms fed by server data** (the Profile draft): `useForm({ values: serverValues, resetOptions: { keepDirtyValues: true } })`, never a `useEffect` that calls `reset`. `formState.isDirty` drives the unsaved bar and `useLeaveGuard` (`src/hooks/use-leave-guard.ts`), which the page answers with `DiscardChangesModal`. Save sends only dirty fields (`buildProfilePatch`) and then `reset`s to the saved values.
 
 ### 5.4 Browser APIs
 
-Browser APIs go behind an adapter in `src/lib/` (e.g. `push-notification-adapter.ts`), consumed only by a page controller.
+Browser APIs that talk to the API go behind a hook in `src/data/<domain>/` (e.g. `src/data/user/use-push-notification.ts`), consumed only by a page controller. Pure browser side effects without React live in `src/lib/browser/` (e.g. `downloadTextFile`) and stay separate from the pure builders that feed them ([ADR 0018](../adr/0018-source-structure-server-data-lib-utils-controllers-tests.md), Q4).
 
 ---
 
 ## 6. Enforcement: what fails and why
 
-`biome.jsonc` has `style/noRestrictedImports` overrides per tier. Each diagnostic message names the rule and ADR 0015:
+`biome.jsonc` has `style/noRestrictedImports` overrides per tier and per source folder. Each diagnostic message names the rule and its ADR (0015 or 0018):
 
 | Diagnostic message starts with | Cause | Fix |
 | :--- | :--- | :--- |
-| "Business logic (queries, mutations, …) belongs in @/components/pages" | Data/logic import below pages | Move the hook into a page controller. Pass data and callbacks down. |
+| "Business logic (queries, mutations, … in @/data) belongs in @/components/pages" | `@/data/**`, `@tanstack/react-query`, `next-auth/react` or `next/navigation` imported below pages | Move the hook into a page controller. Pass data and callbacks down. |
+| "Server-only code (@/server/**) is imported only by src/app/**" | A component, data, hook, provider, mock, type or Storybook file imports `@/server/**` or `server-only` | Call the API through `@/data`. For a type, use the OpenAPI DTO from `@/types/api`. |
+| "src/lib is framework-free" | `src/lib/**` imports React, Next, NextAuth, TanStack, `@/data` or `@/components` | Move a hook to `@/hooks` (generic) or `@/data/<domain>` (API). Keep only the pure part in `src/lib`. |
 | "Elements are Tier 1…" / "Patterns are Tier 2…" / "Blocks are Tier 3…" | Upward import | Invert it: pass the higher-tier piece in as a prop or slot, or move the component up a tier. |
 | "animate-ui and shadcn ui live in @/components/elements now" | Import from a deleted vendor path | Import from `@/components/elements/<name>`. If a registry install just created the folder, see section 7.4. |
 
@@ -313,15 +326,17 @@ Other overrides: a11y relaxations apply only to `elements/effects/**`, `elements
 1. Create `pages/<route>/<route>-page.tsx`, `index.ts` and any `use-*.controller.ts`.
 2. Compose it from existing blocks. Create a new block only if no existing block fits (section 2).
 3. Create a thin `app/**/page.tsx` (section 3.5).
-4. Add `<route>-page.stories.tsx` (title `Pages/…`, `parameters.pageProviders: true`, one story per MSW scenario: default, empty, error, signed-out, slow). Add controller tests in `*.test.tsx` via `renderHook`; the unit project's `msw/node` server answers their requests.
+4. Add `<route>-page.stories.tsx` (title `Pages/…`, `parameters.pageProviders: true`, one story per MSW scenario: default, empty, error, signed-out, slow). Add one `use-*.controller.test.ts` per controller via `renderHookWithProviders` (`src/test/test-utils.tsx`); the unit project's `msw/node` server answers their requests. Move pure helpers into `<route>.utils.ts` with a `.utils.test.ts`.
 
 **Done when** `app/**/page.tsx` contains only metadata, params and one JSX element.
 
 ### 7.4 Adding a shadcn or Animate UI registry component
 1. Run `npx shadcn add <name>`. `components.json` maps `ui` to `@/components/elements`. For Animate UI, run `npx shadcn add @animate-ui/<name>`; it writes to `src/components/animate-ui/...`.
 2. Move the styled file to `elements/<name>/<name>.tsx` and the motion primitive to `elements/<name>/<name>.primitive.tsx`. Merge new effects into `elements/effects/`. If the item ships its own Button, keep `elements/button` and merge only the new variants.
-3. Rewrite imports to `@/components/elements/...`. Generic hooks it brings (`@/hooks/use-*`) and `@/lib/get-strict-context` stay where they are.
+3. Rewrite imports to `@/components/elements/...`. Generic hooks it brings (`@/hooks/use-*`) and `@/hooks/get-strict-context` stay where they are.
 4. Delete the leftover `src/components/animate-ui/` (or `ui/`) folder. Add `index.ts`, `<name>.mock.ts` and `<name>.stories.tsx` (interactions in `play()`), then run `pnpm docs:registry`.
+5. The shadcn CLI adds a bogus `cn` npm dependency on every run: `pnpm remove cn`. With `--path <scratch>` it also leaves imports unrewritten (`"cn"`, `@/components/<scratch>/x`, `use-mobile`); point them at `@/lib/utils`, `@/components/elements/x` and `@/hooks/use-mobile`.
+6. **shadcn first** ([ADR 0023](../adr/0023-shadcn-first-elements-and-profile-settings-backend.md)): build structure from the shadcn component (Sidebar, ToggleGroup, Field, Empty, Item, Command, …), never a hand-made copy. Design looks are opt-in CVA variants in the element; `className` is for layout only.
 
 **Done when** `rg "components/(animate-ui|ui)/" src` returns nothing and lint passes.
 
@@ -360,7 +375,7 @@ Owner of each kind of test ([ADR 0016](../adr/0016-storybook-msw-and-story-drive
 | :--- | :--- | :--- |
 | Element / pattern / block behaviour + a11y | `*.stories.tsx` (`play()`) | Vitest `storybook` project (Chromium) |
 | Page wiring under API scenarios | `Pages/*` stories with MSW handlers | Vitest `storybook` project |
-| Controllers, `src/lib`, schemas, page integration | `*.test.tsx` | Vitest `unit` project (happy-dom + `msw/node`) |
+| Controllers, `*.utils.ts`, `src/lib`, `src/server`, schemas | colocated `*.controller.test.ts` / `*.test.ts` | Vitest `unit` project (happy-dom + `msw/node`) |
 
 Rules:
 - **Mock data** comes from `src/mock/fixtures` builders and scenarios. A `*.mock.ts` only shapes args, and never imports another component's mock.

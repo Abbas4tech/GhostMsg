@@ -18,6 +18,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(dirname, "./src"),
+      // The real package throws outside the react-server condition (ADR 0018).
+      "server-only": path.resolve(dirname, "./src/test/server-only-stub.ts"),
     },
   },
   test: {
@@ -61,6 +63,8 @@ export default defineConfig({
             headless: true,
             provider: playwright({}),
             instances: [{ browser: "chromium" }],
+            // Desktop width so lg: layouts (dashboard sidebar) render in tests.
+            viewport: { width: 1280, height: 900 },
           },
         },
       },

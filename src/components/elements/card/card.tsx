@@ -12,6 +12,8 @@ const cardVariants = cva(
           "border border-white/20 bg-white/10 py-4 shadow-sm backdrop-blur-md md:py-6 dark:border-white/10 dark:bg-black/20",
         ghost: "border-none bg-transparent py-2 shadow-none",
         bordered: "border-2 border-border bg-card py-4 shadow-sm md:py-6",
+        /** GhostMsg section card: palette shadow (`--shadow-soft`). */
+        elevated: "border bg-card py-6 shadow-soft",
       },
       size: {
         default: "",

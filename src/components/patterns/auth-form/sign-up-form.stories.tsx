@@ -11,9 +11,9 @@ import {
 } from "./auth-form.mock";
 import { SignUpForm, type SignUpValues } from "./sign-up-form";
 
-const SIGN_UP_REGEX = /^sign up$/i;
-const SIGNING_UP_REGEX = /signing up/i;
-const SIGN_IN_LINK_REGEX = /already a member/i;
+const SIGN_UP_REGEX = /^send my verification code$/i;
+const SIGNING_UP_REGEX = /creating your link/i;
+const SIGN_IN_LINK_REGEX = /^sign in$/i;
 
 /** Creates the form with the real schema, as `useSignUpController` does. */
 function SignUpFormHarness(args: SignUpFormStoryArgs): React.JSX.Element {
@@ -71,12 +71,12 @@ export const SubmitsDetails: Story = {
   args: { usernameAvailability: "available" },
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.type(
-      canvas.getByLabelText("Username *"),
+      canvas.getByLabelText("Username"),
       validSignUp.username
     );
-    await userEvent.type(canvas.getByLabelText("Email *"), validSignUp.email);
+    await userEvent.type(canvas.getByLabelText("Email"), validSignUp.email);
     await userEvent.type(
-      canvas.getByLabelText("Password *"),
+      canvas.getByLabelText("Password"),
       validSignUp.password
     );
     const submit = canvas.getByRole("button", { name: SIGN_UP_REGEX });
@@ -89,7 +89,7 @@ export const SubmitsDetails: Story = {
 
 export const InvalidEmail: Story = {
   play: async ({ canvas, userEvent }) => {
-    await userEvent.type(canvas.getByLabelText("Email *"), "not-an-email");
+    await userEvent.type(canvas.getByLabelText("Email"), "not-an-email");
     await expect(
       await canvas.findByText("Invalid email address")
     ).toBeVisible();
@@ -98,7 +98,7 @@ export const InvalidEmail: Story = {
 
 export const InvalidUsername: Story = {
   play: async ({ canvas, userEvent }) => {
-    await userEvent.type(canvas.getByLabelText("Username *"), "bad name!");
+    await userEvent.type(canvas.getByLabelText("Username"), "bad name!");
     await expect(
       await canvas.findByText("Username must not contain special characters")
     ).toBeVisible();

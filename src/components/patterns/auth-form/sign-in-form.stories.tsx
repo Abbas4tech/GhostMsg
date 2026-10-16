@@ -11,12 +11,12 @@ import {
 } from "./auth-form.mock";
 import { SignInForm, type SignInValues } from "./sign-in-form";
 
-const LOGIN_REGEX = /^login$/i;
-const LOGGING_IN_REGEX = /logging in/i;
+const LOGIN_REGEX = /^sign in$/i;
+const LOGGING_IN_REGEX = /signing in/i;
 const GOOGLE_REGEX = /continue with google/i;
 const SHOW_PASSWORD_REGEX = /show password/i;
 const HIDE_PASSWORD_REGEX = /hide password/i;
-const SIGN_UP_LINK_REGEX = /create an account/i;
+const SIGN_UP_LINK_REGEX = /get your link/i;
 
 /** Creates the form with the real schema, as `useSignInController` does. */
 function SignInFormHarness({
@@ -76,11 +76,11 @@ export const Default: Story = {
 export const SubmitsCredentials: Story = {
   play: async ({ args, canvas, userEvent }) => {
     await userEvent.type(
-      canvas.getByLabelText("Username/Email *"),
+      canvas.getByLabelText("Username or email"),
       validSignIn.identifier
     );
     await userEvent.type(
-      canvas.getByLabelText("Password *"),
+      canvas.getByLabelText("Password"),
       validSignIn.password
     );
     const login = canvas.getByRole("button", { name: LOGIN_REGEX });
@@ -93,11 +93,11 @@ export const SubmitsCredentials: Story = {
 
 export const ShortPassword: Story = {
   play: async ({ canvas, userEvent }) => {
-    await userEvent.type(canvas.getByLabelText("Password *"), "123");
+    await userEvent.type(canvas.getByLabelText("Password"), "123");
     await expect(
       await canvas.findByText("password must be atleast 6 characters")
     ).toBeVisible();
-    await expect(canvas.getByLabelText("Password *")).toHaveAttribute(
+    await expect(canvas.getByLabelText("Password")).toHaveAttribute(
       "aria-invalid",
       "true"
     );
@@ -106,7 +106,7 @@ export const ShortPassword: Story = {
 
 export const TogglesPasswordVisibility: Story = {
   play: async ({ canvas, userEvent }) => {
-    const password = canvas.getByLabelText("Password *");
+    const password = canvas.getByLabelText("Password");
     await expect(password).toHaveAttribute("type", "password");
     await userEvent.click(
       canvas.getByRole("button", { name: SHOW_PASSWORD_REGEX })

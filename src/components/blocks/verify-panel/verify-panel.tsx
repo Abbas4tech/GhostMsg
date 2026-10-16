@@ -1,38 +1,32 @@
+import { Mail } from "lucide-react";
 import type React from "react";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/elements/card";
+import { AuthPanel } from "@/components/blocks/auth-panel";
 
 export interface VerifyPanelProps {
-  /** The verify-code form pattern (renders its own CardContent). */
+  /** The verify-code form pattern. */
   children: React.ReactNode;
   username: string;
 }
 
-/** Account verification card with greeting and OTP form slot. */
+/** "Check your email" card around the 6-digit Verification Code form. */
 export function VerifyPanel({
   username,
   children,
 }: VerifyPanelProps): React.JSX.Element {
   return (
-    <div
-      className="flex items-center justify-center bg-background p-4"
-      data-slot="verify-panel"
-    >
-      <Card className="mt-16 w-full max-w-lg">
-        <CardHeader>
-          <CardTitle className="font-bold text-xl md:text-2xl">
-            Verify Your account!
-          </CardTitle>
-          <CardDescription>
-            {`Hi ${username}, Please enter the one-time password sent to your email.`}
-          </CardDescription>
-        </CardHeader>
+    <div data-slot="verify-panel">
+      <AuthPanel
+        description={
+          <>
+            We sent a 6-digit Verification Code to the email you used for{" "}
+            <b className="font-semibold text-foreground">@{username}</b>.
+          </>
+        }
+        icon={<Mail aria-hidden="true" />}
+        title="Check your email"
+      >
         {children}
-      </Card>
+      </AuthPanel>
     </div>
   );
 }

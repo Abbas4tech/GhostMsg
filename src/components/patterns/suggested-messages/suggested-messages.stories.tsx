@@ -8,7 +8,7 @@ import {
   longSuggestedMessagesArgs,
 } from "./suggested-messages.mock";
 
-const SUGGEST_REGEX = /suggest messages/i;
+const SUGGEST_REGEX = /new ideas/i;
 
 const meta = {
   title: "Patterns/SuggestedMessages",

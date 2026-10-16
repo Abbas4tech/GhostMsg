@@ -7,7 +7,9 @@ import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 import { Toaster } from "../src/components/elements/sonner";
+import { isPalette } from "../src/lib/theme/palette";
 import { defaultHandlers } from "../src/mock/handlers";
+import PaletteProvider from "../src/providers/palette-provider";
 import "../src/app/globals.css";
 
 // Story tests (Vitest runs Vite in "test" mode) skip Motion + CSS animations so
@@ -40,19 +42,29 @@ const startMswWorker = async () => {
   return worker;
 };
 
-/** Light/dark from the toolbar, applied through next-themes like the app does. */
-const withTheme: Decorator = (Story, context) => (
-  <ThemeProvider
-    attribute="class"
-    disableTransitionOnChange
-    forcedTheme={context.globals.theme ?? "light"}
-  >
-    <div className="bg-background text-foreground">
-      <Story />
-    </div>
-    <Toaster />
-  </ThemeProvider>
-);
+/**
+ * Light/dark and palette from the toolbar, applied through next-themes and
+ * PaletteProvider like the app does.
+ */
+const withTheme: Decorator = (Story, context) => {
+  const palette = isPalette(context.globals.palette)
+    ? context.globals.palette
+    : "spectral";
+  return (
+    <ThemeProvider
+      attribute="class"
+      disableTransitionOnChange
+      forcedTheme={context.globals.theme ?? "light"}
+    >
+      <PaletteProvider forcedPalette={palette}>
+        <div className="bg-background font-sans text-foreground">
+          <Story />
+        </div>
+        <Toaster />
+      </PaletteProvider>
+    </ThemeProvider>
+  );
+};
 
 /** Fresh QueryClient per story so cached data never leaks between stories. */
 function PageProviders({ children }: { children: React.ReactNode }) {
@@ -98,9 +110,23 @@ const preview: Preview = {
         dynamicTitle: true,
       },
     },
+    palette: {
+      description: "Color palette",
+      toolbar: {
+        title: "Palette",
+        icon: "paintbrush",
+        items: [
+          { value: "spectral", title: "Soft spectral" },
+          { value: "midnight", title: "Midnight confessional" },
+          { value: "paper", title: "Playful paper" },
+        ],
+        dynamicTitle: true,
+      },
+    },
   },
   initialGlobals: {
     theme: "light",
+    palette: "spectral",
   },
   parameters: {
     layout: "padded",

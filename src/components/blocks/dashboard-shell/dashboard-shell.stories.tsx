@@ -1,14 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect } from "storybook/test";
+import { expect, fn, screen, within } from "storybook/test";
 import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
 import { DashboardShell } from "./dashboard-shell";
 import {
   dashboardShellSlotText,
   defaultDashboardShellArgs,
+  pausedDashboardShellArgs,
 } from "./dashboard-shell.mock";
-
-const SETTINGS_TAB_REGEX = /settings/i;
-const PROFILE_TAB_REGEX = /profile/i;
 
 const meta = {
   title: "Blocks/DashboardShell",
@@ -17,78 +15,81 @@ const meta = {
   parameters: { layout: "fullscreen" },
   args: {
     ...defaultDashboardShellArgs,
-    messages: (
-      <div className="rounded-xl border p-6">
-        {dashboardShellSlotText.messages}
-      </div>
-    ),
-    profile: (
-      <div className="rounded-xl border p-6">
-        {dashboardShellSlotText.profile}
-      </div>
-    ),
-    settings: (
-      <div className="rounded-xl border p-6">
-        {dashboardShellSlotText.settings}
-      </div>
+    profileLink: {
+      ...defaultDashboardShellArgs.profileLink,
+      onCopy: fn(),
+      onShare: fn(),
+    },
+    acceptance: { ...defaultDashboardShellArgs.acceptance, onToggle: fn() },
+    onOpenCommand: fn(),
+    onSignOut: fn(),
+    children: (
+      <div className="rounded-xl border p-6">{dashboardShellSlotText}</div>
     ),
   },
   argTypes: {
-    username: { control: "text", description: "Shown in the welcome line" },
-    defaultTab: {
+    activeNav: {
       control: "radio",
-      options: ["messages", "profile", "settings"],
-      description: "Initially open tab",
+      options: ["inbox", "profile", "settings"],
+      description: "Current route",
     },
-    messages: {
-      control: false,
-      description: "Messages tab slot (InboxTab in the app)",
-    },
-    profile: { control: false, description: "Profile tab slot" },
-    settings: { control: false, description: "Settings tab slot" },
+    unreadCount: { control: "number", description: "Inbox badge" },
+    username: { control: "text", description: "Account row" },
+    profileLink: { control: "object", description: "Link card" },
+    acceptance: { control: "object", description: "Message Acceptance" },
+    children: { control: false, description: "Routed page" },
+    onOpenCommand: { description: "Jump to… / ⌘K" },
+    onSignOut: { description: "Log out clicked" },
   },
 } satisfies Meta<typeof DashboardShell>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Messages: Story = {
-  play: async ({ canvas }) => {
+export const Desktop: Story = {
+  play: async ({ args, canvas, userEvent }) => {
+    const sidebar = canvas.getByRole("complementary", { name: "Sidebar" });
     await expect(
-      canvas.getByText(
-        `Welcome back, ${FIXTURE_USERNAME}! Manage your messages and profile settings.`
-      )
-    ).toBeVisible();
-    await expect(
-      canvas.getByText(dashboardShellSlotText.messages)
-    ).toBeVisible();
-  },
-};
+      within(sidebar).getByRole("link", { name: "Inbox Unread: 3" })
+    ).toHaveAttribute("aria-current", "page");
+    await expect(canvas.getByText(dashboardShellSlotText)).toBeVisible();
+    await expect(within(sidebar).getByText(FIXTURE_USERNAME)).toBeVisible();
 
-export const SwitchesTabs: Story = {
-  play: async ({ canvas, userEvent }) => {
     await userEvent.click(
-      canvas.getByRole("tab", { name: SETTINGS_TAB_REGEX })
+      within(sidebar).getByRole("button", { name: "Copy" })
     );
-    await expect(
-      canvas.getByRole("tab", { name: SETTINGS_TAB_REGEX })
-    ).toHaveAttribute("aria-selected", "true");
-    await expect(
-      await canvas.findByText(dashboardShellSlotText.settings)
-    ).toBeVisible();
-    // Inactive tab panels are unmounted, so their controllers/queries don't run.
-    await expect(
-      canvas.queryByText(dashboardShellSlotText.messages)
-    ).not.toBeInTheDocument();
+    await expect(args.profileLink.onCopy).toHaveBeenCalledOnce();
+
+    await userEvent.click(
+      within(sidebar).getByRole("switch", { name: "Message Acceptance" })
+    );
+    await expect(args.acceptance.onToggle).toHaveBeenCalledOnce();
+
+    await userEvent.click(
+      within(sidebar).getByRole("button", { name: "Jump to… ⌘K" })
+    );
+    await expect(args.onOpenCommand).toHaveBeenCalledOnce();
   },
 };
 
-export const ProfileTabOpen: Story = {
-  args: { defaultTab: "profile" },
+export const SettingsActive: Story = {
+  args: { activeNav: "settings" },
   play: async ({ canvas }) => {
+    const sidebar = canvas.getByRole("complementary", { name: "Sidebar" });
     await expect(
-      canvas.getByRole("tab", { name: PROFILE_TAB_REGEX })
-    ).toHaveAttribute("aria-selected", "true");
+      within(sidebar).getByRole("link", { name: "Settings" })
+    ).toHaveAttribute("aria-current", "page");
+  },
+};
+
+export const Paused: Story = {
+  args: pausedDashboardShellArgs,
+  play: async ({ canvas }) => {
+    const sidebar = canvas.getByRole("complementary", { name: "Sidebar" });
+    await expect(within(sidebar).getByText("Paused")).toBeVisible();
+    await expect(
+      within(sidebar).getByRole("switch", { name: "Message Acceptance" })
+    ).not.toBeChecked();
   },
 };
 

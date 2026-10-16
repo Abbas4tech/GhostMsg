@@ -3,18 +3,18 @@
 ## Status
 **Accepted**
 
-> **Update (2026-10-12):** Component paths in this record (`src/components/auth/*`, `SendMessagePage`) are historical. Queries and mutations are now consumed only by page controllers in `src/components/pages/` ([ADR 0015](file:///d:/Projects/GhostMsg/docs/adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
+> **Update (2026-10-12):** Component paths in this record (`src/components/auth/*`, `SendMessagePage`) are historical. Queries and mutations are now consumed only by page controllers in `src/components/pages/` ([ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
 
 ---
 
 ## Context & Problem Statement
 
-Following the adoption of OpenAPI 3.1 and `openapi-fetch` in [ADR 0005](file:///d:/Projects/GhostMsg/docs/adr/0005-type-safe-api-and-scalar-documentation.md), the client-side data consumption layer experienced architectural fragmentation:
+Following the adoption of OpenAPI 3.1 and `openapi-fetch` in [ADR 0005](0005-type-safe-api-and-scalar-documentation.md), the client-side data consumption layer experienced architectural fragmentation:
 
-1. **Inconsistent Transport Invocations**: Several components (e.g. [`VerifyCodeForm`](file:///d:/Projects/GhostMsg/src/components/auth/verify-code-form.tsx), [`AuthForm`](file:///d:/Projects/GhostMsg/src/components/auth/auth-form.tsx), and [`SendMessagePage`](file:///d:/Projects/GhostMsg/src/app/u/[username]/page.tsx)) directly invoked `api.POST` or `api.GET` inside `onSubmit` handlers and `useEffect` hooks, bypassing React Query entirely.
+1. **Inconsistent Transport Invocations**: Several components (e.g. [`VerifyCodeForm`](../../src/components/patterns/verify-code-form/verify-code-form.tsx), [`AuthForm`](../../src/components/patterns/auth-form/sign-in-form.tsx), and [`SendMessagePage`](../../src/app/u/[username]/page.tsx)) directly invoked `api.POST` or `api.GET` inside `onSubmit` handlers and `useEffect` hooks, bypassing React Query entirely.
 2. **Boilerplate Error & Data Unpacking**: Every query function and mutation handler repeated identical manual response checks (`const { data, error } = await api.GET(...); if (error || !data) throw new Error(...)`).
 3. **Fragile Query Key Management**: Query keys were defined as ad-hoc, inline string arrays (`["messages"]`, `["accept-message"]`), lacking centralization, type safety, or structured hierarchy for scoped invalidations.
-4. **Unoptimized Rerender Profiles**: Consolidating queries, session data, and mutation callbacks into monolithic hook returns (e.g. in [`useDashboard`](file:///d:/Projects/GhostMsg/src/hooks/use-dashboard.tsx)) triggered redundant component re-renders whenever unrelated states (such as background refetch flags) fluctuated.
+4. **Unoptimized Rerender Profiles**: Consolidating queries, session data, and mutation callbacks into monolithic hook returns (e.g. in [`useDashboard`](../../src/components/pages/dashboard/use-inbox.controller.ts)) triggered redundant component re-renders whenever unrelated states (such as background refetch flags) fluctuated.
 5. **Divergent Optimistic UI Implementations**: Optimistic updates varied between React 19 `useOptimistic` + `useTransition` and un-optimistic mutation refetches, causing inconsistent user experience and mutation rollback vulnerabilities.
 
 ---
@@ -90,7 +90,7 @@ flowchart TD
 2. **Query Key Factories & `queryOptions`**:
    Pure, hook-free query options defined via `queryOptions()` in `src/queries/`.
 3. **Standardized Optimistic Mutations**:
-   All stateful mutations ([`Message Acceptance`](file:///d:/Projects/GhostMsg/GLOSSARY.md#L19-L22), [`Anonymous Message`](file:///d:/Projects/GhostMsg/GLOSSARY.md#L7-L10) deletion) utilize `onMutate` cache updates with context-driven rollback in `onError`.
+   All stateful mutations ([`Message Acceptance`](../../GLOSSARY.md), [`Anonymous Message`](../../GLOSSARY.md) deletion) utilize `onMutate` cache updates with context-driven rollback in `onError`.
 4. **Component Segregation & Render Boundary Isolation**:
    Components mixing multiple async operations (e.g. `SendMessagePage`, `AuthForm`, `Dashboard`) are decomposed into focused subcomponents (`SendMessageForm`, `SuggestedMessagesSection`, `UsernameField`, `MessageCard`) to isolate re-renders and local state.
 5. **Form Integration**:
@@ -118,7 +118,7 @@ flowchart TD
 ---
 
 ## References & Code Pointers
-- Architecture Blueprint: [`docs/api-and-react-query-architecture.md`](file:///d:/Projects/GhostMsg/docs/api-and-react-query-architecture.md)
-- Agent API Guidelines: [`docs/agents/api-patterns.md`](file:///d:/Projects/GhostMsg/docs/agents/api-patterns.md)
-- API Type Safety ADR: [`docs/adr/0005-type-safe-api-and-scalar-documentation.md`](file:///d:/Projects/GhostMsg/docs/adr/0005-type-safe-api-and-scalar-documentation.md)
-- Domain Glossary: [`GLOSSARY.md`](file:///d:/Projects/GhostMsg/GLOSSARY.md)
+- Architecture Blueprint: [`docs/api-and-react-query-architecture.md`](../api-and-react-query-architecture.md)
+- Agent API Guidelines: [`docs/agents/api-patterns.md`](../agents/api-patterns.md)
+- API Type Safety ADR: [`docs/adr/0005-type-safe-api-and-scalar-documentation.md`](0005-type-safe-api-and-scalar-documentation.md)
+- Domain Glossary: [`GLOSSARY.md`](../../GLOSSARY.md)

@@ -128,4 +128,10 @@ Most formatting and common issues are automatically fixed by Biome. Run `npm exe
 
 - Read `AGENTS.md` at the repo root for project-wide agent guidance.
 - **Components / UI / route pages:** before touching `src/components/**` or `src/app/**/page.tsx|layout.tsx`, read `docs/agents/component-architecture.md`. It defines the four tiers (`elements → patterns → blocks → pages`), keeps all business logic in `pages/` controllers, and explains how Biome enforces this.
+- **Source structure / utils / controllers / tests:** before adding or moving files under `src/` outside `src/components/`, extracting a `*.utils.ts`, or writing a `*.controller.test.ts`, read `docs/agents/source-structure.md` (ADR 0018, ADR 0019).
+- **Product behaviour / settings / moderation / notifications / sender data:** read `docs/agents/product-rules.md` first; never break invariants S1–S10.
+- **Tokens, variants, palettes, new shadcn elements:** read `docs/13-design-system-and-theming.md` (shadcn first, design via CVA variants, `className` for layout only).
+- **Queries, mutations, controller/URL/device state:** read `docs/20-state-management.md` (server data only in React Query, server-side filtering + paging, optimistic switches, stable callbacks, derived UI state).
+- **Common end-to-end changes** (new setting, endpoint, screen section): follow `docs/agents/feature-recipes.md`.
+- **Finishing any change:** update the docs it affects per `docs/agents/documentation-maintenance.md` (chapters 12–19, `GLOSSARY.md`, ADRs, `pnpm docs:screenshots` for visible UI).
 - **Before push:** follow `.agents/rules/pre-push-quality-checks.md`.

@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import dbConnect from "@/lib/db-connect";
-import MessageModel from "@/model/message.model";
 import { updateMessageSchema } from "@/schemas/message-schema";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
+import dbConnect from "@/server/db/db-connect";
+import MessageModel from "@/server/models/message.model";
 
 export async function PATCH(
   request: NextRequest,
@@ -13,17 +12,11 @@ export async function PATCH(
   const params = await props.params;
   const messageId = params.messageId;
 
-  await dbConnect();
-
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!user?._id) {
-      return Response.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
     if (!mongoose.Types.ObjectId.isValid(messageId)) {
@@ -52,7 +45,7 @@ export async function PATCH(
     }
 
     const updated = await MessageModel.findOneAndUpdate(
-      { _id: messageId, recipientId: user._id },
+      { _id: messageId, recipientId: userId },
       { $set: updateFields },
       { new: true }
     );

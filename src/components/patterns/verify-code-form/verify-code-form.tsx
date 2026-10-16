@@ -1,11 +1,12 @@
 "use client";
 
 import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import type React from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
 import { Button } from "@/components/elements/button";
-import { CardContent } from "@/components/elements/card";
 import {
   Form,
   FormControl,
@@ -32,7 +33,7 @@ export interface VerifyCodeFormProps {
   onSubmit: (values: VerifyCodeValues) => void | Promise<void>;
 }
 
-/** 6-digit OTP form. Renders inside a Card (uses CardContent spacing). */
+/** Six large Verification Code slots, Verify button and "change email". */
 export function VerifyCodeForm({
   form,
   isSubmitting = false,
@@ -41,41 +42,63 @@ export function VerifyCodeForm({
   return (
     <Form {...form}>
       <form
-        className="w-full space-y-6"
+        className="flex w-full flex-col gap-[18px]"
         data-slot="verify-code-form"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <CardContent className="flex flex-col gap-4">
-          <FormField
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>One-Time Password</FormLabel>
-                <FormControl>
-                  <InputOTP
-                    maxLength={OTP_LENGTH}
-                    pattern={REGEXP_ONLY_DIGITS}
-                    {...field}
-                  >
-                    <InputOTPGroup>
-                      {OTP_SLOT_INDEXES.map((index) => (
-                        <InputOTPSlot index={index} key={`otp-${index}`} />
-                      ))}
-                    </InputOTPGroup>
-                  </InputOTP>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button
-            disabled={!form.formState.isValid || isSubmitting}
-            type="submit"
+        <FormField
+          control={form.control}
+          name="code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="sr-only">Verification Code</FormLabel>
+              <FormControl>
+                <InputOTP
+                  autoComplete="one-time-code"
+                  containerClassName="w-full"
+                  maxLength={OTP_LENGTH}
+                  pattern={REGEXP_ONLY_DIGITS}
+                  {...field}
+                >
+                  <InputOTPGroup className="grid w-full grid-cols-6 gap-2">
+                    {OTP_SLOT_INDEXES.map((index) => (
+                      <InputOTPSlot
+                        className="h-[60px] w-full rounded-xl border border-input bg-card font-bold font-display text-[26px] tabular-nums shadow-none first:rounded-xl last:rounded-xl data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-2 data-[active=true]:ring-offset-card"
+                        index={index}
+                        key={`otp-${index}`}
+                      />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button
+          className="w-full rounded-full"
+          disabled={!form.formState.isValid || isSubmitting}
+          size="xl"
+          type="submit"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 aria-hidden="true" className="animate-spin" />
+              Checking your code...
+            </>
+          ) : (
+            "Verify"
+          )}
+        </Button>
+        <p className="text-center text-muted-foreground text-sm">
+          Wrong email?{" "}
+          <Link
+            className="font-semibold text-primary underline-offset-4 hover:underline"
+            href="/sign-up"
           >
-            {isSubmitting ? "Checking your OTP..." : "Submit"}
-          </Button>
-        </CardContent>
+            Change it
+          </Link>
+        </p>
       </form>
     </Form>
   );

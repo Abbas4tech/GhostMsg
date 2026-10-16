@@ -6,8 +6,8 @@ import { SiteLayout } from "./site-layout";
 /** Page stories chain MSW worker start → session → lazy chunk → query; allow realistic load time under parallel runs. */
 const PAGE_LOAD = { timeout: 15_000 };
 
-const SIGN_UP_REGEX = /sign up/i;
-const LOGOUT_REGEX = /logout/i;
+const SIGN_UP_REGEX = /get your link/i;
+const LOGOUT_REGEX = /log out/i;
 
 /** Wires the real next-auth session (via MSW) into the SiteHeader block. */
 const meta = {

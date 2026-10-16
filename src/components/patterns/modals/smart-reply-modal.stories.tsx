@@ -12,9 +12,9 @@ import {
   type SmartReplyModalProps,
 } from "./smart-reply-modal";
 
-const SAVE_REGEX = /save reply/i;
+const SAVE_REGEX = /^save answer$/i;
 const SAVING_REGEX = /saving/i;
-const WITTY_REGEX = /witty roast/i;
+const WITTY_REGEX = /witty/i;
 
 /** Local state keeps the controlled draft + switch interactive (Storybook UI and tests). */
 function StatefulSmartReplyModal(args: SmartReplyModalProps) {
@@ -48,6 +48,7 @@ const meta = {
     onPublishedChange: fn(),
     onReplyTextChange: fn(),
     onSave: fn(),
+    onSaveAndShare: fn(),
   },
   argTypes: {
     isOpen: { control: "boolean", description: "Dialog visibility" },
@@ -70,7 +71,8 @@ const meta = {
     },
     onReplyTextChange: { description: "Draft changed → text" },
     onPublishedChange: { description: "Publish switch toggled → boolean" },
-    onSave: { description: "Save Reply clicked" },
+    onSave: { description: "Save answer clicked" },
+    onSaveAndShare: { description: "Answer + Story Card clicked" },
     onClose: { description: "Cancel / Escape / overlay" },
   },
   render: (args) => <StatefulSmartReplyModal {...args} />,
@@ -82,22 +84,23 @@ type Story = StoryObj<typeof meta>;
 export const NewReply: Story = {
   play: async ({ args, userEvent }) => {
     await expect(
-      await screen.findByRole("dialog", { name: "Reply & Public Q&A" })
+      await screen.findByRole("dialog", { name: "Answer this message" })
     ).toBeVisible();
-    await expect(screen.getByText(`“${sweetMessage.content}”`)).toBeVisible();
+    await expect(screen.getByText(sweetMessage.content)).toBeVisible();
     await expect(
       screen.getByRole("button", { name: SAVE_REGEX })
     ).toBeDisabled();
 
-    await userEvent.type(
-      screen.getByPlaceholderText("Type your reply here..."),
-      "Thank you!"
-    );
+    await userEvent.type(screen.getByLabelText("Your answer"), "Thank you!");
     await expect(args.onReplyTextChange).toHaveBeenLastCalledWith("Thank you!");
     await expect(screen.getByText(`10 / ${REPLY_MAX_LENGTH}`)).toBeVisible();
 
     await userEvent.click(screen.getByRole("button", { name: SAVE_REGEX }));
     await expect(args.onSave).toHaveBeenCalledOnce();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Answer + Story Card" })
+    );
+    await expect(args.onSaveAndShare).toHaveBeenCalledOnce();
   },
 };
 
@@ -114,7 +117,7 @@ export const TogglesPublish: Story = {
   play: async ({ args, userEvent }) => {
     await userEvent.click(
       await screen.findByRole("switch", {
-        name: "Publish to Public Profile Showcase",
+        name: "Show in my Public Q&A",
       })
     );
     await expect(args.onPublishedChange).toHaveBeenCalledWith(false);
@@ -126,7 +129,7 @@ export const EditingExistingReply: Story = { args: editingSmartReplyModalArgs };
 export const Generating: Story = {
   args: { isGenerating: true },
   play: async () => {
-    await expect(await screen.findByText("Thinking...")).toBeVisible();
+    await expect(await screen.findByText("Thinking…")).toBeVisible();
     await expect(
       screen.getByRole("button", { name: WITTY_REGEX })
     ).toBeDisabled();

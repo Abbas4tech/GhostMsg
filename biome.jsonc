@@ -10,7 +10,6 @@
       "!**/node_modules",
       "!**/.next",
       "!**/public",
-      "!**/src/types/api.ts",
       "src/**",
       ".storybook/**",
       "emails/**",
@@ -55,12 +54,33 @@
     {
       "includes": [
         "src/components/elements/carousel/**",
-        "src/components/elements/input-otp/**"
+        "src/components/elements/input-otp/**",
+        "src/components/elements/breadcrumb/**",
+        "src/components/elements/field/**",
+        "src/components/elements/input-group/**",
+        "src/components/elements/item/**"
       ],
       "linter": {
         "rules": {
           "a11y": {
             "useSemanticElements": "off"
+          }
+        }
+      }
+    },
+    {
+      // Upstream shadcn: the current-page crumb is a non-focusable role="link"
+      // and the InputGroupAddon click only forwards focus to its input.
+      "includes": [
+        "src/components/elements/breadcrumb/**",
+        "src/components/elements/input-group/**"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useFocusableInteractive": "off",
+            "useKeyWithClickEvents": "off",
+            "noNoninteractiveElementInteractions": "off"
           }
         }
       }
@@ -80,7 +100,7 @@
       }
     },
     {
-      "includes": ["src/lib/openapi-zod.ts"],
+      "includes": ["src/schemas/zod.ts"],
       "linter": {
         "rules": {
           "style": {
@@ -110,14 +130,16 @@
                   {
                     "group": [
                       "@tanstack/react-query",
-                      "@/hooks/mutations/**",
-                      "@/queries/**",
                       "next-auth/react",
                       "next/navigation",
-                      "@/lib/push-notification-adapter",
-                      "@/hooks/use-live-messages"
+                      "@/data",
+                      "@/data/**"
                     ],
-                    "message": "Business logic (queries, mutations, session, router, browser adapters) belongs in @/components/pages controllers only (ADR 0015)."
+                    "message": "Business logic (queries, mutations, session, router, browser adapters in @/data) belongs in @/components/pages controllers only (ADR 0015, ADR 0018)."
+                  },
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
                   },
                   {
                     "group": [
@@ -158,14 +180,16 @@
                   {
                     "group": [
                       "@tanstack/react-query",
-                      "@/hooks/mutations/**",
-                      "@/queries/**",
                       "next-auth/react",
                       "next/navigation",
-                      "@/lib/push-notification-adapter",
-                      "@/hooks/use-live-messages"
+                      "@/data",
+                      "@/data/**"
                     ],
-                    "message": "Business logic (queries, mutations, session, router, browser adapters) belongs in @/components/pages controllers only (ADR 0015)."
+                    "message": "Business logic (queries, mutations, session, router, browser adapters in @/data) belongs in @/components/pages controllers only (ADR 0015, ADR 0018)."
+                  },
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
                   },
                   {
                     "group": [
@@ -204,18 +228,94 @@
                   {
                     "group": [
                       "@tanstack/react-query",
-                      "@/hooks/mutations/**",
-                      "@/queries/**",
                       "next-auth/react",
                       "next/navigation",
-                      "@/lib/push-notification-adapter",
-                      "@/hooks/use-live-messages"
+                      "@/data",
+                      "@/data/**"
                     ],
-                    "message": "Business logic (queries, mutations, session, router, browser adapters) belongs in @/components/pages controllers only (ADR 0015)."
+                    "message": "Business logic (queries, mutations, session, router, browser adapters in @/data) belongs in @/components/pages controllers only (ADR 0015, ADR 0018)."
+                  },
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
                   },
                   {
                     "group": ["@/components/pages", "@/components/pages/**"],
                     "message": "Blocks are Tier 3: they may not import pages (ADR 0015)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/components/pages/**",
+        "src/data/**",
+        "src/hooks/**",
+        "src/providers/**",
+        "src/content/**",
+        "src/mock/**",
+        "src/types/**",
+        ".storybook/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@/components/animate-ui",
+                      "@/components/animate-ui/**",
+                      "@/components/ui",
+                      "@/components/ui/**"
+                    ],
+                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+                  },
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lib/**", "!src/lib/**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
+                  },
+                  {
+                    "group": [
+                      "react",
+                      "react-dom",
+                      "next",
+                      "next/**",
+                      "next-auth",
+                      "next-auth/**",
+                      "@tanstack/**",
+                      "@/data",
+                      "@/data/**",
+                      "@/components",
+                      "@/components/**"
+                    ],
+                    "message": "src/lib is framework-free, side-effect-light helpers (ADR 0018). React hooks go in @/hooks, API access in @/data, components in @/components."
                   }
                 ]
               }

@@ -1,56 +1,22 @@
 import type { NextRequest } from "next/server";
-import dbConnect from "@/lib/db-connect";
-import MessageModel from "@/model/message.model";
-import UserModel from "@/model/user.model";
+import { getPublicProfile } from "@/server/users/public-profile";
 
+/** Public profile + published Q&A for `/u/[username]` (no auth). */
 export async function GET(
   _request: NextRequest,
   props: { params: Promise<{ username: string }> }
 ): Promise<Response> {
-  const params = await props.params;
-  const username = params.username;
-
-  await dbConnect();
+  const { username } = await props.params;
 
   try {
-    const user = await UserModel.findOne({ username });
-    if (!user) {
+    const profile = await getPublicProfile(username);
+    if (!profile) {
       return Response.json(
         { success: false, message: "User not found" },
         { status: 404 }
       );
     }
-
-    const answers = await MessageModel.find({
-      recipientId: user._id,
-      "reply.isPublished": true,
-    })
-      .sort({ "reply.publishedAt": -1, createdAt: -1 })
-      .limit(50)
-      .lean();
-
-    const formattedAnswers = answers.map((item) => ({
-      _id: String(item._id),
-      content: item.content,
-      sentimentTag: item.sentimentTag || "neutral",
-      reply: {
-        text: item.reply?.text || "",
-        publishedAt: item.reply?.publishedAt
-          ? new Date(item.reply.publishedAt).toISOString()
-          : undefined,
-      },
-      createdAt: new Date(item.createdAt).toISOString(),
-    }));
-
-    return Response.json(
-      {
-        success: true,
-        username: user.username,
-        amaPrompt: user.amaPrompt || "Send me an anonymous message!",
-        answers: formattedAnswers,
-      },
-      { status: 200 }
-    );
+    return Response.json(profile, { status: 200 });
   } catch (error) {
     console.error("Failed to fetch public answers:", error);
     return Response.json(
