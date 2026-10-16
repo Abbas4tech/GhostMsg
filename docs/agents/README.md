@@ -10,6 +10,7 @@ Start here when you are an AI agent working in GhostMsg. Each guide covers one k
 | [api-patterns.md](api-patterns.md) | Add, change or call an API endpoint. |
 | [../20-state-management.md](../20-state-management.md) | Add a query, mutation, controller `useState`, URL or device state, or touch the inbox data flow. |
 | [feature-recipes.md](feature-recipes.md) | Build a common change end-to-end (new setting, endpoint, screen section, variant, shadcn install, policy change). |
+| [../../terraform/README.md](../../terraform/README.md) | Change the Vercel project, sync an environment variable to Production/Preview, or touch the MongoDB Atlas cluster/database users. |
 | [documentation-maintenance.md](documentation-maintenance.md) | Finish any change: which docs, screenshots and indexes to update. |
 | [domain.md](domain.md) | Explore the codebase (read `GLOSSARY.md` and relevant ADRs first). |
 | [issue-tracker.md](issue-tracker.md) · [triage-labels.md](triage-labels.md) | Work with GitHub issues. |
