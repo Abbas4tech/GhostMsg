@@ -103,7 +103,7 @@ export function Foo({ className, variant, size, ...props }: FooProps) {
 
 - **Pure, domain-aware compositions of elements.**
 - **Data in, intent out.** `message`, `value`, `suggestions`… come in. `onOpenReply`, `onSubmit`, `onSelect`… go out.
-- **Forms receive the RHF instance** (`form: UseFormReturn<Values>`) from a page controller. The pattern renders fields and calls `form.handleSubmit(onSubmit)`. It never calls `useForm` with a resolver, and never submits to an API.
+- **Forms receive the RHF instance** (`form: UseFormReturn<Values>`) from a page controller ([ADR 0033](../adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md)). The pattern renders fields exclusively using shadcn `<Form>` compound primitives (`Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage`), renders `<form noValidate onSubmit={form.handleSubmit(onSubmit)}>`, and never calls `useForm` with a resolver or submits to an API directly.
 - **Dialogs are patterns, but they are never mounted inside list items.** The page mounts a single hoisted instance (section 5.2).
 - **Value types** come from schemas via type-only imports (`import type { signInSchema } from "@/schemas/sign-in-schema"`), or as a small local interface (`PublicQaItem`).
 

@@ -250,6 +250,7 @@ Explore the numbered engineering chapters in [`docs/`](docs/README.md):
 - [`0030-server-side-inbox-filtering-paging-and-counts.md`](docs/adr/0030-server-side-inbox-filtering-paging-and-counts.md): Server-side inbox filters, keyset paging, counts endpoint, mark-read, per-device push.
 - [`0031-state-management-consistency-and-structure.md`](docs/adr/0031-state-management-consistency-and-structure.md): Optimistic-resource factory, live cache inserts, URL view state, inbox split, Profile on react-hook-form + leave guard, server session and public profile.
 - [`0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md`](docs/adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md): Terraform (HCP Terraform state) manages the Vercel project, per-environment env vars and the Atlas cluster; cron stays in `vercel.json`.
+- [`0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md`](docs/adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md): Standardized form architecture: shadcn Form compound primitives, RHF in controllers, noValidate, pure patterns.
 
 ---
 

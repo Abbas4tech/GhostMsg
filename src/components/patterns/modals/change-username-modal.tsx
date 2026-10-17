@@ -77,7 +77,11 @@ export function ChangeUsernameModal({
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent className="sm:max-w-md">
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        <form
+          className="flex flex-col gap-4"
+          noValidate
+          onSubmit={handleSubmit}
+        >
           <DialogHeader>
             <DialogTitle>Change your username</DialogTitle>
             <DialogDescription>
