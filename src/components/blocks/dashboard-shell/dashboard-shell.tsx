@@ -130,6 +130,10 @@ function AcceptanceField({
   onToggle,
 }: DashboardAcceptance): React.JSX.Element {
   const id = useId();
+  const handleToggle = useCallback(() => {
+    onToggle();
+  }, [onToggle]);
+
   return (
     <Field className="px-1.5" orientation="horizontal">
       <FieldContent>
@@ -151,7 +155,7 @@ function AcceptanceField({
         checked={isAccepting}
         disabled={isPending}
         id={id}
-        onCheckedChange={onToggle}
+        onCheckedChange={handleToggle}
         size="xl"
       />
     </Field>
