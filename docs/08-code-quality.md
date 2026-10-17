@@ -68,7 +68,6 @@ GhostMsg enforces a **zero-inline-suppression policy** and strict linter rules f
 | `files.includes` | `src/**`, `.storybook/**`, `emails/**`, `scripts/**`, `docs/**`, root configs | Lint and format targets (`public/`, `.next/` excluded) |
 | `performance.noBarrelFile: off` | global | Module `index.ts` public APIs are allowed. Tier-level barrels are intentionally absent. |
 | `suspicious.noArrayIndexKey: error` | global | Stable React keys |
-| `style.noRestrictedImports` | global | Bans `@/components/ui/**` and `@/components/animate-ui/**` |
 | `style.noRestrictedImports` | `elements/**`, `patterns/**`, `blocks/**` | Tier DAG + bans data/logic modules (`@tanstack/react-query`, `@/data/**`, `next-auth/react`, `next/navigation`) + bans `@/server/**` |
 | `style.noRestrictedImports` | `pages/**`, `src/data/**`, `src/hooks/**`, `src/providers/**`, `src/content/**`, `src/mock/**`, `src/types/**`, `.storybook/**` | Bans `@/server/**` and `server-only` (ADR 0018) |
 | `style.noRestrictedImports` | `src/lib/**` (not tests) | Bans `react`, `next/**`, `next-auth/**`, `@tanstack/**`, `@/data/**`, `@/components/**`, `@/server/**` (ADR 0018) |
