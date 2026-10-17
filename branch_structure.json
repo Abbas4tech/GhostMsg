@@ -1,0 +1,39 @@
+{
+  "default_branch": "master",
+  "branches": [
+    "bugs/prod/fix-login-form-email-username-validations",
+    "develop",
+    "feat/as/component-restructure-and-documentations",
+    "feat/as/source-structure-and-utilities",
+    "feat/as/standardized-api-react-query",
+    "feat/openapi-push-mailer-refactoring",
+    "fix/dashboard-switch-and-radix-types",
+    "master",
+    "redesign/mobile-design-alignment",
+    "ref/as/code-optimisation"
+  ],
+  "parent": {
+    "bugs/prod/fix-login-form-email-username-validations": "master",
+    "develop": "master",
+    "feat/as/component-restructure-and-documentations": "master",
+    "feat/as/source-structure-and-utilities": "master",
+    "feat/as/standardized-api-react-query": "master",
+    "feat/openapi-push-mailer-refactoring": "master",
+    "fix/dashboard-switch-and-radix-types": "master",
+    "master": null,
+    "redesign/mobile-design-alignment": "master",
+    "ref/as/code-optimisation": "master"
+  },
+  "order": [
+    "master",
+    "bugs/prod/fix-login-form-email-username-validations",
+    "develop",
+    "feat/as/component-restructure-and-documentations",
+    "feat/as/source-structure-and-utilities",
+    "feat/as/standardized-api-react-query",
+    "feat/openapi-push-mailer-refactoring",
+    "fix/dashboard-switch-and-radix-types",
+    "redesign/mobile-design-alignment",
+    "ref/as/code-optimisation"
+  ]
+}
