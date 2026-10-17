@@ -53,10 +53,10 @@ src/
 - **Blocks** may import patterns and elements. They may not import pages or any data/logic module.
 - **Patterns** may import elements and other patterns. They may not import blocks, pages or any data/logic module.
 - **Elements** may import other elements only (plus external primitives like Radix and Motion).
-- Nothing may import `@/components/ui` or `@/components/animate-ui`. Those folders no longer exist.
+- Vendor components live in `@/components/elements/` (there are no separate `ui/` or `animate-ui/` directories).
 - No component, data, hook, provider, mock or Storybook file may import `@/server/**` or `server-only` ([ADR 0018](adr/0018-source-structure-server-data-lib-utils-controllers-tests.md)).
 
-Biome's `noRestrictedImports` overrides in [`biome.jsonc`](../biome.jsonc) enforce these rules, so `pnpm check` fails on a violation.
+Biome's `noRestrictedImports` overrides in [`biome.jsonc`](../biome.jsonc) enforce the tier DAG and data/server boundaries, so `pnpm check` fails on a violation.
 
 ### Controller composition (pages tier)
 
@@ -106,7 +106,7 @@ flowchart LR
 `components.json` maps the `ui` alias to `@/components/elements`. After `npx shadcn add @animate-ui/<name>`:
 1. Move the styled file to `elements/<name>/<name>.tsx` and its primitive to `elements/<name>/<name>.primitive.tsx`. Shared effects go in `elements/effects/`.
 2. Fix imports, then add `index.ts` and `<name>.stories.tsx`, plus a test if the element is interactive.
-3. Delete the leftover `src/components/animate-ui/` folder. Lint fails until you do.
+3. Delete the leftover `src/components/animate-ui/` folder so vendor primitives stay consolidated in `elements/`.
 
 **shadcn first** ([ADR 0023](adr/0023-shadcn-first-elements-and-profile-settings-backend.md)): screens are composed from shadcn components (`Sidebar`, `ToggleGroup`, `Field`, `Empty`, `Item`, `Command`, `Table`, `Select`, …). Claude Design looks are opt-in CVA variants inside the element (`Badge variant="count"`, `ToggleGroup variant="segment"`, `InputGroup shape="pill"`), and `className` only handles layout.
 
