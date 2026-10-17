@@ -166,3 +166,20 @@ Writing chapters 12–18 against the code surfaced four places where behaviour b
 Also added: controller tests for `use-dashboard-shell` and `use-profile-link`, and graded-moderation parsing tests with the AI SDK mocked. The final documentation audit added tests for code the docs already described but nothing exercised: the inbox URL/selection/dialog helpers (`inbox.utils.test.ts`) and **Export all** (`fetch-all-messages.test.ts`, `use-settings.controller.test.ts`), and corrected the OpenAPI descriptions of the reply, AMA Prompt, profile, push-unsubscribe and public-answers operations.
 
 **Still deliberate (not bugs):** no "Unblock all" button (design), the in-memory rate limiter and live-event bus (need shared infrastructure and a privacy decision before moving off-process), avatars stored in MongoDB ([Chapter 12 §6](12-product-guide-and-features.md#6-known-gaps-and-non-goals)).
+
+## 9. Post-redesign: infrastructure as code ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md))
+
+After the redesign the Vercel project, per-environment environment variables and the MongoDB Atlas cluster were adopted into Terraform (`terraform/`). This separates infrastructure concerns from the app codebase: no more manual dashboard edits that drift out of sync.
+
+| What changed | Detail |
+| :--- | :--- |
+| Vercel project settings | `vercel_project.ghostmsg` (imported, not re-created) |
+| All Production + Preview env vars | One `vercel_project_environment_variable.app` per `NAME::environment` key; `MONGODB_URI` built from Atlas resources |
+| MongoDB Atlas project and cluster | "Project 0" and "Abbas-Shaikh" adopted via `terraform import`; MongoDB 8.0 on M0 free, `AP_SOUTH_1` |
+| Two isolated databases | `honest_feedback` (production user) and `honest_feedback_preview` (preview user) — RBAC-enforced isolation |
+| HCP Terraform state | Org `PersonalAbbasSpace`, workspace `ghostmsg`, CLI-driven (not VCS-driven) |
+
+**Nothing in the app code changed.** All changes are under `terraform/`. The cron in `vercel.json` stays out of Terraform (no provider resource for it).
+
+Full reference: [Chapter 21: Infrastructure & Terraform](21-infrastructure-and-terraform.md).
+

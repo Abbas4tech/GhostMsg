@@ -28,10 +28,14 @@ Every parameter, query string, payload, and response is defined with Zod v4 and 
 export const signUpSchema = z
   .object({
     username: usernameValidation,
-    email: z.email({ message: "Invalid email address" }).openapi({
-      description: "User's email address",
-      example: "johndoe@example.com",
-    }),
+    email: z
+      .string()
+      .trim()
+      .email("Invalid email address")
+      .openapi({
+        description: "User's email address",
+        example: "johndoe@example.com",
+      }),
     password: z
       .string()
       .trim()

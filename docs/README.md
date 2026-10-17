@@ -32,8 +32,10 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 | **18** | [**Notifications & Real-Time Delivery**](18-notifications-and-realtime.md) | SSE live feed, instant email and the daily digest, Web Push, quiet hours, hidden previews, scaling limits. |
 | **19** | [**Redesign Change Summary**](19-redesign-change-summary.md) | What the October 2026 redesign changed: features, UI, API, database, code, quality gates. |
 | **20** | [**State Management**](20-state-management.md) | Where each kind of state lives, the rules for new state, inbox data flow, and the completed state-management review. |
+| **21** | [**Infrastructure & Terraform**](21-infrastructure-and-terraform.md) | Terraform-managed Vercel project and MongoDB Atlas cluster, two-database isolation, HCP state backend, env var management, and known limitations. |
 
 ---
+
 
 ## 🏛️ Architectural Decision Records (ADRs)
 
