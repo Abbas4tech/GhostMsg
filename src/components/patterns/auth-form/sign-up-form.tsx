@@ -31,7 +31,6 @@ export type SignUpValues = z.infer<typeof signUpSchema>;
 export interface SignUpFormProps {
   form: UseFormReturn<SignUpValues>;
   isSubmitting?: boolean;
-  /** Host + path the username is appended to, e.g. "ghostmsg.app/u/". */
   linkPrefix?: string;
   onGoogleSignIn: () => void;
   onSubmit: (values: SignUpValues) => void | Promise<void>;
@@ -77,6 +76,7 @@ export function SignUpForm({
       <form
         className="flex flex-col gap-4"
         data-slot="sign-up-form"
+        noValidate
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <AuthOAuthHeader onGoogleSignIn={onGoogleSignIn} />

@@ -45,7 +45,7 @@ flowchart TB
 | **Session** | NextAuth JWT | Identity (`_id`, `username`, `isVerified`) | App settings (they go stale in the token) |
 | **URL** | Route `searchParams` in, `window.history.replaceState` out | Shareable view state (`?filter=`, `?q=`; `?username=` to prefill sign-up) | Secrets, large state |
 | **Controller UI state** | `useState` in `pages/**/use-*.controller.ts` | Ephemeral UI: open dialog (by message id), scoped selection, focus, the Smart Reply draft | Data that exists on the server |
-| **Forms** | react-hook-form in controllers | Validated user input; the Profile draft (`values` from the server, `keepDirtyValues`) | Mirroring server results into errors via effects |
+| **Forms** | react-hook-form in controllers ([ADR 0033](adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md)) | Validated user input (paired exclusively with shadcn `<Form>` compound primitives in patterns); the Profile draft (`values` from the server, `keepDirtyValues`) | Mirroring server results into errors via effects |
 | **Device** | `localStorage`, `next-themes`, browser APIs | Per-device preferences (palette, mode, inbox layout) and capabilities (push subscription) | Account settings |
 | **Server process** | `src/server/security`, `src/server/realtime` | Rate limiting, live events | Anything that must survive a restart (see [Chapter 9 §4](09-deployment-and-operations.md#4-process-local-state-scaling-note)) |
 

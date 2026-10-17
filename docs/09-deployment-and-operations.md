@@ -2,7 +2,7 @@
 
 This chapter covers deployment architecture on Vercel, MongoDB Atlas production clustering, SMTP email provider setup, and operational monitoring.
 
-The Vercel project's settings and environment variables, and the Atlas project/cluster/database users, are managed as code in [`terraform/`](../terraform/) ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)) rather than by hand in each dashboard. Start at [`terraform/README.md`](../terraform/README.md) for setup and day-to-day commands; the sections below describe what that config produces, not a dashboard-first workflow.
+The Vercel project's settings and environment variables, and the Atlas project/cluster/database users, are managed as code in [`terraform/`](../terraform/) ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)) rather than by hand in each dashboard. Start at [`terraform/README.md`](../terraform/README.md) for setup and day-to-day commands; [Chapter 21](21-infrastructure-and-terraform.md) has the full architecture. The sections below describe what that config produces, not a dashboard-first workflow.
 
 ```mermaid
 flowchart TB

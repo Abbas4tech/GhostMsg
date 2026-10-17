@@ -101,14 +101,14 @@ describe("inbox counts", () => {
       { $group: Record<string, unknown> },
     ];
     expect(match).toEqual({ $match: { recipientId: RECIPIENT } });
-    expect(Object.keys(group.$group)).toEqual([
+    expect(Object.keys(group.$group).sort()).toEqual([
       "_id",
-      "total",
       "all",
-      "unread",
-      "starred",
-      "quarantined",
       "answered",
+      "quarantined",
+      "starred",
+      "total",
+      "unread",
     ]);
   });
 

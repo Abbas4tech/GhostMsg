@@ -74,6 +74,7 @@ export function VerifyCodeForm({
       <form
         className="flex w-full flex-col gap-[18px]"
         data-slot="verify-code-form"
+        noValidate
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField

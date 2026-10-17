@@ -15,7 +15,7 @@ export function useVerifyController(username: string) {
 
   const form = useForm<VerifyCodeValues>({
     defaultValues: { code: "" },
-    mode: "onSubmit",
+    mode: "onChange",
     resolver: zodResolver(verifySchema),
   });
 

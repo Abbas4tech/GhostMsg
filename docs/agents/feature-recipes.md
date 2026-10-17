@@ -103,3 +103,18 @@ Example: a "Published" chip that lists answers visible on the Public Profile Lin
 7. **Docs:** Chapter 12 inbox table, Chapter 16 `get-messages`/counts, GLOSSARY if the name is new.
 
 **Done when** `inbox-filter.test.ts`, `inbox-query.test.ts`, `use-inbox-data.controller.test.ts` and the `Blocks/Inbox` + `Pages/Dashboard` stories pass.
+
+## Recipe J: Add or change a Production/Preview environment variable
+
+Example: adding `SOME_NEW_SECRET` used by a new server module.
+
+1. **Code:** add `process.env.SOME_NEW_SECRET` in `src/server/<capability>/<name>.ts` with a sensible default for when it is absent (fail open if possible, or log a warning).
+2. **Env example:** add a commented entry to [`.env.example`](../../.env.example) with purpose, default and what breaks without it. Optional values stay commented; required values are uncommented.
+3. **Getting started:** add a row to the variable table in [Chapter 2 §2.1](../02-getting-started.md#21-every-variable-the-code-reads).
+4. **Terraform (Production/Preview):** add the key to `app_env_vars` in `terraform/terraform.tfvars` with separate `production` and `preview` values as needed. Update `terraform/terraform.tfvars.example` with placeholder values.
+5. **Plan and apply:** `cd terraform && terraform plan` (read carefully) → `terraform apply`.
+6. **Production checklist:** add a row to [Chapter 9 §2](../09-deployment-and-operations.md#2-production-environment-variables-checklist).
+7. **Tests:** use `vi.stubEnv("SOME_NEW_SECRET", value)` in tests that exercise the key; `vi.unstubAllEnvs()` in `afterEach`.
+
+**Done when** the Vercel dashboard shows the variable in Production and Preview, `terraform plan` is clean (no changes), and all tests pass without a real `.env.local`.
+

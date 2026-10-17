@@ -69,6 +69,7 @@ export function SignInForm({
       <form
         className="flex flex-col gap-4"
         data-slot="sign-in-form"
+        noValidate
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <AuthOAuthHeader onGoogleSignIn={onGoogleSignIn} />
