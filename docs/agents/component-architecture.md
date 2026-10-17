@@ -103,7 +103,7 @@ export function Foo({ className, variant, size, ...props }: FooProps) {
 
 - **Pure, domain-aware compositions of elements.**
 - **Data in, intent out.** `message`, `value`, `suggestions`… come in. `onOpenReply`, `onSubmit`, `onSelect`… go out.
-- **Forms receive the RHF instance** (`form: UseFormReturn<Values>`) from a page controller. The pattern renders fields and calls `form.handleSubmit(onSubmit)`. It never calls `useForm` with a resolver, and never submits to an API.
+- **Forms receive the RHF instance** (`form: UseFormReturn<Values>`) from a page controller ([ADR 0033](../adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md)). The pattern renders fields exclusively using shadcn `<Form>` compound primitives (`Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage`), renders `<form noValidate onSubmit={form.handleSubmit(onSubmit)}>`, and never calls `useForm` with a resolver or submits to an API directly.
 - **Dialogs are patterns, but they are never mounted inside list items.** The page mounts a single hoisted instance (section 5.2).
 - **Value types** come from schemas via type-only imports (`import type { signInSchema } from "@/schemas/sign-in-schema"`), or as a small local interface (`PublicQaItem`).
 
@@ -299,7 +299,6 @@ Browser APIs that talk to the API go behind a hook in `src/data/<domain>/` (e.g.
 | "Server-only code (@/server/**) is imported only by src/app/**" | A component, data, hook, provider, mock, type or Storybook file imports `@/server/**` or `server-only` | Call the API through `@/data`. For a type, use the OpenAPI DTO from `@/types/api`. |
 | "src/lib is framework-free" | `src/lib/**` imports React, Next, NextAuth, TanStack, `@/data` or `@/components` | Move a hook to `@/hooks` (generic) or `@/data/<domain>` (API). Keep only the pure part in `src/lib`. |
 | "Elements are Tier 1…" / "Patterns are Tier 2…" / "Blocks are Tier 3…" | Upward import | Invert it: pass the higher-tier piece in as a prop or slot, or move the component up a tier. |
-| "animate-ui and shadcn ui live in @/components/elements now" | Import from a deleted vendor path | Import from `@/components/elements/<name>`. If a registry install just created the folder, see section 7.4. |
 
 Other overrides: a11y relaxations apply only to `elements/effects/**`, `elements/**/*.primitive.tsx`, `elements/carousel/**` and `elements/input-otp/**`. Fix new a11y findings in our own code rather than widening these.
 

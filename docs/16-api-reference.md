@@ -63,6 +63,9 @@ Body `{ username, email, password (≥6) }`. Creates or refreshes an unverified 
 ### `POST /api/verify-code`
 Body `{ username, code }` (6 digits). **200** when correct and unexpired (`isVerified = true`); **400** incorrect or expired; **404** unknown user.
 
+### `POST /api/auth/callback/credentials`
+Credentials sign-in via NextAuth. Client validates inputs via `signInSchema` (`identifier` validated as a valid email address if `@` is present, or a minimum 2-character username, and `password ≥ 6`). Server resolves `identifier` against either `email` or `username` on registered users.
+
 ## 4. Anonymous messaging
 
 ### `POST /api/send-message`

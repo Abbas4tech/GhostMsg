@@ -8,6 +8,8 @@ The MongoDB data model: collections, every field with its type, default and vali
 
 Two collections. A **User** is a Recipient with embedded settings; a **Message** is one Anonymous Message pointing at its Recipient. There is no Sender collection: senders exist only as a `senderHash` string.
 
+In cloud environments, Terraform manages database users and network access on a MongoDB Atlas M0 cluster ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md), [Chapter 21](21-infrastructure-and-terraform.md)), scoping production to the `honest_feedback` database and preview deployments to an isolated `honest_feedback_preview` database.
+
 ```mermaid
 erDiagram
     USER ||--o{ MESSAGE : "receives (recipientId)"

@@ -28,6 +28,7 @@ Start here when you are an AI agent working in GhostMsg. Each guide covers one k
 | When do alerts fire? | [18 Notifications & Real-Time](../18-notifications-and-realtime.md) |
 | What changed in the redesign? | [19 Change Summary](../19-redesign-change-summary.md) |
 | Where does state live, and which state rules apply (server paging, optimistic factory, URL/device state)? | [20 State Management](../20-state-management.md) |
+| How is Vercel and MongoDB Atlas infrastructure managed, and how do env vars flow to Production/Preview? | [21 Infrastructure & Terraform](../21-infrastructure-and-terraform.md) and [`terraform/README.md`](../../terraform/README.md) |
 | Which modules, stories, mocks and scenarios exist? | [11 Component Registry](../11-component-registry.md) (generated) |
 
 ## Gates before you hand off

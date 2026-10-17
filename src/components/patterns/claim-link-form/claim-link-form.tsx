@@ -47,6 +47,7 @@ export function ClaimLinkForm({
       aria-label="Claim your link"
       className={cn("flex w-full max-w-[520px] flex-col gap-3", className)}
       data-slot="claim-link-form"
+      noValidate
       onSubmit={handleSubmit}
     >
       <label className="font-semibold text-sm" htmlFor={inputId}>

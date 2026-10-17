@@ -6,7 +6,7 @@ This chapter details the high-level system architecture, data models, authentica
 
 ## 1. High-Level Architecture Overview
 
-GhostMsg is built on the **Next.js 15 App Router** using React 19, Tailwind CSS v4, MongoDB (Mongoose), NextAuth.js v4, and Google AI Studio.
+GhostMsg is built on the **Next.js 15 App Router** using React 19, Tailwind CSS v4, MongoDB (Mongoose), NextAuth.js v4, and Google AI Studio. The Vercel project settings, environment variables, and MongoDB Atlas cluster are managed as code in [`terraform/`](../terraform/) ([Chapter 21](21-infrastructure-and-terraform.md), [ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)).
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐

@@ -91,6 +91,7 @@ export function SendMessageForm({
         aria-label="Send an Anonymous Message"
         className="flex w-full flex-col gap-3"
         data-slot="send-message-form"
+        noValidate
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField

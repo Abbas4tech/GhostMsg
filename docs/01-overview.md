@@ -91,6 +91,7 @@ mindmap
       OpenAPI 3.1 + Scalar + typegen
       Four-tier components, Storybook story tests, MSW
       Generated registry and screenshots
+      Terraform IaC for Vercel and MongoDB Atlas
 ```
 
 ---
