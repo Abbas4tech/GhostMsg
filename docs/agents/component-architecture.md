@@ -299,7 +299,6 @@ Browser APIs that talk to the API go behind a hook in `src/data/<domain>/` (e.g.
 | "Server-only code (@/server/**) is imported only by src/app/**" | A component, data, hook, provider, mock, type or Storybook file imports `@/server/**` or `server-only` | Call the API through `@/data`. For a type, use the OpenAPI DTO from `@/types/api`. |
 | "src/lib is framework-free" | `src/lib/**` imports React, Next, NextAuth, TanStack, `@/data` or `@/components` | Move a hook to `@/hooks` (generic) or `@/data/<domain>` (API). Keep only the pure part in `src/lib`. |
 | "Elements are Tier 1…" / "Patterns are Tier 2…" / "Blocks are Tier 3…" | Upward import | Invert it: pass the higher-tier piece in as a prop or slot, or move the component up a tier. |
-| "animate-ui and shadcn ui live in @/components/elements now" | Import from a deleted vendor path | Import from `@/components/elements/<name>`. If a registry install just created the folder, see section 7.4. |
 
 Other overrides: a11y relaxations apply only to `elements/effects/**`, `elements/**/*.primitive.tsx`, `elements/carousel/**` and `elements/input-otp/**`. Fix new a11y findings in our own code rather than widening these.
 
