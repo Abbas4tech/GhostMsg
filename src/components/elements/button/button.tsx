@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Stock shadcn (new-york v4) Button. GhostMsg additions are opt-in only:
- * `primary`, `accent`, `glass`, `brand` variants and the 48px `xl` size.
+ * `primary`, `accent`, `glass`, `brand`, `dashed` variants and the 48px `xl` size.
  * `destructive` uses `text-destructive-foreground` (AA in every palette, ADR 0022).
  */
 const buttonVariants = cva(
@@ -34,6 +34,9 @@ const buttonVariants = cva(
         /** Hero CTAs and "Send anonymously": the palette's brand gradient. */
         brand:
           "bg-brand-gradient text-brand-foreground shadow-lift hover:brightness-110",
+        /** Suggested Message / Smart Reply ideas: low-commitment, pill-shaped. */
+        dashed:
+          "rounded-full border border-input border-dashed bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground",
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",

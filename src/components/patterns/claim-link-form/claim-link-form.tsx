@@ -55,13 +55,13 @@ export function ClaimLinkForm({
       </label>
       <div className="flex flex-wrap gap-2.5">
         <div className="flex min-h-12 flex-[1_1_260px] items-center rounded-full border border-input bg-card px-[18px] focus-within:outline-2 focus-within:outline-ring focus-within:outline-offset-2">
-          <span className="shrink-0 text-base text-muted-foreground">
+          <span className="shrink-0 text-body text-muted-foreground">
             {linkPrefix}
           </span>
           <input
             autoCapitalize="none"
             autoComplete="username"
-            className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground/70"
+            className="min-w-0 flex-1 bg-transparent text-body outline-none placeholder:text-muted-foreground/70"
             id={inputId}
             onChange={handleValueChange}
             placeholder="yourname"

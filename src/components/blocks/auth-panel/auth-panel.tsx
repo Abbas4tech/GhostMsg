@@ -28,9 +28,7 @@ export function AuthPanel({
               {icon}
             </span>
           ) : null}
-          <h1 className="font-bold text-[28px] leading-tight tracking-tight">
-            {title}
-          </h1>
+          <h1 className="text-h1">{title}</h1>
           {description ? (
             <p className="text-muted-foreground">{description}</p>
           ) : null}

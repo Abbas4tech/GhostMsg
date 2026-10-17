@@ -38,3 +38,6 @@ export const Default: Story = {
 };
 
 export const Destructive: Story = { args: { variant: "destructive" } };
+export const Success: Story = { args: { variant: "success" } };
+export const Warning: Story = { args: { variant: "warning" } };
+export const Info: Story = { args: { variant: "info" } };

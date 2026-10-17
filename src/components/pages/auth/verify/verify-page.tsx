@@ -15,6 +15,7 @@ export function VerifyPage({ username }: VerifyPageProps): React.JSX.Element {
   return (
     <VerifyPanel username={username}>
       <VerifyCodeForm
+        codeError={verify.codeError}
         form={verify.form}
         isSubmitting={verify.isSubmitting}
         onSubmit={verify.handleSubmit}

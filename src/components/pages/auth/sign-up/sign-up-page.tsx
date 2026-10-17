@@ -16,7 +16,10 @@ export function SignUpPage({
   const signUpForm = useSignUpController({ initialUsername });
 
   return (
-    <AuthPanel title="Make your link">
+    <AuthPanel
+      description="Pick a username. That's your link."
+      title="Make your link"
+    >
       <SignUpForm
         form={signUpForm.form}
         isSubmitting={signUpForm.isSubmitting}

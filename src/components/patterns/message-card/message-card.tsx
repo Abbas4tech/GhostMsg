@@ -256,8 +256,8 @@ function Age({ message, now }: CardModel): React.JSX.Element {
   );
 }
 
-/** Story Card, Block/Unblock and Delete icon buttons (each only when wired). */
-function SecondaryActions({
+/** Story Card, Block/Unblock and Delete, collapsed into one overflow menu. */
+function CardActionsMenu({
   message,
   isSenderBlocked,
   onOpenStoryCard,
@@ -391,7 +391,7 @@ function GridBody(model: CardModel): React.JSX.Element {
         <div className="relative">
           <p
             aria-hidden="true"
-            className="select-none font-message text-base leading-relaxed blur-[7px]"
+            className="select-none text-pretty font-message text-body blur-[7px]"
           >
             This message contains language we think you would rather not read.
           </p>
@@ -402,16 +402,14 @@ function GridBody(model: CardModel): React.JSX.Element {
           </span>
         </div>
       ) : (
-        <p className="text-pretty font-message text-base leading-relaxed">
-          {message.content}
-        </p>
+        <p className="text-pretty font-message text-body">{message.content}</p>
       )}
 
       {isAnswered && !isHidden ? (
         <div className="rounded-xl bg-accent px-3 py-2.5 text-accent-foreground text-sm">
           <b>You:</b> {message.reply?.text}
           {message.reply?.isPublished ? (
-            <span className="ml-2 inline-flex rounded-full bg-background/60 px-2 py-0.5 font-semibold text-[11px]">
+            <span className="ml-2 inline-flex rounded-full bg-background/60 px-2 py-0.5 font-semibold text-xs">
               Public
             </span>
           ) : null}
@@ -421,7 +419,7 @@ function GridBody(model: CardModel): React.JSX.Element {
       <div className="mt-auto flex items-center gap-0.5">
         <PrimaryAction {...model} compact={false} />
         <span className="flex-1" />
-        <SecondaryActions {...model} />
+        <CardActionsMenu {...model} />
       </div>
     </>
   );
@@ -435,7 +433,7 @@ function ListBody(model: CardModel): React.JSX.Element {
       <span className="hidden sm:contents">
         <CardBadge message={message} />
       </span>
-      <p className="min-w-0 flex-1 truncate font-message text-[15px]">
+      <p className="min-w-0 flex-1 truncate font-message text-body">
         {isHidden ? (
           <span className="text-muted-foreground">
             {CONCEAL_NOTE[model.concealReason ?? "quarantined"]}
@@ -448,14 +446,7 @@ function ListBody(model: CardModel): React.JSX.Element {
       <div className="flex shrink-0 items-center">
         <StarToggle {...model} />
         <PrimaryAction {...model} compact />
-        <span className="hidden sm:contents">
-          <SecondaryActions {...model} onOpenDelete={undefined} />
-        </span>
-        <SecondaryActions
-          {...model}
-          onOpenBlock={undefined}
-          onOpenStoryCard={undefined}
-        />
+        <CardActionsMenu {...model} />
       </div>
     </>
   );

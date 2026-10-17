@@ -83,7 +83,7 @@ function Identity({
         <AvatarFallback variant="brand">{name.charAt(0)}</AvatarFallback>
       </Avatar>
       <div className="min-w-0">
-        <h1 className="truncate font-bold text-2xl tracking-tight">{name}</h1>
+        <h1 className="truncate text-h1">{name}</h1>
         <p className="flex items-center gap-1.5 text-muted-foreground text-sm">
           {isAccepting ? (
             <span
@@ -116,7 +116,7 @@ function SentCard({
       <span className="grid size-10 place-items-center rounded-full bg-success text-success-foreground motion-safe:animate-pulse-ring">
         <Check aria-hidden="true" className="size-5" />
       </span>
-      <p className="font-bold text-lg">
+      <p className="font-display text-h3">
         Sent. {username} will never know it was you.
       </p>
       {onSendAnother ? (
@@ -139,10 +139,10 @@ function PausedState({ username }: { username: string }): React.JSX.Element {
         <span className="grid size-11 place-items-center rounded-[14px] bg-accent text-accent-foreground">
           <Pause aria-hidden="true" className="size-5" />
         </span>
-        <p className="pt-1.5 font-bold font-display text-[22px] leading-tight">
+        <p className="pt-1.5 font-display text-h2">
           {username} is taking a breather.
         </p>
-        <p className="text-[15px] text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           They aren&apos;t accepting new Anonymous Messages right now. The link
           stays here, and you can still read their answers.
         </p>
@@ -171,9 +171,7 @@ function NotFoundState({ username }: { username: string }): React.JSX.Element {
       >
         <Ghost className="size-11" />
       </span>
-      <h1 className="font-bold text-3xl leading-tight tracking-tight">
-        Nobody&apos;s home at this link.
-      </h1>
+      <h1 className="text-h1">Nobody&apos;s home at this link.</h1>
       <p className="max-w-[300px] text-muted-foreground">
         We couldn&apos;t find <b className="text-foreground">/u/{username}</b>.
         It may be mistyped, or the Recipient removed it.

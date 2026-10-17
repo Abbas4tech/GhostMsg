@@ -171,7 +171,7 @@ export function SafetySettings({
       <SettingsDivider />
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
-          <b className="text-[15px]">Blocked senders</b>
+          <b className="text-title">Blocked senders</b>
           <Badge variant="neutral">
             {count} {count === 1 ? "Sender Hash" : "Sender Hashes"}
           </Badge>

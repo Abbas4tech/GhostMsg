@@ -54,8 +54,9 @@ export function useInboxDataController({
 
   const messages = useMemo(
     () =>
-      // biome-ignore lint/suspicious/noUnnecessaryConditions: inboxQuery.data is genuinely undefined before the first load resolves — tsc confirms this optional chain is required.
-      inboxQuery.data?.pages.flatMap((page) => page.messages) ?? NO_MESSAGES,
+      inboxQuery.data
+        ? inboxQuery.data.pages.flatMap((page) => page.messages)
+        : NO_MESSAGES,
     [inboxQuery.data]
   );
   const loadedIds = useMemo(

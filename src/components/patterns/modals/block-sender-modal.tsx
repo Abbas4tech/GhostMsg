@@ -3,16 +3,15 @@
 import { Ban, Loader2, ShieldOff } from "lucide-react";
 import type React from "react";
 import { useCallback, useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/elements/alert-dialog";
 import { Button } from "@/components/elements/button";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/patterns/responsive-dialog";
 import { cn } from "@/lib/utils";
 import type { MessageDto } from "@/types/api";
 
@@ -83,9 +82,9 @@ export function BlockSenderModal({
   }
 
   return (
-    <AlertDialog onOpenChange={handleOpenChange} open={open}>
-      <AlertDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
-        <AlertDialogHeader className="gap-3 text-left sm:text-left">
+    <ResponsiveDialog onOpenChange={handleOpenChange} open={open}>
+      <ResponsiveDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
+        <ResponsiveDialogHeader className="gap-3 text-left sm:text-left">
           <span className="grid size-11 place-items-center rounded-[14px] bg-accent text-accent-foreground">
             {isSenderBlocked ? (
               <ShieldOff aria-hidden="true" className="size-5" />
@@ -93,22 +92,22 @@ export function BlockSenderModal({
               <Ban aria-hidden="true" className="size-5" />
             )}
           </span>
-          <AlertDialogTitle className="font-bold text-[22px]">
+          <ResponsiveDialogTitle>
             {isSenderBlocked ? "Unblock this sender?" : "Block this sender?"}
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-[15px]">
+          </ResponsiveDialogTitle>
+          <ResponsiveDialogDescription className="text-sm">
             {isSenderBlocked
               ? "They'll be able to send you Anonymous Messages again. You still won't know who they are."
               : "You'll never see who they are. Blocking uses their Sender Hash, an anonymous fingerprint, so they stay anonymous to you and you stay safe from them. They aren't told."}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         {isSenderBlocked ? null : (
           <fieldset aria-label="Block options" className="flex flex-col gap-2">
             {BLOCK_OPTIONS.map((option) => (
               <label
                 className={cn(
-                  "flex min-h-11 cursor-pointer items-center gap-3 rounded-[14px] border px-3 py-2.5 font-semibold text-[15px] transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ring",
+                  "flex min-h-11 cursor-pointer items-center gap-3 rounded-[14px] border px-3 py-2.5 text-title transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ring",
                   alsoDelete === option.value && "border-primary bg-accent"
                 )}
                 key={option.label}
@@ -130,14 +129,15 @@ export function BlockSenderModal({
           </fieldset>
         )}
 
-        <AlertDialogFooter>
-          <AlertDialogCancel
+        <ResponsiveDialogFooter>
+          <Button
             className="rounded-full"
             disabled={isPending}
             onClick={onClose}
+            variant="outline"
           >
             Cancel
-          </AlertDialogCancel>
+          </Button>
           <Button
             className="rounded-full"
             disabled={isPending}
@@ -149,8 +149,8 @@ export function BlockSenderModal({
             ) : null}
             {buttonText}
           </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }

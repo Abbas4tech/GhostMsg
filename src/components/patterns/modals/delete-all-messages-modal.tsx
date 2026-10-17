@@ -35,12 +35,12 @@ export function DeleteAllMessagesModal({
           <span className="grid size-11 place-items-center rounded-[14px] bg-destructive/15 text-destructive">
             <Trash2Icon aria-hidden="true" className="size-5" />
           </span>
-          <AlertDialogTitle className="font-bold text-[22px]">
+          <AlertDialogTitle className="text-h2">
             {total === 1
               ? "Delete 1 message?"
               : `Delete all ${total} messages?`}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-[15px]">
+          <AlertDialogDescription className="text-sm">
             Public answers go with them. You&apos;ll have 10 seconds to undo.
           </AlertDialogDescription>
         </AlertDialogHeader>

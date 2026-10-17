@@ -86,7 +86,7 @@ export function IdentityCard({
     <Card data-slot="identity-card" variant="elevated">
       <CardHeader>
         <CardTitle>
-          <h2 className="font-bold text-xl">Identity</h2>
+          <h2 className="text-h2">Identity</h2>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -145,7 +145,7 @@ export function IdentityCard({
               </span>
             </div>
             <Input
-              className="h-12 bg-card text-base"
+              className="h-12 bg-card text-body"
               id={displayNameId}
               maxLength={DISPLAY_NAME_MAX_LENGTH}
               onChange={handleDisplayNameChange}

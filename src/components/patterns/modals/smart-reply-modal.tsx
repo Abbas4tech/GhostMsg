@@ -4,16 +4,16 @@ import { Loader2, Share2, Sparkles } from "lucide-react";
 import type React from "react";
 import { useCallback, useId } from "react";
 import { Button } from "@/components/elements/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/elements/dialog";
 import { Switch } from "@/components/elements/switch";
 import { Textarea } from "@/components/elements/textarea";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/patterns/responsive-dialog";
 import { SentimentBadge } from "@/components/patterns/sentiment-badge";
 import type { MessageDto } from "@/types/api";
 
@@ -112,16 +112,14 @@ export const SmartReplyModal = ({
   const canSave = Boolean(replyText.trim()) && !isSaving;
 
   return (
-    <Dialog onOpenChange={handleOpenChange} open={isOpen}>
-      <DialogContent className="max-h-[92vh] gap-4 overflow-y-auto rounded-2xl shadow-lift sm:max-w-lg">
-        <DialogHeader className="text-left">
-          <DialogTitle className="font-bold text-[22px]">
-            Answer this message
-          </DialogTitle>
-          <DialogDescription className="sr-only">
+    <ResponsiveDialog onOpenChange={handleOpenChange} open={isOpen}>
+      <ResponsiveDialogContent className="max-h-[92vh] gap-4 overflow-y-auto shadow-lift">
+        <ResponsiveDialogHeader className="text-left">
+          <ResponsiveDialogTitle>Answer this message</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription className="sr-only">
             Write an answer, optionally publish it as a Public Q&amp;A.
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="flex flex-col gap-2 rounded-xl border bg-muted p-4">
           <SentimentBadge
@@ -129,7 +127,7 @@ export const SmartReplyModal = ({
             sentiment={message.sentimentTag}
             size="md"
           />
-          <p className="font-message text-base leading-relaxed">
+          <p className="text-pretty font-message text-body">
             {message.content}
           </p>
         </div>
@@ -139,7 +137,7 @@ export const SmartReplyModal = ({
             Your answer
           </label>
           <Textarea
-            className="min-h-28 resize-none rounded-md text-base"
+            className="min-h-28 resize-none rounded-md text-body"
             id={answerId}
             maxLength={REPLY_MAX_LENGTH}
             onChange={handleReplyTextChange}
@@ -176,10 +174,7 @@ export const SmartReplyModal = ({
 
         <div className="flex items-center justify-between gap-3">
           <div className="flex flex-col">
-            <label
-              className="cursor-pointer font-semibold text-[15px]"
-              htmlFor={publishId}
-            >
+            <label className="cursor-pointer text-title" htmlFor={publishId}>
               Show in my Public Q&amp;A
             </label>
             <p
@@ -198,7 +193,7 @@ export const SmartReplyModal = ({
           />
         </div>
 
-        <DialogFooter className="flex-wrap gap-2 sm:gap-2">
+        <ResponsiveDialogFooter className="flex-wrap gap-2 sm:gap-2">
           <Button
             className="rounded-full"
             disabled={!canSave}
@@ -221,8 +216,8 @@ export const SmartReplyModal = ({
               Answer + Story Card
             </Button>
           ) : null}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 };

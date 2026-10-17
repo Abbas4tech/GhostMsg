@@ -4,7 +4,7 @@
 
 Generated inventory of every component module, its public API, stories, interaction tests, mocks, controllers, plus the shared fixtures and MSW scenarios. Rules live in [Chapter 5](05-component-architecture.md), [Chapter 10](10-storybook-and-ui-catalog.md) and the [agent guide](agents/component-architecture.md).
 
-**Totals:** 91 modules · 392 stories · 267 play() interaction tests.
+**Totals:** 98 modules · 406 stories · 272 play() interaction tests.
 
 - Regenerate after adding/renaming a module, story, mock export or scenario: `pnpm docs:registry`.
 - `pnpm docs:registry:check` fails when this file is stale (part of the pre-push gate).
@@ -17,27 +17,30 @@ Generated inventory of every component module, its public API, stories, interact
 
 > Domain-agnostic primitives; defaults are pixel-identical to the original shadcn/Animate UI look.
 
-**44 modules · 138 stories · 72 play() tests**
+**49 modules · 152 stories · 77 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| [`alert`](../src/components/elements/alert) | ✅ | 2 | 1 | 1 | 0 |
+| [`alert`](../src/components/elements/alert) | ✅ | 5 | 1 | 1 | 0 |
 | [`alert-dialog`](../src/components/elements/alert-dialog) | ✅ | 2 | 2 | 1 | 0 |
 | [`avatar`](../src/components/elements/avatar) | ✅ | 3 | 1 | 1 | 0 |
 | [`badge`](../src/components/elements/badge) | ✅ | 4 | 2 | 1 | 0 |
 | [`breadcrumb`](../src/components/elements/breadcrumb) | ✅ | 1 | 1 | 1 | 0 |
 | [`button`](../src/components/elements/button) | ✅ | 10 | 5 | 1 | 0 |
+| [`button-group`](../src/components/elements/button-group) | ✅ | 3 | 1 | 1 | 0 |
 | [`card`](../src/components/elements/card) | ✅ | 8 | 2 | 1 | 0 |
 | [`carousel`](../src/components/elements/carousel) | ✅ | 3 | 2 | 1 | 0 |
 | [`checkbox`](../src/components/elements/checkbox) | ✅ | 3 | 2 | 1 | 0 |
 | [`command`](../src/components/elements/command) | ✅ | 1 | 1 | 1 | 0 |
 | [`copy-button`](../src/components/elements/copy-button) | ✅ | 4 | 2 | 1 | 0 |
 | [`dialog`](../src/components/elements/dialog) | ✅ | 3 | 3 | 1 | 0 |
+| [`drawer`](../src/components/elements/drawer) | ✅ | 1 | 1 | 1 | 0 |
 | [`dropdown-menu`](../src/components/elements/dropdown-menu) | ✅ | 1 | 1 | 1 | 0 |
 | [`effects`](../src/components/elements/effects) | ✅ | 4 | 2 | 1 | 0 |
 | [`empty`](../src/components/elements/empty) | ✅ | 1 | 1 | 1 | 0 |
 | [`field`](../src/components/elements/field) | ✅ | 2 | 2 | 1 | 0 |
 | [`form`](../src/components/elements/form) | ✅ | 3 | 2 | 1 | 0 |
+| [`hover-card`](../src/components/elements/hover-card) | ✅ | 2 | 1 | 1 | 0 |
 | [`icon-button`](../src/components/elements/icon-button) | ✅ | 4 | 1 | 1 | 0 |
 | [`input`](../src/components/elements/input) | ✅ | 7 | 2 | 1 | 0 |
 | [`input-group`](../src/components/elements/input-group) | ✅ | 4 | 1 | 1 | 0 |
@@ -47,6 +50,8 @@ Generated inventory of every component module, its public API, stories, interact
 | [`label`](../src/components/elements/label) | ✅ | 2 | 1 | 1 | 0 |
 | [`liquid-button`](../src/components/elements/liquid-button) | ✅ | 5 | 2 | 1 | 0 |
 | [`palette-picker`](../src/components/elements/palette-picker) | ✅ | 2 | 2 | 1 | 0 |
+| [`popover`](../src/components/elements/popover) | ✅ | 2 | 1 | 1 | 0 |
+| [`progress`](../src/components/elements/progress) | ✅ | 3 | 1 | 1 | 0 |
 | [`radio-group`](../src/components/elements/radio-group) | ✅ | 2 | 1 | 1 | 0 |
 | [`scroll-area`](../src/components/elements/scroll-area) | ✅ | 1 | 1 | 1 | 0 |
 | [`select`](../src/components/elements/select) | ✅ | 2 | 1 | 1 | 0 |
@@ -69,7 +74,7 @@ Generated inventory of every component module, its public API, stories, interact
 #### `elements/alert`
 
 - **Public API (index.ts):** —
-- **Stories** `alert.stories.tsx` → _Elements/Alert_: `Default`, `Destructive`
+- **Stories** `alert.stories.tsx` → _Elements/Alert_: `Default`, `Destructive`, `Success`, `Warning`, `Info`
 - **Mocks:** `alert.mock.ts` → `ALERT_VARIANTS`, `alertMockContent`
 
 #### `elements/alert-dialog`
@@ -101,6 +106,12 @@ Generated inventory of every component module, its public API, stories, interact
 - **Public API (index.ts):** `Button`, `ButtonProps (type)`, `buttonVariants`
 - **Stories** `button.stories.tsx` → _Elements/Button_: `Default`, `Destructive`, `AllVariants`, `Sizes`, `WithIcon`, `IconOnly`, `Loading`, `Disabled`, `AsLink`, `LongLabel`
 - **Mocks:** `button.mock.ts` → `BUTTON_VARIANTS`, `BUTTON_SIZES`, `BUTTON_ICON_SIZES`, `defaultButtonArgs`, `destructiveButtonArgs`
+
+#### `elements/button-group`
+
+- **Public API (index.ts):** —
+- **Stories** `button-group.stories.tsx` → _Elements/ButtonGroup_: `Default`, `Vertical`, `WithTextAndSeparator`
+- **Mocks:** `button-group.mock.ts` → `BUTTON_GROUP_ORIENTATIONS`, `defaultButtonGroupArgs`
 
 #### `elements/card`
 
@@ -138,6 +149,12 @@ Generated inventory of every component module, its public API, stories, interact
 - **Stories** `dialog.stories.tsx` → _Elements/Dialog_: `Default`, `OpenByDefault`, `ClosesOnEscape`
 - **Mocks:** `dialog.mock.ts` → `dialogMockContent`, `defaultDialogArgs`
 
+#### `elements/drawer`
+
+- **Public API (index.ts):** —
+- **Stories** `drawer.stories.tsx` → _Elements/Drawer_: `OpenAndClose`
+- **Mocks:** `drawer.mock.ts` → `drawerMockContent`, `defaultDrawerArgs`
+
 #### `elements/dropdown-menu`
 
 - **Public API (index.ts):** —
@@ -167,6 +184,12 @@ Generated inventory of every component module, its public API, stories, interact
 - **Public API (index.ts):** —
 - **Stories** `form.stories.tsx` → _Elements/Form_: `Default`, `ValidationError`, `Prefilled`
 - **Mocks:** `form.mock.ts` → `formMockContent`, `defaultFormValues`
+
+#### `elements/hover-card`
+
+- **Public API (index.ts):** —
+- **Stories** `hover-card.stories.tsx` → _Elements/HoverCard_: `OnHover`, `Open`
+- **Mocks:** `hover-card.mock.ts` → `hoverCardMockContent`, `defaultHoverCardArgs`
 
 #### `elements/icon-button`
 
@@ -221,6 +244,18 @@ Generated inventory of every component module, its public API, stories, interact
 - **Public API (index.ts):** `PALETTE_OPTIONS`, `PalettePicker`, `PalettePickerButton`, `PalettePickerButtonProps (type)`, `PalettePickerOption (type)`, `PalettePickerProps (type)`
 - **Stories** `palette-picker.stories.tsx` → _Elements/PalettePicker_: `PickPalette`, `MidnightSelected`
 - **Mocks:** `palette-picker.mock.ts` → `defaultPalettePickerArgs`
+
+#### `elements/popover`
+
+- **Public API (index.ts):** —
+- **Stories** `popover.stories.tsx` → _Elements/Popover_: `OpenAndClose`, `Open`
+- **Mocks:** `popover.mock.ts` → `popoverMockContent`, `defaultPopoverArgs`
+
+#### `elements/progress`
+
+- **Public API (index.ts):** —
+- **Stories** `progress.stories.tsx` → _Elements/Progress_: `Default`, `Empty`, `Complete`
+- **Mocks:** `progress.mock.ts` → `defaultProgressArgs`
 
 #### `elements/radio-group`
 
@@ -335,7 +370,7 @@ Generated inventory of every component module, its public API, stories, interact
 
 > Pure, domain-aware compositions of elements. Data in, callbacks out.
 
-**24 modules · 152 stories · 115 play() tests**
+**26 modules · 152 stories · 115 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -349,10 +384,12 @@ Generated inventory of every component module, its public API, stories, interact
 | [`filter-bar`](../src/components/patterns/filter-bar) | ✅ | 5 | 3 | 1 | 0 |
 | [`how-it-works`](../src/components/patterns/how-it-works) | ✅ | 1 | 1 | 1 | 0 |
 | [`identity-card`](../src/components/patterns/identity-card) | ✅ | 4 | 4 | 1 | 0 |
+| [`message-actions-menu`](../src/components/patterns/message-actions-menu) | ✅ | 0 | 0 | 0 | 0 |
 | [`message-card`](../src/components/patterns/message-card) | ✅ | 14 | 11 | 1 | 0 |
 | [`modals`](../src/components/patterns/modals) | ✅ | 34 | 32 | 1 | 0 |
 | [`page-heading`](../src/components/patterns/page-heading) | ✅ | 3 | 2 | 1 | 0 |
 | [`public-qa-feed`](../src/components/patterns/public-qa-feed) | ✅ | 5 | 3 | 1 | 0 |
+| [`responsive-dialog`](../src/components/patterns/responsive-dialog) | ✅ | 0 | 0 | 0 | 0 |
 | [`section-nav`](../src/components/patterns/section-nav) | ✅ | 2 | 1 | 1 | 0 |
 | [`send-message-form`](../src/components/patterns/send-message-form) | ✅ | 6 | 4 | 1 | 0 |
 | [`sentiment-badge`](../src/components/patterns/sentiment-badge) | ✅ | 7 | 3 | 1 | 0 |
@@ -427,6 +464,11 @@ Generated inventory of every component module, its public API, stories, interact
 - **Stories** `identity-card.stories.tsx` → _Patterns/IdentityCard_: `Default`, `SelectsPhoto`, `WithPhoto`, `ProcessingPhoto`
 - **Mocks:** `identity-card.mock.ts` → `FIXTURE_AVATAR_DATA_URL`, `defaultIdentityCardArgs`, `withPhotoIdentityCardArgs`
 
+#### `patterns/message-actions-menu`
+
+- **Public API (index.ts):** `MessageAction (type)`, `MessageActionsMenu`, `MessageActionsMenuProps (type)`
+- **Mocks:** —
+
 #### `patterns/message-card`
 
 - **Public API (index.ts):** `getMessageCardState`, `MessageCard`, `MessageCardLayout (type)`, `MessageCardProps (type)`, `MessageCardState (type)`, `messageCardVariants`
@@ -458,6 +500,11 @@ Generated inventory of every component module, its public API, stories, interact
 - **Public API (index.ts):** `PublicQaFeed`, `PublicQaFeedProps (type)`, `PublicQaItem (type)`
 - **Stories** `public-qa-feed.stories.tsx` → _Patterns/PublicQaFeed_: `WithAnswers`, `Loading`, `Empty`, `LongReply`, `Mobile`
 - **Mocks:** `public-qa-feed.mock.ts` → `defaultPublicQaFeedArgs`, `emptyPublicQaFeedArgs`, `longReplyPublicQaFeedArgs`
+
+#### `patterns/responsive-dialog`
+
+- **Public API (index.ts):** `ResponsiveDialog`, `ResponsiveDialogContent`, `ResponsiveDialogContentProps (type)`, `ResponsiveDialogDescription`, `ResponsiveDialogDescriptionProps (type)`, `ResponsiveDialogFooter`, `ResponsiveDialogFooterProps (type)`, `ResponsiveDialogHeader`, `ResponsiveDialogHeaderProps (type)`, `ResponsiveDialogProps (type)`, `ResponsiveDialogTitle`, `ResponsiveDialogTitleProps (type)`
+- **Mocks:** —
 
 #### `patterns/section-nav`
 

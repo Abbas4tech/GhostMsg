@@ -16,7 +16,7 @@ export function SiteFooter({ className }: SiteFooterProps): React.JSX.Element {
   return (
     <footer
       className={cn(
-        "mx-auto flex w-full max-w-[1180px] flex-wrap justify-between gap-x-6 gap-y-3 px-4 pt-7 pb-8 text-muted-foreground text-sm sm:px-6",
+        "mx-auto flex w-full max-w-[1180px] flex-wrap justify-between gap-x-6 gap-y-3 px-gutter pt-7 pb-8 text-muted-foreground text-sm",
         className
       )}
       data-slot="site-footer"

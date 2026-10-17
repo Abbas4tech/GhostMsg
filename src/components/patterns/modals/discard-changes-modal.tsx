@@ -40,10 +40,10 @@ export function DiscardChangesModal({
     <AlertDialog onOpenChange={handleOpenChange} open={open}>
       <AlertDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
         <AlertDialogHeader className="text-left sm:text-left">
-          <AlertDialogTitle className="font-bold text-[22px]">
+          <AlertDialogTitle className="text-h2">
             Discard unsaved changes?
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-[15px]">
+          <AlertDialogDescription className="text-sm">
             Your edits haven&apos;t been saved. Leave now and they&apos;re gone.
           </AlertDialogDescription>
         </AlertDialogHeader>

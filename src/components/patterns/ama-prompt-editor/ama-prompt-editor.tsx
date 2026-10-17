@@ -82,7 +82,7 @@ export function AmaPromptEditor({
     <Card data-slot="ama-prompt-editor" variant="elevated">
       <CardHeader>
         <CardTitle>
-          <h2 className="font-bold text-xl">AMA Prompt</h2>
+          <h2 className="text-h2">AMA Prompt</h2>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -106,7 +106,7 @@ export function AmaPromptEditor({
             </div>
             <Textarea
               aria-describedby={counterId}
-              className="min-h-24 resize-none bg-card text-base"
+              className="min-h-24 resize-none bg-card text-body"
               id={fieldId}
               maxLength={AMA_PROMPT_MAX_LENGTH}
               onChange={handleChange}

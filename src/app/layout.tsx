@@ -1,3 +1,4 @@
+import { MotionConfig } from "motion/react";
 import type { Metadata } from "next";
 import {
   Bricolage_Grotesque,
@@ -127,7 +128,7 @@ export default function RootLayout({
               enableSystem
             >
               <PaletteProvider>
-                {children}
+                <MotionConfig reducedMotion="user">{children}</MotionConfig>
                 <Toaster />
               </PaletteProvider>
             </ThemeProvider>

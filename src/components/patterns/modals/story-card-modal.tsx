@@ -5,14 +5,14 @@ import type React from "react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/elements/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/elements/dialog";
 import { Switch } from "@/components/elements/switch";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/patterns/responsive-dialog";
 import { cn } from "@/lib/utils";
 import type { MessageDto } from "@/types/api";
 import {
@@ -126,10 +126,7 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex flex-col">
-        <label
-          className="cursor-pointer font-semibold text-[15px]"
-          htmlFor={id}
-        >
+        <label className="cursor-pointer text-title" htmlFor={id}>
           {title}
         </label>
         <p className="text-muted-foreground text-sm" id={`${id}-hint`}>
@@ -250,16 +247,14 @@ export const StoryCardModal = ({
   );
 
   return (
-    <Dialog onOpenChange={handleOpenChange} open={isOpen}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="font-bold text-[22px]">
-            Share as Story Card
-          </DialogTitle>
-          <DialogDescription>
+    <ResponsiveDialog onOpenChange={handleOpenChange} open={isOpen}>
+      <ResponsiveDialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Share as Story Card</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             What you see is the exact image you&apos;ll post.
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="grid gap-6 md:grid-cols-[auto_minmax(0,1fr)]">
           <div className="flex justify-center rounded-xl bg-muted p-3">
@@ -342,7 +337,7 @@ export const StoryCardModal = ({
             </p>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 };

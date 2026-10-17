@@ -1,12 +1,13 @@
 "use client";
 
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { useCallback } from "react";
 import type { ControllerRenderProps, UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
+import { Alert, AlertDescription } from "@/components/elements/alert";
 import { Button } from "@/components/elements/button";
 import {
   Form,
@@ -29,6 +30,8 @@ export const OTP_LENGTH = 6;
 const OTP_SLOT_INDEXES = Array.from({ length: OTP_LENGTH }, (_, i) => i);
 
 export interface VerifyCodeFormProps {
+  /** Set after a submitted code comes back wrong (cleared on the next change). */
+  codeError?: string | null;
   form: UseFormReturn<VerifyCodeValues>;
   isSubmitting?: boolean;
   onSubmit: (values: VerifyCodeValues) => void | Promise<void>;
@@ -39,6 +42,7 @@ export function VerifyCodeForm({
   form,
   isSubmitting = false,
   onSubmit,
+  codeError,
 }: VerifyCodeFormProps): React.JSX.Element {
   const renderCodeField = useCallback(
     ({ field }: { field: ControllerRenderProps<VerifyCodeValues, "code"> }) => (
@@ -82,6 +86,12 @@ export function VerifyCodeForm({
           name="code"
           render={renderCodeField}
         />
+        {codeError ? (
+          <Alert variant="destructive">
+            <AlertCircle aria-hidden="true" />
+            <AlertDescription>{codeError}</AlertDescription>
+          </Alert>
+        ) : null}
         <Button
           className="w-full rounded-full"
           disabled={!form.formState.isValid || isSubmitting}

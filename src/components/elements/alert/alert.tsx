@@ -13,6 +13,12 @@ const alertVariants = cva(
         default: "bg-card text-card-foreground",
         destructive:
           "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 [&>svg]:text-current",
+        info: "bg-card text-info *:data-[slot=alert-description]:text-info/90 [&>svg]:text-current",
+        success:
+          "bg-card text-success *:data-[slot=alert-description]:text-success/90 [&>svg]:text-current",
+        /** --warning is a light fill colour, not AA as text; pair with its own -foreground. */
+        warning:
+          "bg-card text-warning-foreground *:data-[slot=alert-description]:text-warning-foreground/90 [&>svg]:text-warning",
       },
     },
   }
