@@ -1,7 +1,7 @@
 "use client";
 
-import { Root, Thumb } from "@radix-ui/react-switch";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Switch as SwitchPrimitive } from "radix-ui";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -49,8 +49,13 @@ const thumbVariants = cva(
 );
 
 export interface SwitchProps
-  extends React.ComponentProps<typeof Root>,
-    VariantProps<typeof switchVariants> {}
+  extends React.ComponentProps<typeof SwitchPrimitive.Root>,
+    VariantProps<typeof switchVariants> {
+  checked?: boolean;
+  defaultChecked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  required?: boolean;
+}
 
 export function Switch({
   className,
@@ -59,13 +64,16 @@ export function Switch({
   ...props
 }: SwitchProps): React.JSX.Element {
   return (
-    <Root
+    <SwitchPrimitive.Root
       className={cn(switchVariants({ size, variant }), className)}
       data-slot="switch"
       {...props}
     >
-      <Thumb className={thumbVariants({ size })} data-slot="switch-thumb" />
-    </Root>
+      <SwitchPrimitive.Thumb
+        className={thumbVariants({ size })}
+        data-slot="switch-thumb"
+      />
+    </SwitchPrimitive.Root>
   );
 }
 
