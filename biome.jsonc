@@ -4,5 +4,325 @@
     "ultracite/biome/core",
     "ultracite/biome/react",
     "ultracite/biome/next"
+  ],
+  "files": {
+    "includes": [
+      "!**/node_modules",
+      "!**/.next",
+      "!**/public",
+      "src/**",
+      ".storybook/**",
+      "emails/**",
+      "scripts/**",
+      "docs/**",
+      "*.ts",
+      "*.tsx",
+      "*.json",
+      "*.jsonc",
+      "*.md"
+    ]
+  },
+  "linter": {
+    "rules": {
+      "performance": {
+        "noBarrelFile": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "error"
+      },
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": [
+                  "@/components/animate-ui",
+                  "@/components/animate-ui/**",
+                  "@/components/ui",
+                  "@/components/ui/**"
+                ],
+                "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "src/components/elements/carousel/**",
+        "src/components/elements/input-otp/**",
+        "src/components/elements/breadcrumb/**",
+        "src/components/elements/field/**",
+        "src/components/elements/input-group/**",
+        "src/components/elements/item/**"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off"
+          }
+        }
+      }
+    },
+    {
+      // Upstream shadcn: the current-page crumb is a non-focusable role="link"
+      // and the InputGroupAddon click only forwards focus to its input.
+      "includes": [
+        "src/components/elements/breadcrumb/**",
+        "src/components/elements/input-group/**"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useFocusableInteractive": "off",
+            "useKeyWithClickEvents": "off",
+            "noNoninteractiveElementInteractions": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/components/elements/effects/**",
+        "src/components/elements/**/*.primitive.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveElementInteractions": "off",
+            "noStaticElementInteractions": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/schemas/zod.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noExportedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/elements/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@/components/animate-ui",
+                      "@/components/animate-ui/**",
+                      "@/components/ui",
+                      "@/components/ui/**"
+                    ],
+                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+                  },
+                  {
+                    "group": [
+                      "@tanstack/react-query",
+                      "next-auth/react",
+                      "next/navigation",
+                      "@/data",
+                      "@/data/**"
+                    ],
+                    "message": "Business logic (queries, mutations, session, router, browser adapters in @/data) belongs in @/components/pages controllers only (ADR 0015, ADR 0018)."
+                  },
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
+                  },
+                  {
+                    "group": [
+                      "@/components/patterns",
+                      "@/components/patterns/**",
+                      "@/components/blocks",
+                      "@/components/blocks/**",
+                      "@/components/pages",
+                      "@/components/pages/**"
+                    ],
+                    "message": "Elements are Tier 1: they may only import other elements (ADR 0015)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/patterns/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@/components/animate-ui",
+                      "@/components/animate-ui/**",
+                      "@/components/ui",
+                      "@/components/ui/**"
+                    ],
+                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+                  },
+                  {
+                    "group": [
+                      "@tanstack/react-query",
+                      "next-auth/react",
+                      "next/navigation",
+                      "@/data",
+                      "@/data/**"
+                    ],
+                    "message": "Business logic (queries, mutations, session, router, browser adapters in @/data) belongs in @/components/pages controllers only (ADR 0015, ADR 0018)."
+                  },
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
+                  },
+                  {
+                    "group": [
+                      "@/components/blocks",
+                      "@/components/blocks/**",
+                      "@/components/pages",
+                      "@/components/pages/**"
+                    ],
+                    "message": "Patterns are Tier 2: import elements or other patterns only (ADR 0015)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/components/blocks/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@/components/animate-ui",
+                      "@/components/animate-ui/**",
+                      "@/components/ui",
+                      "@/components/ui/**"
+                    ],
+                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+                  },
+                  {
+                    "group": [
+                      "@tanstack/react-query",
+                      "next-auth/react",
+                      "next/navigation",
+                      "@/data",
+                      "@/data/**"
+                    ],
+                    "message": "Business logic (queries, mutations, session, router, browser adapters in @/data) belongs in @/components/pages controllers only (ADR 0015, ADR 0018)."
+                  },
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
+                  },
+                  {
+                    "group": ["@/components/pages", "@/components/pages/**"],
+                    "message": "Blocks are Tier 3: they may not import pages (ADR 0015)."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "src/components/pages/**",
+        "src/data/**",
+        "src/hooks/**",
+        "src/providers/**",
+        "src/content/**",
+        "src/mock/**",
+        "src/types/**",
+        ".storybook/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@/components/animate-ui",
+                      "@/components/animate-ui/**",
+                      "@/components/ui",
+                      "@/components/ui/**"
+                    ],
+                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
+                  },
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/lib/**", "!src/lib/**/*.test.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["server-only", "@/server", "@/server/**"],
+                    "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."
+                  },
+                  {
+                    "group": [
+                      "react",
+                      "react-dom",
+                      "next",
+                      "next/**",
+                      "next-auth",
+                      "next-auth/**",
+                      "@tanstack/**",
+                      "@/data",
+                      "@/data/**",
+                      "@/components",
+                      "@/components/**"
+                    ],
+                    "message": "src/lib is framework-free, side-effect-light helpers (ADR 0018). React hooks go in @/hooks, API access in @/data, components in @/components."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
   ]
 }

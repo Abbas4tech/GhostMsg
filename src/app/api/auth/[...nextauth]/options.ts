@@ -1,30 +1,54 @@
-/** biome-ignore-all lint/suspicious/useAwait: false */
-/** biome-ignore-all lint/suspicious/noExplicitAny: false */
-
 import bcrypt from "bcryptjs";
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, User as NextAuthUser } from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
 
 import { controlGoogleSignInFlow } from "./controller/google-signin";
 
 export const authOptions: NextAuthOptions = {
+  callbacks: {
+    jwt({ token, user, trigger, session }) {
+      // `useSession().update({ username })` after a username change.
+      if (trigger === "update" && typeof session?.username === "string") {
+        token.username = session.username;
+      }
+      if (user) {
+        token._id = user._id;
+        token.isVerified = user.isVerified;
+        token.username = user.username;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (token) {
+        session.user._id = token._id;
+        session.user.isVerified = token.isVerified;
+        session.user.username = token.username;
+      }
+      return session;
+    },
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        return await controlGoogleSignInFlow(user);
+      }
+      return true;
+    },
+  },
+  pages: {
+    signIn: "/sign-in",
+  },
   providers: [
     CredentialProvider({
-      id: "credentials",
-      name: "Credentials",
-      credentials: {
-        email: {
-          label: "Email",
-          type: "text",
-          placeholder: "jsmith@gmail.com",
-        },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials: any): Promise<any> {
+      async authorize(
+        credentials: Record<string, string> | undefined
+      ): Promise<NextAuthUser | null> {
+        if (!(credentials?.identifier && credentials?.password)) {
+          throw new Error("Identifier and password are required");
+        }
+
         await dbConnect();
 
         try {
@@ -45,56 +69,44 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Please verify your account first before login");
           }
 
+          if (!user.password) {
+            throw new Error("Please sign in with Google for this account");
+          }
+
           const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password
           );
 
           if (isPasswordCorrect) {
-            return user;
+            return user as unknown as NextAuthUser;
           }
           throw new Error("Password is incorrect, Please try again");
-        } catch (error: any) {
-          throw new Error(error);
+        } catch (error) {
+          throw new Error(
+            error instanceof Error ? error.message : "Authentication error",
+            { cause: error }
+          );
         }
       },
+      credentials: {
+        email: {
+          label: "Email",
+          placeholder: "jsmith@gmail.com",
+          type: "text",
+        },
+        password: { label: "Password", type: "password" },
+      },
+      id: "credentials",
+      name: "Credentials",
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_OAUTH_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET as string,
     }),
   ],
-  pages: {
-    signIn: "/sign-in",
-  },
+  secret: process.env.NEXT_AUTH_SECRET,
   session: {
     strategy: "jwt",
-  },
-  secret: process.env.NEXT_AUTH_SECRET,
-  callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === "google") {
-        return await controlGoogleSignInFlow(user);
-      }
-      return true;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user._id = token._id;
-        session.user.isVerified = token.isVerified;
-        session.user.isAcceptingMessage = token.isAcceptingMessage;
-        session.user.username = token.username;
-      }
-      return session;
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        token._id = user._id;
-        token.isVerified = user.isVerified;
-        token.isAcceptingMessage = user.isAcceptingMessage;
-        token.username = user.username;
-      }
-      return token;
-    },
   },
 };

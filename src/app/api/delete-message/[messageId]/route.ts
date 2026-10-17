@@ -1,70 +1,56 @@
+import mongoose from "mongoose";
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
-
-import { authOptions } from "../../auth/[...nextauth]/options";
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
+import dbConnect from "@/server/db/db-connect";
+import MessageModel from "@/server/models/message.model";
 
 export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ messageId: string }> }
+  _request: NextRequest,
+  props: { params: Promise<{ messageId: string }> }
 ): Promise<Response> {
-  await dbConnect();
+  const { messageId } = await props.params;
+
   try {
-    const { messageId } = await params;
+    await dbConnect();
+    const userId = await getSessionUserId();
+    if (!userId) {
+      return unauthorizedResponse();
+    }
 
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
-
-    if (!(user && session?.user)) {
+    if (!mongoose.Types.ObjectId.isValid(messageId)) {
       return Response.json(
-        {
-          success: false,
-          message: "Not authenticated, Please login first!",
-        },
-        {
-          status: 401,
-        }
+        { message: "Invalid message ID format", success: false },
+        { status: 400 }
       );
     }
 
-    const updatedResult = await UserModel.updateOne(
-      { _id: user._id },
-      { $pull: { messages: { _id: messageId } } }
-    );
+    const deleteResult = await MessageModel.deleteOne({
+      _id: messageId,
+      recipientId: userId,
+    });
 
-    if (updatedResult.modifiedCount === 0) {
+    if (deleteResult.deletedCount === 0) {
       return Response.json(
         {
+          message: "Message not found or already deleted",
           success: false,
-          message: "Message not found, or Already Deleted!",
         },
-        {
-          status: 404,
-        }
+        { status: 404 }
       );
     }
 
     return Response.json(
-      {
-        success: true,
-        message: "Message deleted successfully!",
-      },
-      {
-        status: 200,
-      }
+      { message: "Message deleted successfully", success: true },
+      { status: 200 }
     );
   } catch (error) {
-    console.error("Failed to delete message - Internal Server Error: ", error);
+    console.error("Failed to delete message:", error);
     return Response.json(
       {
-        success: false,
         message: "Failed to delete message - Internal Server Error",
+        success: false,
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

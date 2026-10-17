@@ -1,18 +1,16 @@
 import type { NextRequest } from "next/server";
 import z from "zod";
-
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
 import { usernameValidation } from "@/schemas/sign-up-schema";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
 
 const usernameQuerySchema = z.object({
   username: usernameValidation,
 });
 
 export async function GET(req: NextRequest): Promise<Response> {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const { searchParams } = req.nextUrl;
 
     const queryParams = {
@@ -23,8 +21,8 @@ export async function GET(req: NextRequest): Promise<Response> {
     if (!success) {
       return Response.json(
         {
-          success: false,
           message: error.format().username?._errors.join(","),
+          success: false,
         },
         {
           status: 400,
@@ -35,15 +33,15 @@ export async function GET(req: NextRequest): Promise<Response> {
     const { username } = data;
 
     const exisitingVerifiedUser = await UserModel.findOne({
-      username,
       isVerified: true,
+      username,
     });
 
     if (exisitingVerifiedUser) {
       return Response.json(
         {
-          success: false,
           message: "Username is already taken",
+          success: false,
         },
         {
           status: 400,
@@ -53,8 +51,8 @@ export async function GET(req: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         message: "Username is unique",
+        success: true,
       },
       { status: 200 }
     );
@@ -62,8 +60,8 @@ export async function GET(req: NextRequest): Promise<Response> {
     console.error("Error checking username: ", error);
     return Response.json(
       {
-        success: false,
         message: "Error checking username: Internal Server Error",
+        success: false,
       },
       { status: 500 }
     );

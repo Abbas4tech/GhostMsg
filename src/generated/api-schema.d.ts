@@ -1,0 +1,2469 @@
+/**
+ * AUTO-GENERATED FILE - DO NOT EDIT DIRECTLY.
+ * Generated from src/lib/openapi.ts by openapi-typescript.
+ * Run "pnpm typegen" to regenerate.
+ */
+
+export interface paths {
+  "/api/accept-message": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Message Acceptance Status
+     * @description Check if the authenticated user is currently accepting anonymous messages.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Acceptance status fetched successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AcceptMessageGetResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description User not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    /**
+     * Update Message Acceptance Status
+     * @description Toggle whether the recipient's profile is accepting anonymous messages.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AcceptMessageRequest"];
+        };
+      };
+      responses: {
+        /** @description Status updated successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AcceptMessagePostResponse"];
+          };
+        };
+        /** @description Invalid payload */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/ai/ama-suggestions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Suggest AMA Prompts
+     * @description Three short AMA Prompt ideas from Gemini (fixed ideas without a key).
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AmaSuggestionsRequest"];
+        };
+      };
+      responses: {
+        /** @description Suggestions */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AmaSuggestionsResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/ai/smart-reply": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Generate AI Smart Reply Draft
+     * @description Generate witty, wholesome, or thoughtful reply drafts via Gemini 2.5 Flash Lite.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SmartReplyRequest"];
+        };
+      };
+      responses: {
+        /** @description Smart reply generated successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SmartReplyResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/block-sender": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Blocked Sender Fingerprints
+     * @description Retrieve list of all blocked sender hashes for the authenticated recipient.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Blocked senders fetched successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GetBlockedSendersResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    /**
+     * Block Sender Fingerprint
+     * @description Add a cryptographic sender hash to the recipient's blocked list.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["BlockSenderRequest"];
+        };
+      };
+      responses: {
+        /** @description Sender blocked successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    /**
+     * Unblock Sender Fingerprint
+     * @description Remove a cryptographic sender hash from the recipient's blocked list, or pass 'ALL' to clear all.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["BlockSenderRequest"];
+        };
+      };
+      responses: {
+        /** @description Sender unblocked successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/check-username-unique": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Check Username Uniqueness
+     * @description Check whether a prospective username is already taken by a verified user.
+     */
+    get: {
+      parameters: {
+        query: {
+          /** @description Prospective username to check */
+          username: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Username is available */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["UsernameUniqueResponse"];
+          };
+        };
+        /** @description Invalid format or username is already taken */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/cron/daily-digest": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Run Daily Digest
+     * @description Emails a summary to every recipient with emailAlerts = daily: new non-quarantined messages since their last digest, text only when they show message text. Skips recipients inside quiet hours. Scheduler only.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Run summary */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DailyDigestRunResponse"];
+          };
+        };
+        /** @description Missing or wrong bearer secret */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description CRON_SECRET is not configured */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/delete-message/{messageId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete Inbox Message
+     * @description Delete a single anonymous message from the recipient inbox by its ID.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description MongoDB ObjectId of the message */
+          messageId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Message deleted successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Message not found or already deleted */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/get-messages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get User Inbox Messages
+     * @description Fetch received anonymous messages with search, filter, and pagination support.
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description `nextCursor` from the previous page */
+          cursor?: string;
+          /** @description Page size 1-100 (default 30) */
+          limit?: string;
+          /** @description Search query string */
+          q?: string;
+          /** @description Inbox filter (default all = not quarantined); any = every message */
+          status?:
+            | "all"
+            | "unread"
+            | "starred"
+            | "quarantined"
+            | "answered"
+            | "any";
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description List of messages sorted chronologically */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GetMessagesResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/messages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete All Messages
+     * @description Danger zone: deletes every message and so every public answer.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Messages deleted */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DeleteAllMessagesResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/messages/{messageId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update Message Attributes
+     * @description Update star (pin) or read status of a message.
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          messageId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateMessageRequest"];
+        };
+      };
+      responses: {
+        /** @description Message updated successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Message not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/api/messages/{messageId}/reply": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Author & Publish Message Reply
+     * @description Author a reply to an anonymous message and optionally publish to public profile. Answering also marks the message read.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          messageId: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["ReplyMessageRequest"];
+        };
+      };
+      responses: {
+        /** @description Reply saved successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Message not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/messages/bulk": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Bulk Message Operations
+     * @description Batch mark as read, star, or delete multiple messages simultaneously.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["BulkActionRequest"];
+        };
+      };
+      responses: {
+        /** @description Bulk operation executed successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Bad request */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/messages/counts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Inbox Counts
+     * @description Count of messages for every inbox filter plus the overall total, independent of paging.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Counts */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["InboxCountsResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/public/{username}/answers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Public Q&A Answers Feed
+     * @description Public profile (display name, photo, AMA Prompt, acceptance, banner and suggestion settings) plus up to 50 published answers, newest published first.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          username: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Public answers fetched successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["PublicAnswersResponse"];
+          };
+        };
+        /** @description User not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/send-message": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Send Anonymous Message
+     * @description Submit an anonymous message with rate limiting, AI moderation, and sentiment analysis.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SendMessageRequest"];
+        };
+      };
+      responses: {
+        /** @description Message delivered successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SendMessageResponse"];
+          };
+        };
+        /** @description Recipient not found or not accepting messages */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Rate limit exceeded (Max 5 messages per 10 minutes) */
+        429: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/sign-up": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * User Registration
+     * @description Register a new user account with credentials and dispatch a 6-digit verification email.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["SignUpRequest"];
+        };
+      };
+      responses: {
+        /** @description User registered successfully */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SignUpResponse"];
+          };
+        };
+        /** @description Username or email already taken */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Email dispatch failed or internal error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/suggest-messages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get AI Suggested Prompts
+     * @description Generate 3 conversation-starter prompts via Gemini 2.5 Flash Lite on Edge runtime.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Suggested prompts returned successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["SuggestedMessagesResponse"];
+          };
+        };
+        /** @description AI generation failure */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/user": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete Account
+     * @description Deletes the account, its link and messages. Requires the typed username.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["DeleteAccountRequest"];
+        };
+      };
+      responses: {
+        /** @description Account deleted */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["DeleteAccountResponse"];
+          };
+        };
+        /** @description Username did not match */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description User not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/user/ama-prompt": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update Custom AMA Prompt Banner
+     * @description Legacy: set the AMA Prompt shown to visitors on /u/[username]. The app saves it with PATCH /api/user/profile (amaPrompt) instead.
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["AmaPromptRequest"];
+        };
+      };
+      responses: {
+        /** @description AMA prompt updated successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["AmaPromptResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/api/user/notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Notification Settings
+     * @description Fetch the authenticated user's email alert and web push notification preferences.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Notification settings fetched successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GetNotificationsResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update Notification Settings
+     * @description Update email alert frequency (instant/daily/off) or toggle web push notifications.
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateNotificationsRequest"];
+        };
+      };
+      responses: {
+        /** @description Notification settings updated successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["UpdateNotificationsResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/api/user/preferences": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Preferences
+     * @description Messages and Safety settings.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Preferences */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GetUserPreferencesResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update Preferences
+     * @description Partial update of Messages and Safety settings.
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateUserPreferencesRequest"];
+        };
+      };
+      responses: {
+        /** @description Preferences updated */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["UpdateUserPreferencesResponse"];
+          };
+        };
+        /** @description Invalid payload */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/api/user/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Profile
+     * @description Identity card fields and the AMA banner switch.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Profile */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["GetUserProfileResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description User not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update Profile
+     * @description Partial update in one request: display name, photo (data URL, or null to remove), AMA Prompt and AMA banner switch.
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["UpdateUserProfileRequest"];
+        };
+      };
+      responses: {
+        /** @description Profile updated */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["UpdateUserProfileResponse"];
+          };
+        };
+        /** @description Invalid payload */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/api/user/push-subscription": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Register Web Push Subscription
+     * @description Store the browser's PushSubscription object so the server can dispatch push notifications.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["PushSubscriptionRequest"];
+        };
+      };
+      responses: {
+        /** @description Push subscription registered successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    /**
+     * Remove Web Push Subscription
+     * @description Forget this device's PushSubscription so the server stops sending it notifications. When no device is left, notificationSettings.webPushEnabled becomes false.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["PushUnsubscribeRequest"];
+        };
+      };
+      responses: {
+        /** @description Push subscription removed */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["BaseResponse"];
+          };
+        };
+        /** @description Invalid payload */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/user/username": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Change Username
+     * @description Changes the username and so the Public Profile Link.
+     */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["ChangeUsernameRequest"];
+        };
+      };
+      responses: {
+        /** @description Username updated */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ChangeUsernameResponse"];
+          };
+        };
+        /** @description Invalid username */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Unauthorized */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Username already taken */
+        409: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    trace?: never;
+  };
+  "/api/verify-code": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Verify Email Code
+     * @description Validate the 6-digit verification code sent to the recipient's email.
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["VerifyCodeRequest"];
+        };
+      };
+      responses: {
+        /** @description Account verified successfully */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["VerifyCodeResponse"];
+          };
+        };
+        /** @description Verification code expired */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description User not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+}
+export type webhooks = Record<string, never>;
+export interface components {
+  headers: never;
+  parameters: never;
+  pathItems: never;
+  requestBodies: never;
+  responses: never;
+  schemas: {
+    BaseResponse: {
+      /** @example Operation successful */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    ErrorResponse: {
+      /** @example An error occurred */
+      message: string;
+      /**
+       * @example false
+       * @enum {boolean}
+       */
+      success: false;
+    };
+    UsernameQuery: {
+      /**
+       * @description Unique username (alphanumeric and underscore, 2-20 characters)
+       * @example johndoe
+       */
+      username: string;
+    };
+    SignUpRequest: {
+      /**
+       * Format: email
+       * @description User's email address
+       * @example johndoe@example.com
+       */
+      email: string;
+      /**
+       * @description Password (minimum 6 characters)
+       * @example SecurePass123!
+       */
+      password: string;
+      /**
+       * @description Unique username (alphanumeric and underscore, 2-20 characters)
+       * @example johndoe
+       */
+      username: string;
+    };
+    SignUpResponse: {
+      /** @example User registered successfully. Please verify your email */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    VerifySchema: {
+      /**
+       * @description 6-digit numerical verification code
+       * @example 123456
+       */
+      code: string;
+    };
+    VerifyCodeRequest: {
+      /**
+       * @description 6-digit numerical verification code
+       * @example 123456
+       */
+      code: string;
+      /**
+       * @description Username to verify
+       * @example johndoe
+       */
+      username: string;
+    };
+    VerifyCodeResponse: {
+      /** @example Account Verified Successfully! */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    MessageSchema: {
+      /**
+       * @description Anonymous message text content (10-300 characters)
+       * @example Hey! Just wanted to say you are doing great work.
+       */
+      content: string;
+    };
+    SendMessageRequest: {
+      /**
+       * @description Anonymous message text content (10-300 characters)
+       * @example Hey! Just wanted to say you are doing great work.
+       */
+      content: string;
+      /**
+       * @description Recipient's public username
+       * @example johndoe
+       */
+      username: string;
+    };
+    SendMessageResponse: {
+      /** @example Message sent successfully! */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    SuggestedMessagesResponse: {
+      /** @example What is a skill you want to learn?||What is your favorite memory from this year?||If you could travel anywhere tomorrow, where would you go? */
+      messages: string;
+      /** @example true */
+      success: boolean;
+    };
+    MessageItem: {
+      /** @example 660c1d2e1b9d4c001f3e8a1a */
+      _id: string;
+      /** @example Hey! Loved your recent project. */
+      content: string;
+      /** @example 2026-10-06T12:00:00.000Z */
+      createdAt: string;
+      /** @default false */
+      isPinned: boolean;
+      /** @default false */
+      isQuarantined: boolean;
+      /** @default false */
+      isRead: boolean;
+      reply?: components["schemas"]["MessageReply"];
+      senderHash?: string;
+      /**
+       * @description Emotional sentiment classification assigned to the message
+       * @default neutral
+       * @example sweet
+       * @enum {string}
+       */
+      sentimentTag: "sweet" | "curious" | "spicy" | "advice" | "neutral";
+    };
+    MessageReply: {
+      /**
+       * @description Whether the reply is visible publicly on /u/[username]
+       * @default false
+       * @example true
+       */
+      isPublished: boolean;
+      /**
+       * Format: date-time
+       * @description ISO timestamp when the reply was published
+       */
+      publishedAt?: string;
+      /**
+       * @description Recipient's published reply text
+       * @example Thank you so much! Really appreciate the kind words.
+       */
+      text: string;
+    } | null;
+    GetMessagesResponse: {
+      /** @description List of received messages */
+      messages: components["schemas"]["MessageItem"][];
+      /**
+       * @description Pass as `cursor` for the next page; null on the last page
+       * @example 2026-10-06T12:00:00.000Z_660c1d2e1b9d4c001f3e8a1a
+       */
+      nextCursor?: string | null;
+      /** @example true */
+      success: boolean;
+      /**
+       * @description Messages matching the filter
+       * @example 42
+       */
+      total?: number;
+    };
+    AcceptMessageRequest: {
+      /**
+       * @description Whether the user's public profile is open to receiving messages
+       * @example true
+       */
+      acceptMessages: boolean;
+    };
+    AcceptMessageGetResponse: {
+      /** @example true */
+      isAcceptingMessage: boolean;
+      /** @example Message acceptance status fetched successfully! */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    AcceptMessagePostResponse: {
+      /** @example Message acceptance status updated successfully! */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    UpdateMessageRequest: {
+      /** @description Star/Pin status */
+      isPinned?: boolean;
+      /** @description Read status */
+      isRead?: boolean;
+    };
+    ReplyMessageRequest: {
+      /**
+       * @description Whether to publish this response to the public profile showcase
+       * @default false
+       * @example true
+       */
+      isPublished: boolean;
+      /**
+       * @description Author's response text
+       * @example Thanks a lot for the support!
+       */
+      text: string;
+    };
+    BulkActionRequest: {
+      /**
+       * @description Bulk operation to execute
+       * @example read
+       * @enum {string}
+       */
+      action: "delete" | "read" | "star";
+      /**
+       * @description Array of message IDs
+       * @example [
+       *       "64e0a123bc4567def8901234"
+       *     ]
+       */
+      ids: string[];
+    };
+    BlockSenderRequest: {
+      /**
+       * @description Cryptographic hash of the sender to block
+       * @example a8f5c...921
+       */
+      senderHash: string;
+    };
+    SmartReplyRequest: {
+      /** @description Original anonymous message content */
+      content: string;
+      /**
+       * @description Desired tone for the AI generated response
+       * @default wholesome
+       * @example witty
+       * @enum {string}
+       */
+      tone: "witty" | "wholesome" | "thoughtful";
+    };
+    SmartReplyResponse: {
+      /** @example Haha, thanks for keeping me on my toes! 😉 */
+      reply: string;
+      /** @example true */
+      success: boolean;
+    };
+    PublicAnswersResponse: {
+      amaPrompt?: string;
+      answers: components["schemas"]["PublicAnswerItem"][];
+      /** @example null */
+      avatarUrl?: string | null;
+      /** @example Maya */
+      displayName?: string;
+      /**
+       * @description Message Acceptance: false shows the profile's paused state
+       * @example true
+       */
+      isAcceptingMessages?: boolean;
+      /** @example true */
+      offerSuggestions?: boolean;
+      /** @example true */
+      showAmaBanner?: boolean;
+      /** @example true */
+      success: boolean;
+      username: string;
+    };
+    PublicAnswerItem: {
+      _id: string;
+      content: string;
+      createdAt: string;
+      reply: {
+        publishedAt?: string;
+        text: string;
+      };
+      /**
+       * @description Emotional sentiment classification assigned to the message
+       * @example sweet
+       * @enum {string}
+       */
+      sentimentTag: "sweet" | "curious" | "spicy" | "advice" | "neutral";
+    };
+    AmaPromptRequest: {
+      /**
+       * @description Custom profile banner prompt
+       * @example Ask me anything about tech, design, or life!
+       */
+      amaPrompt: string;
+    };
+    AmaPromptResponse: {
+      amaPrompt: string;
+      /** @example AMA prompt updated successfully! */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    NotificationSettings: {
+      /**
+       * @description Email alert frequency preference
+       * @default instant
+       * @example instant
+       * @enum {string}
+       */
+      emailAlerts: "instant" | "daily" | "off";
+      /**
+       * @description Alerts say 'New Anonymous Message' without the text
+       * @default true
+       * @example true
+       */
+      hideMessageText: boolean;
+      quietHours?: components["schemas"]["QuietHours"];
+      /**
+       * @description Whether browser push notifications are enabled on this device
+       * @default false
+       * @example false
+       */
+      webPushEnabled: boolean;
+    };
+    QuietHours: {
+      /** @example false */
+      enabled: boolean;
+      /** @example 08:00 */
+      end: string;
+      /** @example 22:00 */
+      start: string;
+      /**
+       * @description IANA time zone the window is in
+       * @example Europe/London
+       */
+      timeZone: string;
+    };
+    GetNotificationsResponse: {
+      isAcceptingMessage?: boolean;
+      notificationSettings: components["schemas"]["NotificationSettings"];
+      /** @example true */
+      success: boolean;
+    };
+    UpdateNotificationsRequest: {
+      /**
+       * @description Email alert frequency preference
+       * @enum {string}
+       */
+      emailAlerts?: "instant" | "daily" | "off";
+      /** @description Hide message text in notifications */
+      hideMessageText?: boolean;
+      quietHours?: components["schemas"]["QuietHours"];
+      /** @description Enable/disable browser push notifications */
+      webPushEnabled?: boolean;
+    };
+    UpdateNotificationsResponse: {
+      /** @example Notification settings updated successfully! */
+      message: string;
+      notificationSettings?: components["schemas"]["NotificationSettings"];
+      /** @example true */
+      success: boolean;
+    };
+    PushSubscriptionRequest: {
+      /**
+       * Format: uri
+       * @description Push service endpoint URL provided by the browser
+       * @example https://fcm.googleapis.com/fcm/send/...
+       */
+      endpoint: string;
+      keys: {
+        /** @description Authentication secret */
+        auth: string;
+        /** @description ECDH public key */
+        p256dh: string;
+      };
+    };
+    PushUnsubscribeRequest: {
+      /**
+       * Format: uri
+       * @description Endpoint of the subscription to remove
+       * @example https://fcm.googleapis.com/fcm/send/...
+       */
+      endpoint: string;
+    };
+    GetBlockedSendersResponse: {
+      /** @description List of blocked sender cryptographic hashes */
+      blockedSenderHashes: string[];
+      blockedSenders?: components["schemas"]["BlockedSender"][];
+      /** @example true */
+      success: boolean;
+    };
+    BlockedSender: {
+      /** @description ISO date (missing for blocks made before dates were kept) */
+      blockedAt?: string;
+      hash: string;
+    };
+    UsernameUniqueResponse: {
+      /** @example Username is unique */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    GetUserProfileResponse: {
+      profile: components["schemas"]["UserProfile"];
+      /** @example true */
+      success: boolean;
+    };
+    UserProfile: {
+      /** @example Ask me anything about moving countries for work. */
+      amaPrompt: string;
+      /** @example null */
+      avatarUrl: string | null;
+      /** @example Maya */
+      displayName: string;
+      /** @example maya@example.com */
+      email: string;
+      /** @example true */
+      showAmaBanner: boolean;
+      /** @example maya_writes */
+      username: string;
+    };
+    UpdateUserProfileResponse: {
+      /** @example Profile updated */
+      message: string;
+      profile: components["schemas"]["UserProfile"];
+      /** @example true */
+      success: boolean;
+    };
+    UpdateUserProfileRequest: {
+      /**
+       * @description AMA Prompt shown on the public profile
+       * @example Ask me anything about moving countries for work.
+       */
+      amaPrompt?: string;
+      /**
+       * @description Square avatar as a base64 data URL (resized in the browser)
+       * @example data:image/webp;base64,UklGR…
+       */
+      avatarUrl?: string | null;
+      /**
+       * @description Name shown on the public profile (empty = username)
+       * @example Maya
+       */
+      displayName?: string;
+      showAmaBanner?: boolean;
+    };
+    ChangeUsernameResponse: {
+      /** @example Username updated */
+      message: string;
+      /** @example true */
+      success: boolean;
+      /** @example maya_writes */
+      username: string;
+    };
+    ChangeUsernameRequest: {
+      /**
+       * @description Unique username (alphanumeric and underscore, 2-20 characters)
+       * @example johndoe
+       */
+      username: string;
+    };
+    GetUserPreferencesResponse: {
+      preferences: components["schemas"]["UserPreferences"];
+      /** @example true */
+      success: boolean;
+    };
+    UserPreferences: {
+      messages: components["schemas"]["MessagePreferences"];
+      safety: components["schemas"]["SafetySettings"];
+    };
+    MessagePreferences: {
+      /**
+       * @description Show AI Suggested Messages to visitors
+       * @example true
+       */
+      offerSuggestions: boolean;
+      /**
+       * @description Smart Reply starts with 'Show in my Public Q&A' on
+       * @example false
+       */
+      publishByDefault: boolean;
+    };
+    SafetySettings: {
+      /**
+       * @description Blur Spicy messages until opened
+       * @example false
+       */
+      blurSpicy: boolean;
+      /**
+       * @description Hold toxic and spam messages in Quarantined
+       * @example true
+       */
+      quarantineEnabled: boolean;
+      /**
+       * @description How strict quarantine is
+       * @example balanced
+       * @enum {string}
+       */
+      sensitivity: "relaxed" | "balanced" | "strict";
+    };
+    UpdateUserPreferencesResponse: {
+      /** @example Preferences updated */
+      message: string;
+      preferences: components["schemas"]["UserPreferences"];
+      /** @example true */
+      success: boolean;
+    };
+    UpdateUserPreferencesRequest: {
+      messages?: {
+        /**
+         * @description Show AI Suggested Messages to visitors
+         * @example true
+         */
+        offerSuggestions?: boolean;
+        /**
+         * @description Smart Reply starts with 'Show in my Public Q&A' on
+         * @example false
+         */
+        publishByDefault?: boolean;
+      };
+      safety?: {
+        /**
+         * @description Blur Spicy messages until opened
+         * @example false
+         */
+        blurSpicy?: boolean;
+        /**
+         * @description Hold toxic and spam messages in Quarantined
+         * @example true
+         */
+        quarantineEnabled?: boolean;
+        /**
+         * @description How strict quarantine is
+         * @example balanced
+         * @enum {string}
+         */
+        sensitivity?: "relaxed" | "balanced" | "strict";
+      };
+    };
+    DeleteAllMessagesResponse: {
+      /** @example 24 */
+      deletedCount: number;
+      /** @example All messages deleted */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    DeleteAccountResponse: {
+      /** @example Account deleted */
+      message: string;
+      /** @example true */
+      success: boolean;
+    };
+    DeleteAccountRequest: {
+      /**
+       * @description Must equal the account's username
+       * @example maya_writes
+       */
+      confirmUsername: string;
+    };
+    AmaSuggestionsResponse: {
+      /** @example true */
+      success: boolean;
+      /**
+       * @example [
+       *       "Ask me anything about switching careers",
+       *       "Roast my music taste",
+       *       "What should I read next?"
+       *     ]
+       */
+      suggestions: string[];
+    };
+    AmaSuggestionsRequest: {
+      /** @description Riff on this prompt when given */
+      currentPrompt?: string;
+    };
+    InboxCountsResponse: {
+      counts: components["schemas"]["InboxCounts"];
+      /** @example true */
+      success: boolean;
+    };
+    InboxCounts: {
+      /** @example 24 */
+      all: number;
+      /** @example 9 */
+      answered: number;
+      /** @example 2 */
+      quarantined: number;
+      /** @example 5 */
+      starred: number;
+      /**
+       * @description Every message, quarantined included
+       * @example 26
+       */
+      total: number;
+      /** @example 3 */
+      unread: number;
+    };
+    DailyDigestRunResponse: {
+      /**
+       * @description Recipients with emailAlerts = daily
+       * @example 12
+       */
+      considered: number;
+      /**
+       * @description No new non-quarantined messages since the last digest
+       * @example 4
+       */
+      empty: number;
+      /** @example 0 */
+      failed: number;
+      /** @example 7 */
+      sent: number;
+      /**
+       * @description Inside quiet hours now; their messages roll into the next run
+       * @example 1
+       */
+      skippedQuietHours: number;
+      /** @example true */
+      success: boolean;
+    };
+  };
+}
+export type $defs = Record<string, never>;
+export type operations = Record<string, never>;

@@ -1,29 +1,18 @@
 import type { NextRequest } from "next/server";
-import { getServerSession, type User } from "next-auth";
-
-import dbConnect from "@/lib/db-connect";
-import UserModel from "@/model/user.model";
 import { acceptMessageSchema } from "@/schemas/accept-message-schema";
-import { authOptions } from "../auth/[...nextauth]/options";
-export async function POST(req: NextRequest): Promise<Response> {
-  await dbConnect();
-  try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
+import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
+import dbConnect from "@/server/db/db-connect";
+import UserModel from "@/server/models/user.model";
 
-    if (!(user && session?.user)) {
-      return Response.json(
-        {
-          success: false,
-          message: "Not authenticated, Please login first!",
-        },
-        {
-          status: 400,
-        }
-      );
+export async function POST(req: NextRequest): Promise<Response> {
+  try {
+    await dbConnect();
+    const userId = await getSessionUserId();
+
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
-    const userId = user._id;
     const { acceptMessages } = await req.json();
 
     const res = acceptMessageSchema.safeParse({ acceptMessages });
@@ -31,8 +20,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     if (!res.success) {
       return Response.json(
         {
-          success: false,
           message: "Invalid acceptMessages value",
+          success: false,
         },
         {
           status: 400,
@@ -44,14 +33,14 @@ export async function POST(req: NextRequest): Promise<Response> {
       userId,
       { isAcceptingMessage: res.data.acceptMessages },
       { new: true }
-    );
+    ).select("isAcceptingMessage");
 
     if (!updatedUser) {
       return Response.json(
         {
-          success: false,
           message:
             "Failed to update user status to accept messages - Updated User not found",
+          success: false,
         },
         {
           status: 401,
@@ -61,9 +50,8 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         message: "Message acceptance status updated successfully!",
-        updatedUser,
+        success: true,
       },
       {
         status: 200,
@@ -76,9 +64,9 @@ export async function POST(req: NextRequest): Promise<Response> {
     );
     return Response.json(
       {
-        success: false,
         message:
           "Failed to update user status to accept messages - Internal Server Error",
+        success: false,
       },
       {
         status: 500,
@@ -88,33 +76,22 @@ export async function POST(req: NextRequest): Promise<Response> {
 }
 
 export async function GET(): Promise<Response> {
-  await dbConnect();
-
   try {
-    const session = await getServerSession(authOptions);
-    const user = session?.user as User;
+    await dbConnect();
+    const userId = await getSessionUserId();
 
-    if (!(user && session?.user)) {
-      return Response.json(
-        {
-          success: false,
-          message: "Not authenticated, Please login first!",
-        },
-        {
-          status: 400,
-        }
-      );
+    if (!userId) {
+      return unauthorizedResponse();
     }
 
-    const userId = user._id;
-
-    const foundUser = await UserModel.findById(userId);
+    const foundUser =
+      await UserModel.findById(userId).select("isAcceptingMessage");
 
     if (!foundUser) {
       return Response.json(
         {
-          success: false,
           message: "User not found",
+          success: false,
         },
         {
           status: 404,
@@ -124,9 +101,9 @@ export async function GET(): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
-        message: "Message acceptance status fetched successfully!",
         isAcceptingMessage: foundUser.isAcceptingMessage,
+        message: "Message acceptance status fetched successfully!",
+        success: true,
       },
 
       {
@@ -140,9 +117,9 @@ export async function GET(): Promise<Response> {
     );
     return Response.json(
       {
-        success: false,
         message:
           "Failed to get user status to accept messages - Internal Server Error",
+        success: false,
       },
       {
         status: 500,

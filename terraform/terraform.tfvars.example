@@ -1,0 +1,79 @@
+# Copy to terraform.tfvars and fill in (gitignored, never commit real values).
+# In Terraform Cloud, set these as workspace variables instead (mark the
+# sensitive ones as "sensitive"); app_env_vars should be set as one HCL-typed
+# sensitive workspace variable there.
+
+vercel_api_token         = ""
+mongodbatlas_public_key  = ""
+mongodbatlas_private_key = ""
+mongodbatlas_org_id      = "<atlas-org-id>"
+
+mongodbatlas_db_password_production = "<generate-a-strong-password>"
+mongodbatlas_db_password_preview    = "<generate-a-different-strong-password>"
+
+# Mirrors .env.example, minus MONGODB_URI (built automatically, see
+# mongodbatlas.tf + vercel.tf). Add only the keys you want Terraform to
+# manage; see docs/02-getting-started.md §2.1 for what each one does.
+# `production` / `preview` / `development` can differ or be omitted.
+app_env_vars = {
+  NEXT_AUTH_SECRET = {
+    # one shared secret is fine; NextAuth just needs it to be stable per deploy
+    production = "<openssl rand -base64 32>"
+    preview    = "<openssl rand -base64 32>"
+  }
+  NEXTAUTH_URL = {
+    production = "https://ghost-msg.vercel.app"
+    sensitive  = false
+    # left out for preview: Vercel preview URLs change per deployment, so
+    # there's no single correct value here yet (existing limitation, not
+    # something this Terraform setup fixes).
+  }
+  SMTP_HOST = {
+    production = "smtp-relay.brevo.com"
+    preview    = "sandbox.smtp.mailtrap.io" # a test inbox: preview never emails real users
+    sensitive  = false
+  }
+  SMTP_PORT = {
+    production = "587"
+    preview    = "2525"
+    sensitive  = false
+  }
+  SMTP_USER = {
+    production = "<production-smtp-user>"
+    preview    = "<mailtrap-smtp-user>"
+  }
+  SMTP_PASS = {
+    production = "<production-smtp-pass>"
+    preview    = "<mailtrap-smtp-pass>"
+  }
+  GOOGLE_AI_STUDIO_SECRET = {
+    production = "<gemini-api-key>"
+    preview    = "<gemini-api-key>" # same key, shared budget is usually fine
+  }
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY = {
+    production = "<vapid-public-key>"
+    preview    = "<vapid-public-key>"
+    sensitive  = false
+  }
+  VAPID_PRIVATE_KEY = {
+    production = "<vapid-private-key>"
+    preview    = "<vapid-private-key>"
+  }
+  CRON_SECRET = {
+    production = "<random-bearer-secret>"
+    # preview omitted: the daily-digest cron only ever runs against production
+  }
+  SENDER_PEPPER_SECRET = {
+    production = "<random-pepper>"
+    preview    = "<a-different-random-pepper>"
+  }
+  GOOGLE_OAUTH_CLIENT_ID = {
+    production = "<client-id>.apps.googleusercontent.com"
+    preview    = "<client-id>.apps.googleusercontent.com" # usually the same OAuth client for both
+    sensitive  = false
+  }
+  GOOGLE_OAUTH_CLIENT_SECRET = {
+    production = "<GOCSPX-...>"
+    preview    = "<GOCSPX-...>"
+  }
+}
