@@ -128,4 +128,3 @@ export {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 };
-export default ResponsiveDialog;

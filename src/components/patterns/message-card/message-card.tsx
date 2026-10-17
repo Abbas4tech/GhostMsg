@@ -13,13 +13,9 @@ import {
   Trash2,
 } from "lucide-react";
 import type React from "react";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { Button } from "@/components/elements/button";
 import { Checkbox } from "@/components/elements/checkbox";
-import {
-  type MessageAction,
-  MessageActionsMenu,
-} from "@/components/patterns/message-actions-menu";
 import { SentimentBadge } from "@/components/patterns/sentiment-badge";
 import { formatRelativeTime } from "@/lib/format/relative-time";
 import { cn } from "@/lib/utils";
@@ -191,6 +187,10 @@ function IconAction({
 }
 
 function StarToggle({ message, onStarToggle }: CardModel) {
+  const handleStarToggle = useCallback(() => {
+    onStarToggle?.(message);
+  }, [onStarToggle, message]);
+
   if (message.isQuarantined || !onStarToggle) {
     return null;
   }
@@ -201,7 +201,7 @@ function StarToggle({ message, onStarToggle }: CardModel) {
       aria-label={label}
       aria-pressed={isPinned}
       className="size-10 rounded-[10px] text-muted-foreground hover:text-star sm:size-9"
-      onClick={() => onStarToggle(message)}
+      onClick={handleStarToggle}
       size="icon"
       title={label}
       variant="ghost"
@@ -218,15 +218,14 @@ function StarToggle({ message, onStarToggle }: CardModel) {
 }
 
 function CardCheckbox({ message, isSelected, onToggleSelect }: CardModel) {
+  const handleToggle = useCallback(() => {
+    onToggleSelect?.(String(message._id));
+  }, [onToggleSelect, message]);
+
   if (!onToggleSelect) {
     return null;
   }
-  return (
-    <SelectCheckbox
-      checked={isSelected}
-      onToggle={() => onToggleSelect(String(message._id))}
-    />
-  );
+  return <SelectCheckbox checked={isSelected} onToggle={handleToggle} />;
 }
 
 function CardBadge({ message }: { message: MessageDto }): React.JSX.Element {
@@ -265,38 +264,47 @@ function CardActionsMenu({
   onOpenBlock,
   onOpenDelete,
 }: CardModel): React.JSX.Element {
-  const actions: MessageAction[] = [];
-  if (!message.isQuarantined && onOpenStoryCard) {
-    actions.push({
-      icon: <Share2 aria-hidden="true" />,
-      key: "story-card",
-      label: "Share as Story Card",
-      onClick: () => onOpenStoryCard(message),
-    });
-  }
-  if (message.senderHash && onOpenBlock) {
-    actions.push({
-      icon: isSenderBlocked ? (
-        <ShieldOff aria-hidden="true" />
-      ) : (
-        <Ban aria-hidden="true" />
-      ),
-      key: "block",
-      label: isSenderBlocked ? "Unblock sender" : "Block sender",
-      onClick: () => onOpenBlock(message),
-    });
-  }
-  if (onOpenDelete) {
-    actions.push({
-      icon: <Trash2 aria-hidden="true" />,
-      key: "delete",
-      label: "Delete message",
-      onClick: () => onOpenDelete(message),
-      startsGroup: actions.length > 0,
-      tone: "danger",
-    });
-  }
-  return <MessageActionsMenu actions={actions} label="Message actions" />;
+  const handleOpenStoryCard = useCallback(() => {
+    onOpenStoryCard?.(message);
+  }, [onOpenStoryCard, message]);
+  const handleOpenBlock = useCallback(() => {
+    onOpenBlock?.(message);
+  }, [onOpenBlock, message]);
+  const handleOpenDelete = useCallback(() => {
+    onOpenDelete?.(message);
+  }, [onOpenDelete, message]);
+
+  return (
+    <>
+      {!message.isQuarantined && onOpenStoryCard ? (
+        <IconAction label="Share as Story Card" onClick={handleOpenStoryCard}>
+          <Share2 aria-hidden="true" />
+        </IconAction>
+      ) : null}
+      {message.senderHash && onOpenBlock ? (
+        <IconAction
+          label={isSenderBlocked ? "Unblock sender" : "Block sender"}
+          onClick={handleOpenBlock}
+          tone={isSenderBlocked ? "active" : "default"}
+        >
+          {isSenderBlocked ? (
+            <ShieldOff aria-hidden="true" />
+          ) : (
+            <Ban aria-hidden="true" />
+          )}
+        </IconAction>
+      ) : null}
+      {onOpenDelete ? (
+        <IconAction
+          label="Delete message"
+          onClick={handleOpenDelete}
+          tone="danger"
+        >
+          <Trash2 aria-hidden="true" />
+        </IconAction>
+      ) : null}
+    </>
+  );
 }
 
 /** Reveal (hidden quarantined) or Reply / Edit answer. */
@@ -308,18 +316,25 @@ function PrimaryAction({
   onOpenReply,
   compact,
 }: CardModel & { compact: boolean }) {
+  const handleReveal = useCallback(() => {
+    onReveal?.(message);
+  }, [onReveal, message]);
+  const handleOpenReply = useCallback(() => {
+    onOpenReply?.(message);
+  }, [onOpenReply, message]);
+
   if (isHidden) {
     if (!onReveal) {
       return null;
     }
     return compact ? (
-      <IconAction label="Reveal" onClick={() => onReveal(message)}>
+      <IconAction label="Reveal" onClick={handleReveal}>
         <Eye aria-hidden="true" />
       </IconAction>
     ) : (
       <Button
         className="rounded-full"
-        onClick={() => onReveal(message)}
+        onClick={handleReveal}
         size="sm"
         variant="outline"
       >
@@ -333,13 +348,13 @@ function PrimaryAction({
   }
   const label = isAnswered ? "Edit answer" : "Reply";
   return compact ? (
-    <IconAction label={label} onClick={() => onOpenReply(message)}>
+    <IconAction label={label} onClick={handleOpenReply}>
       <Reply aria-hidden="true" />
     </IconAction>
   ) : (
     <Button
       className="rounded-full"
-      onClick={() => onOpenReply(message)}
+      onClick={handleOpenReply}
       size="sm"
       variant={isAnswered ? "secondary" : "default"}
     >
@@ -497,4 +512,3 @@ export const MessageCard = memo(function MessageCardInner({
 });
 
 export { messageCardVariants };
-export default MessageCard;

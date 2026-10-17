@@ -219,6 +219,7 @@ async function main(): Promise<void> {
   const failures: string[] = [];
   try {
     for (const shot of shots) {
+      // biome-ignore lint/performance/noAwaitInLoops: shots must run one at a time — they share a single browser context and page, and console output order must match shot order.
       const page = await context.newPage();
       await page.setViewportSize(shot.viewport);
       try {

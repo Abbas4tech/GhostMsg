@@ -1,6 +1,6 @@
 {
   "name": "ghostmsg",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "private": true,
   "scripts": {
     "analyze": "cross-env ANALYZE=true next build",
@@ -39,7 +39,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "cn": "^0.5.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",

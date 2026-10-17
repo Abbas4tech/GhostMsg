@@ -51,6 +51,34 @@ const LOOKS: { label: string; value: StoryCardLook }[] = [
   { label: "Plain", value: "plain" },
 ];
 
+function SegmentedOption<T extends string>({
+  option,
+  isActive,
+  onChange,
+}: {
+  isActive: boolean;
+  onChange: (value: T) => void;
+  option: { label: string; value: T };
+}): React.JSX.Element {
+  const handleClick = useCallback(() => {
+    onChange(option.value);
+  }, [onChange, option]);
+
+  return (
+    <button
+      aria-pressed={isActive}
+      className={cn(
+        "min-h-10 rounded-full font-semibold text-muted-foreground text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring",
+        isActive && "bg-card text-foreground shadow-soft"
+      )}
+      onClick={handleClick}
+      type="button"
+    >
+      {option.label}
+    </button>
+  );
+}
+
 function Segmented<T extends string>({
   label,
   options,
@@ -70,18 +98,12 @@ function Segmented<T extends string>({
         className="grid grid-cols-2 rounded-full border bg-muted p-[3px]"
       >
         {options.map((option) => (
-          <button
-            aria-pressed={value === option.value}
-            className={cn(
-              "min-h-10 rounded-full font-semibold text-muted-foreground text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring",
-              value === option.value && "bg-card text-foreground shadow-soft"
-            )}
+          <SegmentedOption
+            isActive={value === option.value}
             key={option.value}
-            onClick={() => onChange(option.value)}
-            type="button"
-          >
-            {option.label}
-          </button>
+            onChange={onChange}
+            option={option}
+          />
         ))}
       </fieldset>
     </div>
@@ -215,11 +237,17 @@ export const StoryCardModal = ({
     handleDownload();
   }, [fileName, handleDownload]);
 
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
   return (
-    <ResponsiveDialog
-      onOpenChange={(open: boolean) => !open && onClose()}
-      open={isOpen}
-    >
+    <ResponsiveDialog onOpenChange={handleOpenChange} open={isOpen}>
       <ResponsiveDialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle>Share as Story Card</ResponsiveDialogTitle>
@@ -313,5 +341,3 @@ export const StoryCardModal = ({
     </ResponsiveDialog>
   );
 };
-
-export default StoryCardModal;

@@ -144,9 +144,9 @@ export function useProfileController() {
 
   return {
     aiIdeas,
-    amaPrompt: values.amaPrompt ?? "",
+    amaPrompt: values.amaPrompt,
     avatarUrl: values.avatarUrl ?? null,
-    displayName: values.displayName ?? "",
+    displayName: values.displayName,
     handleCancelLeave: clearPendingHref,
     handleConfirmLeave,
     handleCopyProfileUrl: link.handleCopy,
@@ -167,7 +167,7 @@ export function useProfileController() {
     setAmaPrompt,
     setDisplayName,
     setShowAmaBanner,
-    showAmaBanner: values.showAmaBanner ?? true,
+    showAmaBanner: values.showAmaBanner,
     username: saved?.username ?? link.username,
   };
 }

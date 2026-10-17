@@ -43,5 +43,3 @@ export function SectionNav({
     </nav>
   );
 }
-
-export default SectionNav;

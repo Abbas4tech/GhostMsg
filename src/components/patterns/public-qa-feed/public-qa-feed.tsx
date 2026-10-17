@@ -72,5 +72,3 @@ export function PublicQaFeed({
     </section>
   );
 }
-
-export default PublicQaFeed;

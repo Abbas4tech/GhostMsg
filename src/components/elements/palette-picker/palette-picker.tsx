@@ -3,6 +3,7 @@
 import type { VariantProps } from "class-variance-authority";
 import { PaletteIcon } from "lucide-react";
 import type * as React from "react";
+import { useCallback } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -121,13 +122,17 @@ function PalettePickerButton(
   props: PalettePickerButtonProps
 ): React.JSX.Element {
   const { palette, setPalette } = usePalette();
+  const handleValueChange = useCallback(
+    (next: string) => {
+      if (isPalette(next)) {
+        setPalette(next);
+      }
+    },
+    [setPalette]
+  );
   return (
     <PalettePicker
-      onValueChange={(next) => {
-        if (isPalette(next)) {
-          setPalette(next);
-        }
-      }}
+      onValueChange={handleValueChange}
       options={PALETTE_OPTIONS}
       value={palette}
       {...props}

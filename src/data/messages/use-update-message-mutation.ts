@@ -33,7 +33,7 @@ export const useUpdateMessageMutation = () => {
       restoreCachedMessages(queryClient, context?.snapshot);
       toast.error(error.message || "Failed to update message");
     },
-    onMutate: async ({ messageId, isPinned, isRead }) => {
+    onMutate: async ({ messageId, isPinned, isRead }: UpdateMessageParams) => {
       const snapshot = await patchCachedMessage(queryClient, messageId, {
         ...(isPinned === undefined ? {} : { isPinned }),
         ...(isRead === undefined ? {} : { isRead }),

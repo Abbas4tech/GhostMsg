@@ -577,6 +577,12 @@ export interface paths {
     get: {
       parameters: {
         query?: {
+          /** @description `nextCursor` from the previous page */
+          cursor?: string;
+          /** @description Page size 1-100 (default 30) */
+          limit?: string;
+          /** @description Search query string */
+          q?: string;
           /** @description Inbox filter (default all = not quarantined); any = every message */
           status?:
             | "all"
@@ -585,12 +591,6 @@ export interface paths {
             | "quarantined"
             | "answered"
             | "any";
-          /** @description Search query string */
-          q?: string;
-          /** @description Page size 1-100 (default 30) */
-          limit?: string;
-          /** @description `nextCursor` from the previous page */
-          cursor?: string;
         };
         header?: never;
         path?: never;
@@ -1858,19 +1858,19 @@ export interface components {
   responses: never;
   schemas: {
     BaseResponse: {
-      /** @example true */
-      success: boolean;
       /** @example Operation successful */
       message: string;
+      /** @example true */
+      success: boolean;
     };
     ErrorResponse: {
+      /** @example An error occurred */
+      message: string;
       /**
        * @example false
        * @enum {boolean}
        */
       success: false;
-      /** @example An error occurred */
-      message: string;
     };
     UsernameQuery: {
       /**
@@ -1880,11 +1880,6 @@ export interface components {
       username: string;
     };
     SignUpRequest: {
-      /**
-       * @description Unique username (alphanumeric and underscore, 2-20 characters)
-       * @example johndoe
-       */
-      username: string;
       /**
        * Format: email
        * @description User's email address
@@ -1896,12 +1891,17 @@ export interface components {
        * @example SecurePass123!
        */
       password: string;
+      /**
+       * @description Unique username (alphanumeric and underscore, 2-20 characters)
+       * @example johndoe
+       */
+      username: string;
     };
     SignUpResponse: {
-      /** @example true */
-      success: boolean;
       /** @example User registered successfully. Please verify your email */
       message: string;
+      /** @example true */
+      success: boolean;
     };
     VerifySchema: {
       /**
@@ -1912,21 +1912,21 @@ export interface components {
     };
     VerifyCodeRequest: {
       /**
-       * @description Username to verify
-       * @example johndoe
-       */
-      username: string;
-      /**
        * @description 6-digit numerical verification code
        * @example 123456
        */
       code: string;
+      /**
+       * @description Username to verify
+       * @example johndoe
+       */
+      username: string;
     };
     VerifyCodeResponse: {
-      /** @example true */
-      success: boolean;
       /** @example Account Verified Successfully! */
       message: string;
+      /** @example true */
+      success: boolean;
     };
     MessageSchema: {
       /**
@@ -1937,33 +1937,43 @@ export interface components {
     };
     SendMessageRequest: {
       /**
-       * @description Recipient's public username
-       * @example johndoe
-       */
-      username: string;
-      /**
        * @description Anonymous message text content (10-300 characters)
        * @example Hey! Just wanted to say you are doing great work.
        */
       content: string;
+      /**
+       * @description Recipient's public username
+       * @example johndoe
+       */
+      username: string;
     };
     SendMessageResponse: {
-      /** @example true */
-      success: boolean;
       /** @example Message sent successfully! */
       message: string;
-    };
-    SuggestedMessagesResponse: {
       /** @example true */
       success: boolean;
+    };
+    SuggestedMessagesResponse: {
       /** @example What is a skill you want to learn?||What is your favorite memory from this year?||If you could travel anywhere tomorrow, where would you go? */
       messages: string;
+      /** @example true */
+      success: boolean;
     };
     MessageItem: {
       /** @example 660c1d2e1b9d4c001f3e8a1a */
       _id: string;
       /** @example Hey! Loved your recent project. */
       content: string;
+      /** @example 2026-10-06T12:00:00.000Z */
+      createdAt: string;
+      /** @default false */
+      isPinned: boolean;
+      /** @default false */
+      isQuarantined: boolean;
+      /** @default false */
+      isRead: boolean;
+      reply?: components["schemas"]["MessageReply"];
+      senderHash?: string;
       /**
        * @description Emotional sentiment classification assigned to the message
        * @default neutral
@@ -1971,23 +1981,8 @@ export interface components {
        * @enum {string}
        */
       sentimentTag: "sweet" | "curious" | "spicy" | "advice" | "neutral";
-      /** @default false */
-      isQuarantined: boolean;
-      /** @default false */
-      isPinned: boolean;
-      /** @default false */
-      isRead: boolean;
-      reply?: components["schemas"]["MessageReply"];
-      senderHash?: string;
-      /** @example 2026-10-06T12:00:00.000Z */
-      createdAt: string;
     };
     MessageReply: {
-      /**
-       * @description Recipient's published reply text
-       * @example Thank you so much! Really appreciate the kind words.
-       */
-      text: string;
       /**
        * @description Whether the reply is visible publicly on /u/[username]
        * @default false
@@ -1999,22 +1994,27 @@ export interface components {
        * @description ISO timestamp when the reply was published
        */
       publishedAt?: string;
+      /**
+       * @description Recipient's published reply text
+       * @example Thank you so much! Really appreciate the kind words.
+       */
+      text: string;
     } | null;
     GetMessagesResponse: {
-      /** @example true */
-      success: boolean;
       /** @description List of received messages */
       messages: components["schemas"]["MessageItem"][];
-      /**
-       * @description Messages matching the filter
-       * @example 42
-       */
-      total?: number;
       /**
        * @description Pass as `cursor` for the next page; null on the last page
        * @example 2026-10-06T12:00:00.000Z_660c1d2e1b9d4c001f3e8a1a
        */
       nextCursor?: string | null;
+      /** @example true */
+      success: boolean;
+      /**
+       * @description Messages matching the filter
+       * @example 42
+       */
+      total?: number;
     };
     AcceptMessageRequest: {
       /**
@@ -2025,17 +2025,17 @@ export interface components {
     };
     AcceptMessageGetResponse: {
       /** @example true */
-      success: boolean;
-      /** @example true */
       isAcceptingMessage: boolean;
       /** @example Message acceptance status fetched successfully! */
       message: string;
-    };
-    AcceptMessagePostResponse: {
       /** @example true */
       success: boolean;
+    };
+    AcceptMessagePostResponse: {
       /** @example Message acceptance status updated successfully! */
       message: string;
+      /** @example true */
+      success: boolean;
     };
     UpdateMessageRequest: {
       /** @description Star/Pin status */
@@ -2045,16 +2045,16 @@ export interface components {
     };
     ReplyMessageRequest: {
       /**
-       * @description Author's response text
-       * @example Thanks a lot for the support!
-       */
-      text: string;
-      /**
        * @description Whether to publish this response to the public profile showcase
        * @default false
        * @example true
        */
       isPublished: boolean;
+      /**
+       * @description Author's response text
+       * @example Thanks a lot for the support!
+       */
+      text: string;
     };
     BulkActionRequest: {
       /**
@@ -2090,45 +2090,45 @@ export interface components {
       tone: "witty" | "wholesome" | "thoughtful";
     };
     SmartReplyResponse: {
-      /** @example true */
-      success: boolean;
       /** @example Haha, thanks for keeping me on my toes! 😉 */
       reply: string;
-    };
-    PublicAnswersResponse: {
       /** @example true */
       success: boolean;
-      username: string;
+    };
+    PublicAnswersResponse: {
       amaPrompt?: string;
-      /** @example Maya */
-      displayName?: string;
+      answers: components["schemas"]["PublicAnswerItem"][];
       /** @example null */
       avatarUrl?: string | null;
-      /** @example true */
-      showAmaBanner?: boolean;
-      /** @example true */
-      offerSuggestions?: boolean;
+      /** @example Maya */
+      displayName?: string;
       /**
        * @description Message Acceptance: false shows the profile's paused state
        * @example true
        */
       isAcceptingMessages?: boolean;
-      answers: components["schemas"]["PublicAnswerItem"][];
+      /** @example true */
+      offerSuggestions?: boolean;
+      /** @example true */
+      showAmaBanner?: boolean;
+      /** @example true */
+      success: boolean;
+      username: string;
     };
     PublicAnswerItem: {
       _id: string;
       content: string;
+      createdAt: string;
+      reply: {
+        publishedAt?: string;
+        text: string;
+      };
       /**
        * @description Emotional sentiment classification assigned to the message
        * @example sweet
        * @enum {string}
        */
       sentimentTag: "sweet" | "curious" | "spicy" | "advice" | "neutral";
-      reply: {
-        text: string;
-        publishedAt?: string;
-      };
-      createdAt: string;
     };
     AmaPromptRequest: {
       /**
@@ -2138,11 +2138,11 @@ export interface components {
       amaPrompt: string;
     };
     AmaPromptResponse: {
-      /** @example true */
-      success: boolean;
       amaPrompt: string;
       /** @example AMA prompt updated successfully! */
       message: string;
+      /** @example true */
+      success: boolean;
     };
     NotificationSettings: {
       /**
@@ -2153,26 +2153,26 @@ export interface components {
        */
       emailAlerts: "instant" | "daily" | "off";
       /**
-       * @description Whether browser push notifications are enabled on this device
-       * @default false
-       * @example false
-       */
-      webPushEnabled: boolean;
-      /**
        * @description Alerts say 'New Anonymous Message' without the text
        * @default true
        * @example true
        */
       hideMessageText: boolean;
       quietHours?: components["schemas"]["QuietHours"];
+      /**
+       * @description Whether browser push notifications are enabled on this device
+       * @default false
+       * @example false
+       */
+      webPushEnabled: boolean;
     };
     QuietHours: {
       /** @example false */
       enabled: boolean;
-      /** @example 22:00 */
-      start: string;
       /** @example 08:00 */
       end: string;
+      /** @example 22:00 */
+      start: string;
       /**
        * @description IANA time zone the window is in
        * @example Europe/London
@@ -2180,10 +2180,10 @@ export interface components {
       timeZone: string;
     };
     GetNotificationsResponse: {
+      isAcceptingMessage?: boolean;
+      notificationSettings: components["schemas"]["NotificationSettings"];
       /** @example true */
       success: boolean;
-      notificationSettings: components["schemas"]["NotificationSettings"];
-      isAcceptingMessage?: boolean;
     };
     UpdateNotificationsRequest: {
       /**
@@ -2191,18 +2191,18 @@ export interface components {
        * @enum {string}
        */
       emailAlerts?: "instant" | "daily" | "off";
-      /** @description Enable/disable browser push notifications */
-      webPushEnabled?: boolean;
       /** @description Hide message text in notifications */
       hideMessageText?: boolean;
       quietHours?: components["schemas"]["QuietHours"];
+      /** @description Enable/disable browser push notifications */
+      webPushEnabled?: boolean;
     };
     UpdateNotificationsResponse: {
-      /** @example true */
-      success: boolean;
       /** @example Notification settings updated successfully! */
       message: string;
       notificationSettings?: components["schemas"]["NotificationSettings"];
+      /** @example true */
+      success: boolean;
     };
     PushSubscriptionRequest: {
       /**
@@ -2212,10 +2212,10 @@ export interface components {
        */
       endpoint: string;
       keys: {
-        /** @description ECDH public key */
-        p256dh: string;
         /** @description Authentication secret */
         auth: string;
+        /** @description ECDH public key */
+        p256dh: string;
       };
     };
     PushUnsubscribeRequest: {
@@ -2227,55 +2227,50 @@ export interface components {
       endpoint: string;
     };
     GetBlockedSendersResponse: {
-      /** @example true */
-      success: boolean;
       /** @description List of blocked sender cryptographic hashes */
       blockedSenderHashes: string[];
       blockedSenders?: components["schemas"]["BlockedSender"][];
+      /** @example true */
+      success: boolean;
     };
     BlockedSender: {
-      hash: string;
       /** @description ISO date (missing for blocks made before dates were kept) */
       blockedAt?: string;
+      hash: string;
     };
     UsernameUniqueResponse: {
-      /** @example true */
-      success: boolean;
       /** @example Username is unique */
       message: string;
+      /** @example true */
+      success: boolean;
     };
     GetUserProfileResponse: {
+      profile: components["schemas"]["UserProfile"];
       /** @example true */
       success: boolean;
-      profile: components["schemas"]["UserProfile"];
     };
     UserProfile: {
-      /** @example maya_writes */
-      username: string;
-      /** @example maya@example.com */
-      email: string;
-      /** @example Maya */
-      displayName: string;
-      /** @example null */
-      avatarUrl: string | null;
       /** @example Ask me anything about moving countries for work. */
       amaPrompt: string;
+      /** @example null */
+      avatarUrl: string | null;
+      /** @example Maya */
+      displayName: string;
+      /** @example maya@example.com */
+      email: string;
       /** @example true */
       showAmaBanner: boolean;
+      /** @example maya_writes */
+      username: string;
     };
     UpdateUserProfileResponse: {
-      /** @example true */
-      success: boolean;
       /** @example Profile updated */
       message: string;
       profile: components["schemas"]["UserProfile"];
+      /** @example true */
+      success: boolean;
     };
     UpdateUserProfileRequest: {
-      /**
-       * @description Name shown on the public profile (empty = username)
-       * @example Maya
-       */
-      displayName?: string;
       /**
        * @description AMA Prompt shown on the public profile
        * @example Ask me anything about moving countries for work.
@@ -2286,13 +2281,18 @@ export interface components {
        * @example data:image/webp;base64,UklGR…
        */
       avatarUrl?: string | null;
+      /**
+       * @description Name shown on the public profile (empty = username)
+       * @example Maya
+       */
+      displayName?: string;
       showAmaBanner?: boolean;
     };
     ChangeUsernameResponse: {
-      /** @example true */
-      success: boolean;
       /** @example Username updated */
       message: string;
+      /** @example true */
+      success: boolean;
       /** @example maya_writes */
       username: string;
     };
@@ -2304,9 +2304,9 @@ export interface components {
       username: string;
     };
     GetUserPreferencesResponse: {
+      preferences: components["schemas"]["UserPreferences"];
       /** @example true */
       success: boolean;
-      preferences: components["schemas"]["UserPreferences"];
     };
     UserPreferences: {
       messages: components["schemas"]["MessagePreferences"];
@@ -2326,6 +2326,11 @@ export interface components {
     };
     SafetySettings: {
       /**
+       * @description Blur Spicy messages until opened
+       * @example false
+       */
+      blurSpicy: boolean;
+      /**
        * @description Hold toxic and spam messages in Quarantined
        * @example true
        */
@@ -2336,18 +2341,13 @@ export interface components {
        * @enum {string}
        */
       sensitivity: "relaxed" | "balanced" | "strict";
-      /**
-       * @description Blur Spicy messages until opened
-       * @example false
-       */
-      blurSpicy: boolean;
     };
     UpdateUserPreferencesResponse: {
-      /** @example true */
-      success: boolean;
       /** @example Preferences updated */
       message: string;
       preferences: components["schemas"]["UserPreferences"];
+      /** @example true */
+      success: boolean;
     };
     UpdateUserPreferencesRequest: {
       messages?: {
@@ -2364,6 +2364,11 @@ export interface components {
       };
       safety?: {
         /**
+         * @description Blur Spicy messages until opened
+         * @example false
+         */
+        blurSpicy?: boolean;
+        /**
          * @description Hold toxic and spam messages in Quarantined
          * @example true
          */
@@ -2374,26 +2379,21 @@ export interface components {
          * @enum {string}
          */
         sensitivity?: "relaxed" | "balanced" | "strict";
-        /**
-         * @description Blur Spicy messages until opened
-         * @example false
-         */
-        blurSpicy?: boolean;
       };
     };
     DeleteAllMessagesResponse: {
-      /** @example true */
-      success: boolean;
-      /** @example All messages deleted */
-      message: string;
       /** @example 24 */
       deletedCount: number;
-    };
-    DeleteAccountResponse: {
+      /** @example All messages deleted */
+      message: string;
       /** @example true */
       success: boolean;
+    };
+    DeleteAccountResponse: {
       /** @example Account deleted */
       message: string;
+      /** @example true */
+      success: boolean;
     };
     DeleteAccountRequest: {
       /**
@@ -2419,49 +2419,49 @@ export interface components {
       currentPrompt?: string;
     };
     InboxCountsResponse: {
+      counts: components["schemas"]["InboxCounts"];
       /** @example true */
       success: boolean;
-      counts: components["schemas"]["InboxCounts"];
     };
     InboxCounts: {
       /** @example 24 */
       all: number;
-      /** @example 3 */
-      unread: number;
-      /** @example 5 */
-      starred: number;
       /** @example 9 */
       answered: number;
       /** @example 2 */
       quarantined: number;
+      /** @example 5 */
+      starred: number;
       /**
        * @description Every message, quarantined included
        * @example 26
        */
       total: number;
+      /** @example 3 */
+      unread: number;
     };
     DailyDigestRunResponse: {
-      /** @example true */
-      success: boolean;
       /**
        * @description Recipients with emailAlerts = daily
        * @example 12
        */
       considered: number;
-      /** @example 7 */
-      sent: number;
       /**
        * @description No new non-quarantined messages since the last digest
        * @example 4
        */
       empty: number;
+      /** @example 0 */
+      failed: number;
+      /** @example 7 */
+      sent: number;
       /**
        * @description Inside quiet hours now; their messages roll into the next run
        * @example 1
        */
       skippedQuietHours: number;
-      /** @example 0 */
-      failed: number;
+      /** @example true */
+      success: boolean;
     };
   };
 }

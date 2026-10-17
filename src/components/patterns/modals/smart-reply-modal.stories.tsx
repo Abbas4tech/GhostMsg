@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { expect, fn, screen } from "storybook/test";
 import { sweetMessage } from "@/mock/fixtures/messages.fixtures";
 import {
@@ -20,18 +20,26 @@ const WITTY_REGEX = /witty/i;
 function StatefulSmartReplyModal(args: SmartReplyModalProps) {
   const [replyText, setReplyText] = useState(args.replyText);
   const [isPublished, setIsPublished] = useState(args.isPublished);
+  const handlePublishedChange = useCallback(
+    (next: boolean) => {
+      args.onPublishedChange(next);
+      setIsPublished(next);
+    },
+    [args]
+  );
+  const handleReplyTextChange = useCallback(
+    (next: string) => {
+      args.onReplyTextChange(next);
+      setReplyText(next);
+    },
+    [args]
+  );
   return (
     <SmartReplyModal
       {...args}
       isPublished={isPublished}
-      onPublishedChange={(next) => {
-        args.onPublishedChange(next);
-        setIsPublished(next);
-      }}
-      onReplyTextChange={(next) => {
-        args.onReplyTextChange(next);
-        setReplyText(next);
-      }}
+      onPublishedChange={handlePublishedChange}
+      onReplyTextChange={handleReplyTextChange}
       replyText={replyText}
     />
   );

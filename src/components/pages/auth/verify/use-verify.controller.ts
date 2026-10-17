@@ -16,7 +16,7 @@ export function useVerifyController(username: string) {
 
   const form = useForm<VerifyCodeValues>({
     defaultValues: { code: "" },
-    mode: "onSubmit",
+    mode: "onChange",
     resolver: zodResolver(verifySchema),
   });
 
@@ -36,11 +36,15 @@ export function useVerifyController(username: string) {
           toast.success(res.message);
           router.replace("/sign-in");
         } else {
-          setCodeError(res?.message || "That code isn't right.");
+          const errorMsg = res?.message || "That code isn't right.";
+          setCodeError(errorMsg);
+          toast.error(errorMsg);
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : "";
-        setCodeError(message || "That code isn't right.");
+        const errorMsg = message || "That code isn't right.";
+        setCodeError(errorMsg);
+        toast.error(errorMsg);
       }
     },
     [mutateAsync, router, username]

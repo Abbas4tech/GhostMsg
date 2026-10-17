@@ -28,4 +28,3 @@ function Progress({
 }
 
 export { Progress };
-export default Progress;

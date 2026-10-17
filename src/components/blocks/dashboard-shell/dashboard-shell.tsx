@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -131,6 +131,10 @@ function AcceptanceField({
   onToggle,
 }: DashboardAcceptance): React.JSX.Element {
   const id = useId();
+  const handleToggle = useCallback(() => {
+    onToggle();
+  }, [onToggle]);
+
   return (
     <Field className="px-1.5" orientation="horizontal">
       <FieldContent>
@@ -152,7 +156,7 @@ function AcceptanceField({
         checked={isAccepting}
         disabled={isPending}
         id={id}
-        onCheckedChange={onToggle}
+        onCheckedChange={handleToggle}
         size="xl"
       />
     </Field>
@@ -311,6 +315,9 @@ function MobileTopBar({
   const { setOpenMobile } = useSidebar();
   const title =
     NAV_ITEMS.find((item) => item.id === activeNav)?.label ?? "Dashboard";
+  const handleOpenMobileSidebar = useCallback(() => {
+    setOpenMobile(true);
+  }, [setOpenMobile]);
 
   return (
     <header className="sticky top-0 z-30 flex items-center gap-2 border-b bg-background/90 px-4 py-2.5 backdrop-blur md:hidden">
@@ -328,7 +335,7 @@ function MobileTopBar({
       <button
         aria-label="Open menu"
         className="grid size-11 place-items-center rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-        onClick={() => setOpenMobile(true)}
+        onClick={handleOpenMobileSidebar}
         type="button"
       >
         <UserAvatar avatarUrl={avatarUrl} size="lg" username={username} />
@@ -405,5 +412,3 @@ export function DashboardShell({
     </SidebarProvider>
   );
 }
-
-export default DashboardShell;

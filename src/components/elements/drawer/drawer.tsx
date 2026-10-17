@@ -132,4 +132,3 @@ export {
   DrawerTitle,
   DrawerTrigger,
 };
-export default Drawer;

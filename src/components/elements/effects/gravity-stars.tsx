@@ -130,9 +130,9 @@ function resolveStarInteractions(
   stars: Particle[],
   interactionType: StarsInteractionType
 ) {
-  for (let i = 0; i < stars.length; i++) {
+  for (let i = 0; i < stars.length; i += 1) {
     const p = stars[i];
-    for (let j = i + 1; j < stars.length; j++) {
+    for (let j = i + 1; j < stars.length; j += 1) {
       const o = stars[j];
       const dx2 = o.x - p.x;
       const dy2 = o.y - p.y;
@@ -267,15 +267,14 @@ function GravityStarsBackground({
     let clientX = 0;
     let clientY = 0;
     if ("touches" in e) {
+      // biome-ignore lint/style/useDestructuring: TouchList's [Symbol.iterator] isn't visible to tsc at this target, so array destructuring fails to compile — index access is required.
       const t = e.touches[0];
       if (!t) {
         return;
       }
-      clientX = t.clientX;
-      clientY = t.clientY;
+      ({ clientX, clientY } = t);
     } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
+      ({ clientX, clientY } = e);
     }
     mouseRef.current = { x: clientX - rect.left, y: clientY - rect.top };
   }, []);

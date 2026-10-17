@@ -65,5 +65,3 @@ export function BrandMark({
     </span>
   );
 }
-
-export default BrandMark;

@@ -132,11 +132,11 @@ export const AllPending: Story = {
     await expect(
       canvas.getByRole("switch", { name: ACCEPT_REGEX })
     ).toBeDisabled();
-    for (const button of canvas.getAllByRole("button", {
-      name: UNBLOCK_REGEX,
-    })) {
-      await expect(button).toBeDisabled();
-    }
+    await Promise.all(
+      canvas
+        .getAllByRole("button", { name: UNBLOCK_REGEX })
+        .map((button) => expect(button).toBeDisabled())
+    );
   },
 };
 

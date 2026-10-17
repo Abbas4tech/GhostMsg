@@ -37,5 +37,3 @@ export function QueryProvider({
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 }
-
-export default QueryProvider;

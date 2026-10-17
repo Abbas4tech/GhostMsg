@@ -16,7 +16,7 @@ Single-context (`GLOSSARY.md` and `docs/adr/` at root). See `docs/agents/domain.
 
 ### Agent guide index
 
-`docs/agents/README.md` maps each kind of task to its guide and to reference chapters 12–19 (product, design system, screens, data model, API, trust & safety, notifications, release summary).
+`docs/agents/README.md` maps each kind of task to its guide and to reference chapters 12–21 (product, design system, screens, data model, API, trust & safety, notifications, release summary, state management, infrastructure).
 
 ### Product rules & safety
 
@@ -55,6 +55,6 @@ Storybook 10 (`@storybook/nextjs-vite`) stories are the component tests. They ru
 Nodemailer + `@react-email/render` via SMTP (configured via `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` env variables in `src/server/email/mailer.ts`). `resend` package has been completely removed.
 
 ### Infrastructure (Terraform)
-The Vercel project, its per-environment (Production/Preview) environment variables, and the MongoDB Atlas project/cluster/database users are managed as code in `terraform/`, not by hand in either dashboard. See `terraform/README.md` before changing any of them, and [ADR 0032](docs/adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md). `vercel.json`'s cron declaration is the one exception: the Vercel Terraform provider has no cron resource, so it stays out of `terraform/` on purpose.
+The Vercel project, its per-environment (Production/Preview) environment variables, and the MongoDB Atlas project/cluster/database users are managed as code in `terraform/`, not by hand in either dashboard. See `terraform/README.md` before changing any of them, [Chapter 21](docs/21-infrastructure-and-terraform.md) for the full architectural picture, and [ADR 0032](docs/adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md). `vercel.json`'s cron declaration is the one exception: the Vercel Terraform provider has no cron resource, so it stays out of `terraform/` on purpose.
 
 

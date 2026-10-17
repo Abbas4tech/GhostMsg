@@ -63,7 +63,7 @@ export const Default: Story = {
 
 export const SuggestionFillsForm: Story = {
   play: async ({ canvas, userEvent }) => {
-    const suggestion = suggestionScenarios.default[1];
+    const [, suggestion] = suggestionScenarios.default;
     await userEvent.click(
       await canvas.findByRole("button", { name: suggestion }, PAGE_LOAD)
     );

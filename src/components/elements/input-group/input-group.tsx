@@ -80,6 +80,15 @@ const inputGroupAddonVariants = cva(
   }
 );
 
+const handleInputGroupAddonClick: React.MouseEventHandler<HTMLDivElement> = (
+  e
+) => {
+  if ((e.target as HTMLElement).closest("button")) {
+    return;
+  }
+  e.currentTarget.parentElement?.querySelector("input")?.focus();
+};
+
 function InputGroupAddon({
   className,
   align = "inline-start",
@@ -90,12 +99,7 @@ function InputGroupAddon({
       className={cn(inputGroupAddonVariants({ align }), className)}
       data-align={align}
       data-slot="input-group-addon"
-      onClick={(e) => {
-        if ((e.target as HTMLElement).closest("button")) {
-          return;
-        }
-        e.currentTarget.parentElement?.querySelector("input")?.focus();
-      }}
+      onClick={handleInputGroupAddonClick}
       role="group"
       {...props}
     />

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { expect, fn } from "storybook/test";
 import { FIXTURE_AMA_PROMPT } from "@/mock/fixtures/public-profile.fixtures";
 import {
@@ -19,17 +19,25 @@ const SUGGEST_REGEX = /suggest with ai/i;
 function StatefulAmaPromptEditor(args: AmaPromptEditorProps) {
   const [value, setValue] = useState(args.value);
   const [showBanner, setShowBanner] = useState(args.showBanner);
+  const handleChange = useCallback(
+    (next: string) => {
+      args.onChange(next);
+      setValue(next);
+    },
+    [args]
+  );
+  const handleShowBannerChange = useCallback(
+    (next: boolean) => {
+      args.onShowBannerChange(next);
+      setShowBanner(next);
+    },
+    [args]
+  );
   return (
     <AmaPromptEditor
       {...args}
-      onChange={(next) => {
-        args.onChange(next);
-        setValue(next);
-      }}
-      onShowBannerChange={(next) => {
-        args.onShowBannerChange(next);
-        setShowBanner(next);
-      }}
+      onChange={handleChange}
+      onShowBannerChange={handleShowBannerChange}
       showBanner={showBanner}
       value={value}
     />

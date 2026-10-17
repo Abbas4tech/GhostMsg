@@ -6,14 +6,17 @@ const { sendNotification, updateOne } = vi.hoisted(() => ({
 }));
 
 vi.mock("web-push", () => {
-  class WebPushError extends Error {
+  class MockWebPushError extends Error {
     statusCode: number;
     constructor(message: string, statusCode: number) {
       super(message);
       this.statusCode = statusCode;
     }
   }
-  return { default: { sendNotification }, WebPushError };
+  return {
+    default: { sendNotification },
+    WebPushError: MockWebPushError,
+  };
 });
 vi.mock("@/server/models/user.model", () => ({ default: { updateOne } }));
 

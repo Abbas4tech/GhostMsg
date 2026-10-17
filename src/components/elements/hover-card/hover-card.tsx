@@ -41,4 +41,3 @@ function HoverCardContent({
 }
 
 export { HoverCard, HoverCardContent, HoverCardTrigger };
-export default HoverCard;

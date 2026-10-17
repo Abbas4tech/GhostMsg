@@ -2,7 +2,7 @@
 
 import { CheckIcon, XIcon } from "lucide-react";
 import type React from "react";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import { Button } from "@/components/elements/button";
 import {
   Dialog,
@@ -55,18 +55,32 @@ export function ChangeUsernameModal({
   const inputId = useId();
   const isInvalid = availability === "taken" || Boolean(errorMessage);
   const canSave = availability === "available" && !isSaving;
+  const handleSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      if (canSave) {
+        onSubmit();
+      }
+    },
+    [canSave, onSubmit]
+  );
+  const handleValueChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onValueChange(event.target.value);
+    },
+    [onValueChange]
+  );
+  const handleCancel = useCallback(() => {
+    onOpenChange(false);
+  }, [onOpenChange]);
 
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent className="sm:max-w-md">
         <form
           className="flex flex-col gap-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (canSave) {
-              onSubmit();
-            }
-          }}
+          noValidate
+          onSubmit={handleSubmit}
         >
           <DialogHeader>
             <DialogTitle>Change your username</DialogTitle>
@@ -87,7 +101,7 @@ export function ChangeUsernameModal({
                 autoComplete="off"
                 className="pl-0"
                 id={inputId}
-                onChange={(event) => onValueChange(event.target.value)}
+                onChange={handleValueChange}
                 spellCheck={false}
                 value={value}
               />
@@ -124,7 +138,7 @@ export function ChangeUsernameModal({
           <DialogFooter>
             <Button
               className="rounded-full"
-              onClick={() => onOpenChange(false)}
+              onClick={handleCancel}
               type="button"
               variant="outline"
             >
@@ -140,5 +154,3 @@ export function ChangeUsernameModal({
     </Dialog>
   );
 }
-
-export default ChangeUsernameModal;

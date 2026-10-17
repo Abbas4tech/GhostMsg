@@ -33,24 +33,6 @@
       },
       "suspicious": {
         "noArrayIndexKey": "error"
-      },
-      "style": {
-        "noRestrictedImports": {
-          "level": "error",
-          "options": {
-            "patterns": [
-              {
-                "group": [
-                  "@/components/animate-ui",
-                  "@/components/animate-ui/**",
-                  "@/components/ui",
-                  "@/components/ui/**"
-                ],
-                "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
-              }
-            ]
-          }
-        }
       }
     }
   },
@@ -144,15 +126,6 @@
                 "patterns": [
                   {
                     "group": [
-                      "@/components/animate-ui",
-                      "@/components/animate-ui/**",
-                      "@/components/ui",
-                      "@/components/ui/**"
-                    ],
-                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
-                  },
-                  {
-                    "group": [
                       "@tanstack/react-query",
                       "next-auth/react",
                       "next/navigation",
@@ -194,15 +167,6 @@
                 "patterns": [
                   {
                     "group": [
-                      "@/components/animate-ui",
-                      "@/components/animate-ui/**",
-                      "@/components/ui",
-                      "@/components/ui/**"
-                    ],
-                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
-                  },
-                  {
-                    "group": [
                       "@tanstack/react-query",
                       "next-auth/react",
                       "next/navigation",
@@ -240,15 +204,6 @@
               "level": "error",
               "options": {
                 "patterns": [
-                  {
-                    "group": [
-                      "@/components/animate-ui",
-                      "@/components/animate-ui/**",
-                      "@/components/ui",
-                      "@/components/ui/**"
-                    ],
-                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
-                  },
                   {
                     "group": [
                       "@tanstack/react-query",
@@ -292,15 +247,6 @@
               "level": "error",
               "options": {
                 "patterns": [
-                  {
-                    "group": [
-                      "@/components/animate-ui",
-                      "@/components/animate-ui/**",
-                      "@/components/ui",
-                      "@/components/ui/**"
-                    ],
-                    "message": "animate-ui and shadcn ui live in @/components/elements now (ADR 0015). Move new registry installs into elements/<name>/."
-                  },
                   {
                     "group": ["server-only", "@/server", "@/server/**"],
                     "message": "Server-only code (@/server/**) is imported only by src/app/** (route handlers, server components) and other server modules (ADR 0018). Client code reaches the API through @/data."

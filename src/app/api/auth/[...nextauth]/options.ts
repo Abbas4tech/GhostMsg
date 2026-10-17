@@ -84,7 +84,8 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Password is incorrect, Please try again");
         } catch (error) {
           throw new Error(
-            error instanceof Error ? error.message : "Authentication error"
+            error instanceof Error ? error.message : "Authentication error",
+            { cause: error }
           );
         }
       },

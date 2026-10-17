@@ -161,28 +161,28 @@ function ParticlesEffect({
 
   return (
     <AnimatePresence>
-      {animate &&
-        isInView &&
-        particles.map((p) => (
-          <motion.div
-            animate={{
-              opacity: [0, 1, 0],
-              scale: [0, 1, 0],
-              x: `${p.x}px`,
-              y: `${p.y}px`,
-            }}
-            initial={{ opacity: 0, scale: 0 }}
-            key={p.id}
-            style={{ ...containerStyle, ...style }}
-            transition={{
-              delay: p.itemDelay,
-              duration,
-              ease: "easeOut",
-              ...transition,
-            }}
-            {...props}
-          />
-        ))}
+      {animate && isInView
+        ? particles.map((p) => (
+            <motion.div
+              animate={{
+                opacity: [0, 1, 0],
+                scale: [0, 1, 0],
+                x: `${p.x}px`,
+                y: `${p.y}px`,
+              }}
+              initial={{ opacity: 0, scale: 0 }}
+              key={p.id}
+              style={{ ...containerStyle, ...style }}
+              transition={{
+                delay: p.itemDelay,
+                duration,
+                ease: "easeOut",
+                ...transition,
+              }}
+              {...props}
+            />
+          ))
+        : null}
     </AnimatePresence>
   );
 }

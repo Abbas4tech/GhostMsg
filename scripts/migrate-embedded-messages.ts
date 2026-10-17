@@ -44,6 +44,7 @@ export async function migrateLegacyMessages() {
     }));
 
     try {
+      // biome-ignore lint/performance/noAwaitInLoops: one-off migration — must run per-user so a failure is resumable and progress logs stay in order.
       await MessageModel.insertMany(docsToInsert, { ordered: false });
     } catch {
       // Ignore duplicate key errors if already partially migrated

@@ -81,4 +81,3 @@ export function SentimentBadge({
 }
 
 export { sentimentBadgeVariants };
-export default SentimentBadge;

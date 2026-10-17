@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useCallback } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -26,15 +27,17 @@ export function DiscardChangesModal({
   onDiscard,
   onKeepEditing,
 }: DiscardChangesModalProps): React.JSX.Element {
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        onKeepEditing();
+      }
+    },
+    [onKeepEditing]
+  );
+
   return (
-    <AlertDialog
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          onKeepEditing();
-        }
-      }}
-      open={open}
-    >
+    <AlertDialog onOpenChange={handleOpenChange} open={open}>
       <AlertDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
         <AlertDialogHeader className="text-left sm:text-left">
           <AlertDialogTitle className="text-h2">
@@ -60,5 +63,3 @@ export function DiscardChangesModal({
     </AlertDialog>
   );
 }
-
-export default DiscardChangesModal;

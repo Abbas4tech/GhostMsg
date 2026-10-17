@@ -2,7 +2,7 @@
 
 import { Ban, Loader2, ShieldOff } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/elements/button";
 import {
   ResponsiveDialog,
@@ -47,11 +47,34 @@ export function BlockSenderModal({
   onConfirm,
 }: BlockSenderModalProps): React.JSX.Element | null {
   const [alsoDelete, setAlsoDelete] = useState(true);
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+  const handleSelectBlockAndDelete = useCallback(() => {
+    setAlsoDelete(true);
+  }, []);
+  const handleSelectBlockOnly = useCallback(() => {
+    setAlsoDelete(false);
+  }, []);
+  const handleConfirm = useCallback(() => {
+    if (!message?.senderHash) {
+      return;
+    }
+    onConfirm(
+      message.senderHash,
+      isSenderBlocked,
+      !isSenderBlocked && alsoDelete
+    );
+  }, [onConfirm, message, isSenderBlocked, alsoDelete]);
 
   if (!message?.senderHash) {
     return null;
   }
-  const { senderHash } = message;
 
   let buttonText = isSenderBlocked ? "Unblock sender" : "Block sender";
   if (isPending) {
@@ -59,10 +82,7 @@ export function BlockSenderModal({
   }
 
   return (
-    <ResponsiveDialog
-      onOpenChange={(isOpen) => !isOpen && onClose()}
-      open={open}
-    >
+    <ResponsiveDialog onOpenChange={handleOpenChange} open={open}>
       <ResponsiveDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
         <ResponsiveDialogHeader className="gap-3 text-left sm:text-left">
           <span className="grid size-11 place-items-center rounded-[14px] bg-accent text-accent-foreground">
@@ -96,7 +116,11 @@ export function BlockSenderModal({
                   checked={alsoDelete === option.value}
                   className="size-5 accent-primary"
                   name="block-option"
-                  onChange={() => setAlsoDelete(option.value)}
+                  onChange={
+                    option.value
+                      ? handleSelectBlockAndDelete
+                      : handleSelectBlockOnly
+                  }
                   type="radio"
                 />
                 {option.label}
@@ -117,13 +141,7 @@ export function BlockSenderModal({
           <Button
             className="rounded-full"
             disabled={isPending}
-            onClick={() =>
-              onConfirm(
-                senderHash,
-                isSenderBlocked,
-                !isSenderBlocked && alsoDelete
-              )
-            }
+            onClick={handleConfirm}
             variant={isSenderBlocked ? "default" : "destructive"}
           >
             {isPending ? (

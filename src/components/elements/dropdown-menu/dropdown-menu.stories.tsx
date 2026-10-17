@@ -15,6 +15,12 @@ import {
 
 const onSelectItem = fn();
 
+const selectItemHandlers = new Map(
+  dropdownMenuMockContent.items.map(
+    (item) => [item, () => onSelectItem(item)] as const
+  )
+);
+
 const meta = {
   args: { ...defaultDropdownMenuArgs, onOpenChange: fn() },
   argTypes: {
@@ -34,7 +40,7 @@ const meta = {
       <DropdownMenuContent>
         <DropdownMenuLabel>{dropdownMenuMockContent.label}</DropdownMenuLabel>
         {dropdownMenuMockContent.items.map((item) => (
-          <DropdownMenuItem key={item} onSelect={() => onSelectItem(item)}>
+          <DropdownMenuItem key={item} onSelect={selectItemHandlers.get(item)}>
             {item}
           </DropdownMenuItem>
         ))}

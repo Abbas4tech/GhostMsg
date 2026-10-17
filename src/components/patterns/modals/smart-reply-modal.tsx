@@ -2,7 +2,7 @@
 
 import { Loader2, Share2, Sparkles } from "lucide-react";
 import type React from "react";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import { Button } from "@/components/elements/button";
 import { Switch } from "@/components/elements/switch";
 import { Textarea } from "@/components/elements/textarea";
@@ -43,6 +43,36 @@ const TONE_IDEAS: { hint: string; label: string; tone: SmartReplyTone }[] = [
   { hint: "Honest and considered", label: "🤔 Thoughtful", tone: "thoughtful" },
 ];
 
+function ToneIdeaButton({
+  tone,
+  label,
+  hint,
+  isGenerating,
+  onGenerate,
+}: {
+  hint: string;
+  isGenerating: boolean;
+  label: string;
+  onGenerate: (tone: SmartReplyTone) => void;
+  tone: SmartReplyTone;
+}): React.JSX.Element {
+  const handleClick = useCallback(() => {
+    onGenerate(tone);
+  }, [onGenerate, tone]);
+
+  return (
+    <button
+      className="flex min-h-11 items-center justify-between gap-2 rounded-2xl border border-input border-dashed bg-card px-3.5 py-2 text-left font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
+      disabled={isGenerating}
+      onClick={handleClick}
+      type="button"
+    >
+      <span>{label}</span>
+      <span className="text-muted-foreground text-xs">{hint}</span>
+    </button>
+  );
+}
+
 /** Answer an Anonymous Message: draft, AI Smart Reply ideas, Public Q&A switch. */
 export const SmartReplyModal = ({
   isOpen,
@@ -60,6 +90,20 @@ export const SmartReplyModal = ({
 }: SmartReplyModalProps): React.JSX.Element | null => {
   const answerId = useId();
   const publishId = useId();
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+  const handleReplyTextChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      onReplyTextChange(event.target.value);
+    },
+    [onReplyTextChange]
+  );
 
   if (!message) {
     return null;
@@ -68,10 +112,7 @@ export const SmartReplyModal = ({
   const canSave = Boolean(replyText.trim()) && !isSaving;
 
   return (
-    <ResponsiveDialog
-      onOpenChange={(open: boolean) => !open && onClose()}
-      open={isOpen}
-    >
+    <ResponsiveDialog onOpenChange={handleOpenChange} open={isOpen}>
       <ResponsiveDialogContent className="max-h-[92vh] gap-4 overflow-y-auto shadow-lift">
         <ResponsiveDialogHeader className="text-left">
           <ResponsiveDialogTitle>Answer this message</ResponsiveDialogTitle>
@@ -99,7 +140,7 @@ export const SmartReplyModal = ({
             className="min-h-28 resize-none rounded-md text-body"
             id={answerId}
             maxLength={REPLY_MAX_LENGTH}
-            onChange={(e) => onReplyTextChange(e.target.value)}
+            onChange={handleReplyTextChange}
             placeholder="Write your answer…"
             value={replyText}
           />
@@ -120,16 +161,14 @@ export const SmartReplyModal = ({
             ) : null}
           </span>
           {TONE_IDEAS.map(({ tone, label, hint }) => (
-            <button
-              className="flex min-h-11 items-center justify-between gap-2 rounded-2xl border border-input border-dashed bg-card px-3.5 py-2 text-left font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
-              disabled={isGenerating}
+            <ToneIdeaButton
+              hint={hint}
+              isGenerating={isGenerating}
               key={tone}
-              onClick={() => onGenerate(tone)}
-              type="button"
-            >
-              <span>{label}</span>
-              <span className="text-muted-foreground text-xs">{hint}</span>
-            </button>
+              label={label}
+              onGenerate={onGenerate}
+              tone={tone}
+            />
           ))}
         </div>
 
@@ -182,5 +221,3 @@ export const SmartReplyModal = ({
     </ResponsiveDialog>
   );
 };
-
-export default SmartReplyModal;

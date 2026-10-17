@@ -58,9 +58,11 @@ export const Destructive: Story = { args: destructiveButtonArgs };
 export const AllVariants: Story = {
   parameters: { controls: { disable: true } },
   play: async ({ canvas }) => {
-    for (const variant of BUTTON_VARIANTS) {
-      await expect(canvas.getByRole("button", { name: variant })).toBeVisible();
-    }
+    await Promise.all(
+      BUTTON_VARIANTS.map((variant) =>
+        expect(canvas.getByRole("button", { name: variant })).toBeVisible()
+      )
+    );
   },
   render: (args) => (
     <div className="flex flex-wrap gap-3">

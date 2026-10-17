@@ -158,7 +158,7 @@ function Highlight<T extends ElementType = "div">({
   const localRef = useRef<HTMLDivElement>(null);
   useImperativeHandle(ref, () => localRef.current as HTMLDivElement);
 
-  const propsBoundsOffset = (props as ParentModeHighlightProps)?.boundsOffset;
+  const propsBoundsOffset = (props as ParentModeHighlightProps).boundsOffset;
   const boundsOffset = propsBoundsOffset ?? DEFAULT_BOUNDS_OFFSET;
   const boundsOffsetTop = boundsOffset.top ?? 0;
   const boundsOffsetLeft = boundsOffset.left ?? 0;
@@ -192,11 +192,11 @@ function Highlight<T extends ElementType = "div">({
   const [boundsState, setBoundsState] = useState<Bounds | null>(null);
   const [activeClassNameState, setActiveClassNameState] = useState<string>("");
 
-  const safeSetActiveValue = (id: string | null) => {
+  const safeSetActiveValue = (nextValue: string | null) => {
     setActiveValue((prev) => {
-      if (prev !== id) {
-        onValueChange?.(id);
-        return id;
+      if (prev !== nextValue) {
+        onValueChange?.(nextValue);
+        return nextValue;
       }
       return prev;
     });
@@ -279,17 +279,17 @@ function Highlight<T extends ElementType = "div">({
     return () => container.removeEventListener("scroll", onScroll);
   }, [mode, activeValue]);
 
-  const render = (children: ReactNode) => {
+  const render = (content: ReactNode) => {
     if (mode === "parent") {
       return (
         <Component
-          className={(props as ParentModeHighlightProps)?.containerClassName}
+          className={(props as ParentModeHighlightProps).containerClassName}
           data-slot="motion-highlight-container"
           ref={localRef}
           style={{ position: "relative", zIndex: 1 }}
         >
           <AnimatePresence initial={false} mode="wait">
-            {boundsState && (
+            {boundsState ? (
               <motion.div
                 animate={{
                   height: boundsState.height,
@@ -317,14 +317,14 @@ function Highlight<T extends ElementType = "div">({
                 style={{ position: "absolute", zIndex: 0, ...style }}
                 transition={transition}
               />
-            )}
+            ) : null}
           </AnimatePresence>
-          {children}
+          {content}
         </Component>
       );
     }
 
-    return children;
+    return content;
   };
 
   const contextValue = {
@@ -336,7 +336,7 @@ function Highlight<T extends ElementType = "div">({
     disabled,
     enabled,
     exitDelay,
-    forceUpdateBounds: (props as ParentModeHighlightProps)?.forceUpdateBounds,
+    forceUpdateBounds: (props as ParentModeHighlightProps).forceUpdateBounds,
     hover,
     id,
     mode,
@@ -372,11 +372,11 @@ function Highlight<T extends ElementType = "div">({
           }
           const itemKey =
             child.key ??
-            (child.props as { id?: string })?.id ??
-            (child.props as { "data-value"?: string })?.["data-value"] ??
+            (child.props as { id?: string }).id ??
+            (child.props as { "data-value"?: string })["data-value"] ??
             undefined;
           return (
-            <HighlightItem className={props?.itemsClassName} key={itemKey}>
+            <HighlightItem className={props.itemsClassName} key={itemKey}>
               {child}
             </HighlightItem>
           );

@@ -16,6 +16,7 @@ export async function fetchAllMessages(
   const messages: MessageDto[] = [];
   let cursor: string | undefined;
   for (let page = 0; page < MAX_PAGES; page += 1) {
+    // biome-ignore lint/performance/noAwaitInLoops: each page's cursor comes from the previous page's response, so pages can't be fetched in parallel.
     const result = await clientFetch(
       api.GET("/api/get-messages", {
         params: {

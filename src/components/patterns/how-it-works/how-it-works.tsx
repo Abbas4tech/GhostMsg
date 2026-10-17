@@ -194,5 +194,3 @@ function HowItWorksMobile({
     </div>
   );
 }
-
-export default HowItWorks;

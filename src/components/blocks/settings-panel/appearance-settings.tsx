@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useCallback } from "react";
 import {
   Field,
   FieldContent,
@@ -46,8 +47,7 @@ const isColorMode = (value: string): value is ColorMode =>
   MODES.some((mode) => mode.value === value);
 
 function ModePreview({ mode }: { mode: ColorMode }): React.JSX.Element {
-  const light = MODE_PREVIEW.light;
-  const dark = MODE_PREVIEW.dark;
+  const { light, dark } = MODE_PREVIEW;
   const half =
     mode === "system"
       ? `linear-gradient(90deg, ${light.bg} 50%, ${dark.bg} 50%)`
@@ -77,17 +77,22 @@ export function AppearanceSettings({
   palettes,
   onPaletteChange,
 }: AppearanceSettingsProps): React.JSX.Element {
+  const handleModeChange = useCallback(
+    (value: string) => {
+      if (isColorMode(value)) {
+        onModeChange(value);
+      }
+    },
+    [onModeChange]
+  );
+
   return (
     <SettingsSection id="appearance" title="Appearance">
       <FieldSet>
         <FieldLegend variant="label">Mode</FieldLegend>
         <RadioGroup
           className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3"
-          onValueChange={(value) => {
-            if (isColorMode(value)) {
-              onModeChange(value);
-            }
-          }}
+          onValueChange={handleModeChange}
           value={mode}
         >
           {MODES.map(({ value, label }) => (

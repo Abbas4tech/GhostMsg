@@ -69,5 +69,3 @@ export function ProfilePage(): React.JSX.Element {
     </>
   );
 }
-
-export default ProfilePage;

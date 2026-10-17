@@ -2,6 +2,7 @@ import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "@/data/query-keys";
 import type { InboxQueryStatus } from "@/lib/messages/inbox-filter";
+import type { MessagesPageDto } from "@/types/api";
 
 /** Messages per inbox page (the server caps it at 100). */
 export const INBOX_PAGE_SIZE = 30;
@@ -29,7 +30,8 @@ export const messagesQueries = {
    */
   inbox: ({ status, q }: InboxQueryFilters) =>
     infiniteQueryOptions({
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+      getNextPageParam: (lastPage: MessagesPageDto) =>
+        lastPage.nextCursor ?? undefined,
       initialPageParam: undefined as string | undefined,
       queryFn: ({ pageParam, signal }) =>
         clientFetch(

@@ -2,6 +2,7 @@
 
 import { Download, Eye, Star, Trash2, X } from "lucide-react";
 import type React from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/elements/button";
 import {
   DropdownMenu,
@@ -37,6 +38,22 @@ export function BulkActionToolbar({
   onClearSelection,
   className,
 }: BulkActionToolbarProps): React.JSX.Element | null {
+  const handleMarkRead = useCallback(() => {
+    onAction("read");
+  }, [onAction]);
+  const handleStar = useCallback(() => {
+    onAction("star");
+  }, [onAction]);
+  const handleDelete = useCallback(() => {
+    onAction("delete");
+  }, [onAction]);
+  const handleExportCsv = useCallback(() => {
+    onExport("csv");
+  }, [onExport]);
+  const handleExportJson = useCallback(() => {
+    onExport("json");
+  }, [onExport]);
+
   if (selectedCount === 0) {
     return null;
   }
@@ -60,7 +77,7 @@ export function BulkActionToolbar({
         aria-label="Mark read"
         className={toolbarButton}
         disabled={isPending}
-        onClick={() => onAction("read")}
+        onClick={handleMarkRead}
         size="sm"
         variant="ghost"
       >
@@ -72,7 +89,7 @@ export function BulkActionToolbar({
         aria-label="Star"
         className={toolbarButton}
         disabled={isPending}
-        onClick={() => onAction("star")}
+        onClick={handleStar}
         size="sm"
         variant="ghost"
       >
@@ -95,10 +112,8 @@ export function BulkActionToolbar({
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuLabel>Download selected as</DropdownMenuLabel>
-            <DropdownMenuItem onSelect={() => onExport("csv")}>
-              CSV
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => onExport("json")}>
+            <DropdownMenuItem onSelect={handleExportCsv}>CSV</DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleExportJson}>
               JSON
             </DropdownMenuItem>
           </DropdownMenuGroup>
@@ -109,7 +124,7 @@ export function BulkActionToolbar({
         aria-label="Delete selected"
         className="rounded-full"
         disabled={isPending}
-        onClick={() => onAction("delete")}
+        onClick={handleDelete}
         size="sm"
         variant="destructive"
       >
@@ -129,5 +144,3 @@ export function BulkActionToolbar({
     </div>
   );
 }
-
-export default BulkActionToolbar;

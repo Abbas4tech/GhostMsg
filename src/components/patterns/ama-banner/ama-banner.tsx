@@ -23,12 +23,15 @@ const amaBannerVariants = cva(
   }
 );
 
-const promptVariants = cva("text-balance font-display", {
-  defaultVariants: { size: "md" },
-  variants: {
-    size: { lg: "text-h1", md: "text-h2", sm: "font-bold text-body" },
-  },
-});
+const promptVariants = cva(
+  "text-balance font-bold font-display leading-[1.1]",
+  {
+    defaultVariants: { size: "md" },
+    variants: {
+      size: { lg: "text-[26px]", md: "text-[22px]", sm: "text-base" },
+    },
+  }
+);
 
 export interface AmaBannerProps
   extends React.HTMLAttributes<HTMLElement>,
@@ -72,4 +75,3 @@ export function AmaBanner({
 }
 
 export { amaBannerVariants };
-export default AmaBanner;

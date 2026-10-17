@@ -90,7 +90,7 @@ export async function DELETE(request: NextRequest): Promise<Response> {
     }
 
     const body = await request.json().catch(() => ({}));
-    const senderHash = body.senderHash;
+    const { senderHash } = body;
 
     if (senderHash === "ALL") {
       await UserModel.updateOne(

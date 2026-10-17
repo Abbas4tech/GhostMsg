@@ -40,9 +40,7 @@ export function createSuggestedMessagesSource(): (
 ) => Promise<string> {
   let cached: SuggestionsCache | null = null;
 
-  return async function getSuggestedMessages(
-    now: number = Date.now()
-  ): Promise<string> {
+  return async (now: number = Date.now()): Promise<string> => {
     if (cached && now < cached.expiresAt) {
       return cached.messages;
     }

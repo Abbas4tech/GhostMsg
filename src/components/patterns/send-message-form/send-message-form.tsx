@@ -2,7 +2,12 @@
 
 import { Loader2, Lock } from "lucide-react";
 import type React from "react";
-import { type UseFormReturn, useWatch } from "react-hook-form";
+import { useCallback } from "react";
+import {
+  type ControllerRenderProps,
+  type UseFormReturn,
+  useWatch,
+} from "react-hook-form";
 import type z from "zod";
 import { Button } from "@/components/elements/button";
 import {
@@ -43,6 +48,42 @@ export function SendMessageForm({
 }: SendMessageFormProps): React.JSX.Element {
   const content = useWatch({ control: form.control, name: "content" }) ?? "";
   const isFormValid = form.formState.isValid;
+  const renderContentField = useCallback(
+    ({
+      field,
+    }: {
+      field: ControllerRenderProps<SendMessageValues, "content">;
+    }) => (
+      <FormItem className="gap-2.5">
+        <FormLabel>Your Anonymous Message</FormLabel>
+        <FormControl>
+          <Textarea
+            {...field}
+            className="min-h-[124px] resize-none rounded-md bg-card text-base"
+            maxLength={MESSAGE_MAX_LENGTH}
+            placeholder="Write something honest…"
+          />
+        </FormControl>
+        <div className="flex items-center justify-between gap-3 text-muted-foreground text-sm">
+          <span className="flex items-center gap-1.5">
+            <Lock aria-hidden="true" className="size-3.5" />
+            {username} can&apos;t see who you are
+          </span>
+          <span
+            className={cn(
+              "tabular-nums",
+              content.length >= MESSAGE_WARN_AT &&
+                "font-semibold text-destructive"
+            )}
+          >
+            {content.length} / {MESSAGE_MAX_LENGTH}
+          </span>
+        </div>
+        <FormMessage />
+      </FormItem>
+    ),
+    [username, content]
+  );
 
   return (
     <Form {...form}>
@@ -50,40 +91,13 @@ export function SendMessageForm({
         aria-label="Send an Anonymous Message"
         className="flex w-full flex-col gap-3"
         data-slot="send-message-form"
+        noValidate
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
           control={form.control}
           name="content"
-          render={({ field }) => (
-            <FormItem className="gap-2.5">
-              <FormLabel>Your Anonymous Message</FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  className="min-h-[124px] resize-none rounded-md bg-card text-body"
-                  maxLength={MESSAGE_MAX_LENGTH}
-                  placeholder="Write something honest…"
-                />
-              </FormControl>
-              <div className="flex items-center justify-between gap-3 text-muted-foreground text-sm">
-                <span className="flex items-center gap-1.5">
-                  <Lock aria-hidden="true" className="size-3.5" />
-                  {username} can&apos;t see who you are
-                </span>
-                <span
-                  className={cn(
-                    "tabular-nums",
-                    content.length >= MESSAGE_WARN_AT &&
-                      "font-semibold text-destructive"
-                  )}
-                >
-                  {content.length} / {MESSAGE_MAX_LENGTH}
-                </span>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={renderContentField}
         />
 
         {suggestions}
@@ -106,5 +120,3 @@ export function SendMessageForm({
     </Form>
   );
 }
-
-export default SendMessageForm;

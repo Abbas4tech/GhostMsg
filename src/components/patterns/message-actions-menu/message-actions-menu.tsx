@@ -1,8 +1,7 @@
 "use client";
 
 import { MoreVertical } from "lucide-react";
-import type React from "react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/elements/button";
 import {
   Drawer,
@@ -38,6 +37,36 @@ export interface MessageActionsMenuProps {
   label?: string;
 }
 
+interface DrawerActionButtonProps {
+  action: MessageAction;
+  onSelect: (actionClick: () => void) => void;
+}
+
+function DrawerActionButton({ action, onSelect }: DrawerActionButtonProps) {
+  const handleClick = useCallback(
+    () => onSelect(action.onClick),
+    [action.onClick, onSelect]
+  );
+
+  return (
+    <button
+      className={cn(
+        "flex min-h-14 items-center gap-3 px-4 text-left text-title disabled:opacity-50",
+        action.startsGroup && "border-t",
+        action.tone === "danger" && "text-destructive"
+      )}
+      disabled={action.disabled}
+      onClick={handleClick}
+      type="button"
+    >
+      <span aria-hidden="true" className="[&_svg]:size-5">
+        {action.icon}
+      </span>
+      {action.label}
+    </button>
+  );
+}
+
 /** Overflow actions for a message: DropdownMenu on >=768px, bottom Drawer below it. */
 export function MessageActionsMenu({
   actions,
@@ -45,6 +74,11 @@ export function MessageActionsMenu({
 }: MessageActionsMenuProps): React.JSX.Element | null {
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleDrawerAction = useCallback((actionClick: () => void) => {
+    setDrawerOpen(false);
+    actionClick();
+  }, []);
 
   if (actions.length === 0) {
     return null;
@@ -72,25 +106,11 @@ export function MessageActionsMenu({
           </DrawerHeader>
           <div className="flex flex-col pb-[env(safe-area-inset-bottom)]">
             {actions.map((action) => (
-              <button
-                className={cn(
-                  "flex min-h-14 items-center gap-3 px-4 text-left text-title disabled:opacity-50",
-                  action.startsGroup && "border-t",
-                  action.tone === "danger" && "text-destructive"
-                )}
-                disabled={action.disabled}
+              <DrawerActionButton
+                action={action}
                 key={action.key}
-                onClick={() => {
-                  setDrawerOpen(false);
-                  action.onClick();
-                }}
-                type="button"
-              >
-                <span aria-hidden="true" className="[&_svg]:size-5">
-                  {action.icon}
-                </span>
-                {action.label}
-              </button>
+                onSelect={handleDrawerAction}
+              />
             ))}
           </div>
         </DrawerContent>
@@ -119,5 +139,3 @@ export function MessageActionsMenu({
     </DropdownMenu>
   );
 }
-
-export default MessageActionsMenu;

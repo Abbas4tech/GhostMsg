@@ -93,5 +93,3 @@ export function SettingsPage(props: SettingsPageProps = {}): React.JSX.Element {
     </>
   );
 }
-
-export default SettingsPage;

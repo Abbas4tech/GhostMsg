@@ -86,5 +86,3 @@ export function ShareLinkCard({
     </Card>
   );
 }
-
-export default ShareLinkCard;

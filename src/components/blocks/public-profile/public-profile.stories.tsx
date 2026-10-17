@@ -101,7 +101,7 @@ export const Accepting: Story = {
     await expect(
       canvas.getByRole("heading", { name: "Public Q&A" })
     ).toBeVisible();
-    const suggestion = suggestionScenarios.default[2];
+    const [, , suggestion] = suggestionScenarios.default;
     await userEvent.click(canvas.getByRole("button", { name: suggestion }));
     await expect(args.onSelectSuggestion).toHaveBeenCalledWith(suggestion);
     await expect(

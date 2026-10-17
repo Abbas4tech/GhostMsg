@@ -2,7 +2,8 @@
 
 import { Mail } from "lucide-react";
 import type React from "react";
-import type { UseFormReturn } from "react-hook-form";
+import { useCallback } from "react";
+import type { ControllerRenderProps, UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
 import {
   Form,
@@ -36,11 +37,39 @@ export function SignInForm({
   onSubmit,
   onGoogleSignIn,
 }: SignInFormProps): React.JSX.Element {
+  const renderIdentifierField = useCallback(
+    ({
+      field,
+    }: {
+      field: ControllerRenderProps<SignInValues, "identifier">;
+    }) => (
+      <FormItem>
+        <FormLabel>Username or email</FormLabel>
+        <InputGroup size="lg">
+          <InputGroupAddon>
+            <Mail aria-hidden="true" />
+          </InputGroupAddon>
+          <FormControl>
+            <InputGroupInput
+              autoCapitalize="none"
+              autoComplete="username"
+              placeholder="maya@example.com"
+              {...field}
+            />
+          </FormControl>
+        </InputGroup>
+        <FormMessage />
+      </FormItem>
+    ),
+    []
+  );
+
   return (
     <Form {...form}>
       <form
         className="flex flex-col gap-4"
         data-slot="sign-in-form"
+        noValidate
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <AuthOAuthHeader onGoogleSignIn={onGoogleSignIn} />
@@ -48,25 +77,7 @@ export function SignInForm({
         <FormField
           control={form.control}
           name="identifier"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username or email</FormLabel>
-              <InputGroup size="lg">
-                <InputGroupAddon>
-                  <Mail aria-hidden="true" />
-                </InputGroupAddon>
-                <FormControl>
-                  <InputGroupInput
-                    autoCapitalize="none"
-                    autoComplete="username"
-                    placeholder="maya@example.com"
-                    {...field}
-                  />
-                </FormControl>
-              </InputGroup>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={renderIdentifierField}
         />
 
         <PasswordField
@@ -88,5 +99,3 @@ export function SignInForm({
     </Form>
   );
 }
-
-export default SignInForm;

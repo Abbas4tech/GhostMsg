@@ -110,6 +110,7 @@ export async function runDailyDigest(
     }
     try {
       const since = digestWindowStart(recipient.lastDigestSentAt, now);
+      // biome-ignore lint/performance/noAwaitInLoops: digests are sent one recipient at a time to avoid bursting the email/push provider's rate limits.
       const { total, recent } = await deps.loadNewMessages(recipient.id, since);
       if (total === 0) {
         result.empty += 1;

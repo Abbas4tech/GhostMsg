@@ -60,5 +60,3 @@ export function PublicProfilePage({
     />
   );
 }
-
-export default PublicProfilePage;

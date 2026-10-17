@@ -84,5 +84,3 @@ export function VisitorPreview({
     </aside>
   );
 }
-
-export default VisitorPreview;

@@ -4,6 +4,7 @@ import type { VariantProps } from "class-variance-authority";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import type * as React from "react";
+import { useCallback } from "react";
 import { buttonVariants } from "@/components/elements/icon-button/icon-button";
 import { cn } from "@/lib/utils";
 import {
@@ -36,6 +37,46 @@ type ThemeTogglerButtonProps = React.ComponentProps<"button"> &
     direction?: ThemeTogglerPrimitiveProps["direction"];
   };
 
+function ThemeTogglerButtonTrigger({
+  effective,
+  resolved,
+  modes,
+  toggleTheme,
+  onClick,
+  className,
+  size,
+  variant,
+  ...props
+}: Omit<
+  ThemeTogglerButtonProps,
+  "direction" | "modes" | "onImmediateChange"
+> & {
+  effective: ThemeSelection;
+  modes: ThemeSelection[];
+  resolved: Resolved;
+  toggleTheme: (next: ThemeSelection) => void;
+}) {
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(e);
+      toggleTheme(getNextTheme(effective, modes));
+    },
+    [onClick, toggleTheme, effective, modes]
+  );
+
+  return (
+    <button
+      aria-label="Toggle theme"
+      className={cn(buttonVariants({ className, size, variant }))}
+      data-slot="theme-toggler-button"
+      onClick={handleClick}
+      {...props}
+    >
+      {getIcon(effective, resolved, modes)}
+    </button>
+  );
+}
+
 function ThemeTogglerButton({
   variant = "default",
   size = "default",
@@ -57,18 +98,17 @@ function ThemeTogglerButton({
       theme={theme as ThemeSelection}
     >
       {({ effective, resolved, toggleTheme }) => (
-        <button
-          aria-label="Toggle theme"
-          className={cn(buttonVariants({ className, size, variant }))}
-          data-slot="theme-toggler-button"
-          onClick={(e) => {
-            onClick?.(e);
-            toggleTheme(getNextTheme(effective, modes));
-          }}
+        <ThemeTogglerButtonTrigger
+          className={className}
+          effective={effective}
+          modes={modes}
+          onClick={onClick}
+          resolved={resolved}
+          size={size}
+          toggleTheme={toggleTheme}
+          variant={variant}
           {...props}
-        >
-          {getIcon(effective, resolved, modes)}
-        </button>
+        />
       )}
     </ThemeTogglerPrimitive>
   );

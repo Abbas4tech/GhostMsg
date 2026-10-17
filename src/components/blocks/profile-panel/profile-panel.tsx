@@ -80,5 +80,3 @@ export function ProfilePanel({
     </div>
   );
 }
-
-export default ProfilePanel;

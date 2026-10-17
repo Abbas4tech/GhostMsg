@@ -107,5 +107,3 @@ export function StoryCardPreview({
     </figure>
   );
 }
-
-export default StoryCardPreview;

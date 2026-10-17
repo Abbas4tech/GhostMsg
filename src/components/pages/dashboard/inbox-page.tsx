@@ -178,5 +178,3 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
     </>
   );
 }
-
-export default InboxPage;

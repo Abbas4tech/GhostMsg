@@ -39,5 +39,3 @@ export function CtaBanner({
     </section>
   );
 }
-
-export default CtaBanner;

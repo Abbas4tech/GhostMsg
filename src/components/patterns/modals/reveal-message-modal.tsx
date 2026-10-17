@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useCallback } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,12 +31,26 @@ export function RevealMessageModal({
   onClose,
   onConfirm,
 }: RevealMessageModalProps): React.JSX.Element | null {
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+  const handleConfirm = useCallback(() => {
+    if (message) {
+      onConfirm(message);
+    }
+  }, [onConfirm, message]);
+
   if (!message) {
     return null;
   }
 
   return (
-    <AlertDialog onOpenChange={(isOpen) => !isOpen && onClose()} open={open}>
+    <AlertDialog onOpenChange={handleOpenChange} open={open}>
       <AlertDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
         <AlertDialogHeader className="text-left sm:text-left">
           <AlertDialogTitle className="text-h2">
@@ -56,7 +71,7 @@ export function RevealMessageModal({
           </AlertDialogCancel>
           <AlertDialogAction
             className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            onClick={() => onConfirm(message)}
+            onClick={handleConfirm}
           >
             Reveal once
           </AlertDialogAction>

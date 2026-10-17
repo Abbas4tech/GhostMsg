@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useId, useRef } from "react";
+import { useCallback, useId, useRef } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -62,6 +62,25 @@ export function IdentityCard({
   const usernameId = useId();
   const photoHintId = useId();
   const initial = (displayName || username).charAt(0);
+  const handleChangePhotoClick = useCallback(() => {
+    fileRef.current?.click();
+  }, []);
+  const handlePhotoFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        onPhotoSelect(file);
+      }
+      event.target.value = "";
+    },
+    [onPhotoSelect]
+  );
+  const handleDisplayNameChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onDisplayNameChange(event.target.value);
+    },
+    [onDisplayNameChange]
+  );
 
   return (
     <Card data-slot="identity-card" variant="elevated">
@@ -83,7 +102,7 @@ export function IdentityCard({
                   aria-describedby={photoHintId}
                   className="rounded-full"
                   disabled={isPhotoProcessing}
-                  onClick={() => fileRef.current?.click()}
+                  onClick={handleChangePhotoClick}
                   size="sm"
                   variant="outline"
                 >
@@ -110,13 +129,7 @@ export function IdentityCard({
                 accept="image/png,image/jpeg,image/webp"
                 aria-label="Upload a profile photo"
                 className="sr-only"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) {
-                    onPhotoSelect(file);
-                  }
-                  event.target.value = "";
-                }}
+                onChange={handlePhotoFileChange}
                 ref={fileRef}
                 tabIndex={-1}
                 type="file"
@@ -135,7 +148,7 @@ export function IdentityCard({
               className="h-12 bg-card text-body"
               id={displayNameId}
               maxLength={DISPLAY_NAME_MAX_LENGTH}
-              onChange={(event) => onDisplayNameChange(event.target.value)}
+              onChange={handleDisplayNameChange}
               placeholder={username}
               value={displayName}
             />
@@ -173,5 +186,3 @@ export function IdentityCard({
     </Card>
   );
 }
-
-export default IdentityCard;

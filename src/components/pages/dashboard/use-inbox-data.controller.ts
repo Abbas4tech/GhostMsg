@@ -54,7 +54,9 @@ export function useInboxDataController({
 
   const messages = useMemo(
     () =>
-      inboxQuery.data?.pages.flatMap((page) => page.messages) ?? NO_MESSAGES,
+      inboxQuery.data
+        ? inboxQuery.data.pages.flatMap((page) => page.messages)
+        : NO_MESSAGES,
     [inboxQuery.data]
   );
   const loadedIds = useMemo(

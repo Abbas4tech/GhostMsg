@@ -56,5 +56,3 @@ export function TrustSection({
     </section>
   );
 }
-
-export default TrustSection;

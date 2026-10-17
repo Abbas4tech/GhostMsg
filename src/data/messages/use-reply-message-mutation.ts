@@ -34,7 +34,7 @@ export const useReplyMessageMutation = () => {
       restoreCachedMessages(queryClient, context?.snapshot);
       toast.error(error.message || "Failed to save reply");
     },
-    onMutate: async ({ messageId, text, isPublished }) => {
+    onMutate: async ({ messageId, text, isPublished }: ReplyMessageParams) => {
       const snapshot = await patchCachedMessage(queryClient, messageId, {
         isRead: true,
         reply: {

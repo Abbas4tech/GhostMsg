@@ -1,7 +1,6 @@
 "use client";
 
-import type * as LabelPrimitive from "@radix-ui/react-label";
-import { Slot } from "@radix-ui/react-slot";
+import { type Label as LabelPrimitive, Slot } from "radix-ui";
 import {
   type ComponentProps,
   createContext,
@@ -17,7 +16,6 @@ import {
   type FieldValues,
   FormProvider,
   useFormContext,
-  useFormState,
 } from "react-hook-form";
 import { Label } from "@/components/elements/label";
 import { cn } from "@/lib/utils";
@@ -60,13 +58,13 @@ const useFormField = (): {
 } => {
   const fieldContext = useContext(FormFieldContext);
   const itemContext = useContext(FormItemContext);
-  const { getFieldState } = useFormContext();
-  const formState = useFormState({ name: fieldContext.name });
-  const fieldState = getFieldState(fieldContext.name, formState);
+  const { getFieldState, formState } = useFormContext();
 
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>");
   }
+
+  const fieldState = getFieldState(fieldContext.name, formState);
 
   const { id } = itemContext;
 
@@ -119,12 +117,14 @@ function FormLabel({
   );
 }
 
-function FormControl({ ...props }: ComponentProps<typeof Slot>): JSX.Element {
+function FormControl({
+  ...props
+}: ComponentProps<typeof Slot.Root>): JSX.Element {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
-    <Slot
+    <Slot.Root
       aria-describedby={
         error ? `${formDescriptionId} ${formMessageId}` : `${formDescriptionId}`
       }

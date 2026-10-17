@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Heart } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { expect } from "storybook/test";
 import { Button } from "@/components/elements/button";
 import { AutoHeight } from "./auto-height";
@@ -45,11 +45,14 @@ export const HoverHighlight: Story = {
 
 function ParticlesDemo() {
   const [burst, setBurst] = useState(0);
+  const handleBurst = useCallback(() => {
+    setBurst((n) => n + 1);
+  }, []);
   return (
     <Particles animate={burst > 0} asChild key={burst}>
       <Button
         aria-label="Like"
-        onClick={() => setBurst((n) => n + 1)}
+        onClick={handleBurst}
         size="icon"
         variant="outline"
       >
@@ -70,9 +73,12 @@ export const ParticleBurst: Story = {
 
 function AutoHeightDemo() {
   const [expanded, setExpanded] = useState(false);
+  const handleToggleExpanded = useCallback(() => {
+    setExpanded((v) => !v);
+  }, []);
   return (
     <div className="flex w-72 flex-col gap-3">
-      <Button onClick={() => setExpanded((v) => !v)} variant="outline">
+      <Button onClick={handleToggleExpanded} variant="outline">
         {expanded ? "Collapse" : "Expand"}
       </Button>
       <AutoHeight className="rounded-md border p-3 text-sm">

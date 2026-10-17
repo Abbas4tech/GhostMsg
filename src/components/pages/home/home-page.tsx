@@ -61,5 +61,3 @@ export function HomePage(): React.JSX.Element {
     </SiteLayout>
   );
 }
-
-export default HomePage;

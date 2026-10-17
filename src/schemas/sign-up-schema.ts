@@ -20,7 +20,7 @@ export const usernameQuerySchema = z
 
 export const signUpSchema = z
   .object({
-    email: z.email({ message: "Invalid email address" }).openapi({
+    email: z.string().trim().email("Invalid email address").openapi({
       description: "User's email address",
       example: "johndoe@example.com",
     }),

@@ -1,7 +1,7 @@
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useCallback, useState } from "react";
 import {
   Button as ButtonPrimitive,
   type ButtonProps as ButtonPrimitiveProps,
@@ -59,17 +59,21 @@ function IconButton({
 }: IconButtonProps) {
   const [isActive, setIsActive] = useState(false);
   const [key, setKey] = useState(0);
+  const handleClick = useCallback(
+    (e: Parameters<NonNullable<typeof onClick>>[0]) => {
+      setKey((prev) => prev + 1);
+      setIsActive(true);
+      onClick?.(e);
+    },
+    [onClick]
+  );
 
   return (
     <Particles animate={isActive} asChild key={key}>
       <ButtonPrimitive
         className={cn(buttonVariants({ className, size, variant }))}
         data-slot="icon-button"
-        onClick={(e) => {
-          setKey((prev) => prev + 1);
-          setIsActive(true);
-          onClick?.(e);
-        }}
+        onClick={handleClick}
         {...props}
       >
         {children}

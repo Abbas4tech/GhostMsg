@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { expect, fn, screen } from "storybook/test";
 import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
 import {
@@ -13,14 +13,18 @@ const DELETE_ACCOUNT_REGEX = /delete account/i;
 /** Local state keeps the confirmation input interactive. */
 function StatefulDeleteAccountModal(args: DeleteAccountModalProps) {
   const [confirmValue, setConfirmValue] = useState(args.confirmValue);
+  const handleConfirmValueChange = useCallback(
+    (next: string) => {
+      args.onConfirmValueChange(next);
+      setConfirmValue(next);
+    },
+    [args]
+  );
   return (
     <DeleteAccountModal
       {...args}
       confirmValue={confirmValue}
-      onConfirmValueChange={(next) => {
-        args.onConfirmValueChange(next);
-        setConfirmValue(next);
-      }}
+      onConfirmValueChange={handleConfirmValueChange}
     />
   );
 }

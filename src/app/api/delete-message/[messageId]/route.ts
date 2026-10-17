@@ -8,8 +8,7 @@ export async function DELETE(
   _request: NextRequest,
   props: { params: Promise<{ messageId: string }> }
 ): Promise<Response> {
-  const params = await props.params;
-  const messageId = params.messageId;
+  const { messageId } = await props.params;
 
   try {
     await dbConnect();

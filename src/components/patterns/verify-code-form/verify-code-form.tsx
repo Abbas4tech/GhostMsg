@@ -2,11 +2,10 @@
 
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { motion, useAnimation } from "motion/react";
 import Link from "next/link";
 import type React from "react";
-import { useEffect } from "react";
-import type { UseFormReturn } from "react-hook-form";
+import { useCallback } from "react";
+import type { ControllerRenderProps, UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
 import { Alert, AlertDescription } from "@/components/elements/alert";
 import { Button } from "@/components/elements/button";
@@ -23,7 +22,6 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/elements/input-otp";
-import { shake } from "@/lib/motion";
 import type { verifySchema } from "@/schemas/verify-schema";
 
 export type VerifyCodeValues = z.infer<typeof verifySchema>;
@@ -46,57 +44,47 @@ export function VerifyCodeForm({
   onSubmit,
   codeError,
 }: VerifyCodeFormProps): React.JSX.Element {
-  const shakeControls = useAnimation();
-  const hasCodeError = Boolean(codeError);
-
-  useEffect(() => {
-    if (hasCodeError) {
-      shakeControls.start("shake");
-    }
-  }, [hasCodeError, shakeControls]);
+  const renderCodeField = useCallback(
+    ({ field }: { field: ControllerRenderProps<VerifyCodeValues, "code"> }) => (
+      <FormItem>
+        <FormLabel className="sr-only">Verification Code</FormLabel>
+        <FormControl>
+          <InputOTP
+            autoComplete="one-time-code"
+            containerClassName="w-full"
+            maxLength={OTP_LENGTH}
+            pattern={REGEXP_ONLY_DIGITS}
+            {...field}
+          >
+            <InputOTPGroup className="grid w-full grid-cols-6 gap-2">
+              {OTP_SLOT_INDEXES.map((index) => (
+                <InputOTPSlot
+                  className="h-[60px] w-full rounded-xl border border-input bg-card font-bold font-display text-[26px] tabular-nums shadow-none first:rounded-xl last:rounded-xl data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-2 data-[active=true]:ring-offset-card"
+                  index={index}
+                  key={`otp-${index}`}
+                />
+              ))}
+            </InputOTPGroup>
+          </InputOTP>
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    ),
+    []
+  );
 
   return (
     <Form {...form}>
       <form
         className="flex w-full flex-col gap-[18px]"
         data-slot="verify-code-form"
+        noValidate
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
           control={form.control}
           name="code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="sr-only">Verification Code</FormLabel>
-              <FormControl>
-                <motion.div
-                  animate={shakeControls}
-                  initial="idle"
-                  variants={shake}
-                >
-                  <InputOTP
-                    autoComplete="one-time-code"
-                    containerClassName="w-full"
-                    maxLength={OTP_LENGTH}
-                    pattern={REGEXP_ONLY_DIGITS}
-                    {...field}
-                  >
-                    <InputOTPGroup className="grid w-full grid-cols-6 gap-2">
-                      {OTP_SLOT_INDEXES.map((index) => (
-                        <InputOTPSlot
-                          aria-invalid={hasCodeError}
-                          className="h-[60px] w-full rounded-xl border border-input bg-card font-bold font-display text-[26px] tabular-nums shadow-none first:rounded-xl last:rounded-xl data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-2 data-[active=true]:ring-offset-card"
-                          index={index}
-                          key={`otp-${index}`}
-                        />
-                      ))}
-                    </InputOTPGroup>
-                  </InputOTP>
-                </motion.div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={renderCodeField}
         />
         {codeError ? (
           <Alert variant="destructive">
@@ -132,5 +120,3 @@ export function VerifyCodeForm({
     </Form>
   );
 }
-
-export default VerifyCodeForm;

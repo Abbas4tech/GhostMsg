@@ -42,5 +42,3 @@ export function NotFoundPanel({
     </div>
   );
 }
-
-export default NotFoundPanel;
