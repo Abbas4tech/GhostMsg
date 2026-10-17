@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -38,6 +38,12 @@ export function DeleteAccountModal({
 }: DeleteAccountModalProps): React.JSX.Element {
   const inputId = useId();
   const matches = confirmValue.trim() === username;
+  const handleConfirmValueChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onConfirmValueChange(event.target.value);
+    },
+    [onConfirmValueChange]
+  );
 
   return (
     <AlertDialog onOpenChange={onOpenChange} open={open}>
@@ -60,7 +66,7 @@ export function DeleteAccountModal({
             autoComplete="off"
             className="h-11"
             id={inputId}
-            onChange={(event) => onConfirmValueChange(event.target.value)}
+            onChange={handleConfirmValueChange}
             spellCheck={false}
             value={confirmValue}
           />
@@ -83,5 +89,3 @@ export function DeleteAccountModal({
     </AlertDialog>
   );
 }
-
-export default DeleteAccountModal;

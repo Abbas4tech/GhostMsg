@@ -15,11 +15,13 @@ import {
 
 const onSelectItem = fn();
 
+const selectItemHandlers = new Map(
+  dropdownMenuMockContent.items.map(
+    (item) => [item, () => onSelectItem(item)] as const
+  )
+);
+
 const meta = {
-  title: "Elements/DropdownMenu",
-  component: DropdownMenu,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultDropdownMenuArgs, onOpenChange: fn() },
   argTypes: {
     modal: {
@@ -28,6 +30,8 @@ const meta = {
     },
     onOpenChange: { description: "Called when the menu opens or closes" },
   },
+  component: DropdownMenu,
+  parameters: { layout: "centered" },
   render: (args) => (
     <DropdownMenu {...args}>
       <DropdownMenuTrigger asChild>
@@ -36,13 +40,15 @@ const meta = {
       <DropdownMenuContent>
         <DropdownMenuLabel>{dropdownMenuMockContent.label}</DropdownMenuLabel>
         {dropdownMenuMockContent.items.map((item) => (
-          <DropdownMenuItem key={item} onSelect={() => onSelectItem(item)}>
+          <DropdownMenuItem key={item} onSelect={selectItemHandlers.get(item)}>
             {item}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
   ),
+  tags: ["autodocs"],
+  title: "Elements/DropdownMenu",
 } satisfies Meta<typeof DropdownMenu>;
 
 export default meta;

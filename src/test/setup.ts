@@ -64,29 +64,17 @@ if (typeof window.IntersectionObserver === "undefined") {
 beforeAll(() => {
   if (!("Notification" in window)) {
     Object.defineProperty(window, "Notification", {
-      writable: true,
       value: {
-        requestPermission: vi.fn().mockResolvedValue("granted"),
         permission: "granted",
+        requestPermission: vi.fn().mockResolvedValue("granted"),
       },
+      writable: true,
     });
   }
 
   if (!("serviceWorker" in navigator)) {
     Object.defineProperty(navigator, "serviceWorker", {
-      writable: true,
       value: {
-        register: vi.fn().mockResolvedValue({
-          pushManager: {
-            getSubscription: vi.fn().mockResolvedValue(null),
-            subscribe: vi.fn().mockResolvedValue({
-              toJSON: () => ({
-                endpoint: "https://push.example.com/sub/123",
-                keys: { p256dh: "mockP256", auth: "mockAuth" },
-              }),
-            }),
-          },
-        }),
         getRegistration: vi.fn().mockResolvedValue(null),
         ready: Promise.resolve({
           pushManager: {
@@ -94,19 +82,31 @@ beforeAll(() => {
             subscribe: vi.fn().mockResolvedValue({
               toJSON: () => ({
                 endpoint: "https://push.example.com/sub/123",
-                keys: { p256dh: "mockP256", auth: "mockAuth" },
+                keys: { auth: "mockAuth", p256dh: "mockP256" },
+              }),
+            }),
+          },
+        }),
+        register: vi.fn().mockResolvedValue({
+          pushManager: {
+            getSubscription: vi.fn().mockResolvedValue(null),
+            subscribe: vi.fn().mockResolvedValue({
+              toJSON: () => ({
+                endpoint: "https://push.example.com/sub/123",
+                keys: { auth: "mockAuth", p256dh: "mockP256" },
               }),
             }),
           },
         }),
       },
+      writable: true,
     });
   }
 
   if (!("PushManager" in window)) {
     Object.defineProperty(window, "PushManager", {
-      writable: true,
       value: class PushManager {},
+      writable: true,
     });
   }
 });

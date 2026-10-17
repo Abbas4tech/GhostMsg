@@ -29,27 +29,26 @@ export const avatarDataUrlSchema = z
 
 export const userProfileSchema = z
   .object({
-    username: z.string().openapi({ example: "maya_writes" }),
-    email: z.string().openapi({ example: "maya@example.com" }),
-    displayName: z.string().openapi({ example: "Maya" }),
-    avatarUrl: z.string().nullable().openapi({ example: null }),
     amaPrompt: z.string().openapi({
       example: "Ask me anything about moving countries for work.",
     }),
+    avatarUrl: z.string().nullable().openapi({ example: null }),
+    displayName: z.string().openapi({ example: "Maya" }),
+    email: z.string().openapi({ example: "maya@example.com" }),
     showAmaBanner: z.boolean().openapi({ example: true }),
+    username: z.string().openapi({ example: "maya_writes" }),
   })
   .openapi("UserProfile");
 
 export const getUserProfileResponseSchema = z
   .object({
-    success: z.boolean().openapi({ example: true }),
     profile: userProfileSchema,
+    success: z.boolean().openapi({ example: true }),
   })
   .openapi("GetUserProfileResponse");
 
 export const updateUserProfileRequestSchema = z
   .object({
-    displayName: displayNameSchema.optional(),
     /** Sent with the rest of the profile so Save is one atomic request. */
     amaPrompt: z.string().trim().min(1).max(120).optional().openapi({
       description: "AMA Prompt shown on the public profile",
@@ -57,15 +56,16 @@ export const updateUserProfileRequestSchema = z
     }),
     /** `null` removes the photo. */
     avatarUrl: avatarDataUrlSchema.nullable().optional(),
+    displayName: displayNameSchema.optional(),
     showAmaBanner: z.boolean().optional(),
   })
   .openapi("UpdateUserProfileRequest");
 
 export const updateUserProfileResponseSchema = z
   .object({
-    success: z.boolean().openapi({ example: true }),
     message: z.string().openapi({ example: "Profile updated" }),
     profile: userProfileSchema,
+    success: z.boolean().openapi({ example: true }),
   })
   .openapi("UpdateUserProfileResponse");
 
@@ -75,8 +75,8 @@ export const changeUsernameRequestSchema = z
 
 export const changeUsernameResponseSchema = z
   .object({
-    success: z.boolean().openapi({ example: true }),
     message: z.string().openapi({ example: "Username updated" }),
+    success: z.boolean().openapi({ example: true }),
     username: z.string().openapi({ example: "maya_writes" }),
   })
   .openapi("ChangeUsernameResponse");
@@ -105,6 +105,10 @@ export const messagePreferencesSchema = z
 
 export const safetySettingsSchema = z
   .object({
+    blurSpicy: z.boolean().openapi({
+      description: "Blur Spicy messages until opened",
+      example: false,
+    }),
     quarantineEnabled: z.boolean().openapi({
       description: "Hold toxic and spam messages in Quarantined",
       example: true,
@@ -112,10 +116,6 @@ export const safetySettingsSchema = z
     sensitivity: z.enum(QUARANTINE_SENSITIVITIES).openapi({
       description: "How strict quarantine is",
       example: "balanced",
-    }),
-    blurSpicy: z.boolean().openapi({
-      description: "Blur Spicy messages until opened",
-      example: false,
     }),
   })
   .openapi("SafetySettings");
@@ -129,8 +129,8 @@ export const userPreferencesSchema = z
 
 export const getUserPreferencesResponseSchema = z
   .object({
-    success: z.boolean().openapi({ example: true }),
     preferences: userPreferencesSchema,
+    success: z.boolean().openapi({ example: true }),
   })
   .openapi("GetUserPreferencesResponse");
 
@@ -143,9 +143,9 @@ export const updateUserPreferencesRequestSchema = z
 
 export const updateUserPreferencesResponseSchema = z
   .object({
-    success: z.boolean().openapi({ example: true }),
     message: z.string().openapi({ example: "Preferences updated" }),
     preferences: userPreferencesSchema,
+    success: z.boolean().openapi({ example: true }),
   })
   .openapi("UpdateUserPreferencesResponse");
 
@@ -153,9 +153,9 @@ export const updateUserPreferencesResponseSchema = z
 
 export const deleteAllMessagesResponseSchema = z
   .object({
-    success: z.boolean().openapi({ example: true }),
-    message: z.string().openapi({ example: "All messages deleted" }),
     deletedCount: z.number().int().openapi({ example: 24 }),
+    message: z.string().openapi({ example: "All messages deleted" }),
+    success: z.boolean().openapi({ example: true }),
   })
   .openapi("DeleteAllMessagesResponse");
 
@@ -170,8 +170,8 @@ export const deleteAccountRequestSchema = z
 
 export const deleteAccountResponseSchema = z
   .object({
-    success: z.boolean().openapi({ example: true }),
     message: z.string().openapi({ example: "Account deleted" }),
+    success: z.boolean().openapi({ example: true }),
   })
   .openapi("DeleteAccountResponse");
 

@@ -28,20 +28,20 @@ export interface PublicProfileStoryArgs {
 }
 
 export const defaultPublicProfileArgs: PublicProfileStoryArgs = {
-  username: FIXTURE_USERNAME,
   amaPrompt: FIXTURE_AMA_PROMPT,
   answers: publicAnswerScenarios.some,
-  suggestions: suggestionScenarios.default,
   isAccepting: true,
-  isNotFound: false,
-  isSent: false,
   isLoadingAnswers: false,
   isLoadingSuggestions: false,
+  isNotFound: false,
+  isSent: false,
   isSubmitting: false,
   onRefreshSuggestions: noop,
   onSelectSuggestion: noop,
   onSendAnother: noop,
   onSubmit: noop,
+  suggestions: suggestionScenarios.default,
+  username: FIXTURE_USERNAME,
 };
 
 export const newProfilePublicProfileArgs = {

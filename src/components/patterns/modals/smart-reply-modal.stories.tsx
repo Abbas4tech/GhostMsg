@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { expect, fn, screen } from "storybook/test";
 import { sweetMessage } from "@/mock/fixtures/messages.fixtures";
 import {
@@ -20,27 +20,32 @@ const WITTY_REGEX = /witty/i;
 function StatefulSmartReplyModal(args: SmartReplyModalProps) {
   const [replyText, setReplyText] = useState(args.replyText);
   const [isPublished, setIsPublished] = useState(args.isPublished);
+  const handlePublishedChange = useCallback(
+    (next: boolean) => {
+      args.onPublishedChange(next);
+      setIsPublished(next);
+    },
+    [args]
+  );
+  const handleReplyTextChange = useCallback(
+    (next: string) => {
+      args.onReplyTextChange(next);
+      setReplyText(next);
+    },
+    [args]
+  );
   return (
     <SmartReplyModal
       {...args}
       isPublished={isPublished}
-      onPublishedChange={(next) => {
-        args.onPublishedChange(next);
-        setIsPublished(next);
-      }}
-      onReplyTextChange={(next) => {
-        args.onReplyTextChange(next);
-        setReplyText(next);
-      }}
+      onPublishedChange={handlePublishedChange}
+      onReplyTextChange={handleReplyTextChange}
       replyText={replyText}
     />
   );
 }
 
 const meta = {
-  title: "Patterns/Modals/SmartReplyModal",
-  component: SmartReplyModal,
-  tags: ["autodocs"],
   args: {
     ...defaultSmartReplyModalArgs,
     onClose: fn(),
@@ -51,31 +56,34 @@ const meta = {
     onSaveAndShare: fn(),
   },
   argTypes: {
-    isOpen: { control: "boolean", description: "Dialog visibility" },
-    message: { control: "object", description: "Message being answered" },
-    replyText: {
-      control: "text",
-      description: `Controlled draft (max ${REPLY_MAX_LENGTH})`,
-    },
-    isPublished: {
-      control: "boolean",
-      description: "Publish to the public profile showcase",
-    },
     isGenerating: {
       control: "boolean",
       description: "AI draft in progress (“Thinking...”)",
     },
+    isOpen: { control: "boolean", description: "Dialog visibility" },
+    isPublished: {
+      control: "boolean",
+      description: "Publish to the public profile showcase",
+    },
     isSaving: { control: "boolean", description: "Saving the reply" },
+    message: { control: "object", description: "Message being answered" },
+    onClose: { description: "Cancel / Escape / overlay" },
     onGenerate: {
       description: "Tone chip clicked → `witty` | `wholesome` | `thoughtful`",
     },
-    onReplyTextChange: { description: "Draft changed → text" },
     onPublishedChange: { description: "Publish switch toggled → boolean" },
+    onReplyTextChange: { description: "Draft changed → text" },
     onSave: { description: "Save answer clicked" },
     onSaveAndShare: { description: "Answer + Story Card clicked" },
-    onClose: { description: "Cancel / Escape / overlay" },
+    replyText: {
+      control: "text",
+      description: `Controlled draft (max ${REPLY_MAX_LENGTH})`,
+    },
   },
+  component: SmartReplyModal,
   render: (args) => <StatefulSmartReplyModal {...args} />,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/SmartReplyModal",
 } satisfies Meta<typeof SmartReplyModal>;
 
 export default meta;

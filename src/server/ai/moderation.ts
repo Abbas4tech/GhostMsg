@@ -20,8 +20,8 @@ export interface ModerationResult {
  * the call outright, which the caller already treats as fail-open.
  */
 const moderationSchema = z.object({
-  toxicity: z.enum(TOXICITY_LEVELS),
   sentimentTag: sentimentTagEnum,
+  toxicity: z.enum(TOXICITY_LEVELS),
 });
 
 const MODERATION_PROMPT = `Analyze the following anonymous message submitted to a social platform:
@@ -43,7 +43,7 @@ export async function moderateAndClassifyMessage(
 ): Promise<ModerationResult> {
   const apiKey = process.env.GOOGLE_AI_STUDIO_SECRET;
   if (!apiKey) {
-    return { isToxic: false, toxicity: "none", sentimentTag: "neutral" };
+    return { isToxic: false, sentimentTag: "neutral", toxicity: "none" };
   }
 
   try {
@@ -53,21 +53,21 @@ export async function moderateAndClassifyMessage(
 
     const { object } = await generateObject({
       model,
-      schema: moderationSchema,
       prompt: `${MODERATION_PROMPT}\n\nMessage:\n"${content}"`,
+      schema: moderationSchema,
     });
 
     return {
       isToxic: object.toxicity === "hurtful" || object.toxicity === "severe",
-      toxicity: object.toxicity,
       sentimentTag: object.sentimentTag,
+      toxicity: object.toxicity,
     };
   } catch (err) {
     console.warn("AI moderation/sentiment fallback used due to error:", err);
     return {
       isToxic: false,
-      toxicity: "none",
       sentimentTag: "neutral",
+      toxicity: "none",
     };
   }
 }

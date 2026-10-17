@@ -5,18 +5,16 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
 import { FIELD_ORIENTATIONS, fieldMockContent } from "./field.mock";
 
 const meta = {
-  title: "Elements/Field",
-  component: Field,
-  tags: ["autodocs"],
-  parameters: { layout: "padded" },
   args: { orientation: "vertical" },
   argTypes: {
     orientation: {
       control: "radio",
-      options: FIELD_ORIENTATIONS,
       description: "Label/control layout",
+      options: FIELD_ORIENTATIONS,
     },
   },
+  component: Field,
+  parameters: { layout: "padded" },
   render: (args) => (
     <Field {...args} className="max-w-sm">
       <FieldLabel htmlFor="field-demo">{fieldMockContent.label}</FieldLabel>
@@ -24,6 +22,8 @@ const meta = {
       <FieldDescription>{fieldMockContent.description}</FieldDescription>
     </Field>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Field",
 } satisfies Meta<typeof Field>;
 
 export default meta;
@@ -38,6 +38,11 @@ export const Default: Story = {
 };
 
 export const Invalid: Story = {
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("alert")).toHaveTextContent(
+      fieldMockContent.error
+    );
+  },
   render: (args) => (
     <Field {...args} className="max-w-sm" data-invalid>
       <FieldLabel htmlFor="field-invalid">{fieldMockContent.label}</FieldLabel>
@@ -45,9 +50,4 @@ export const Invalid: Story = {
       <FieldError>{fieldMockContent.error}</FieldError>
     </Field>
   ),
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("alert")).toHaveTextContent(
-      fieldMockContent.error
-    );
-  },
 };

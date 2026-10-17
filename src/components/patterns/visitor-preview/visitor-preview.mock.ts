@@ -5,10 +5,10 @@ import {
 import type { VisitorPreviewProps } from "./visitor-preview";
 
 export const defaultVisitorPreviewArgs: VisitorPreviewProps = {
-  username: FIXTURE_USERNAME,
-  displayName: "John",
-  avatarUrl: null,
   amaPrompt: FIXTURE_AMA_PROMPT,
-  showAmaBanner: true,
+  avatarUrl: null,
+  displayName: "John",
   isAccepting: true,
+  showAmaBanner: true,
+  username: FIXTURE_USERNAME,
 };

@@ -4,22 +4,20 @@ import { Separator } from "./separator";
 import { SEPARATOR_ORIENTATIONS, separatorMockContent } from "./separator.mock";
 
 const meta = {
-  title: "Elements/Separator",
-  component: Separator,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
-  args: { orientation: "horizontal", decorative: false },
+  args: { decorative: false, orientation: "horizontal" },
   argTypes: {
-    orientation: {
-      control: "radio",
-      options: SEPARATOR_ORIENTATIONS,
-      description: "Line direction",
-    },
     decorative: {
       control: "boolean",
       description: "Hide from assistive tech when purely visual",
     },
+    orientation: {
+      control: "radio",
+      description: "Line direction",
+      options: SEPARATOR_ORIENTATIONS,
+    },
   },
+  component: Separator,
+  parameters: { layout: "centered" },
   render: (args) => (
     <div
       className={
@@ -33,6 +31,8 @@ const meta = {
       <span>{separatorMockContent.after}</span>
     </div>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Separator",
 } satisfies Meta<typeof Separator>;
 
 export default meta;

@@ -2,10 +2,10 @@ import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
 import { scenarios, withScenario } from "@/mock/handlers";
 
 export const authCredentials = {
-  username: FIXTURE_USERNAME,
   email: "johndoe@example.com",
-  password: "secret123",
   otp: "123456",
+  password: "secret123",
+  username: FIXTURE_USERNAME,
 };
 
 export const authPageHandlers = {
@@ -15,12 +15,12 @@ export const authPageHandlers = {
     scenarios.credentials.invalid,
     scenarios.session.unauthenticated
   ),
-  usernameTaken: withScenario(
-    scenarios.username.taken,
-    scenarios.session.unauthenticated
-  ),
   signUpError: withScenario(
     scenarios.signUp.error,
+    scenarios.session.unauthenticated
+  ),
+  usernameTaken: withScenario(
+    scenarios.username.taken,
     scenarios.session.unauthenticated
   ),
   verifyInvalid: withScenario(

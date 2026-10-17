@@ -2,7 +2,8 @@
 
 import { Mail } from "lucide-react";
 import type React from "react";
-import type { UseFormReturn } from "react-hook-form";
+import { useCallback } from "react";
+import type { ControllerRenderProps, UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
 import {
   Form,
@@ -48,6 +49,28 @@ export function SignUpForm({
   usernameAvailabilityMessage,
 }: SignUpFormProps): React.JSX.Element {
   const isCheckingUsername = usernameAvailability === "checking";
+  const renderEmailField = useCallback(
+    ({ field }: { field: ControllerRenderProps<SignUpValues, "email"> }) => (
+      <FormItem>
+        <FormLabel>Email</FormLabel>
+        <InputGroup size="lg">
+          <InputGroupAddon>
+            <Mail aria-hidden="true" />
+          </InputGroupAddon>
+          <FormControl>
+            <InputGroupInput
+              autoComplete="email"
+              placeholder="maya@example.com"
+              type="email"
+              {...field}
+            />
+          </FormControl>
+        </InputGroup>
+        <FormMessage />
+      </FormItem>
+    ),
+    []
+  );
 
   return (
     <Form {...form}>
@@ -69,25 +92,7 @@ export function SignUpForm({
         <FormField
           control={form.control}
           name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <InputGroup size="lg">
-                <InputGroupAddon>
-                  <Mail aria-hidden="true" />
-                </InputGroupAddon>
-                <FormControl>
-                  <InputGroupInput
-                    autoComplete="email"
-                    placeholder="maya@example.com"
-                    type="email"
-                    {...field}
-                  />
-                </FormControl>
-              </InputGroup>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={renderEmailField}
         />
 
         <PasswordField
@@ -117,5 +122,3 @@ export function SignUpForm({
     </Form>
   );
 }
-
-export default SignUpForm;

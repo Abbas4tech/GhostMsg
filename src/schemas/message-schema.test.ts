@@ -34,16 +34,16 @@ describe("message-schema.ts", () => {
   describe("sendMessageSchema", () => {
     it("should require both username and content", () => {
       const result = sendMessageSchema.safeParse({
-        username: "johndoe",
         content: "Hey John! Loved your recent portfolio update.",
+        username: "johndoe",
       });
       expect(result.success).toBe(true);
     });
 
     it("should reject empty username", () => {
       const result = sendMessageSchema.safeParse({
-        username: "",
         content: "Hey John! Loved your recent portfolio update.",
+        username: "",
       });
       expect(result.success).toBe(false);
     });

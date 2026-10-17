@@ -4,23 +4,23 @@ import { Avatar, AvatarFallback } from "./avatar";
 import { AVATAR_SIZES, avatarMockContent } from "./avatar.mock";
 
 const meta = {
-  title: "Elements/Avatar",
-  component: Avatar,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { size: "default" },
   argTypes: {
     size: {
       control: "radio",
-      options: AVATAR_SIZES,
       description: "Diameter",
+      options: AVATAR_SIZES,
     },
   },
+  component: Avatar,
+  parameters: { layout: "centered" },
   render: (args) => (
     <Avatar {...args}>
       <AvatarFallback>{avatarMockContent.name.charAt(0)}</AvatarFallback>
     </Avatar>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Avatar",
 } satisfies Meta<typeof Avatar>;
 
 export default meta;

@@ -6,10 +6,10 @@ export const SWITCH_SIZES = ["sm", "md", "lg", "xl"] as const;
 
 export const defaultSwitchArgs: SwitchProps = {
   "aria-label": "Accept messages",
-  variant: "default",
-  size: "md",
   disabled: false,
   onCheckedChange: noop,
+  size: "md",
+  variant: "default",
 };
 
 export const checkedSwitchArgs = {

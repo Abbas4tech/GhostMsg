@@ -3,10 +3,10 @@ import { noop } from "@/mock/noop";
 import type { SuggestedMessagesProps } from "./suggested-messages";
 
 export const defaultSuggestedMessagesArgs: SuggestedMessagesProps = {
-  suggestions: suggestionScenarios.default,
   isLoading: false,
   onRefresh: noop,
   onSelect: noop,
+  suggestions: suggestionScenarios.default,
 };
 
 export const emptySuggestedMessagesArgs = {

@@ -12,8 +12,8 @@ export interface SendMessageFormStoryArgs {
 }
 
 export const defaultSendMessageFormArgs: SendMessageFormStoryArgs = {
-  username: FIXTURE_USERNAME,
   defaultContent: "",
   isSubmitting: false,
   onSubmit: noop,
+  username: FIXTURE_USERNAME,
 };

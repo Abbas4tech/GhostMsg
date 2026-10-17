@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -62,18 +62,18 @@ const NAV_ITEMS: {
   id: DashboardNavId;
   label: string;
 }[] = [
-  { id: "inbox", href: "/dashboard", label: "Inbox", icon: InboxIcon },
+  { href: "/dashboard", icon: InboxIcon, id: "inbox", label: "Inbox" },
   {
-    id: "profile",
     href: "/dashboard/profile",
-    label: "Profile",
     icon: UserIcon,
+    id: "profile",
+    label: "Profile",
   },
   {
-    id: "settings",
     href: "/dashboard/settings",
-    label: "Settings",
     icon: SlidersHorizontalIcon,
+    id: "settings",
+    label: "Settings",
   },
 ];
 
@@ -304,6 +304,9 @@ function MobileTopBar({
   const { setOpenMobile } = useSidebar();
   const title =
     NAV_ITEMS.find((item) => item.id === activeNav)?.label ?? "Dashboard";
+  const handleOpenMobileSidebar = useCallback(() => {
+    setOpenMobile(true);
+  }, [setOpenMobile]);
 
   return (
     <header className="sticky top-0 z-30 flex items-center gap-2 border-b bg-background/90 px-4 py-2.5 backdrop-blur md:hidden">
@@ -323,7 +326,7 @@ function MobileTopBar({
       <button
         aria-label="Open menu"
         className="grid size-11 place-items-center rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-        onClick={() => setOpenMobile(true)}
+        onClick={handleOpenMobileSidebar}
         type="button"
       >
         <UserAvatar avatarUrl={avatarUrl} size="lg" username={username} />
@@ -400,5 +403,3 @@ export function DashboardShell({
     </SidebarProvider>
   );
 }
-
-export default DashboardShell;

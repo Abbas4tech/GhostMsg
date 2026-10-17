@@ -10,26 +10,26 @@ import {
 } from "./switch.mock";
 
 const meta = {
-  title: "Elements/Switch",
-  component: Switch,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultSwitchArgs, onCheckedChange: fn() },
   argTypes: {
-    variant: {
-      control: "radio",
-      options: SWITCH_VARIANTS,
-      description: "Checked track color",
-    },
+    checked: { control: "boolean", description: "Controlled checked state" },
+    disabled: { control: "boolean", description: "Prevents toggling" },
+    onCheckedChange: { description: "Called with the next checked state" },
     size: {
       control: "radio",
-      options: SWITCH_SIZES,
       description: "Track/thumb size (`md` = original)",
+      options: SWITCH_SIZES,
     },
-    disabled: { control: "boolean", description: "Prevents toggling" },
-    checked: { control: "boolean", description: "Controlled checked state" },
-    onCheckedChange: { description: "Called with the next checked state" },
+    variant: {
+      control: "radio",
+      description: "Checked track color",
+      options: SWITCH_VARIANTS,
+    },
   },
+  component: Switch,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Switch",
 } satisfies Meta<typeof Switch>;
 
 export default meta;
@@ -80,14 +80,14 @@ export const Disabled: Story = {
 
 export const WithLabel: Story = {
   args: { "aria-label": undefined, id: "accept-messages" },
+  play: async ({ args, canvas, userEvent }) => {
+    await userEvent.click(canvas.getByText("Accept Messages"));
+    await expect(args.onCheckedChange).toHaveBeenCalledWith(true);
+  },
   render: (args) => (
     <div className="flex items-center gap-3">
       <Switch {...args} />
       <Label htmlFor="accept-messages">Accept Messages</Label>
     </div>
   ),
-  play: async ({ args, canvas, userEvent }) => {
-    await userEvent.click(canvas.getByText("Accept Messages"));
-    await expect(args.onCheckedChange).toHaveBeenCalledWith(true);
-  },
 };

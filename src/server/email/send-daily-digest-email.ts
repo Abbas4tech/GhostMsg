@@ -19,25 +19,25 @@ export async function sendDailyDigestEmail({
   try {
     const html = await render(
       DailyDigestEmail({
-        username,
-        total: summary.total,
-        previews: summary.previews,
         dashboardUrl: `${APP_URL}/dashboard`,
+        previews: summary.previews,
+        total: summary.total,
+        username,
       })
     );
 
     await transporter.sendMail({
       from: FROM_ADDRESS,
-      to: email,
+      html,
       subject: `GhostMsg 👻 | ${summary.total} new anonymous ${
         summary.total === 1 ? "message" : "messages"
       } today`,
-      html,
+      to: email,
     });
 
-    return { success: true, message: "Digest email dispatched successfully" };
+    return { message: "Digest email dispatched successfully", success: true };
   } catch (error) {
     console.warn("Error sending daily digest email:", error);
-    return { success: false, message: "Failed to send digest email" };
+    return { message: "Failed to send digest email", success: false };
   }
 }

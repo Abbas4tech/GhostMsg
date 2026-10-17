@@ -21,9 +21,9 @@ export const controlGoogleSignInFlow = async (
     } else {
       const newUser = new UserModel({
         email: user.email,
-        username: user.email?.split("@")[0],
         isVerified: true,
         password: await bcrypt.hash(Math.random().toString(36).slice(-12), 10),
+        username: user.email?.split("@")[0],
         verifyCode: Math.floor(100_000 + Math.random() * 900_000).toString(),
         verifyCodeExpiry: new Date(Date.now() + 3_600_000),
       });

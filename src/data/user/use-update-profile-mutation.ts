@@ -13,11 +13,11 @@ type ProfileResponse = components["schemas"]["GetUserProfileResponse"];
  */
 export const useUpdateProfileMutation = () =>
   useOptimisticResourceMutation<ProfileResponse, UpdateProfileBody, unknown>({
+    alsoInvalidate: [queryKeys.public.all],
+    errorMessage: "Couldn't save your profile",
+    merge: (data, body) => ({ ...data, profile: { ...data.profile, ...body } }),
+    mutationFn: (body) => clientFetch(api.PATCH("/api/user/profile", { body })),
     queryKey: queryKeys.user.profile(),
     scopeId: "user-profile",
-    mutationFn: (body) => clientFetch(api.PATCH("/api/user/profile", { body })),
-    merge: (data, body) => ({ ...data, profile: { ...data.profile, ...body } }),
-    errorMessage: "Couldn't save your profile",
     successMessage: () => "Profile saved",
-    alsoInvalidate: [queryKeys.public.all],
   });

@@ -24,9 +24,9 @@ function SendMessageFormHarness({
   username,
 }: SendMessageFormStoryArgs): React.JSX.Element {
   const form = useForm<SendMessageValues>({
-    resolver: zodResolver(messageSchema),
     defaultValues: { content: defaultContent },
     mode: "onChange",
+    resolver: zodResolver(messageSchema),
   });
   return (
     <SendMessageForm
@@ -39,12 +39,8 @@ function SendMessageFormHarness({
 }
 
 const meta = {
-  title: "Patterns/SendMessageForm",
-  component: SendMessageFormHarness,
-  tags: ["autodocs"],
   args: { ...defaultSendMessageFormArgs, onSubmit: fn() },
   argTypes: {
-    username: { control: "text", description: "Recipient handle in the label" },
     defaultContent: { control: "text", description: "Initial message text" },
     isSubmitting: {
       control: "boolean",
@@ -53,7 +49,11 @@ const meta = {
     onSubmit: {
       description: "Valid message (10–300 chars) submitted → `{ content }`",
     },
+    username: { control: "text", description: "Recipient handle in the label" },
   },
+  component: SendMessageFormHarness,
+  tags: ["autodocs"],
+  title: "Patterns/SendMessageForm",
 } satisfies Meta<typeof SendMessageFormHarness>;
 
 export default meta;
@@ -109,5 +109,5 @@ export const Sending: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

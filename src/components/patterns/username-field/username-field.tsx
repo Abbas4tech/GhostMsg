@@ -2,7 +2,14 @@
 
 import { Check, Link2, X } from "lucide-react";
 import type React from "react";
-import type { Control, FieldPath, FieldValues } from "react-hook-form";
+import { useCallback } from "react";
+import type {
+  Control,
+  ControllerFieldState,
+  ControllerRenderProps,
+  FieldPath,
+  FieldValues,
+} from "react-hook-form";
 import {
   FormControl,
   FormField,
@@ -72,65 +79,68 @@ export function UsernameField<TFieldValues extends FieldValues>({
   availabilityMessage,
   linkPrefix = DEFAULT_LINK_PREFIX,
 }: UsernameFieldProps<TFieldValues>): React.JSX.Element {
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field, fieldState }) => {
-        const value = String(field.value ?? "");
-        const link = `${linkPrefix}${value || "yourname"}`;
-        const isTaken = availability === "taken";
-        const showPreview = !(fieldState.error || isTaken);
+  const renderField = useCallback(
+    ({
+      field,
+      fieldState,
+    }: {
+      field: ControllerRenderProps<TFieldValues, FieldPath<TFieldValues>>;
+      fieldState: ControllerFieldState;
+    }) => {
+      const value = String(field.value ?? "");
+      const link = `${linkPrefix}${value || "yourname"}`;
+      const isTaken = availability === "taken";
+      const showPreview = !(fieldState.error || isTaken);
 
-        return (
-          <FormItem>
-            <FormLabel>Username</FormLabel>
-            <InputGroup
-              size="lg"
-              tone={availability === "available" ? "success" : "default"}
+      return (
+        <FormItem>
+          <FormLabel>Username</FormLabel>
+          <InputGroup
+            size="lg"
+            tone={availability === "available" ? "success" : "default"}
+          >
+            <InputGroupAddon aria-hidden="true">@</InputGroupAddon>
+            <FormControl>
+              <InputGroupInput
+                aria-invalid={isTaken || undefined}
+                autoCapitalize="none"
+                autoComplete="username"
+                placeholder="yourname"
+                spellCheck={false}
+                {...field}
+              />
+            </FormControl>
+            <AvailabilityStatus availability={availability} />
+          </InputGroup>
+          {showPreview ? (
+            <p
+              className={cn(
+                "flex items-center gap-1.5 text-sm",
+                availability === "available"
+                  ? "text-success"
+                  : "text-muted-foreground"
+              )}
+              data-slot="username-link-preview"
             >
-              <InputGroupAddon aria-hidden="true">@</InputGroupAddon>
-              <FormControl>
-                <InputGroupInput
-                  aria-invalid={isTaken || undefined}
-                  autoCapitalize="none"
-                  autoComplete="username"
-                  placeholder="yourname"
-                  spellCheck={false}
-                  {...field}
-                />
-              </FormControl>
-              <AvailabilityStatus availability={availability} />
-            </InputGroup>
-            {showPreview ? (
-              <p
-                className={cn(
-                  "flex items-center gap-1.5 text-sm",
-                  availability === "available"
-                    ? "text-success"
-                    : "text-muted-foreground"
-                )}
-                data-slot="username-link-preview"
-              >
-                <Link2 aria-hidden="true" className="size-4 shrink-0" />
-                <span className="min-w-0 break-all">
-                  Your link:{" "}
-                  <b className="font-semibold text-foreground">{link}</b>
-                  {availability === "available" ? " is available" : null}
-                </span>
-              </p>
-            ) : null}
-            {isTaken && !fieldState.error ? (
-              <p className="text-destructive text-sm" role="alert">
-                {availabilityMessage || "Username is already taken"}
-              </p>
-            ) : null}
-            <FormMessage />
-          </FormItem>
-        );
-      }}
-    />
+              <Link2 aria-hidden="true" className="size-4 shrink-0" />
+              <span className="min-w-0 break-all">
+                Your link:{" "}
+                <b className="font-semibold text-foreground">{link}</b>
+                {availability === "available" ? " is available" : null}
+              </span>
+            </p>
+          ) : null}
+          {isTaken && !fieldState.error ? (
+            <p className="text-destructive text-sm" role="alert">
+              {availabilityMessage || "Username is already taken"}
+            </p>
+          ) : null}
+          <FormMessage />
+        </FormItem>
+      );
+    },
+    [availability, availabilityMessage, linkPrefix]
   );
-}
 
-export default UsernameField;
+  return <FormField control={control} name={name} render={renderField} />;
+}

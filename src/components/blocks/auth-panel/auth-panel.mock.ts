@@ -1,11 +1,11 @@
 import type { AuthPanelProps } from "./auth-panel";
 
 export const signInAuthPanelArgs: Omit<AuthPanelProps, "children"> = {
-  title: "Welcome back",
   description: "Sign in to read your Anonymous Messages.",
+  title: "Welcome back",
 };
 
 export const signUpAuthPanelArgs = {
-  title: "Make your link",
   description: undefined,
+  title: "Make your link",
 } satisfies Partial<AuthPanelProps>;

@@ -88,28 +88,29 @@ function ThemeToggler({
   const [fromClip, toClip] = getClipKeyframes(direction);
 
   const toggleTheme = useCallback(
-    async (theme: ThemeSelection) => {
-      const resolved = theme === "system" ? getSystemEffective() : theme;
+    async (nextTheme: ThemeSelection) => {
+      const resolved =
+        nextTheme === "system" ? getSystemEffective() : nextTheme;
 
-      setCurrent({ effective: theme, resolved });
-      onImmediateChange?.(theme);
+      setCurrent({ effective: nextTheme, resolved });
+      onImmediateChange?.(nextTheme);
 
-      if (theme === "system" && resolved === resolvedTheme) {
-        setTheme(theme);
+      if (nextTheme === "system" && resolved === resolvedTheme) {
+        setTheme(nextTheme);
         return;
       }
 
       if (!document.startViewTransition) {
         flushSync(() => {
-          setPreview({ effective: theme, resolved });
+          setPreview({ effective: nextTheme, resolved });
         });
-        setTheme(theme);
+        setTheme(nextTheme);
         return;
       }
 
       await document.startViewTransition(() => {
         flushSync(() => {
-          setPreview({ effective: theme, resolved });
+          setPreview({ effective: nextTheme, resolved });
           document.documentElement.classList.toggle(
             "dark",
             resolved === "dark"
@@ -127,7 +128,7 @@ function ThemeToggler({
           }
         )
         .finished.finally(() => {
-          setTheme(theme);
+          setTheme(nextTheme);
         });
     },
     [onImmediateChange, resolvedTheme, fromClip, toClip, setTheme]
@@ -135,13 +136,16 @@ function ThemeToggler({
 
   return (
     <Fragment {...props}>
-      {typeof children === "function"
-        ? children({
-            effective: current.effective,
-            resolved: current.resolved,
-            toggleTheme,
-          })
-        : children}
+      {
+        // biome-ignore lint/suspicious/noLeakedRender: `children` is narrowed to ReactNode here (the function-as-children case is handled above), so rendering it directly is safe.
+        typeof children === "function"
+          ? children({
+              effective: current.effective,
+              resolved: current.resolved,
+              toggleTheme,
+            })
+          : children
+      }
       <style>
         {
           "::view-transition-old(root), ::view-transition-new(root){animation:none;mix-blend-mode:normal;}"

@@ -1,5 +1,6 @@
 import { RefreshCw, Sparkles } from "lucide-react";
 import type React from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/elements/button";
 import { Skeleton } from "@/components/elements/skeleton";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,28 @@ export interface SuggestedMessagesProps {
 }
 
 const SKELETON_KEYS = ["a", "b", "c"] as const;
+
+function SuggestionButton({
+  suggestion,
+  onSelect,
+}: {
+  onSelect: (suggestion: string) => void;
+  suggestion: string;
+}): React.JSX.Element {
+  const handleClick = useCallback(() => {
+    onSelect(suggestion);
+  }, [onSelect, suggestion]);
+
+  return (
+    <button
+      className="flex min-h-11 items-center rounded-2xl border border-input border-dashed bg-card px-3.5 py-2 text-left font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring"
+      onClick={handleClick}
+      type="button"
+    >
+      {suggestion}
+    </button>
+  );
+}
 
 /** "Need a nudge?": AI Suggested Messages that fill the box when tapped. */
 export function SuggestedMessages({
@@ -56,17 +79,12 @@ export function SuggestedMessages({
       ) : null}
 
       {suggestions.map((suggestion) => (
-        <button
-          className="flex min-h-11 items-center rounded-2xl border border-input border-dashed bg-card px-3.5 py-2 text-left font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring"
+        <SuggestionButton
           key={suggestion}
-          onClick={() => onSelect(suggestion)}
-          type="button"
-        >
-          {suggestion}
-        </button>
+          onSelect={onSelect}
+          suggestion={suggestion}
+        />
       ))}
     </div>
   );
 }
-
-export default SuggestedMessages;

@@ -6,22 +6,22 @@ import { cn } from "@/lib/utils";
 const storyCardPreviewVariants = cva(
   "relative flex aspect-[9/16] flex-col justify-between overflow-hidden bg-brand-gradient text-brand-foreground shadow-lift",
   {
+    defaultVariants: { size: "md", tilt: "none" },
     variants: {
       size: {
-        sm: "w-full max-w-[280px] gap-4 rounded-[28px] p-6",
         md: "w-full max-w-[360px] gap-5 rounded-[32px] px-6 py-7",
+        sm: "w-full max-w-[280px] gap-4 rounded-[28px] p-6",
       },
       tilt: { none: "", right: "motion-safe:rotate-2" },
     },
-    defaultVariants: { size: "md", tilt: "none" },
   }
 );
 
 const questionVariants = cva(
   "text-balance font-bold font-display leading-[1.06]",
   {
-    variants: { size: { sm: "text-[26px]", md: "text-[34px]" } },
     defaultVariants: { size: "md" },
+    variants: { size: { md: "text-[34px]", sm: "text-[26px]" } },
   }
 );
 
@@ -107,5 +107,3 @@ export function StoryCardPreview({
     </figure>
   );
 }
-
-export default StoryCardPreview;

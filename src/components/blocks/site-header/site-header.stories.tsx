@@ -10,10 +10,6 @@ const LOG_OUT_REGEX = /log out/i;
 const BRAND_REGEX = /ghostmsg/i;
 
 const meta = {
-  title: "Blocks/SiteHeader",
-  component: SiteHeader,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: { ...guestSiteHeaderArgs, onSignOut: fn() },
   argTypes: {
     isAuthenticated: {
@@ -24,6 +20,10 @@ const meta = {
       description: "Log out clicked (the page calls next-auth `signOut`)",
     },
   },
+  component: SiteHeader,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/SiteHeader",
 } satisfies Meta<typeof SiteHeader>;
 
 export default meta;
@@ -66,5 +66,5 @@ export const SignedIn: Story = {
 
 export const Mobile: Story = {
   args: signedInSiteHeaderArgs,
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

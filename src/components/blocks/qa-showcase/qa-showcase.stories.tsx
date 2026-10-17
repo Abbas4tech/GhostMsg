@@ -4,20 +4,20 @@ import { QaShowcase } from "./qa-showcase";
 import { defaultQaShowcaseArgs } from "./qa-showcase.mock";
 
 const meta = {
-  title: "Blocks/QaShowcase",
-  component: QaShowcase,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: defaultQaShowcaseArgs,
   argTypes: {
-    question: { control: "text", description: "Example question" },
     answer: { control: "text", description: "Example answer" },
+    question: { control: "text", description: "Example question" },
     sentiment: {
       control: "select",
-      options: ["sweet", "curious", "spicy", "advice", "neutral"],
       description: "Sentiment Tag",
+      options: ["sweet", "curious", "spicy", "advice", "neutral"],
     },
   },
+  component: QaShowcase,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/QaShowcase",
 } satisfies Meta<typeof QaShowcase>;
 
 export default meta;

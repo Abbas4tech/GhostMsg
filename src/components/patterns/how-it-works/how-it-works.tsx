@@ -87,5 +87,3 @@ export function HowItWorks({
     </ol>
   );
 }
-
-export default HowItWorks;

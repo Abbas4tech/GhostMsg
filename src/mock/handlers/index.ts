@@ -11,16 +11,16 @@ import { userHandlers } from "./user.handlers";
  * @example parameters: { msw: { handlers: [...scenarios.inbox.empty, ...defaultHandlers] } }
  */
 export const scenarios = {
-  session: authHandlers.session,
-  credentials: authHandlers.credentials,
-  username: authHandlers.username,
-  signUp: authHandlers.signUp,
-  verify: authHandlers.verify,
-  inbox: messageHandlers.inbox,
-  settings: userHandlers.settings,
-  answers: publicHandlers.answers,
-  send: publicHandlers.send,
   ai: publicHandlers.ai,
+  answers: publicHandlers.answers,
+  credentials: authHandlers.credentials,
+  inbox: messageHandlers.inbox,
+  send: publicHandlers.send,
+  session: authHandlers.session,
+  settings: userHandlers.settings,
+  signUp: authHandlers.signUp,
+  username: authHandlers.username,
+  verify: authHandlers.verify,
 };
 
 /** A signed-in recipient with a mixed inbox, default settings and a public profile. */

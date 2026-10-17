@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useCallback } from "react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -39,6 +40,29 @@ export interface CommandPaletteProps {
 const containsFilter = (value: string, search: string): number =>
   value.toLowerCase().includes(search.trim().toLowerCase()) ? 1 : 0;
 
+function PaletteCommandItem({
+  item,
+  onOpenChange,
+}: {
+  item: CommandItemDefinition;
+  onOpenChange: (open: boolean) => void;
+}): React.JSX.Element {
+  const handleSelect = useCallback(() => {
+    onOpenChange(false);
+    item.onSelect();
+  }, [onOpenChange, item]);
+
+  return (
+    <CommandItem onSelect={handleSelect} value={item.label}>
+      {item.icon}
+      <span>{item.label}</span>
+      {item.shortcut ? (
+        <CommandShortcut>{item.shortcut}</CommandShortcut>
+      ) : null}
+    </CommandItem>
+  );
+}
+
 export function CommandPalette({
   open,
   onOpenChange,
@@ -60,20 +84,11 @@ export function CommandPalette({
         {groups.map((group) => (
           <CommandGroup heading={group.heading} key={group.heading}>
             {group.items.map((item) => (
-              <CommandItem
+              <PaletteCommandItem
+                item={item}
                 key={item.id}
-                onSelect={() => {
-                  onOpenChange(false);
-                  item.onSelect();
-                }}
-                value={item.label}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-                {item.shortcut ? (
-                  <CommandShortcut>{item.shortcut}</CommandShortcut>
-                ) : null}
-              </CommandItem>
+                onOpenChange={onOpenChange}
+              />
             ))}
           </CommandGroup>
         ))}
@@ -81,5 +96,3 @@ export function CommandPalette({
     </CommandDialog>
   );
 }
-
-export default CommandPalette;

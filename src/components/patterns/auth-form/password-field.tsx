@@ -2,8 +2,13 @@
 
 import { Lock } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
-import type { Control, FieldPath, FieldValues } from "react-hook-form";
+import { useCallback, useState } from "react";
+import type {
+  Control,
+  ControllerRenderProps,
+  FieldPath,
+  FieldValues,
+} from "react-hook-form";
 import {
   FormControl,
   FormDescription,
@@ -37,41 +42,46 @@ export function PasswordField<TFieldValues extends FieldValues>({
   autoComplete = "current-password",
 }: PasswordFieldProps<TFieldValues>): React.JSX.Element {
   const [showPassword, setShowPassword] = useState(false);
-
-  return (
-    <FormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Password</FormLabel>
-          <InputGroup size="lg">
-            <InputGroupAddon>
-              <Lock aria-hidden="true" />
-            </InputGroupAddon>
-            <FormControl>
-              <InputGroupInput
-                autoComplete={autoComplete}
-                placeholder={placeholder}
-                type={showPassword ? "text" : "password"}
-                {...field}
-              />
-            </FormControl>
-            <InputGroupAddon align="inline-end">
-              <InputGroupButton
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                aria-pressed={showPassword}
-                onClick={() => setShowPassword((prev) => !prev)}
-                size="sm"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </InputGroupButton>
-            </InputGroupAddon>
-          </InputGroup>
-          {hint ? <FormDescription>{hint}</FormDescription> : null}
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+  const handleToggleShowPassword = useCallback(() => {
+    setShowPassword((prev) => !prev);
+  }, []);
+  const renderField = useCallback(
+    ({
+      field,
+    }: {
+      field: ControllerRenderProps<TFieldValues, FieldPath<TFieldValues>>;
+    }) => (
+      <FormItem>
+        <FormLabel>Password</FormLabel>
+        <InputGroup size="lg">
+          <InputGroupAddon>
+            <Lock aria-hidden="true" />
+          </InputGroupAddon>
+          <FormControl>
+            <InputGroupInput
+              autoComplete={autoComplete}
+              placeholder={placeholder}
+              type={showPassword ? "text" : "password"}
+              {...field}
+            />
+          </FormControl>
+          <InputGroupAddon align="inline-end">
+            <InputGroupButton
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              onClick={handleToggleShowPassword}
+              size="sm"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
+        {hint ? <FormDescription>{hint}</FormDescription> : null}
+        <FormMessage />
+      </FormItem>
+    ),
+    [autoComplete, placeholder, showPassword, hint, handleToggleShowPassword]
   );
+
+  return <FormField control={control} name={name} render={renderField} />;
 }

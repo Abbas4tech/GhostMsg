@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { expect, fn, screen } from "storybook/test";
 import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
 import {
@@ -13,22 +13,23 @@ const DELETE_ACCOUNT_REGEX = /delete account/i;
 /** Local state keeps the confirmation input interactive. */
 function StatefulDeleteAccountModal(args: DeleteAccountModalProps) {
   const [confirmValue, setConfirmValue] = useState(args.confirmValue);
+  const handleConfirmValueChange = useCallback(
+    (next: string) => {
+      args.onConfirmValueChange(next);
+      setConfirmValue(next);
+    },
+    [args]
+  );
   return (
     <DeleteAccountModal
       {...args}
       confirmValue={confirmValue}
-      onConfirmValueChange={(next) => {
-        args.onConfirmValueChange(next);
-        setConfirmValue(next);
-      }}
+      onConfirmValueChange={handleConfirmValueChange}
     />
   );
 }
 
 const meta = {
-  title: "Patterns/Modals/DeleteAccountModal",
-  component: DeleteAccountModal,
-  tags: ["autodocs"],
   args: {
     ...defaultDeleteAccountModalArgs,
     onConfirm: fn(),
@@ -36,15 +37,18 @@ const meta = {
     onOpenChange: fn(),
   },
   argTypes: {
-    open: { control: "boolean", description: "Dialog visibility" },
-    username: { control: "text", description: "What must be typed" },
     confirmValue: { control: "text", description: "Typed confirmation" },
     isPending: { control: "boolean", description: "Deleting (spinner)" },
-    onConfirmValueChange: { description: "Confirmation typed → value" },
     onConfirm: { description: "Delete account clicked" },
+    onConfirmValueChange: { description: "Confirmation typed → value" },
     onOpenChange: { description: "Cancel / Escape" },
+    open: { control: "boolean", description: "Dialog visibility" },
+    username: { control: "text", description: "What must be typed" },
   },
+  component: DeleteAccountModal,
   render: (args) => <StatefulDeleteAccountModal {...args} />,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/DeleteAccountModal",
 } satisfies Meta<typeof DeleteAccountModal>;
 
 export default meta;

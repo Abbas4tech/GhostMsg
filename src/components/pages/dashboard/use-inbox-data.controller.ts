@@ -42,7 +42,7 @@ export function useInboxDataController({
   const refetchInterval = isConnected ? false : INBOX_POLL_MS;
 
   const inboxQuery = useInfiniteQuery({
-    ...messagesQueries.inbox({ status, q }),
+    ...messagesQueries.inbox({ q, status }),
     // Keep the current list on screen while another filter loads.
     placeholderData: keepPreviousData,
     refetchInterval,
@@ -54,6 +54,7 @@ export function useInboxDataController({
 
   const messages = useMemo(
     () =>
+      // biome-ignore lint/suspicious/noUnnecessaryConditions: inboxQuery.data is genuinely undefined before the first load resolves — tsc confirms this optional chain is required.
       inboxQuery.data?.pages.flatMap((page) => page.messages) ?? NO_MESSAGES,
     [inboxQuery.data]
   );
@@ -78,21 +79,21 @@ export function useInboxDataController({
   }, [fetchNextPage]);
 
   return {
-    messages,
-    loadedIds,
     counts,
-    /** Every message the recipient has (drives the first-run empty state). */
-    totalMessages: Math.max(counts.total, messages.length),
     handleRefresh,
-    pagination: {
-      hasMore: Boolean(inboxQuery.hasNextPage),
-      isLoadingMore: inboxQuery.isFetchingNextPage,
-      onLoadMore: handleLoadMore,
-    },
     isLiveConnected: isConnected,
     isLoading: inboxQuery.isLoading,
     isRefreshing:
       (inboxQuery.isRefetching && !inboxQuery.isFetchingNextPage) ||
       inboxQuery.isPlaceholderData,
+    loadedIds,
+    messages,
+    pagination: {
+      hasMore: Boolean(inboxQuery.hasNextPage),
+      isLoadingMore: inboxQuery.isFetchingNextPage,
+      onLoadMore: handleLoadMore,
+    },
+    /** Every message the recipient has (drives the first-run empty state). */
+    totalMessages: Math.max(counts.total, messages.length),
   };
 }

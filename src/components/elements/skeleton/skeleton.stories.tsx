@@ -4,9 +4,6 @@ import { Skeleton } from "./skeleton";
 import { defaultSkeletonArgs } from "./skeleton.mock";
 
 const meta = {
-  title: "Elements/Skeleton",
-  component: Skeleton,
-  tags: ["autodocs"],
   args: defaultSkeletonArgs,
   argTypes: {
     className: {
@@ -14,6 +11,9 @@ const meta = {
       description: "Size/shape utilities (e.g. `h-10 w-64 rounded-full`)",
     },
   },
+  component: Skeleton,
+  tags: ["autodocs"],
+  title: "Elements/Skeleton",
 } satisfies Meta<typeof Skeleton>;
 
 export default meta;

@@ -22,16 +22,16 @@ describe("buildProfileUrl", () => {
 
 describe("buildProfilePatch", () => {
   const values: ProfileFormValues = {
-    displayName: "  Maya R.  ",
-    avatarUrl: null,
     amaPrompt: "  Ask me about design  ",
+    avatarUrl: null,
+    displayName: "  Maya R.  ",
     showAmaBanner: false,
   };
 
   it("sends only the changed fields, trimmed", () => {
     expect(
-      buildProfilePatch(values, { displayName: true, amaPrompt: true })
-    ).toEqual({ displayName: "Maya R.", amaPrompt: "Ask me about design" });
+      buildProfilePatch(values, { amaPrompt: true, displayName: true })
+    ).toEqual({ amaPrompt: "Ask me about design", displayName: "Maya R." });
   });
 
   it("sends null to remove the photo and the banner switch as-is", () => {

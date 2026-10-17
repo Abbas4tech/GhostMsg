@@ -3,7 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import { Button } from "@/components/elements/button";
 import { cn } from "@/lib/utils";
 
@@ -28,16 +28,26 @@ export function ClaimLinkForm({
   className,
 }: ClaimLinkFormProps): React.JSX.Element {
   const inputId = useId();
+  const handleSubmit = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      onSubmit();
+    },
+    [onSubmit]
+  );
+  const handleValueChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onValueChange(event.target.value);
+    },
+    [onValueChange]
+  );
 
   return (
     <form
       aria-label="Claim your link"
       className={cn("flex w-full max-w-[520px] flex-col gap-3", className)}
       data-slot="claim-link-form"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit();
-      }}
+      onSubmit={handleSubmit}
     >
       <label className="font-semibold text-sm" htmlFor={inputId}>
         Claim your Public Profile Link
@@ -52,7 +62,7 @@ export function ClaimLinkForm({
             autoComplete="username"
             className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground/70"
             id={inputId}
-            onChange={(event) => onValueChange(event.target.value)}
+            onChange={handleValueChange}
             placeholder="yourname"
             spellCheck={false}
             type="text"
@@ -86,5 +96,3 @@ export function ClaimLinkForm({
     </form>
   );
 }
-
-export default ClaimLinkForm;

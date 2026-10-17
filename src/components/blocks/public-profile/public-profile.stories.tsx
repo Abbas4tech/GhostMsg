@@ -20,14 +20,14 @@ import {
 /** Creates the send form the page controller would own and maps flat args onto the block. */
 function PublicProfileHarness(args: PublicProfileStoryArgs): React.JSX.Element {
   const form = useForm<SendMessageValues>({
-    resolver: zodResolver(messageSchema),
     defaultValues: { content: "" },
     mode: "onChange",
+    resolver: zodResolver(messageSchema),
   });
   return (
     <PublicProfile
       amaPrompt={args.amaPrompt}
-      answers={{ items: args.answers, isLoading: args.isLoadingAnswers }}
+      answers={{ isLoading: args.isLoadingAnswers, items: args.answers }}
       isAccepting={args.isAccepting}
       isNotFound={args.isNotFound}
       sendForm={{
@@ -38,8 +38,8 @@ function PublicProfileHarness(args: PublicProfileStoryArgs): React.JSX.Element {
         onSubmit: args.onSubmit,
       }}
       suggestions={{
-        items: args.suggestions,
         isLoading: args.isLoadingSuggestions,
+        items: args.suggestions,
         onRefresh: args.onRefreshSuggestions,
         onSelect: args.onSelectSuggestion,
       }}
@@ -49,10 +49,6 @@ function PublicProfileHarness(args: PublicProfileStoryArgs): React.JSX.Element {
 }
 
 const meta = {
-  title: "Blocks/PublicProfile",
-  component: PublicProfileHarness,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: {
     ...defaultPublicProfileArgs,
     onRefreshSuggestions: fn(),
@@ -61,29 +57,33 @@ const meta = {
     onSubmit: fn(),
   },
   argTypes: {
-    username: { control: "text", description: "Recipient handle" },
     amaPrompt: {
       control: "text",
       description: "AMA Prompt (null → default prompt)",
     },
     answers: { control: "object", description: "Published Q&A" },
-    suggestions: { control: "object", description: "Suggested Messages" },
     isAccepting: { control: "boolean", description: "Message Acceptance" },
-    isNotFound: { control: "boolean", description: "Unknown username" },
-    isSent: { control: "boolean", description: "Just sent a message" },
     isLoadingAnswers: { control: "boolean", description: "Q&A skeleton" },
     isLoadingSuggestions: {
       control: "boolean",
       description: "Suggestions loading",
     },
+    isNotFound: { control: "boolean", description: "Unknown username" },
+    isSent: { control: "boolean", description: "Just sent a message" },
     isSubmitting: { control: "boolean", description: "Send pending" },
-    onSubmit: { description: "Valid message submitted" },
+    onRefreshSuggestions: { description: "New ideas clicked" },
     onSelectSuggestion: {
       description: "Suggestion tapped (page writes it into the form)",
     },
-    onRefreshSuggestions: { description: "New ideas clicked" },
     onSendAnother: { description: "Send another clicked" },
+    onSubmit: { description: "Valid message submitted" },
+    suggestions: { control: "object", description: "Suggested Messages" },
+    username: { control: "text", description: "Recipient handle" },
   },
+  component: PublicProfileHarness,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/PublicProfile",
 } satisfies Meta<typeof PublicProfileHarness>;
 
 export default meta;
@@ -101,7 +101,7 @@ export const Accepting: Story = {
     await expect(
       canvas.getByRole("heading", { name: "Public Q&A" })
     ).toBeVisible();
-    const suggestion = suggestionScenarios.default[2];
+    const [, , suggestion] = suggestionScenarios.default;
     await userEvent.click(canvas.getByRole("button", { name: suggestion }));
     await expect(args.onSelectSuggestion).toHaveBeenCalledWith(suggestion);
     await expect(
@@ -164,5 +164,5 @@ export const Loading: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

@@ -14,19 +14,17 @@ import {
 import { defaultDialogArgs, dialogMockContent } from "./dialog.mock";
 
 const meta = {
-  title: "Elements/Dialog",
-  component: Dialog,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultDialogArgs, onOpenChange: fn() },
   argTypes: {
     defaultOpen: {
       control: "boolean",
       description: "Open on mount (uncontrolled)",
     },
-    open: { control: "boolean", description: "Controlled open state" },
     onOpenChange: { description: "Called when the dialog opens or closes" },
+    open: { control: "boolean", description: "Controlled open state" },
   },
+  component: Dialog,
+  parameters: { layout: "centered" },
   render: (args) => (
     <Dialog {...args}>
       <DialogTrigger asChild>
@@ -46,6 +44,8 @@ const meta = {
       </DialogContent>
     </Dialog>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Dialog",
 } satisfies Meta<typeof Dialog>;
 
 export default meta;

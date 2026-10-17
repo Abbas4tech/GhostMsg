@@ -42,20 +42,20 @@ export interface MessageExportRecord {
 
 export function toMessageExportRecord(m: MessageDto): MessageExportRecord {
   return {
-    id: String(m._id),
     content: m.content,
-    sentimentTag: m.sentimentTag || "neutral",
     createdAt: new Date(m.createdAt).toISOString(),
-    isRead: Boolean(m.isRead),
+    id: String(m._id),
     isPinned: Boolean(m.isPinned),
     isQuarantined: Boolean(m.isQuarantined),
+    isRead: Boolean(m.isRead),
     reply: m.reply?.text
       ? {
-          text: m.reply.text,
           isPublished: Boolean(m.reply.isPublished),
+          text: m.reply.text,
           ...(m.reply.publishedAt ? { publishedAt: m.reply.publishedAt } : {}),
         }
       : null,
+    sentimentTag: m.sentimentTag || "neutral",
   };
 }
 

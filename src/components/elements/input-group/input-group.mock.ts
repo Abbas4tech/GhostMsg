@@ -7,7 +7,7 @@ export const inputGroupMockContent = {
 };
 
 export const defaultInputGroupArgs: VariantProps<typeof inputGroupVariants> = {
-  size: "default",
   shape: "default",
+  size: "default",
   tone: "default",
 };

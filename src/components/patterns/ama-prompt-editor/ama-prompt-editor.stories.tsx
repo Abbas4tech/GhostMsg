@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { expect, fn } from "storybook/test";
 import { FIXTURE_AMA_PROMPT } from "@/mock/fixtures/public-profile.fixtures";
 import {
@@ -19,17 +19,25 @@ const SUGGEST_REGEX = /suggest with ai/i;
 function StatefulAmaPromptEditor(args: AmaPromptEditorProps) {
   const [value, setValue] = useState(args.value);
   const [showBanner, setShowBanner] = useState(args.showBanner);
+  const handleChange = useCallback(
+    (next: string) => {
+      args.onChange(next);
+      setValue(next);
+    },
+    [args]
+  );
+  const handleShowBannerChange = useCallback(
+    (next: boolean) => {
+      args.onShowBannerChange(next);
+      setShowBanner(next);
+    },
+    [args]
+  );
   return (
     <AmaPromptEditor
       {...args}
-      onChange={(next) => {
-        args.onChange(next);
-        setValue(next);
-      }}
-      onShowBannerChange={(next) => {
-        args.onShowBannerChange(next);
-        setShowBanner(next);
-      }}
+      onChange={handleChange}
+      onShowBannerChange={handleShowBannerChange}
       showBanner={showBanner}
       value={value}
     />
@@ -37,16 +45,6 @@ function StatefulAmaPromptEditor(args: AmaPromptEditorProps) {
 }
 
 const meta = {
-  title: "Patterns/AmaPromptEditor",
-  component: AmaPromptEditor,
-  tags: ["autodocs"],
-  decorators: [
-    (Story) => (
-      <div className="max-w-xl">
-        <Story />
-      </div>
-    ),
-  ],
   args: {
     ...defaultAmaPromptEditorArgs,
     onChange: fn(),
@@ -54,21 +52,31 @@ const meta = {
     onSuggest: fn(),
   },
   argTypes: {
-    value: {
-      control: "text",
-      description: `Controlled prompt (max ${AMA_PROMPT_MAX_LENGTH} chars)`,
-    },
-    showBanner: { control: "boolean", description: "Show the AMA banner" },
+    aiIdeas: { control: "object", description: "Ideas from Suggest with AI" },
     isSuggesting: {
       control: "boolean",
       description: "AI ideas loading (spinner, disabled)",
     },
-    aiIdeas: { control: "object", description: "Ideas from Suggest with AI" },
     onChange: { description: "Prompt changed → new value" },
     onShowBannerChange: { description: "Banner switch toggled" },
     onSuggest: { description: "Suggest with AI clicked" },
+    showBanner: { control: "boolean", description: "Show the AMA banner" },
+    value: {
+      control: "text",
+      description: `Controlled prompt (max ${AMA_PROMPT_MAX_LENGTH} chars)`,
+    },
   },
+  component: AmaPromptEditor,
+  decorators: [
+    (Story) => (
+      <div className="max-w-xl">
+        <Story />
+      </div>
+    ),
+  ],
   render: (args) => <StatefulAmaPromptEditor {...args} />,
+  tags: ["autodocs"],
+  title: "Patterns/AmaPromptEditor",
 } satisfies Meta<typeof AmaPromptEditor>;
 
 export default meta;

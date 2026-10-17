@@ -30,10 +30,10 @@ interface Viewport {
   width: number;
 }
 
-const DESKTOP: Viewport = { width: 1440, height: 900 };
-const LAPTOP: Viewport = { width: 1280, height: 800 };
-const MOBILE: Viewport = { width: 390, height: 844 };
-const DIALOG: Viewport = { width: 1100, height: 820 };
+const DESKTOP: Viewport = { height: 900, width: 1440 };
+const LAPTOP: Viewport = { height: 800, width: 1280 };
+const MOBILE: Viewport = { height: 844, width: 390 };
+const DIALOG: Viewport = { height: 820, width: 1100 };
 
 interface Shot {
   /** Capture the whole scrollable page instead of the viewport. */
@@ -49,23 +49,23 @@ interface Shot {
 
 const PALETTE_MATRIX: Shot[] = (["spectral", "midnight", "paper"] as const)
   .flatMap((palette) =>
-    (["light", "dark"] as const).map((mode) => ({ palette, mode }))
+    (["light", "dark"] as const).map((mode) => ({ mode, palette }))
   )
   .map(({ palette, mode }) => ({
+    mode,
     name: `palette-${palette}-${mode}`,
+    palette,
     story: "pages-dashboard--inbox",
     viewport: LAPTOP,
-    palette,
-    mode,
   }));
 
 const SHOTS: Shot[] = [
   // Marketing + auth
   {
+    fullPage: true,
     name: "landing",
     story: "pages-home--guest",
     viewport: DESKTOP,
-    fullPage: true,
   },
   { name: "landing-mobile", story: "pages-home--guest", viewport: MOBILE },
   { name: "sign-in", story: "pages-auth-signin--default", viewport: DESKTOP },
@@ -78,10 +78,10 @@ const SHOTS: Shot[] = [
     viewport: DESKTOP,
   },
   {
+    mode: "dark",
     name: "dashboard-inbox-dark",
     story: "pages-dashboard--inbox",
     viewport: DESKTOP,
-    mode: "dark",
   },
   {
     name: "dashboard-inbox-mobile",
@@ -94,16 +94,16 @@ const SHOTS: Shot[] = [
     viewport: DESKTOP,
   },
   {
+    fullPage: true,
     name: "dashboard-profile",
     story: "pages-dashboard--profile",
     viewport: DESKTOP,
-    fullPage: true,
   },
   {
+    fullPage: true,
     name: "dashboard-settings",
     story: "pages-dashboard--settings",
     viewport: DESKTOP,
-    fullPage: true,
   },
   {
     name: "dashboard-signed-out",
@@ -112,10 +112,10 @@ const SHOTS: Shot[] = [
   },
   // Public profile
   {
+    fullPage: true,
     name: "public-profile",
     story: "pages-publicprofile--default",
     viewport: MOBILE,
-    fullPage: true,
   },
   {
     name: "public-profile-paused",
@@ -219,12 +219,13 @@ async function main(): Promise<void> {
   const failures: string[] = [];
   try {
     for (const shot of shots) {
+      // biome-ignore lint/performance/noAwaitInLoops: shots must run one at a time — they share a single browser context and page, and console output order must match shot order.
       const page = await context.newPage();
       await page.setViewportSize(shot.viewport);
       try {
         await page.goto(storyUrl(shot), {
-          waitUntil: "networkidle",
           timeout: STORY_TIMEOUT_MS,
+          waitUntil: "networkidle",
         });
         // Storybook marks the render "finished" after loaders, render and play().
         await page.waitForFunction(
@@ -241,8 +242,8 @@ async function main(): Promise<void> {
         );
         await page.waitForTimeout(SETTLE_MS);
         await page.screenshot({
-          path: path.join(OUTPUT_DIR, `${shot.name}.png`),
           fullPage: shot.fullPage ?? false,
+          path: path.join(OUTPUT_DIR, `${shot.name}.png`),
         });
         process.stdout.write(`✓ ${shot.name}\n`);
       } catch (error) {

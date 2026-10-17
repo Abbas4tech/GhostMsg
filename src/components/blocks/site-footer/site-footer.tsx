@@ -36,5 +36,3 @@ export function SiteFooter({ className }: SiteFooterProps): React.JSX.Element {
     </footer>
   );
 }
-
-export default SiteFooter;

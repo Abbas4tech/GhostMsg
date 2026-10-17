@@ -23,19 +23,19 @@ export function PublicProfilePage({
   const publicAnswers = usePublicAnswersController(username, initialProfile);
   // Fetch ideas only once we know the recipient offers them.
   const sender = useSendMessageController({
-    username,
     autoFetchSuggestions:
       (autoFetchSuggestions ?? true) &&
       !publicAnswers.isLoading &&
       publicAnswers.offerSuggestions,
+    username,
   });
 
   return (
     <PublicProfile
       amaPrompt={publicAnswers.amaPrompt}
       answers={{
-        items: publicAnswers.answers,
         isLoading: publicAnswers.isLoading,
+        items: publicAnswers.answers,
       }}
       avatarUrl={publicAnswers.avatarUrl}
       displayName={publicAnswers.displayName}
@@ -44,15 +44,15 @@ export function PublicProfilePage({
       offerSuggestions={publicAnswers.offerSuggestions}
       sendForm={{
         form: sender.form,
-        isSubmitting: sender.isSubmitting,
         isSent: sender.isSent,
+        isSubmitting: sender.isSubmitting,
         onSendAnother: sender.handleSendAnother,
         onSubmit: sender.handleSubmit,
       }}
       showAmaBanner={publicAnswers.showAmaBanner}
       suggestions={{
-        items: sender.suggestions,
         isLoading: sender.isFetchingSuggestions,
+        items: sender.suggestions,
         onRefresh: sender.fetchSuggestions,
         onSelect: sender.selectSuggestion,
       }}
@@ -60,5 +60,3 @@ export function PublicProfilePage({
     />
   );
 }
-
-export default PublicProfilePage;

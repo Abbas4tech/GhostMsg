@@ -11,22 +11,22 @@ import {
 const SUGGEST_REGEX = /new ideas/i;
 
 const meta = {
-  title: "Patterns/SuggestedMessages",
-  component: SuggestedMessages,
-  tags: ["autodocs"],
   args: { ...defaultSuggestedMessagesArgs, onRefresh: fn(), onSelect: fn() },
   argTypes: {
-    suggestions: {
-      control: "object",
-      description: "AI prompts; the card is hidden when empty",
-    },
     isLoading: {
       control: "boolean",
       description: "Spins the refresh icon and disables the button",
     },
     onRefresh: { description: "Suggest Messages clicked" },
     onSelect: { description: "Suggestion clicked → its text" },
+    suggestions: {
+      control: "object",
+      description: "AI prompts; the card is hidden when empty",
+    },
   },
+  component: SuggestedMessages,
+  tags: ["autodocs"],
+  title: "Patterns/SuggestedMessages",
 } satisfies Meta<typeof SuggestedMessages>;
 
 export default meta;
@@ -64,5 +64,5 @@ export const Empty: Story = {
 export const LongSuggestion: Story = { args: longSuggestedMessagesArgs };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

@@ -10,6 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type React from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/elements/button";
 import {
   Empty,
@@ -126,8 +127,8 @@ const VIEW_MODES: {
   label: string;
   mode: InboxViewMode;
 }[] = [
-  { mode: "grid", label: "Grid view", icon: LayoutGrid },
-  { mode: "list", label: "List view", icon: LayoutList },
+  { icon: LayoutGrid, label: "Grid view", mode: "grid" },
+  { icon: LayoutList, label: "List view", mode: "list" },
 ];
 
 const KEYBOARD_HINTS = [
@@ -153,14 +154,19 @@ function ViewModeToggle({
   onChange: (mode: InboxViewMode) => void;
   value: InboxViewMode;
 }): React.JSX.Element {
+  const handleValueChange = useCallback(
+    (next: string) => {
+      if (next === "grid" || next === "list") {
+        onChange(next);
+      }
+    },
+    [onChange]
+  );
+
   return (
     <ToggleGroup
       aria-label="Layout"
-      onValueChange={(next) => {
-        if (next === "grid" || next === "list") {
-          onChange(next);
-        }
-      }}
+      onValueChange={handleValueChange}
       type="single"
       value={value}
       variant="segment"
@@ -263,10 +269,16 @@ export function Inbox({
   searchInputId = INBOX_SEARCH_INPUT_ID,
   isSenderBlocked = neverBlocked,
 }: InboxProps): React.JSX.Element {
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     filters.onStatusChange("all");
     filters.onSearchChange("");
-  };
+  }, [filters]);
+  const handleSearchChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      filters.onSearchChange(event.target.value);
+    },
+    [filters]
+  );
 
   return (
     <section
@@ -298,7 +310,7 @@ export function Inbox({
             <InputGroupInput
               aria-label="Search messages"
               id={searchInputId}
-              onChange={(event) => filters.onSearchChange(event.target.value)}
+              onChange={handleSearchChange}
               placeholder="Search Anonymous Messages"
               type="search"
               value={filters.searchQuery}
@@ -432,5 +444,3 @@ export function Inbox({
     </section>
   );
 }
-
-export default Inbox;

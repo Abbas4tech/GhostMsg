@@ -2,8 +2,6 @@ import { noop } from "@/mock/noop";
 import type { CommandPaletteProps } from "./command-palette";
 
 export const defaultCommandPaletteArgs: CommandPaletteProps = {
-  open: true,
-  onOpenChange: noop,
   groups: [
     {
       heading: "Actions",
@@ -23,10 +21,12 @@ export const defaultCommandPaletteArgs: CommandPaletteProps = {
     {
       heading: "Go to",
       items: [
-        { id: "inbox", label: "Inbox", shortcut: "g i", onSelect: noop },
+        { id: "inbox", label: "Inbox", onSelect: noop, shortcut: "g i" },
         { id: "starred", label: "Inbox · Starred", onSelect: noop },
-        { id: "settings", label: "Settings", shortcut: "g s", onSelect: noop },
+        { id: "settings", label: "Settings", onSelect: noop, shortcut: "g s" },
       ],
     },
   ],
+  onOpenChange: noop,
+  open: true,
 };

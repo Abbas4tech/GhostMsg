@@ -28,31 +28,31 @@ export const getPublicProfile = cache(async (username: string) => {
     recipientId: user._id,
     "reply.isPublished": true,
   })
-    .sort({ "reply.publishedAt": -1, createdAt: -1 })
+    .sort({ createdAt: -1, "reply.publishedAt": -1 })
     .limit(PUBLIC_ANSWERS_LIMIT)
     .lean();
 
   return {
-    success: true,
-    username: user.username,
     amaPrompt: user.amaPrompt || DEFAULT_AMA_PROMPT,
-    displayName: user.displayName || undefined,
-    avatarUrl: user.avatarUrl ?? null,
-    showAmaBanner: user.showAmaBanner ?? true,
-    offerSuggestions: user.messagePreferences?.offerSuggestions ?? true,
-    isAcceptingMessages: user.isAcceptingMessage,
     answers: answers.map((item) => ({
       _id: String(item._id),
       content: item.content,
-      sentimentTag: item.sentimentTag || "neutral",
+      createdAt: new Date(item.createdAt).toISOString(),
       reply: {
-        text: item.reply?.text || "",
         publishedAt: item.reply?.publishedAt
           ? new Date(item.reply.publishedAt).toISOString()
           : undefined,
+        text: item.reply?.text || "",
       },
-      createdAt: new Date(item.createdAt).toISOString(),
+      sentimentTag: item.sentimentTag || "neutral",
     })),
+    avatarUrl: user.avatarUrl ?? null,
+    displayName: user.displayName || undefined,
+    isAcceptingMessages: user.isAcceptingMessage,
+    offerSuggestions: user.messagePreferences?.offerSuggestions ?? true,
+    showAmaBanner: user.showAmaBanner ?? true,
+    success: true,
+    username: user.username,
   };
 });
 

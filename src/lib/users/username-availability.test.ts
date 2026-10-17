@@ -16,9 +16,9 @@ describe("deriveUsernameAvailability", () => {
   it("is 'checking' while fetching, regardless of previous data", () => {
     expect(
       deriveUsernameAvailability({
-        isFetching: true,
-        isCheckable: true,
         data: { success: true },
+        isCheckable: true,
+        isFetching: true,
       })
     ).toBe("checking");
   });
@@ -26,16 +26,16 @@ describe("deriveUsernameAvailability", () => {
   it("is 'taken' on an error or an explicit failure for a checkable name", () => {
     expect(
       deriveUsernameAvailability({
-        isFetching: false,
-        isCheckable: true,
         error: new Error("taken"),
+        isCheckable: true,
+        isFetching: false,
       })
     ).toBe("taken");
     expect(
       deriveUsernameAvailability({
-        isFetching: false,
-        isCheckable: true,
         data: { success: false },
+        isCheckable: true,
+        isFetching: false,
       })
     ).toBe("taken");
   });
@@ -43,13 +43,13 @@ describe("deriveUsernameAvailability", () => {
   it("is 'available' on success and 'idle' otherwise", () => {
     expect(
       deriveUsernameAvailability({
-        isFetching: false,
-        isCheckable: true,
         data: { success: true },
+        isCheckable: true,
+        isFetching: false,
       })
     ).toBe("available");
     expect(
-      deriveUsernameAvailability({ isFetching: false, isCheckable: false })
+      deriveUsernameAvailability({ isCheckable: false, isFetching: false })
     ).toBe("idle");
   });
 });

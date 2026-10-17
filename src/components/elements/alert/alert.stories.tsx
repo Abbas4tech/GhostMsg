@@ -5,18 +5,16 @@ import { Alert, AlertDescription, AlertTitle } from "./alert";
 import { ALERT_VARIANTS, alertMockContent } from "./alert.mock";
 
 const meta = {
-  title: "Elements/Alert",
-  component: Alert,
-  tags: ["autodocs"],
-  parameters: { layout: "padded" },
   args: { variant: "default" },
   argTypes: {
     variant: {
       control: "radio",
-      options: ALERT_VARIANTS,
       description: "Visual tone",
+      options: ALERT_VARIANTS,
     },
   },
+  component: Alert,
+  parameters: { layout: "padded" },
   render: (args) => (
     <Alert {...args} className="max-w-lg">
       <ShieldCheckIcon />
@@ -24,6 +22,8 @@ const meta = {
       <AlertDescription>{alertMockContent.description}</AlertDescription>
     </Alert>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Alert",
 } satisfies Meta<typeof Alert>;
 
 export default meta;

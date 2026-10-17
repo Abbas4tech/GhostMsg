@@ -58,20 +58,20 @@ export async function checkRateLimit(
   record.timestamps = record.timestamps.filter((ts) => ts > windowStart);
 
   if (record.timestamps.length >= limit) {
-    const oldestTimestamp = record.timestamps[0];
+    const [oldestTimestamp] = record.timestamps;
     const resetTime = oldestTimestamp + windowMs;
     return {
-      success: false,
       remaining: 0,
       resetTime,
+      success: false,
     };
   }
 
   record.timestamps.push(now);
   return {
-    success: true,
     remaining: limit - record.timestamps.length,
     resetTime: now + windowMs,
+    success: true,
   };
 }
 

@@ -1,6 +1,6 @@
 export const tooltipMockContent = {
-  trigger: "Refresh",
   content: "Refresh inbox",
+  trigger: "Refresh",
 };
 
 export const defaultTooltipArgs = {

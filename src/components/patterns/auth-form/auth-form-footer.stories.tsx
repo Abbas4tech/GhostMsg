@@ -6,19 +6,19 @@ import { AuthFormFooter, AuthOAuthHeader } from "./auth-form-footer";
 const GOOGLE_REGEX = /continue with google/i;
 
 const meta = {
-  title: "Patterns/AuthForm/AuthFormFooter",
-  component: AuthFormFooter,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
-  decorators: [
-    (Story) => (
-      <form className="w-96">
-        <Story />
-      </form>
-    ),
-  ],
   args: defaultAuthFormFooterArgs,
   argTypes: {
+    alternateHref: {
+      control: "text",
+      description: "Link to the other auth page",
+    },
+    alternateLabel: { control: "text", description: "Link text" },
+    alternatePrompt: { control: "text", description: "Text before the link" },
+    isSubmitDisabled: {
+      control: "boolean",
+      description: "Disables submit (invalid form / pending / checking)",
+    },
+    isSubmitting: { control: "boolean", description: "Pending state" },
     submitLabel: { control: "text", description: "Idle submit label" },
     submittingLabel: {
       control: "text",
@@ -26,21 +26,21 @@ const meta = {
     },
     submitVariant: {
       control: "radio",
-      options: ["default", "brand"],
       description: "Submit style (brand on sign-up)",
+      options: ["default", "brand"],
     },
-    isSubmitting: { control: "boolean", description: "Pending state" },
-    isSubmitDisabled: {
-      control: "boolean",
-      description: "Disables submit (invalid form / pending / checking)",
-    },
-    alternatePrompt: { control: "text", description: "Text before the link" },
-    alternateHref: {
-      control: "text",
-      description: "Link to the other auth page",
-    },
-    alternateLabel: { control: "text", description: "Link text" },
   },
+  component: AuthFormFooter,
+  decorators: [
+    (Story) => (
+      <form className="w-96">
+        <Story />
+      </form>
+    ),
+  ],
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Patterns/AuthForm/AuthFormFooter",
 } satisfies Meta<typeof AuthFormFooter>;
 
 export default meta;
@@ -59,28 +59,28 @@ export const SignIn: Story = {
 
 export const SignUp: Story = {
   args: {
+    alternateHref: "/sign-in",
+    alternateLabel: "Sign in",
+    alternatePrompt: "Already have a link?",
     submitLabel: "Send my Verification Code",
     submittingLabel: "Creating your link...",
     submitVariant: "brand",
-    alternatePrompt: "Already have a link?",
-    alternateHref: "/sign-in",
-    alternateLabel: "Sign in",
   },
 };
 
 export const Submitting: Story = {
-  args: { isSubmitting: true, isSubmitDisabled: true },
+  args: { isSubmitDisabled: true, isSubmitting: true },
 };
 
 export const Disabled: Story = { args: { isSubmitDisabled: true } };
 
 export const GoogleHeader: Story = {
-  render: () => {
-    const onGoogleSignIn = fn();
-    return <AuthOAuthHeader onGoogleSignIn={onGoogleSignIn} />;
-  },
   play: async ({ canvas, userEvent }) => {
     await userEvent.click(canvas.getByRole("button", { name: GOOGLE_REGEX }));
     await expect(canvas.getByText("or with email")).toBeVisible();
+  },
+  render: () => {
+    const onGoogleSignIn = fn();
+    return <AuthOAuthHeader onGoogleSignIn={onGoogleSignIn} />;
   },
 };

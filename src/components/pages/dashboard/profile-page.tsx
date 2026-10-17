@@ -18,34 +18,34 @@ export function ProfilePage(): React.JSX.Element {
     <>
       <ProfilePanel
         ama={{
-          value: profile.amaPrompt,
-          onChange: profile.setAmaPrompt,
           aiIdeas: profile.aiIdeas,
-          onSuggest: profile.handleSuggest,
           isSuggesting: profile.isSuggesting,
-          showBanner: profile.showAmaBanner,
+          onChange: profile.setAmaPrompt,
           onShowBannerChange: profile.setShowAmaBanner,
+          onSuggest: profile.handleSuggest,
+          showBanner: profile.showAmaBanner,
+          value: profile.amaPrompt,
         }}
         identity={{
-          username: profile.username,
-          displayName: profile.displayName,
           avatarUrl: profile.avatarUrl,
-          linkPrefix: profile.linkPrefix,
+          displayName: profile.displayName,
           isPhotoProcessing: profile.isPhotoProcessing,
-          onDisplayNameChange: profile.setDisplayName,
-          onPhotoSelect: profile.handlePhotoSelect,
-          onPhotoRemove: profile.handlePhotoRemove,
+          linkPrefix: profile.linkPrefix,
           onChangeUsername: rename.open,
+          onDisplayNameChange: profile.setDisplayName,
+          onPhotoRemove: profile.handlePhotoRemove,
+          onPhotoSelect: profile.handlePhotoSelect,
+          username: profile.username,
         }}
         isAccepting={profile.isAccepting}
         link={{
-          profileUrl: profile.profileUrl,
           onCopy: profile.handleCopyProfileUrl,
           onShare: profile.handleShareProfileUrl,
+          profileUrl: profile.profileUrl,
         }}
         unsaved={{
-          isVisible: profile.isDirty,
           isSaving: profile.isSaving,
+          isVisible: profile.isDirty,
           onDiscard: profile.handleDiscard,
           onSave: profile.handleSave,
         }}
@@ -69,5 +69,3 @@ export function ProfilePage(): React.JSX.Element {
     </>
   );
 }
-
-export default ProfilePage;

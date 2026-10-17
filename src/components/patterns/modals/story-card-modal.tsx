@@ -34,22 +34,50 @@ export interface StoryCardModalProps {
 }
 
 const SENTIMENT_LABELS: Record<string, string> = {
-  sweet: "💖 Sweet",
-  curious: "🤔 Curious",
-  spicy: "🔥 Spicy",
   advice: "💡 Advice",
+  curious: "🤔 Curious",
   neutral: "👻 Note",
+  spicy: "🔥 Spicy",
+  sweet: "💖 Sweet",
 };
 
 const FORMATS: { label: string; value: StoryCardFormat }[] = [
-  { value: "story", label: "Story 9:16" },
-  { value: "square", label: "Square 1:1" },
+  { label: "Story 9:16", value: "story" },
+  { label: "Square 1:1", value: "square" },
 ];
 
 const LOOKS: { label: string; value: StoryCardLook }[] = [
-  { value: "gradient", label: "Gradient" },
-  { value: "plain", label: "Plain" },
+  { label: "Gradient", value: "gradient" },
+  { label: "Plain", value: "plain" },
 ];
+
+function SegmentedOption<T extends string>({
+  option,
+  isActive,
+  onChange,
+}: {
+  isActive: boolean;
+  onChange: (value: T) => void;
+  option: { label: string; value: T };
+}): React.JSX.Element {
+  const handleClick = useCallback(() => {
+    onChange(option.value);
+  }, [onChange, option]);
+
+  return (
+    <button
+      aria-pressed={isActive}
+      className={cn(
+        "min-h-10 rounded-full font-semibold text-muted-foreground text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring",
+        isActive && "bg-card text-foreground shadow-soft"
+      )}
+      onClick={handleClick}
+      type="button"
+    >
+      {option.label}
+    </button>
+  );
+}
 
 function Segmented<T extends string>({
   label,
@@ -70,18 +98,12 @@ function Segmented<T extends string>({
         className="grid grid-cols-2 rounded-full border bg-muted p-[3px]"
       >
         {options.map((option) => (
-          <button
-            aria-pressed={value === option.value}
-            className={cn(
-              "min-h-10 rounded-full font-semibold text-muted-foreground text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring",
-              value === option.value && "bg-card text-foreground shadow-soft"
-            )}
+          <SegmentedOption
+            isActive={value === option.value}
             key={option.value}
-            onClick={() => onChange(option.value)}
-            type="button"
-          >
-            {option.label}
-          </button>
+            onChange={onChange}
+            option={option}
+          />
         ))}
       </fieldset>
     </div>
@@ -160,13 +182,13 @@ export const StoryCardModal = ({
     const theme = readStoryCardTheme(document.documentElement);
     drawStoryCard(canvas, {
       ...theme,
-      format,
-      look,
-      question: message.content,
       answer: includeAnswer ? answer : undefined,
+      format,
       label: SENTIMENT_LABELS[message.sentimentTag ?? "neutral"],
-      username,
+      look,
       profileLabel: showLink ? profileLabel : null,
+      question: message.content,
+      username,
     });
   }, [
     message,
@@ -218,8 +240,17 @@ export const StoryCardModal = ({
     handleDownload();
   }, [fileName, handleDownload]);
 
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
   return (
-    <Dialog onOpenChange={(open: boolean) => !open && onClose()} open={isOpen}>
+    <Dialog onOpenChange={handleOpenChange} open={isOpen}>
       <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle className="font-bold text-[22px]">
@@ -315,5 +346,3 @@ export const StoryCardModal = ({
     </Dialog>
   );
 };
-
-export default StoryCardModal;

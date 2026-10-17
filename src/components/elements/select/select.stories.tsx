@@ -13,19 +13,17 @@ import { type SELECT_TRIGGER_SIZES, selectMockContent } from "./select.mock";
 type TriggerSize = (typeof SELECT_TRIGGER_SIZES)[number];
 
 const meta = {
-  title: "Elements/Select",
-  component: Select,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { defaultValue: "instant", onValueChange: fn() },
   argTypes: {
     defaultValue: {
       control: "select",
-      options: selectMockContent.options.map((option) => option.value),
       description: "Initially selected value",
+      options: selectMockContent.options.map((option) => option.value),
     },
     onValueChange: { description: "Called with the chosen value" },
   },
+  component: Select,
+  parameters: { layout: "centered" },
   render: (args, { parameters }) => (
     <Select {...args}>
       <SelectTrigger
@@ -45,6 +43,8 @@ const meta = {
       </SelectContent>
     </Select>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Select",
 } satisfies Meta<typeof Select>;
 
 export default meta;

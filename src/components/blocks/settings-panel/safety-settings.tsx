@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useCallback } from "react";
 import { Badge } from "@/components/elements/badge";
 import { Button } from "@/components/elements/button";
 import {
@@ -31,9 +32,9 @@ import {
 } from "./settings-section";
 
 const SENSITIVITIES: { label: string; value: QuarantineSensitivity }[] = [
-  { value: "relaxed", label: "Relaxed" },
-  { value: "balanced", label: "Balanced" },
-  { value: "strict", label: "Strict" },
+  { label: "Relaxed", value: "relaxed" },
+  { label: "Balanced", value: "balanced" },
+  { label: "Strict", value: "strict" },
 ];
 
 const isSensitivity = (value: string): value is QuarantineSensitivity =>
@@ -68,6 +69,45 @@ const formatBlockedDate = (iso?: string): string =>
       })
     : "—";
 
+function BlockedSenderTableRow({
+  hash,
+  blockedAt,
+  isUnblockPending,
+  onUnblock,
+}: {
+  blockedAt?: string;
+  hash: string;
+  isUnblockPending: boolean;
+  onUnblock: (hash: string) => void;
+}): React.JSX.Element {
+  const handleUnblock = useCallback(() => {
+    onUnblock(hash);
+  }, [onUnblock, hash]);
+
+  return (
+    <TableRow>
+      <TableCell className="font-semibold tabular-nums">
+        {formatSenderHash(hash)}
+      </TableCell>
+      <TableCell className="text-muted-foreground">
+        {formatBlockedDate(blockedAt)}
+      </TableCell>
+      <TableCell className="text-right">
+        <Button
+          aria-label={`Unblock sender ${formatSenderHash(hash)}`}
+          className="rounded-full"
+          disabled={isUnblockPending}
+          onClick={handleUnblock}
+          size="sm"
+          variant="outline"
+        >
+          Unblock
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 /** Quarantine, sensitivity, Spicy blur and the blocked-senders table. */
 export function SafetySettings({
   quarantineEnabled,
@@ -81,6 +121,14 @@ export function SafetySettings({
   onUnblock,
 }: SafetySettingsProps): React.JSX.Element {
   const count = blockedSenders.length;
+  const handleSensitivityChange = useCallback(
+    (value: string) => {
+      if (isSensitivity(value)) {
+        onSensitivityChange(value);
+      }
+    },
+    [onSensitivityChange]
+  );
 
   return (
     <SettingsSection id="safety" title="Safety & blocking">
@@ -97,11 +145,7 @@ export function SafetySettings({
           <ToggleGroup
             aria-label="Sensitivity"
             disabled={!quarantineEnabled}
-            onValueChange={(value) => {
-              if (isSensitivity(value)) {
-                onSensitivityChange(value);
-              }
-            }}
+            onValueChange={handleSensitivityChange}
             size="touch"
             type="single"
             value={sensitivity}
@@ -158,26 +202,13 @@ export function SafetySettings({
             </TableHeader>
             <TableBody>
               {blockedSenders.map(({ hash, blockedAt }) => (
-                <TableRow key={hash}>
-                  <TableCell className="font-semibold tabular-nums">
-                    {formatSenderHash(hash)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatBlockedDate(blockedAt)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      aria-label={`Unblock sender ${formatSenderHash(hash)}`}
-                      className="rounded-full"
-                      disabled={isUnblockPending}
-                      onClick={() => onUnblock(hash)}
-                      size="sm"
-                      variant="outline"
-                    >
-                      Unblock
-                    </Button>
-                  </TableCell>
-                </TableRow>
+                <BlockedSenderTableRow
+                  blockedAt={blockedAt}
+                  hash={hash}
+                  isUnblockPending={isUnblockPending}
+                  key={hash}
+                  onUnblock={onUnblock}
+                />
               ))}
             </TableBody>
           </Table>

@@ -12,9 +12,7 @@ import {
 import { tableMockContent } from "./table.mock";
 
 const meta = {
-  title: "Elements/Table",
   component: Table,
-  tags: ["autodocs"],
   parameters: { layout: "padded" },
   render: (args) => (
     <Table {...args} aria-label={tableMockContent.label}>
@@ -36,6 +34,8 @@ const meta = {
       </TableBody>
     </Table>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Table",
 } satisfies Meta<typeof Table>;
 
 export default meta;

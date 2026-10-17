@@ -29,50 +29,50 @@ export function SettingsPage(props: SettingsPageProps = {}): React.JSX.Element {
         appearance={{
           mode: appearance.mode,
           onModeChange: appearance.handleModeChange,
+          onPaletteChange: appearance.handlePaletteChange,
           palette: appearance.palette,
           palettes: appearance.palettes,
-          onPaletteChange: appearance.handlePaletteChange,
         }}
         danger={{
-          onDeleteAll: danger.openDeleteAll,
           onDeleteAccount: danger.openDeleteAccount,
+          onDeleteAll: danger.openDeleteAll,
         }}
         data={{
-          onExport: settings.handleExport,
           isExporting: settings.isExporting,
+          onExport: settings.handleExport,
         }}
         messages={{
-          isAccepting: settings.isAccepting,
           isAcceptancePending: settings.isAcceptancePending,
-          onToggleAcceptance: settings.handleToggleAcceptance,
+          isAccepting: settings.isAccepting,
           offerSuggestions: settings.offerSuggestions,
           onOfferSuggestionsChange: settings.handleOfferSuggestionsChange,
-          publishByDefault: settings.publishByDefault,
           onPublishByDefaultChange: settings.handlePublishByDefaultChange,
+          onToggleAcceptance: settings.handleToggleAcceptance,
+          publishByDefault: settings.publishByDefault,
         }}
         notifications={{
           email: settings.email,
           emailAlerts: settings.emailAlerts,
-          onEmailAlertChange: settings.handleEmailAlertChange,
-          isNotificationPending: settings.isNotificationPending,
-          webPushEnabled: settings.webPushEnabled,
-          onToggleWebPush: settings.handleToggleWebPush,
-          isWebPushPending: settings.isWebPushPending,
           hideMessageText: settings.hideMessageText,
+          isNotificationPending: settings.isNotificationPending,
+          isWebPushPending: settings.isWebPushPending,
+          onEmailAlertChange: settings.handleEmailAlertChange,
           onHideMessageTextChange: settings.handleHideMessageTextChange,
-          quietHours: settings.quietHours,
           onQuietHoursChange: settings.handleQuietHoursChange,
+          onToggleWebPush: settings.handleToggleWebPush,
+          quietHours: settings.quietHours,
+          webPushEnabled: settings.webPushEnabled,
         }}
         safety={{
-          quarantineEnabled: settings.quarantineEnabled,
-          onQuarantineChange: settings.handleQuarantineChange,
-          sensitivity: settings.sensitivity,
-          onSensitivityChange: settings.handleSensitivityChange,
-          blurSpicy: settings.blurSpicy,
-          onBlurSpicyChange: settings.handleBlurSpicyChange,
           blockedSenders: settings.blockedSenders,
+          blurSpicy: settings.blurSpicy,
           isUnblockPending: settings.isUnblockPending,
+          onBlurSpicyChange: settings.handleBlurSpicyChange,
+          onQuarantineChange: settings.handleQuarantineChange,
+          onSensitivityChange: settings.handleSensitivityChange,
           onUnblock: settings.handleUnblock,
+          quarantineEnabled: settings.quarantineEnabled,
+          sensitivity: settings.sensitivity,
         }}
       />
       <DeleteAllMessagesModal
@@ -93,5 +93,3 @@ export function SettingsPage(props: SettingsPageProps = {}): React.JSX.Element {
     </>
   );
 }
-
-export default SettingsPage;

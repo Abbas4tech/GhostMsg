@@ -12,23 +12,23 @@ export const TOXICITY_LEVELS = [
 export type ToxicityLevel = (typeof TOXICITY_LEVELS)[number];
 
 const TOXICITY_RANK: Record<ToxicityLevel, number> = {
-  none: 0,
   borderline: 1,
   hurtful: 2,
+  none: 0,
   severe: 3,
 };
 
 /** Lowest level each sensitivity holds back. */
 const THRESHOLD: Record<SafetySettings["sensitivity"], ToxicityLevel> = {
-  relaxed: "severe",
   balanced: "hurtful",
+  relaxed: "severe",
   strict: "borderline",
 };
 
 const DEFAULT_SAFETY: SafetySettings = {
+  blurSpicy: false,
   quarantineEnabled: true,
   sensitivity: "balanced",
-  blurSpicy: false,
 };
 
 /**

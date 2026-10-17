@@ -10,29 +10,29 @@ const BLOCKING_REGEX = /blocking/i;
 
 /** Hoisted, single-instance confirm dialog (ADR 0014). Rendered open for review. */
 const meta = {
-  title: "Patterns/Modals/BlockSenderModal",
-  component: BlockSenderModal,
-  tags: ["autodocs"],
   args: { ...defaultBlockSenderModalArgs, onClose: fn(), onConfirm: fn() },
   argTypes: {
-    open: { control: "boolean", description: "Dialog visibility" },
-    message: {
-      control: "object",
-      description: "Target message; renders nothing without `senderHash`",
+    isPending: {
+      control: "boolean",
+      description: "Spinner + disabled confirm",
     },
     isSenderBlocked: {
       control: "boolean",
       description: "Switches copy + action to “Unblock”",
     },
-    isPending: {
-      control: "boolean",
-      description: "Spinner + disabled confirm",
+    message: {
+      control: "object",
+      description: "Target message; renders nothing without `senderHash`",
     },
+    onClose: { description: "Cancel / Escape / overlay" },
     onConfirm: {
       description: "Confirm clicked → (senderHash, isBlocked, alsoDelete)",
     },
-    onClose: { description: "Cancel / Escape / overlay" },
+    open: { control: "boolean", description: "Dialog visibility" },
   },
+  component: BlockSenderModal,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/BlockSenderModal",
 } satisfies Meta<typeof BlockSenderModal>;
 
 export default meta;

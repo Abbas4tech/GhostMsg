@@ -9,31 +9,31 @@ import {
 
 const withSpies = (args: ProfilePanelProps): ProfilePanelProps => ({
   ...args,
+  ama: { ...args.ama, onChange: fn(), onSuggest: fn() },
   identity: {
     ...args.identity,
     onChangeUsername: fn(),
     onDisplayNameChange: fn(),
   },
   link: { ...args.link, onCopy: fn(), onShare: fn() },
-  ama: { ...args.ama, onChange: fn(), onSuggest: fn() },
   unsaved: { ...args.unsaved, onDiscard: fn(), onSave: fn() },
 });
 
 const meta = {
-  title: "Blocks/ProfilePanel",
-  component: ProfilePanel,
-  tags: ["autodocs"],
   args: withSpies(defaultProfilePanelArgs),
   argTypes: {
-    identity: { control: "object", description: "Identity card props" },
-    link: { control: "object", description: "Share link card props" },
     ama: { control: "object", description: "AMA Prompt editor props" },
+    identity: { control: "object", description: "Identity card props" },
     isAccepting: {
       control: "boolean",
       description: "Message Acceptance shown in the preview",
     },
+    link: { control: "object", description: "Share link card props" },
     unsaved: { control: "object", description: "Unsaved changes bar props" },
   },
+  component: ProfilePanel,
+  tags: ["autodocs"],
+  title: "Blocks/ProfilePanel",
 } satisfies Meta<typeof ProfilePanel>;
 
 export default meta;
@@ -84,5 +84,5 @@ export const BannerHidden: Story = {
 export const Paused: Story = { args: { isAccepting: false } };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

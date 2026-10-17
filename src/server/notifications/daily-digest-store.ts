@@ -7,30 +7,11 @@ import { type DailyDigestDeps, DIGEST_PREVIEW_COUNT } from "./daily-digest";
 /** MongoDB + SMTP implementation of the daily digest dependencies. */
 export function createMongoDigestDeps(): DailyDigestDeps {
   return {
-    loadRecipients: async () => {
-      const users = await UserModel.find({
-        "notificationSettings.emailAlerts": "daily",
-        isVerified: true,
-      })
-        .select("email username notificationSettings lastDigestSentAt")
-        .lean();
-      return users
-        .filter((user) => Boolean(user.email))
-        .map((user) => ({
-          id: String(user._id),
-          email: user.email,
-          username: user.username,
-          hideMessageText: user.notificationSettings?.hideMessageText ?? true,
-          quietHours: user.notificationSettings?.quietHours,
-          lastDigestSentAt: user.lastDigestSentAt ?? null,
-        }));
-    },
-
     loadNewMessages: async (recipientId, since) => {
       const filter = {
-        recipientId,
-        isQuarantined: false,
         createdAt: { $gt: since },
+        isQuarantined: false,
+        recipientId,
       };
       const [total, recent] = await Promise.all([
         MessageModel.countDocuments(filter),
@@ -41,21 +22,30 @@ export function createMongoDigestDeps(): DailyDigestDeps {
           .lean(),
       ]);
       return {
-        total,
         recent: recent.map((message) => ({
           content: message.content,
           sentimentTag: message.sentimentTag,
         })),
+        total,
       };
     },
-
-    sendDigest: async (recipient, summary) => {
-      const result = await sendDailyDigestEmail({
-        email: recipient.email,
-        username: recipient.username,
-        summary,
-      });
-      return result.success;
+    loadRecipients: async () => {
+      const users = await UserModel.find({
+        isVerified: true,
+        "notificationSettings.emailAlerts": "daily",
+      })
+        .select("email username notificationSettings lastDigestSentAt")
+        .lean();
+      return users
+        .filter((user) => Boolean(user.email))
+        .map((user) => ({
+          email: user.email,
+          hideMessageText: user.notificationSettings?.hideMessageText ?? true,
+          id: String(user._id),
+          lastDigestSentAt: user.lastDigestSentAt ?? null,
+          quietHours: user.notificationSettings?.quietHours,
+          username: user.username,
+        }));
     },
 
     markSent: async (recipientId, at) => {
@@ -63,6 +53,15 @@ export function createMongoDigestDeps(): DailyDigestDeps {
         { _id: recipientId },
         { $set: { lastDigestSentAt: at } }
       );
+    },
+
+    sendDigest: async (recipient, summary) => {
+      const result = await sendDailyDigestEmail({
+        email: recipient.email,
+        summary,
+        username: recipient.username,
+      });
+      return result.success;
     },
   };
 }

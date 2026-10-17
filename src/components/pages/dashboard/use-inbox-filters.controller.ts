@@ -67,12 +67,12 @@ export function useInboxFiltersController({
 
   return {
     activeStatus,
-    setActiveStatus,
-    searchQuery,
-    setSearchQuery,
     /** Trimmed, debounced search sent to the server. */
     debouncedQuery,
     /** Identifies the current view; selection belongs to one scope. */
     scope: `${activeStatus}\n${debouncedQuery}`,
+    searchQuery,
+    setActiveStatus,
+    setSearchQuery,
   };
 }

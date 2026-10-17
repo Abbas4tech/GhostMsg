@@ -11,16 +11,16 @@ type AcceptanceResponse = components["schemas"]["AcceptMessageGetResponse"];
  */
 export function useAcceptMessageMutation() {
   return useOptimisticResourceMutation<AcceptanceResponse, boolean, unknown>({
-    queryKey: queryKeys.user.acceptance(),
-    scopeId: "user-acceptance",
-    mutationFn: (acceptMessages) =>
-      clientFetch(
-        api.POST("/api/accept-message", { body: { acceptMessages } })
-      ),
+    errorMessage: "Failed to update acceptance status",
     merge: (data, acceptMessages) => ({
       ...data,
       isAcceptingMessage: acceptMessages,
     }),
-    errorMessage: "Failed to update acceptance status",
+    mutationFn: (acceptMessages) =>
+      clientFetch(
+        api.POST("/api/accept-message", { body: { acceptMessages } })
+      ),
+    queryKey: queryKeys.user.acceptance(),
+    scopeId: "user-acceptance",
   });
 }

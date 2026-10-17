@@ -8,8 +8,8 @@ function clickLink(href: string, init: MouseEventInit = {}) {
   document.body.append(anchor);
   const event = new MouseEvent("click", {
     bubbles: true,
-    cancelable: true,
     button: 0,
+    cancelable: true,
     ...init,
   });
   anchor.dispatchEvent(event);

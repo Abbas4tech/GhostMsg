@@ -4,9 +4,7 @@ import { ScrollArea } from "./scroll-area";
 import { scrollAreaMockContent } from "./scroll-area.mock";
 
 const meta = {
-  title: "Elements/ScrollArea",
   component: ScrollArea,
-  tags: ["autodocs"],
   parameters: { layout: "centered" },
   render: (args) => (
     <ScrollArea
@@ -21,6 +19,8 @@ const meta = {
       </ul>
     </ScrollArea>
   ),
+  tags: ["autodocs"],
+  title: "Elements/ScrollArea",
 } satisfies Meta<typeof ScrollArea>;
 
 export default meta;

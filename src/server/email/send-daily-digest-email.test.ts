@@ -20,14 +20,14 @@ describe("sendDailyDigestEmail", () => {
   it("lists previews and the remaining count when text is shown", async () => {
     await sendDailyDigestEmail({
       email: "maya@example.com",
-      username: "maya",
       summary: {
-        total: 5,
         previews: [
-          { text: "You always make my day better!", sentimentTag: "sweet" },
-          { text: "Roast my portfolio", sentimentTag: "spicy" },
+          { sentimentTag: "sweet", text: "You always make my day better!" },
+          { sentimentTag: "spicy", text: "Roast my portfolio" },
         ],
+        total: 5,
       },
+      username: "maya",
     });
 
     expect(lastMail().subject).toContain("5 new anonymous messages");
@@ -39,8 +39,8 @@ describe("sendDailyDigestEmail", () => {
   it("sends only the count when text is hidden", async () => {
     await sendDailyDigestEmail({
       email: "maya@example.com",
+      summary: { previews: [], total: 1 },
       username: "maya",
-      summary: { total: 1, previews: [] },
     });
 
     expect(lastMail().subject).toContain("1 new anonymous message today");

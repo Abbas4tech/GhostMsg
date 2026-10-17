@@ -4,12 +4,12 @@ import { Kbd } from "./kbd";
 import { defaultKbdArgs } from "./kbd.mock";
 
 const meta = {
-  title: "Elements/Kbd",
-  component: Kbd,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: defaultKbdArgs,
   argTypes: { children: { control: "text", description: "Key label" } },
+  component: Kbd,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Kbd",
 } satisfies Meta<typeof Kbd>;
 
 export default meta;

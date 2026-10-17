@@ -24,23 +24,23 @@ export async function sendMessageAlertEmail({
   try {
     const html = await render(
       NewMessageAlertEmail({
-        username,
+        dashboardUrl: `${APP_URL}/dashboard`,
         messagePreview: preview,
         sentimentTag,
-        dashboardUrl: `${APP_URL}/dashboard`,
+        username,
       })
     );
 
     await transporter.sendMail({
       from: FROM_ADDRESS,
-      to: email,
-      subject: "GhostMsg 👻 | You received a new anonymous message!",
       html,
+      subject: "GhostMsg 👻 | You received a new anonymous message!",
+      to: email,
     });
 
-    return { success: true, message: "Alert email dispatched successfully" };
+    return { message: "Alert email dispatched successfully", success: true };
   } catch (error) {
     console.warn("Error sending message alert email:", error);
-    return { success: false, message: "Failed to send alert email" };
+    return { message: "Failed to send alert email", success: false };
   }
 }

@@ -30,11 +30,11 @@ export interface InboxCounts {
 
 export const EMPTY_INBOX_COUNTS: InboxCounts = {
   all: 0,
-  unread: 0,
-  starred: 0,
-  quarantined: 0,
   answered: 0,
+  quarantined: 0,
+  starred: 0,
   total: 0,
+  unread: 0,
 };
 
 export const isInboxStatus = (value: unknown): value is InboxStatus =>
@@ -94,10 +94,10 @@ export function countInboxStatuses(messages: FilterableMessage[]): InboxCounts {
     messages.filter((message) => matchesInboxStatus(message, status)).length;
   return {
     all: count("all"),
-    unread: count("unread"),
-    starred: count("starred"),
-    quarantined: count("quarantined"),
     answered: count("answered"),
+    quarantined: count("quarantined"),
+    starred: count("starred"),
     total: messages.length,
+    unread: count("unread"),
   };
 }

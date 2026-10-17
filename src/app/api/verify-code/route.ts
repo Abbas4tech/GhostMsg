@@ -13,8 +13,8 @@ export async function POST(req: Request): Promise<Response> {
     if (!user) {
       return Response.json(
         {
-          success: false,
           message: "User not found!!",
+          success: false,
         },
         {
           status: 404,
@@ -30,8 +30,8 @@ export async function POST(req: Request): Promise<Response> {
       await user.save();
       return Response.json(
         {
-          success: true,
           message: "Account Verified Successfully!",
+          success: true,
         },
         { status: 200 }
       );
@@ -39,17 +39,17 @@ export async function POST(req: Request): Promise<Response> {
     if (isCodeExpired) {
       return Response.json(
         {
-          success: false,
           message: "Verify is code is incorrect",
+          success: false,
         },
         { status: 200 }
       );
     }
     return Response.json(
       {
-        success: false,
         message:
           "Verification code has expired. Please signup again to get a new code",
+        success: false,
       },
       { status: 400 }
     );
@@ -57,8 +57,8 @@ export async function POST(req: Request): Promise<Response> {
     console.error("Error verifying code: ", error);
     return Response.json(
       {
-        success: false,
         message: "Error verifying code: Internal server error",
+        success: false,
       },
       {
         status: 500,

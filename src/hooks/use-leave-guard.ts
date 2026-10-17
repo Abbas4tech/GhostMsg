@@ -64,5 +64,5 @@ export function useLeaveGuard(isDirty: boolean) {
 
   const clearPendingHref = useCallback(() => setPendingHref(null), []);
 
-  return { pendingHref, clearPendingHref };
+  return { clearPendingHref, pendingHref };
 }

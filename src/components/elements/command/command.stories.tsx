@@ -11,11 +11,9 @@ import {
 import { commandMockContent } from "./command.mock";
 
 const meta = {
-  title: "Elements/Command",
-  component: Command,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { label: commandMockContent.label },
+  component: Command,
+  parameters: { layout: "centered" },
   render: (args) => (
     <Command {...args} className="w-80 rounded-xl border">
       <CommandInput placeholder={commandMockContent.placeholder} />
@@ -31,6 +29,8 @@ const meta = {
       </CommandList>
     </Command>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Command",
 } satisfies Meta<typeof Command>;
 
 export default meta;

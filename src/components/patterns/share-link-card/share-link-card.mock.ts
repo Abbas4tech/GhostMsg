@@ -3,9 +3,9 @@ import { noop } from "@/mock/noop";
 import type { ShareLinkCardProps } from "./share-link-card";
 
 export const defaultShareLinkCardArgs: ShareLinkCardProps = {
-  profileUrl: `https://ghostmsg.app/u/${FIXTURE_USERNAME}`,
   onCopy: noop,
   onShare: noop,
+  profileUrl: `https://ghostmsg.app/u/${FIXTURE_USERNAME}`,
 };
 
 export const longUrlShareLinkCardArgs = {

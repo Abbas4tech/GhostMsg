@@ -16,7 +16,7 @@ vi.mock("next-auth/react", async (importOriginal) => ({
   ...(await importOriginal<typeof import("next-auth/react")>()),
   useSession: () => ({ update }),
 }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 const NEW_USERNAME = "maya_writes";
 

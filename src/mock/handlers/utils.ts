@@ -48,7 +48,7 @@ export const created = <P extends keyof paths, M extends HttpMethod>(
 
 /** Standard `ErrorResponse` body with a status code. */
 export const apiError = (status: number, message: string) =>
-  HttpResponse.json({ success: false, message }, { status });
+  HttpResponse.json({ message, success: false }, { status });
 
 export interface ScenarioOptions {
   /** Artificial latency in ms (use `"infinite"` to keep loading states on screen). */

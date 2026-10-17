@@ -18,16 +18,16 @@ export async function generateMetadata({
     profile?.showAmaBanner === false ? undefined : profile?.amaPrompt;
 
   return {
-    title: `Send Anonymous Message to ${name}`,
     description:
       prompt ??
       `Send an anonymous message to ${name} on GhostMsg. They'll never know who sent it!`,
     openGraph: {
-      title: `Send Anonymous Message to ${name} | GhostMsg 👻`,
       description:
         prompt ??
         `Send a secret message to ${name} without revealing your identity.`,
+      title: `Send Anonymous Message to ${name} | GhostMsg 👻`,
     },
+    title: `Send Anonymous Message to ${name}`,
   };
 }
 

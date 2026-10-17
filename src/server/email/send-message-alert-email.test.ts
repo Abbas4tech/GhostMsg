@@ -20,9 +20,9 @@ describe("sendMessageAlertEmail", () => {
   it("shows the preview and tone when text is allowed", async () => {
     const result = await sendMessageAlertEmail({
       email: "maya@example.com",
-      username: "maya",
       preview: "You always make my day better!",
       sentimentTag: "sweet",
+      username: "maya",
     });
 
     expect(result.success).toBe(true);
@@ -34,9 +34,9 @@ describe("sendMessageAlertEmail", () => {
   it("shows neither text nor tone when the recipient hides message text", async () => {
     await sendMessageAlertEmail({
       email: "maya@example.com",
-      username: "maya",
       preview: null,
       sentimentTag: "spicy",
+      username: "maya",
     });
 
     expect(sentHtml()).toContain("Open your inbox to read");
@@ -51,8 +51,8 @@ describe("sendMessageAlertEmail", () => {
 
     const result = await sendMessageAlertEmail({
       email: "maya@example.com",
-      username: "maya",
       preview: null,
+      username: "maya",
     });
     warn.mockRestore();
 

@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 
-const dirname = import.meta.dirname;
+const { dirname } = import.meta;
 
 /**
  * Two projects (ADR 0016):
@@ -24,8 +24,6 @@ export default defineConfig({
   },
   test: {
     coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
       exclude: [
         "node_modules/",
         "src/generated/",
@@ -35,18 +33,20 @@ export default defineConfig({
         "**/*.stories.tsx",
         "**/*.mock.ts",
       ],
+      provider: "v8",
+      reporter: ["text", "json", "html"],
     },
     projects: [
       {
         extends: true,
         test: {
-          name: "unit",
           environment: "happy-dom",
           // A real origin so relative `/api/*` requests resolve and MSW can match them.
           environmentOptions: { happyDOM: { url: "http://localhost:3000" } },
           globals: true,
-          setupFiles: ["./src/test/setup.ts"],
           include: ["src/**/*.{test,spec}.{ts,tsx}"],
+          name: "unit",
+          setupFiles: ["./src/test/setup.ts"],
         },
       },
       {
@@ -55,17 +55,17 @@ export default defineConfig({
           storybookTest({ configDir: path.join(dirname, ".storybook") }),
         ],
         test: {
-          name: "storybook",
-          // Page stories run real controllers against MSW in a real browser.
-          testTimeout: 30_000,
           browser: {
             enabled: true,
             headless: true,
-            provider: playwright({}),
             instances: [{ browser: "chromium" }],
+            provider: playwright({}),
             // Desktop width so lg: layouts (dashboard sidebar) render in tests.
-            viewport: { width: 1280, height: 900 },
+            viewport: { height: 900, width: 1280 },
           },
+          name: "storybook",
+          // Page stories run real controllers against MSW in a real browser.
+          testTimeout: 30_000,
         },
       },
     ],

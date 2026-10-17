@@ -121,8 +121,8 @@ function describeModule(dir: string, tierDir: string): ModuleInfo {
       const source = read(file);
       return {
         file: path.basename(file),
-        title: source.match(TITLE_REGEX)?.[1] ?? "(untitled)",
         stories: matchAll(source, STORY_EXPORT_REGEX),
+        title: source.match(TITLE_REGEX)?.[1] ?? "(untitled)",
       };
     });
   const mockFiles = files.filter((file) => file.endsWith(".mock.ts"));
@@ -131,25 +131,25 @@ function describeModule(dir: string, tierDir: string): ModuleInfo {
     .flatMap((file) => matchAll(read(file), CONTROLLER_REGEX));
 
   return {
-    name: rel(dir).replace(`${rel(tierDir)}/`, ""),
+    controllers,
     dir: rel(dir),
-    hasIndex: files.some((file) => path.basename(file) === "index.ts"),
     exports: publicApi(path.join(dir, "index.ts")),
-    storyFiles,
+    hasIndex: files.some((file) => path.basename(file) === "index.ts"),
+    mockExports: mockFiles.flatMap((file) =>
+      matchAll(read(file), EXPORT_CONST_REGEX)
+    ),
+    mockFiles: mockFiles.map((file) => path.basename(file)),
+    name: rel(dir).replace(`${rel(tierDir)}/`, ""),
     playCount: files
       .filter((file) => file.endsWith(".stories.tsx"))
       .reduce(
         (sum, file) => sum + (read(file).match(PLAY_REGEX)?.length ?? 0),
         0
       ),
-    mockFiles: mockFiles.map((file) => path.basename(file)),
-    mockExports: mockFiles.flatMap((file) =>
-      matchAll(read(file), EXPORT_CONST_REGEX)
-    ),
+    storyFiles,
     testFiles: files
       .filter((file) => file.endsWith(".test.tsx") || file.endsWith(".test.ts"))
       .map((file) => path.basename(file)),
-    controllers,
   };
 }
 

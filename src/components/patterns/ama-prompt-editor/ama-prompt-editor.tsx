@@ -2,7 +2,7 @@
 
 import { SparklesIcon } from "lucide-react";
 import type React from "react";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import { Button } from "@/components/elements/button";
 import {
   Card,
@@ -63,6 +63,20 @@ export function AmaPromptEditor({
   const counterId = useId();
   const switchId = useId();
   const ideas = [...AMA_PROMPT_IDEAS, ...aiIdeas];
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      onChange(event.target.value);
+    },
+    [onChange]
+  );
+  const handleIdeaChange = useCallback(
+    (idea: string) => {
+      if (idea) {
+        onChange(idea);
+      }
+    },
+    [onChange]
+  );
 
   return (
     <Card data-slot="ama-prompt-editor" variant="elevated">
@@ -95,7 +109,7 @@ export function AmaPromptEditor({
               className="min-h-24 resize-none bg-card text-base"
               id={fieldId}
               maxLength={AMA_PROMPT_MAX_LENGTH}
-              onChange={(event) => onChange(event.target.value)}
+              onChange={handleChange}
               placeholder="Ask me anything about…"
               rows={3}
               value={value}
@@ -105,11 +119,7 @@ export function AmaPromptEditor({
           <div className="flex flex-wrap items-center gap-2">
             <ToggleGroup
               aria-label="Prompt ideas"
-              onValueChange={(idea) => {
-                if (idea) {
-                  onChange(idea);
-                }
-              }}
+              onValueChange={handleIdeaChange}
               size="sm"
               spacing={2}
               type="single"
@@ -161,5 +171,3 @@ export function AmaPromptEditor({
     </Card>
   );
 }
-
-export default AmaPromptEditor;

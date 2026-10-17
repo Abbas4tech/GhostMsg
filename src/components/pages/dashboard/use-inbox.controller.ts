@@ -56,10 +56,10 @@ export function useInboxController({
   initialStatus,
   initialQuery,
 }: UseInboxControllerOptions = {}) {
-  const filters = useInboxFiltersController({ initialStatus, initialQuery });
+  const filters = useInboxFiltersController({ initialQuery, initialStatus });
   const data = useInboxDataController({
-    status: filters.activeStatus,
     q: filters.debouncedQuery,
+    status: filters.activeStatus,
   });
   const { messages, loadedIds } = data;
   const { scope } = filters;
@@ -90,8 +90,8 @@ export function useInboxController({
 
   // ── UI state ────────────────────────────────────────────────────────────
   const [selection, setSelection] = useState<ScopedSelection>({
-    scope,
     ids: NO_IDS,
+    scope,
   });
   const [rawFocusedId, setFocusedId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useLocalStorage<InboxViewMode>(
@@ -119,7 +119,7 @@ export function useInboxController({
   const markRead = useCallback(
     (message: MessageDto) => {
       if (!message.isRead) {
-        updateMessage({ messageId: String(message._id), isRead: true });
+        updateMessage({ isRead: true, messageId: String(message._id) });
       }
     },
     [updateMessage]
@@ -133,7 +133,7 @@ export function useInboxController({
     [scope]
   );
   const handleDeselectAll = useCallback(() => {
-    setSelection({ scope, ids: NO_IDS });
+    setSelection({ ids: NO_IDS, scope });
   }, [scope]);
 
   // ── Dialogs ─────────────────────────────────────────────────────────────
@@ -200,8 +200,8 @@ export function useInboxController({
     async (message: MessageDto) => {
       try {
         await updateMessageAsync({
-          messageId: String(message._id),
           isPinned: !message.isPinned,
+          messageId: String(message._id),
           ...(message.isRead ? {} : { isRead: true }),
         });
       } catch {
@@ -243,7 +243,7 @@ export function useInboxController({
   const handleBulkAction = useCallback(
     async (action: BulkAction) => {
       const ids = selectedIds;
-      setSelection({ scope, ids: NO_IDS });
+      setSelection({ ids: NO_IDS, scope });
       try {
         await bulkAsync({ action, ids });
       } catch {
@@ -264,46 +264,46 @@ export function useInboxController({
   );
 
   return {
-    messages,
-    counts: data.counts,
-    totalMessages: data.totalMessages,
-    activeStatus: filters.activeStatus,
-    setActiveStatus: filters.setActiveStatus,
-    searchQuery: filters.searchQuery,
-    setSearchQuery: filters.setSearchQuery,
-    selectedIds,
-    handleToggleSelect,
-    handleDeselectAll,
-    viewMode,
-    setViewMode,
-    activeModal: modal.kind,
     activeMessage,
+    activeModal: modal.kind,
+    activeStatus: filters.activeStatus,
+    closeModal,
+    concealSpicy: Boolean(preferencesData?.preferences.safety.blurSpicy),
+    counts: data.counts,
+    focusedId,
+    handleBlockConfirm,
+    handleBulkAction,
+    handleDeleteConfirm,
+    handleDeselectAll,
+    handleExport,
+    handleRefresh: data.handleRefresh,
+    handleRevealConfirm,
+    handleStarToggle,
+    handleToggleSelect,
+    isBlockPending: blockMutation.isPending || unblockMutation.isPending,
+    isBulkPending: bulkMutation.isPending,
+    isDeletePending: deleteMutation.isPending,
+    isLoading: data.isLoading,
+    isRefreshing: data.isRefreshing,
+    isSenderBlocked,
+    messages,
     openBlockModal,
     openDeleteModal,
     openReplyModal,
-    openStoryModal,
     openRevealModal,
-    closeModal,
-    handleRevealConfirm,
-    revealedIds,
-    focusedId,
-    setFocusedId,
-    handleStarToggle,
-    handleBlockConfirm,
-    handleDeleteConfirm,
-    handleBulkAction,
-    handleExport,
-    handleRefresh: data.handleRefresh,
+    openStoryModal,
     pagination: data.pagination,
-    concealSpicy: Boolean(preferencesData?.preferences.safety.blurSpicy),
     publishByDefault: Boolean(
       preferencesData?.preferences.messages.publishByDefault
     ),
-    isLoading: data.isLoading,
-    isRefreshing: data.isRefreshing,
-    isBlockPending: blockMutation.isPending || unblockMutation.isPending,
-    isDeletePending: deleteMutation.isPending,
-    isBulkPending: bulkMutation.isPending,
-    isSenderBlocked,
+    revealedIds,
+    searchQuery: filters.searchQuery,
+    selectedIds,
+    setActiveStatus: filters.setActiveStatus,
+    setFocusedId,
+    setSearchQuery: filters.setSearchQuery,
+    setViewMode,
+    totalMessages: data.totalMessages,
+    viewMode,
   };
 }

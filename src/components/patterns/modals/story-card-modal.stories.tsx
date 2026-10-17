@@ -6,9 +6,6 @@ import { StoryCardModal } from "./story-card-modal";
 
 /** Story Card export: canvas preview + format/look/content toggles. */
 const meta = {
-  title: "Patterns/Modals/StoryCardModal",
-  component: StoryCardModal,
-  tags: ["autodocs"],
   args: { ...defaultStoryCardModalArgs, onClose: fn(), onCopyLink: fn() },
   argTypes: {
     isOpen: { control: "boolean", description: "Dialog visibility" },
@@ -16,11 +13,14 @@ const meta = {
       control: "object",
       description: "Message (and answer, if any) drawn onto the card",
     },
-    username: { control: "text", description: "Handle printed on the card" },
-    profileLabel: { control: "text", description: "Footer link" },
     onClose: { description: "Escape / overlay / close" },
     onCopyLink: { description: "Copy my link clicked" },
+    profileLabel: { control: "text", description: "Footer link" },
+    username: { control: "text", description: "Handle printed on the card" },
   },
+  component: StoryCardModal,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/StoryCardModal",
 } satisfies Meta<typeof StoryCardModal>;
 
 export default meta;

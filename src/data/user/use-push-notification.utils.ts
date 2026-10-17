@@ -9,7 +9,7 @@ export function urlBase64ToUint8Array(base64String: string): Uint8Array {
     .replace(UNDERSCORE_REGEX, "/");
   const rawData = window.atob(base64);
   const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
+  for (let i = 0; i < rawData.length; i += 1) {
     outputArray[i] = rawData.charCodeAt(i);
   }
   return outputArray;
@@ -38,14 +38,14 @@ export const PUSH_NOT_CONFIGURED_MESSAGE =
   "Push notifications aren't configured on this server (missing NEXT_PUBLIC_VAPID_PUBLIC_KEY).";
 
 const DOM_ERROR_MESSAGES: Record<string, string> = {
-  NotAllowedError:
-    "Notifications are blocked for this site. Allow them in your browser's site settings, then try again.",
   AbortError:
     "Your browser's push service refused the subscription. In Brave, turn on “Use Google services for push messaging” (brave://settings/privacy). Push also doesn't work in private or incognito windows.",
-  InvalidStateError:
-    "This browser has a stale push subscription. Reload the page and try again.",
   InvalidAccessError:
     "The server's push key is invalid. Check NEXT_PUBLIC_VAPID_PUBLIC_KEY.",
+  InvalidStateError:
+    "This browser has a stale push subscription. Reload the page and try again.",
+  NotAllowedError:
+    "Notifications are blocked for this site. Allow them in your browser's site settings, then try again.",
   NotSupportedError:
     "Push needs a secure origin (HTTPS or localhost) and a registered service worker.",
   SecurityError:

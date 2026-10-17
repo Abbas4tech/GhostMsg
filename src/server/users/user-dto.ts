@@ -23,12 +23,12 @@ export const DEFAULT_AMA_PROMPT = "Send me an anonymous message!";
 
 export function toUserProfile(user: Partial<UserFields>) {
   return {
-    username: user.username ?? "",
-    email: user.email ?? "",
-    displayName: user.displayName ?? "",
-    avatarUrl: user.avatarUrl ?? null,
     amaPrompt: user.amaPrompt || DEFAULT_AMA_PROMPT,
+    avatarUrl: user.avatarUrl ?? null,
+    displayName: user.displayName ?? "",
+    email: user.email ?? "",
     showAmaBanner: user.showAmaBanner ?? true,
+    username: user.username ?? "",
   };
 }
 
@@ -39,9 +39,9 @@ export function toUserPreferences(user: Partial<UserFields>) {
       publishByDefault: user.messagePreferences?.publishByDefault ?? false,
     },
     safety: {
+      blurSpicy: user.safetySettings?.blurSpicy ?? false,
       quarantineEnabled: user.safetySettings?.quarantineEnabled ?? true,
       sensitivity: user.safetySettings?.sensitivity ?? "balanced",
-      blurSpicy: user.safetySettings?.blurSpicy ?? false,
     },
   };
 }
@@ -55,7 +55,7 @@ export function toBlockedSenders(
   return hashes.map((hash) => {
     const blockedAt = dates.get(hash);
     return blockedAt
-      ? { hash, blockedAt: new Date(blockedAt).toISOString() }
+      ? { blockedAt: new Date(blockedAt).toISOString(), hash }
       : { hash };
   });
 }
@@ -66,13 +66,13 @@ export function toNotificationSettings(
 ) {
   return {
     emailAlerts: settings?.emailAlerts ?? "instant",
-    webPushEnabled: settings?.webPushEnabled ?? false,
     hideMessageText: settings?.hideMessageText ?? true,
     quietHours: {
       enabled: settings?.quietHours?.enabled ?? false,
-      start: settings?.quietHours?.start ?? "22:00",
       end: settings?.quietHours?.end ?? "08:00",
+      start: settings?.quietHours?.start ?? "22:00",
       timeZone: settings?.quietHours?.timeZone ?? "UTC",
     },
+    webPushEnabled: settings?.webPushEnabled ?? false,
   };
 }

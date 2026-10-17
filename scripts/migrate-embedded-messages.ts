@@ -29,21 +29,22 @@ export async function migrateLegacyMessages() {
 
     const docsToInsert = legacyMessages.map((msg) => ({
       _id: msg._id,
-      recipientId: rawUser._id,
       content: msg.content,
-      sentimentTag: "neutral",
-      isQuarantined: false,
+      createdAt: msg.createdAt || new Date(),
       isPinned: false,
+      isQuarantined: false,
       isRead: true,
+      recipientId: rawUser._id,
       senderHash: crypto
         .createHash("sha256")
         .update(`legacy-${rawUser._id}`)
         .digest("hex"),
-      createdAt: msg.createdAt || new Date(),
+      sentimentTag: "neutral",
       updatedAt: msg.createdAt || new Date(),
     }));
 
     try {
+      // biome-ignore lint/performance/noAwaitInLoops: one-off migration — must run per-user so a failure is resumable and progress logs stay in order.
       await MessageModel.insertMany(docsToInsert, { ordered: false });
     } catch {
       // Ignore duplicate key errors if already partially migrated

@@ -24,7 +24,7 @@ import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
 import { useInboxController } from "./use-inbox.controller";
 
 vi.mock("sonner", () => ({
-  toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() },
+  toast: { error: vi.fn(), info: vi.fn(), success: vi.fn() },
 }));
 vi.mock("@/lib/browser/download", () => ({ downloadTextFile: vi.fn() }));
 

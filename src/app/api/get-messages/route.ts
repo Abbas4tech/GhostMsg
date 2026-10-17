@@ -12,7 +12,7 @@ import MessageModel from "@/server/models/message.model";
 import UserModel from "@/server/models/user.model";
 
 const badRequest = (message: string) =>
-  Response.json({ success: false, message }, { status: 400 });
+  Response.json({ message, success: false }, { status: 400 });
 
 /**
  * One page of the inbox for a filter + search, newest first, with a keyset
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     const userExists = await UserModel.exists({ _id: userId });
     if (!userExists) {
       return Response.json(
-        { success: false, message: "User not found" },
+        { message: "User not found", success: false },
         { status: 404 }
       );
     }
@@ -55,11 +55,11 @@ export async function GET(req: NextRequest): Promise<Response> {
 
     // Fetch one extra to know whether another page exists.
     const [found, total] = await Promise.all([
-      MessageModel.find(buildInboxFilter(userId, { status, q, cursor }))
-        .sort({ createdAt: -1, _id: -1 })
+      MessageModel.find(buildInboxFilter(userId, { cursor, q, status }))
+        .sort({ _id: -1, createdAt: -1 })
         .limit(limit + 1)
         .lean(),
-      MessageModel.countDocuments(buildInboxFilter(userId, { status, q })),
+      MessageModel.countDocuments(buildInboxFilter(userId, { q, status })),
     ]);
     const page = found.slice(0, limit);
     const last = page.at(-1);
@@ -69,33 +69,33 @@ export async function GET(req: NextRequest): Promise<Response> {
     const messages = page.map((msg) => ({
       _id: String(msg._id),
       content: msg.content,
-      sentimentTag: msg.sentimentTag || "neutral",
-      isQuarantined: Boolean(msg.isQuarantined),
+      createdAt: new Date(msg.createdAt).toISOString(),
       isPinned: Boolean(msg.isPinned),
+      isQuarantined: Boolean(msg.isQuarantined),
       isRead: Boolean(msg.isRead),
       reply: msg.reply
         ? {
-            text: msg.reply.text,
             isPublished: Boolean(msg.reply.isPublished),
             publishedAt: msg.reply.publishedAt
               ? new Date(msg.reply.publishedAt).toISOString()
               : undefined,
+            text: msg.reply.text,
           }
         : null,
       senderHash: msg.senderHash,
-      createdAt: new Date(msg.createdAt).toISOString(),
+      sentimentTag: msg.sentimentTag || "neutral",
     }));
 
     return Response.json(
-      { success: true, messages, total, nextCursor },
+      { messages, nextCursor, success: true, total },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to get messages:", error);
     return Response.json(
       {
-        success: false,
         message: "Failed to get messages - Internal Server Error",
+        success: false,
       },
       { status: 500 }
     );

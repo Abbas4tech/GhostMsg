@@ -18,13 +18,13 @@ export function buildMessage(
   return {
     _id: "msg-1",
     content: "I really love how thoughtful and kind you always are!",
-    sentimentTag: "sweet",
-    isQuarantined: false,
+    createdAt: fixtureDate(),
     isPinned: false,
+    isQuarantined: false,
     isRead: false,
     reply: null,
     senderHash: "hash-sender-1",
-    createdAt: fixtureDate(),
+    sentimentTag: "sweet",
     ...overrides,
   };
 }
@@ -34,55 +34,55 @@ export const sweetMessage = buildMessage();
 export const curiousMessage = buildMessage({
   _id: "msg-2",
   content: "What's the best piece of advice you've ever received?",
-  sentimentTag: "curious",
+  createdAt: fixtureDate(3),
   isRead: true,
   senderHash: "hash-sender-2",
-  createdAt: fixtureDate(3),
+  sentimentTag: "curious",
 });
 
 export const answeredSpicyMessage = buildMessage({
   _id: "msg-3",
   content: "What is your most controversial design opinion?",
-  sentimentTag: "spicy",
-  isRead: true,
-  isPinned: true,
-  senderHash: "hash-sender-3",
   createdAt: fixtureDate(26),
+  isPinned: true,
+  isRead: true,
   reply: {
-    text: "Minimalist interfaces always win over cluttered dashboards.",
     isPublished: true,
     publishedAt: fixtureDate(25),
+    text: "Minimalist interfaces always win over cluttered dashboards.",
   },
+  senderHash: "hash-sender-3",
+  sentimentTag: "spicy",
 });
 
 export const privateReplyAdviceMessage = buildMessage({
   _id: "msg-4",
   content: "Should I switch careers into design at 30?",
-  sentimentTag: "advice",
-  isRead: true,
-  senderHash: "hash-sender-4",
   createdAt: fixtureDate(48),
+  isRead: true,
   reply: {
-    text: "It's never too late. Start with small projects.",
     isPublished: false,
+    text: "It's never too late. Start with small projects.",
   },
+  senderHash: "hash-sender-4",
+  sentimentTag: "advice",
 });
 
 export const quarantinedMessage = buildMessage({
   _id: "msg-5",
   content: "Click this totally legit link to win a prize!!!",
-  sentimentTag: "neutral",
+  createdAt: fixtureDate(5),
   isQuarantined: true,
   senderHash: "hash-spammer",
-  createdAt: fixtureDate(5),
+  sentimentTag: "neutral",
 });
 
 export const noSenderHashMessage = buildMessage({
   _id: "msg-6",
   content: "A message from before sender fingerprints existed.",
-  sentimentTag: "neutral",
-  senderHash: undefined,
   createdAt: fixtureDate(400),
+  senderHash: undefined,
+  sentimentTag: "neutral",
 });
 
 export const longContentMessage = buildMessage({
@@ -91,13 +91,19 @@ export const longContentMessage = buildMessage({
     "This is a deliberately long anonymous message that keeps going to check wrapping, line height and card growth in every layout. ".repeat(
       4
     ),
-  sentimentTag: "curious",
-  senderHash: "hash-sender-7",
   createdAt: fixtureDate(8),
+  senderHash: "hash-sender-7",
+  sentimentTag: "curious",
 });
 
 /** Named inbox datasets reused by stories, MSW handlers and tests. */
 export const messageScenarios = {
+  allQuarantined: [
+    quarantinedMessage,
+    buildMessage({ ...quarantinedMessage, _id: "msg-q2", content: "Spam #2" }),
+  ],
+  empty: [] as MessageFixture[],
+  longContent: [longContentMessage, sweetMessage],
   mixed: [
     sweetMessage,
     curiousMessage,
@@ -106,21 +112,15 @@ export const messageScenarios = {
     quarantinedMessage,
     noSenderHashMessage,
   ],
-  empty: [] as MessageFixture[],
-  allQuarantined: [
-    quarantinedMessage,
-    buildMessage({ ...quarantinedMessage, _id: "msg-q2", content: "Spam #2" }),
-  ],
-  longContent: [longContentMessage, sweetMessage],
   single: [sweetMessage],
 } satisfies Record<string, MessageFixture[]>;
 
 /** Expected `GET /api/messages/counts` for `messageScenarios.mixed`. */
 export const mixedMessageCounts = {
   all: 5,
-  unread: 2,
-  starred: 1,
   answered: 2,
   quarantined: 1,
+  starred: 1,
   total: messageScenarios.mixed.length,
+  unread: 2,
 } satisfies InboxCounts;

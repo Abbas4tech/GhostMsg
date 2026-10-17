@@ -11,8 +11,8 @@ export const LIQUID_BUTTON_SIZES = ["sm", "default", "lg"] as const;
 
 export const defaultLiquidButtonArgs: LiquidButtonProps = {
   children: "Save Topic Banner",
-  variant: "default",
-  size: "default",
   disabled: false,
   onClick: noop,
+  size: "default",
+  variant: "default",
 };

@@ -13,9 +13,7 @@ import {
 import { emptyMockContent } from "./empty.mock";
 
 const meta = {
-  title: "Elements/Empty",
   component: Empty,
-  tags: ["autodocs"],
   parameters: { layout: "padded" },
   render: (args) => (
     <Empty {...args} className="border border-dashed">
@@ -31,6 +29,8 @@ const meta = {
       </EmptyContent>
     </Empty>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Empty",
 } satisfies Meta<typeof Empty>;
 
 export default meta;

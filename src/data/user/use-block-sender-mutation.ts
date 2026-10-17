@@ -13,6 +13,9 @@ export const useBlockSenderMutation = () => {
           body: { senderHash },
         })
       ),
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to block sender");
+    },
     onSuccess: () => {
       toast.success(
         "Sender blocked. You will no longer receive their messages."
@@ -21,9 +24,6 @@ export const useBlockSenderMutation = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.user.blockedSenders(),
       });
-    },
-    onError: (err: Error) => {
-      toast.error(err.message || "Failed to block sender");
     },
   });
 };
@@ -38,15 +38,15 @@ export const useUnblockSenderMutation = () => {
           body: { senderHash },
         })
       ),
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to unblock sender");
+    },
     onSuccess: (data) => {
       toast.success(data.message || "Sender unblocked successfully.");
       queryClient.invalidateQueries({ queryKey: queryKeys.messages.all });
       queryClient.invalidateQueries({
         queryKey: queryKeys.user.blockedSenders(),
       });
-    },
-    onError: (err: Error) => {
-      toast.error(err.message || "Failed to unblock sender");
     },
   });
 };

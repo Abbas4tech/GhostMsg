@@ -28,13 +28,6 @@ export function useDeleteMessageMutation(
         })
       ),
 
-    onMutate: async (messageId: string) => {
-      const snapshot = await updateCachedMessages(queryClient, (messages) =>
-        messages.filter((msg) => String(msg._id) !== messageId)
-      );
-      return { snapshot };
-    },
-
     onError: (error, _messageId, context) => {
       restoreCachedMessages(queryClient, context?.snapshot);
       if (!options?.suppressToast) {
@@ -42,14 +35,21 @@ export function useDeleteMessageMutation(
       }
     },
 
-    onSuccess: (data) => {
-      if (!options?.suppressToast) {
-        toast.success(data.message || "Message deleted successfully!");
-      }
+    onMutate: async (messageId: string) => {
+      const snapshot = await updateCachedMessages(queryClient, (messages) =>
+        messages.filter((msg) => String(msg._id) !== messageId)
+      );
+      return { snapshot };
     },
 
     onSettled: () => {
       invalidateCachedMessages(queryClient);
+    },
+
+    onSuccess: (data) => {
+      if (!options?.suppressToast) {
+        toast.success(data.message || "Message deleted successfully!");
+      }
     },
   });
 }

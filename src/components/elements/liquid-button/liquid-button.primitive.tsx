@@ -28,9 +28,9 @@ function LiquidButton({
     <Component
       style={
         {
-          "--liquid-button-fill-width": "-1%",
-          "--liquid-button-fill-height": fillHeight,
           "--liquid-button-delay": "0s",
+          "--liquid-button-fill-height": fillHeight,
+          "--liquid-button-fill-width": "-1%",
           background:
             "linear-gradient(var(--liquid-button-color) 0 0) no-repeat calc(200% - var(--liquid-button-fill-width, -1%)) 100% / 200% var(--liquid-button-fill-height, 0.2em)",
           backgroundColor: "var(--liquid-button-background-color)",
@@ -38,14 +38,14 @@ function LiquidButton({
         } as React.CSSProperties
       }
       whileHover={{
-        scale: hoverScale,
-        "--liquid-button-fill-width": "100%",
-        "--liquid-button-fill-height": "100%",
         "--liquid-button-delay": delay,
+        "--liquid-button-fill-height": "100%",
+        "--liquid-button-fill-width": "100%",
+        scale: hoverScale,
         transition: {
-          "--liquid-button-fill-width": { duration: 0 },
-          "--liquid-button-fill-height": { duration: 0 },
           "--liquid-button-delay": { duration: 0 },
+          "--liquid-button-fill-height": { duration: 0 },
+          "--liquid-button-fill-width": { duration: 0 },
         },
       }}
       whileTap={{ scale: tapScale }}

@@ -25,20 +25,20 @@ export const useUpdateMessageMutation = () => {
     mutationFn: ({ messageId, isPinned, isRead }: UpdateMessageParams) =>
       clientFetch(
         api.PATCH("/api/messages/{messageId}", {
-          params: { path: { messageId } },
           body: { isPinned, isRead },
+          params: { path: { messageId } },
         })
       ),
-    onMutate: async ({ messageId, isPinned, isRead }) => {
+    onError: (error, _variables, context) => {
+      restoreCachedMessages(queryClient, context?.snapshot);
+      toast.error(error.message || "Failed to update message");
+    },
+    onMutate: async ({ messageId, isPinned, isRead }: UpdateMessageParams) => {
       const snapshot = await patchCachedMessage(queryClient, messageId, {
         ...(isPinned === undefined ? {} : { isPinned }),
         ...(isRead === undefined ? {} : { isRead }),
       });
       return { snapshot };
-    },
-    onError: (error, _variables, context) => {
-      restoreCachedMessages(queryClient, context?.snapshot);
-      toast.error(error.message || "Failed to update message");
     },
     onSettled: () => {
       invalidateCachedMessages(queryClient);

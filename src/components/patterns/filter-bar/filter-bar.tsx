@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useCallback } from "react";
 import { Badge } from "@/components/elements/badge";
 import {
   ToggleGroup,
@@ -24,10 +25,10 @@ export interface MessageFilterCounts {
 }
 
 const FILTERS: { label: string; status: MessageFilterStatus }[] = [
-  { status: "all", label: "All" },
-  { status: "unread", label: "Unread" },
-  { status: "starred", label: "Starred" },
-  { status: "answered", label: "Answered" },
+  { label: "All", status: "all" },
+  { label: "Unread", status: "unread" },
+  { label: "Starred", status: "starred" },
+  { label: "Answered", status: "answered" },
 ];
 
 const isFilterStatus = (value: string): value is MessageFilterStatus =>
@@ -52,6 +53,14 @@ export function FilterBar({
   className,
 }: FilterBarProps): React.JSX.Element {
   const showQuarantined = Boolean(counts?.quarantined);
+  const handleValueChange = useCallback(
+    (value: string) => {
+      if (isFilterStatus(value)) {
+        onStatusChange(value);
+      }
+    },
+    [onStatusChange]
+  );
 
   return (
     <ToggleGroup
@@ -62,11 +71,7 @@ export function FilterBar({
       )}
       data-slot="filter-bar"
       // Radix allows deselecting a single toggle; keep one chip on.
-      onValueChange={(value) => {
-        if (isFilterStatus(value)) {
-          onStatusChange(value);
-        }
-      }}
+      onValueChange={handleValueChange}
       size="touch"
       spacing={2}
       type="single"
@@ -88,5 +93,3 @@ export function FilterBar({
     </ToggleGroup>
   );
 }
-
-export default FilterBar;

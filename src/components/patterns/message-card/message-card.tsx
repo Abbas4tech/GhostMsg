@@ -13,7 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import type React from "react";
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import { Button } from "@/components/elements/button";
 import { Checkbox } from "@/components/elements/checkbox";
 import { SentimentBadge } from "@/components/patterns/sentiment-badge";
@@ -33,25 +33,25 @@ export type MessageCardState =
 const messageCardVariants = cva(
   "relative flex min-w-0 rounded-xl border bg-card text-card-foreground shadow-soft transition-[box-shadow,background-color,border-color] duration-200",
   {
+    defaultVariants: { focused: false, layout: "grid", state: "default" },
     variants: {
-      state: {
-        default: "",
-        unread:
-          "before:absolute before:top-[18px] before:-left-px before:h-5 before:w-1 before:rounded-r before:bg-primary",
-        selected: "border-primary bg-primary/[0.07] ring-1 ring-primary",
-        answered: "bg-muted",
-        quarantined: "border-input border-dashed bg-muted shadow-none",
+      focused: {
+        false: "",
+        true: "outline-2 outline-ring outline-offset-2",
       },
       layout: {
         grid: "flex-col gap-3 p-4",
         list: "flex-row items-center gap-3 px-3 py-2.5 sm:px-4",
       },
-      focused: {
-        true: "outline-2 outline-ring outline-offset-2",
-        false: "",
+      state: {
+        answered: "bg-muted",
+        default: "",
+        quarantined: "border-input border-dashed bg-muted shadow-none",
+        selected: "border-primary bg-primary/[0.07] ring-1 ring-primary",
+        unread:
+          "before:absolute before:top-[18px] before:-left-px before:h-5 before:w-1 before:rounded-r before:bg-primary",
       },
     },
-    defaultVariants: { state: "default", layout: "grid", focused: false },
   }
 );
 
@@ -187,6 +187,10 @@ function IconAction({
 }
 
 function StarToggle({ message, onStarToggle }: CardModel) {
+  const handleStarToggle = useCallback(() => {
+    onStarToggle?.(message);
+  }, [onStarToggle, message]);
+
   if (message.isQuarantined || !onStarToggle) {
     return null;
   }
@@ -197,7 +201,7 @@ function StarToggle({ message, onStarToggle }: CardModel) {
       aria-label={label}
       aria-pressed={isPinned}
       className="size-10 rounded-[10px] text-muted-foreground hover:text-star sm:size-9"
-      onClick={() => onStarToggle(message)}
+      onClick={handleStarToggle}
       size="icon"
       title={label}
       variant="ghost"
@@ -214,15 +218,14 @@ function StarToggle({ message, onStarToggle }: CardModel) {
 }
 
 function CardCheckbox({ message, isSelected, onToggleSelect }: CardModel) {
+  const handleToggle = useCallback(() => {
+    onToggleSelect?.(String(message._id));
+  }, [onToggleSelect, message]);
+
   if (!onToggleSelect) {
     return null;
   }
-  return (
-    <SelectCheckbox
-      checked={isSelected}
-      onToggle={() => onToggleSelect(String(message._id))}
-    />
-  );
+  return <SelectCheckbox checked={isSelected} onToggle={handleToggle} />;
 }
 
 function CardBadge({ message }: { message: MessageDto }): React.JSX.Element {
@@ -261,20 +264,27 @@ function SecondaryActions({
   onOpenBlock,
   onOpenDelete,
 }: CardModel): React.JSX.Element {
+  const handleOpenStoryCard = useCallback(() => {
+    onOpenStoryCard?.(message);
+  }, [onOpenStoryCard, message]);
+  const handleOpenBlock = useCallback(() => {
+    onOpenBlock?.(message);
+  }, [onOpenBlock, message]);
+  const handleOpenDelete = useCallback(() => {
+    onOpenDelete?.(message);
+  }, [onOpenDelete, message]);
+
   return (
     <>
       {!message.isQuarantined && onOpenStoryCard ? (
-        <IconAction
-          label="Share as Story Card"
-          onClick={() => onOpenStoryCard(message)}
-        >
+        <IconAction label="Share as Story Card" onClick={handleOpenStoryCard}>
           <Share2 aria-hidden="true" />
         </IconAction>
       ) : null}
       {message.senderHash && onOpenBlock ? (
         <IconAction
           label={isSenderBlocked ? "Unblock sender" : "Block sender"}
-          onClick={() => onOpenBlock(message)}
+          onClick={handleOpenBlock}
           tone={isSenderBlocked ? "active" : "default"}
         >
           {isSenderBlocked ? (
@@ -287,7 +297,7 @@ function SecondaryActions({
       {onOpenDelete ? (
         <IconAction
           label="Delete message"
-          onClick={() => onOpenDelete(message)}
+          onClick={handleOpenDelete}
           tone="danger"
         >
           <Trash2 aria-hidden="true" />
@@ -306,18 +316,25 @@ function PrimaryAction({
   onOpenReply,
   compact,
 }: CardModel & { compact: boolean }) {
+  const handleReveal = useCallback(() => {
+    onReveal?.(message);
+  }, [onReveal, message]);
+  const handleOpenReply = useCallback(() => {
+    onOpenReply?.(message);
+  }, [onOpenReply, message]);
+
   if (isHidden) {
     if (!onReveal) {
       return null;
     }
     return compact ? (
-      <IconAction label="Reveal" onClick={() => onReveal(message)}>
+      <IconAction label="Reveal" onClick={handleReveal}>
         <Eye aria-hidden="true" />
       </IconAction>
     ) : (
       <Button
         className="rounded-full"
-        onClick={() => onReveal(message)}
+        onClick={handleReveal}
         size="sm"
         variant="outline"
       >
@@ -331,13 +348,13 @@ function PrimaryAction({
   }
   const label = isAnswered ? "Edit answer" : "Reply";
   return compact ? (
-    <IconAction label={label} onClick={() => onOpenReply(message)}>
+    <IconAction label={label} onClick={handleOpenReply}>
       <Reply aria-hidden="true" />
     </IconAction>
   ) : (
     <Button
       className="rounded-full"
-      onClick={() => onOpenReply(message)}
+      onClick={handleOpenReply}
       size="sm"
       variant={isAnswered ? "secondary" : "default"}
     >
@@ -471,26 +488,26 @@ export const MessageCard = memo(function MessageCardInner({
   const state = getMessageCardState(message, isSelected);
   const concealReason = getConcealReason(message, concealSpicy);
   const model: CardModel = {
-    message,
-    now,
+    concealReason,
+    isAnswered: hasAnswer(message),
+    isHidden: concealReason !== null && !isRevealed,
     isSelected,
     isSenderBlocked,
-    isAnswered: hasAnswer(message),
-    concealReason,
-    isHidden: concealReason !== null && !isRevealed,
-    onToggleSelect,
-    onStarToggle,
-    onOpenReply,
-    onOpenStoryCard,
+    message,
+    now,
     onOpenBlock,
     onOpenDelete,
+    onOpenReply,
+    onOpenStoryCard,
     onReveal,
+    onStarToggle,
+    onToggleSelect,
   };
 
   return (
     <article
       className={cn(
-        messageCardVariants({ state, layout, focused: isFocused }),
+        messageCardVariants({ focused: isFocused, layout, state }),
         className
       )}
       data-state={state}
@@ -504,4 +521,3 @@ export const MessageCard = memo(function MessageCardInner({
 });
 
 export { messageCardVariants };
-export default MessageCard;

@@ -12,7 +12,7 @@ export async function GET(
     const profile = await getPublicProfile(username);
     if (!profile) {
       return Response.json(
-        { success: false, message: "User not found" },
+        { message: "User not found", success: false },
         { status: 404 }
       );
     }
@@ -20,7 +20,7 @@ export async function GET(
   } catch (error) {
     console.error("Failed to fetch public answers:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

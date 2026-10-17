@@ -46,5 +46,3 @@ export function UnsavedChangesBar({
     </Card>
   );
 }
-
-export default UnsavedChangesBar;

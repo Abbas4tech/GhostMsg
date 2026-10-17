@@ -11,26 +11,26 @@ import {
 const SAVING_REGEX = /saving/i;
 
 const meta = {
-  title: "Elements/LiquidButton",
-  component: LiquidButton,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultLiquidButtonArgs, onClick: fn() },
   argTypes: {
-    variant: {
-      control: "select",
-      options: LIQUID_BUTTON_VARIANTS,
-      description: "Fill color of the liquid hover effect",
-    },
+    children: { control: "text", description: "Label / content" },
+    disabled: { control: "boolean", description: "Blocks clicks" },
+    onClick: { description: "Click handler" },
     size: {
       control: "radio",
-      options: LIQUID_BUTTON_SIZES,
       description: "Height/padding preset",
+      options: LIQUID_BUTTON_SIZES,
     },
-    disabled: { control: "boolean", description: "Blocks clicks" },
-    children: { control: "text", description: "Label / content" },
-    onClick: { description: "Click handler" },
+    variant: {
+      control: "select",
+      description: "Fill color of the liquid hover effect",
+      options: LIQUID_BUTTON_VARIANTS,
+    },
   },
+  component: LiquidButton,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/LiquidButton",
 } satisfies Meta<typeof LiquidButton>;
 
 export default meta;
@@ -46,7 +46,7 @@ export const Default: Story = {
 };
 
 export const Destructive: Story = {
-  args: { variant: "destructive", children: "Block Sender" },
+  args: { children: "Block Sender", variant: "destructive" },
 };
 
 export const AllVariants: Story = {
@@ -64,24 +64,24 @@ export const AllVariants: Story = {
 
 export const Refresh: Story = {
   args: {
-    className: "gap-0",
     children: (
       <>
         <RefreshCw className="h-4 w-4" />
         <span className="ml-2">Refresh</span>
       </>
     ),
+    className: "gap-0",
   },
 };
 
 export const Pending: Story = {
   args: {
-    disabled: true,
     children: (
       <>
         <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
       </>
     ),
+    disabled: true,
   },
   play: async ({ args, canvas }) => {
     await expect(

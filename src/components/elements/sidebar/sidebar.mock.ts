@@ -1,9 +1,9 @@
 export const sidebarMockContent = {
+  content: "Routed page content",
   label: "Sidebar",
   nav: [
-    { label: "Inbox", href: "#inbox", count: 3 },
-    { label: "Profile", href: "#profile" },
-    { label: "Settings", href: "#settings" },
+    { count: 3, href: "#inbox", label: "Inbox" },
+    { href: "#profile", label: "Profile" },
+    { href: "#settings", label: "Settings" },
   ],
-  content: "Routed page content",
 };

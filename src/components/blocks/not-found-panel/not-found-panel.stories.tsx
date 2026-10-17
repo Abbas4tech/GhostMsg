@@ -6,10 +6,6 @@ import { defaultNotFoundPanelArgs } from "./not-found-panel.mock";
 const HOME_REGEX = /home/i;
 
 const meta = {
-  title: "Blocks/NotFoundPanel",
-  component: NotFoundPanel,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: defaultNotFoundPanelArgs,
   argTypes: {
     homeHref: {
@@ -17,6 +13,10 @@ const meta = {
       description: "Destination of the Home button",
     },
   },
+  component: NotFoundPanel,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/NotFoundPanel",
 } satisfies Meta<typeof NotFoundPanel>;
 
 export default meta;
@@ -44,5 +44,5 @@ export const CustomHome: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

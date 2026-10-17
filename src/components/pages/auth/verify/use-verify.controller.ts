@@ -14,16 +14,16 @@ export function useVerifyController(username: string) {
   const verifyMutation = useVerifyCodeMutation();
 
   const form = useForm<VerifyCodeValues>({
-    resolver: zodResolver(verifySchema),
     defaultValues: { code: "" },
     mode: "onSubmit",
+    resolver: zodResolver(verifySchema),
   });
 
   const { mutateAsync } = verifyMutation;
   const handleSubmit = useCallback(
     async ({ code }: VerifyCodeValues) => {
       try {
-        const res = await mutateAsync({ username, code });
+        const res = await mutateAsync({ code, username });
         if (res?.success) {
           toast.success(res.message);
           router.replace("/sign-in");

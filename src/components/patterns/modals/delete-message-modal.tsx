@@ -2,6 +2,7 @@
 
 import { Loader2, Trash2 } from "lucide-react";
 import type React from "react";
+import { useCallback } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -30,6 +31,20 @@ export function DeleteMessageModal({
   onClose,
   onConfirm,
 }: DeleteMessageModalProps): React.JSX.Element | null {
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+  const handleConfirm = useCallback(() => {
+    if (message) {
+      onConfirm(message);
+    }
+  }, [onConfirm, message]);
+
   if (!message) {
     return null;
   }
@@ -37,7 +52,7 @@ export function DeleteMessageModal({
   const hasPublicAnswer = Boolean(message.reply?.isPublished);
 
   return (
-    <AlertDialog onOpenChange={(isOpen) => !isOpen && onClose()} open={open}>
+    <AlertDialog onOpenChange={handleOpenChange} open={open}>
       <AlertDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
         <AlertDialogHeader className="gap-3 text-left sm:text-left">
           <span className="grid size-11 place-items-center rounded-[14px] bg-destructive/15 text-destructive">
@@ -63,7 +78,7 @@ export function DeleteMessageModal({
           <Button
             className="rounded-full"
             disabled={isPending}
-            onClick={() => onConfirm(message)}
+            onClick={handleConfirm}
             variant="destructive"
           >
             {isPending ? (

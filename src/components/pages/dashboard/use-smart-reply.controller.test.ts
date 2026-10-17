@@ -7,7 +7,7 @@ import {
 import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
 import { useSmartReplyController } from "./use-smart-reply.controller";
 
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 const AI_REPLY = "Thanks for the kind words. You just made my day!";
 

@@ -30,5 +30,3 @@ export function VerifyPanel({
     </div>
   );
 }
-
-export default VerifyPanel;

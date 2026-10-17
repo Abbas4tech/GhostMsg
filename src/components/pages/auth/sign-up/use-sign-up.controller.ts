@@ -27,9 +27,9 @@ export function useSignUpController({
   const signUpMutation = useSignUpMutation();
 
   const form = useForm<SignUpValues>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: { username: initialUsername, email: "", password: "" },
+    defaultValues: { email: "", password: "", username: initialUsername },
     mode: "onChange",
+    resolver: zodResolver(signUpSchema),
   });
 
   const { availability, availabilityMessage } =
@@ -43,7 +43,7 @@ export function useSignUpController({
         return;
       }
       try {
-        const res = await mutateAsync({ username, email, password });
+        const res = await mutateAsync({ email, password, username });
         if (res?.success) {
           toast.success(res.message);
           router.replace(`/verify/${username}`);
@@ -60,8 +60,8 @@ export function useSignUpController({
     form,
     handleSubmit,
     isSubmitting: form.formState.isSubmitting || signUpMutation.isPending,
-    onGoogleSignIn,
     linkPrefix: `${isClient ? window.location.host : "ghostmsg.app"}/u/`,
+    onGoogleSignIn,
     usernameAvailability: availability,
     usernameAvailabilityMessage: availabilityMessage,
   };

@@ -4,26 +4,26 @@ import { HowItWorks } from "./how-it-works";
 import { defaultHowItWorksArgs } from "./how-it-works.mock";
 
 const meta = {
-  title: "Patterns/HowItWorks",
-  component: HowItWorks,
-  tags: ["autodocs"],
-  parameters: { layout: "padded" },
   args: defaultHowItWorksArgs,
   argTypes: {
-    profileLabel: { control: "text", description: "Example link" },
-    message: { control: "text", description: "Example Anonymous Message" },
     answer: { control: "text", description: "Example answer" },
+    message: { control: "text", description: "Example Anonymous Message" },
+    profileLabel: { control: "text", description: "Example link" },
     sentiment: {
       control: "select",
-      options: ["sweet", "curious", "spicy", "advice", "neutral"],
       description: "Sentiment Tag of the example",
+      options: ["sweet", "curious", "spicy", "advice", "neutral"],
     },
   },
+  component: HowItWorks,
+  parameters: { layout: "padded" },
   render: (args) => (
     <div className="max-w-xl">
       <HowItWorks {...args} />
     </div>
   ),
+  tags: ["autodocs"],
+  title: "Patterns/HowItWorks",
 } satisfies Meta<typeof HowItWorks>;
 
 export default meta;

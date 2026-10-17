@@ -73,12 +73,12 @@ export interface User extends Document {
 
 const PushSubscriptionSchema = new Schema<PushSubscriptionRecord>(
   {
-    endpoint: { type: String, required: true },
+    createdAt: { default: Date.now, type: Date },
+    endpoint: { required: true, type: String },
     keys: {
-      p256dh: { type: String, required: true },
-      auth: { type: String, required: true },
+      auth: { required: true, type: String },
+      p256dh: { required: true, type: String },
     },
-    createdAt: { type: Date, default: Date.now },
   },
   { _id: false }
 );
@@ -86,23 +86,23 @@ const PushSubscriptionSchema = new Schema<PushSubscriptionRecord>(
 const NotificationSettingsSchema = new Schema<NotificationSettings>(
   {
     emailAlerts: {
-      type: String,
-      enum: ["instant", "daily", "off"],
       default: "instant",
-    },
-    webPushEnabled: {
-      type: Boolean,
-      default: false,
+      enum: ["instant", "daily", "off"],
+      type: String,
     },
     hideMessageText: {
-      type: Boolean,
       default: true,
+      type: Boolean,
     },
     quietHours: {
-      enabled: { type: Boolean, default: false },
-      start: { type: String, default: "22:00" },
-      end: { type: String, default: "08:00" },
-      timeZone: { type: String, default: "UTC" },
+      enabled: { default: false, type: Boolean },
+      end: { default: "08:00", type: String },
+      start: { default: "22:00", type: String },
+      timeZone: { default: "UTC", type: String },
+    },
+    webPushEnabled: {
+      default: false,
+      type: Boolean,
     },
   },
   { _id: false }
@@ -110,117 +110,117 @@ const NotificationSettingsSchema = new Schema<NotificationSettings>(
 
 const MessagePreferencesSchema = new Schema<MessagePreferences>(
   {
-    offerSuggestions: { type: Boolean, default: true },
-    publishByDefault: { type: Boolean, default: false },
+    offerSuggestions: { default: true, type: Boolean },
+    publishByDefault: { default: false, type: Boolean },
   },
   { _id: false }
 );
 
 const SafetySettingsSchema = new Schema<SafetySettings>(
   {
-    quarantineEnabled: { type: Boolean, default: true },
+    blurSpicy: { default: false, type: Boolean },
+    quarantineEnabled: { default: true, type: Boolean },
     sensitivity: {
-      type: String,
-      enum: ["relaxed", "balanced", "strict"],
       default: "balanced",
+      enum: ["relaxed", "balanced", "strict"],
+      type: String,
     },
-    blurSpicy: { type: Boolean, default: false },
   },
   { _id: false }
 );
 
 const BlockedSenderSchema = new Schema<BlockedSenderRecord>(
   {
-    hash: { type: String, required: true },
-    blockedAt: { type: Date, default: Date.now },
+    blockedAt: { default: Date.now, type: Date },
+    hash: { required: true, type: String },
   },
   { _id: false }
 );
 
 const UserSchema: Schema<User> = new Schema(
   {
-    username: {
-      type: String,
-      required: [true, "Username is required"],
-      trim: true,
-      unique: true,
-    },
-    email: {
-      type: String,
-      required: [true, "Email is required"],
-      unique: true,
-      match: [/.+@.+\..+/, "Please use a valid email address"],
-    },
-    password: {
-      type: String,
-      required: false,
-    },
-    verifyCode: {
-      type: String,
-      required: [true, "Verify code is required"],
-    },
-    verifyCodeExpiry: {
-      type: Date,
-      required: [true, "Verify code Expiry is required"],
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    isAcceptingMessage: {
-      type: Boolean,
-      default: true,
-    },
     amaPrompt: {
-      type: String,
-      maxlength: 120,
       default: "Send me an anonymous message!",
-    },
-    displayName: {
+      maxlength: 120,
       type: String,
-      trim: true,
-      maxlength: 40,
-      default: "",
     },
     avatarUrl: {
-      type: String,
       default: null,
-    },
-    showAmaBanner: {
-      type: Boolean,
-      default: true,
-    },
-    messagePreferences: {
-      type: MessagePreferencesSchema,
-      default: () => ({}),
-    },
-    safetySettings: {
-      type: SafetySettingsSchema,
-      default: () => ({}),
-    },
-    blockedSenders: {
-      type: [BlockedSenderSchema],
-      default: [],
+      type: String,
     },
     blockedSenderHashes: {
+      default: [],
       type: [String],
-      default: [],
     },
-    pushSubscriptions: {
-      type: [PushSubscriptionSchema],
+    blockedSenders: {
       default: [],
+      type: [BlockedSenderSchema],
+    },
+    displayName: {
+      default: "",
+      maxlength: 40,
+      trim: true,
+      type: String,
+    },
+    email: {
+      match: [/.+@.+\..+/, "Please use a valid email address"],
+      required: [true, "Email is required"],
+      type: String,
+      unique: true,
+    },
+    isAcceptingMessage: {
+      default: true,
+      type: Boolean,
+    },
+    isVerified: {
+      default: false,
+      type: Boolean,
     },
     lastDigestSentAt: {
-      type: Date,
       default: null,
+      type: Date,
+    },
+    messagePreferences: {
+      default: () => ({}),
+      type: MessagePreferencesSchema,
     },
     notificationSettings: {
-      type: NotificationSettingsSchema,
       default: () => ({
         emailAlerts: "instant",
-        webPushEnabled: false,
         hideMessageText: true,
+        webPushEnabled: false,
       }),
+      type: NotificationSettingsSchema,
+    },
+    password: {
+      required: false,
+      type: String,
+    },
+    pushSubscriptions: {
+      default: [],
+      type: [PushSubscriptionSchema],
+    },
+    safetySettings: {
+      default: () => ({}),
+      type: SafetySettingsSchema,
+    },
+    showAmaBanner: {
+      default: true,
+      type: Boolean,
+    },
+    username: {
+      required: [true, "Username is required"],
+      trim: true,
+      type: String,
+      unique: true,
+    },
+    verifyCode: {
+      required: [true, "Verify code is required"],
+      type: String,
+    },
+    verifyCodeExpiry: {
+      required: [true, "Verify code Expiry is required"],
+      type: Date,
     },
   },
   {

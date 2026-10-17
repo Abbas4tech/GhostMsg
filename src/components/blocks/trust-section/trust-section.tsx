@@ -4,19 +4,19 @@ import { cn } from "@/lib/utils";
 
 const TRUST_POINTS = [
   {
+    body: "Nobody signs in to send an Anonymous Message. Blocking uses a Sender Hash, so a Recipient can stop one sender without ever learning who it is.",
     icon: Ghost,
     title: "Senders stay anonymous",
-    body: "Nobody signs in to send an Anonymous Message. Blocking uses a Sender Hash, so a Recipient can stop one sender without ever learning who it is.",
   },
   {
+    body: "Toxic and spam messages are auto-flagged into Quarantined Messages. They are blurred, and you decide whether to ever look.",
     icon: EyeOff,
     title: "Ugly stuff stays out of sight",
-    body: "Toxic and spam messages are auto-flagged into Quarantined Messages. They are blurred, and you decide whether to ever look.",
   },
   {
+    body: "Turn Message Acceptance off any time. Your link stays up and shows a calm “messages paused” note.",
     icon: Pause,
     title: "You hold the switch",
-    body: "Turn Message Acceptance off any time. Your link stays up and shows a calm “messages paused” note.",
   },
 ] as const;
 
@@ -55,5 +55,3 @@ export function TrustSection({
     </section>
   );
 }
-
-export default TrustSection;

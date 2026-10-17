@@ -9,38 +9,38 @@ import {
 } from "./dashboard-shell.mock";
 
 const meta = {
-  title: "Blocks/DashboardShell",
-  component: DashboardShell,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: {
     ...defaultDashboardShellArgs,
+    acceptance: { ...defaultDashboardShellArgs.acceptance, onToggle: fn() },
+    children: (
+      <div className="rounded-xl border p-6">{dashboardShellSlotText}</div>
+    ),
+    onOpenCommand: fn(),
+    onSignOut: fn(),
     profileLink: {
       ...defaultDashboardShellArgs.profileLink,
       onCopy: fn(),
       onShare: fn(),
     },
-    acceptance: { ...defaultDashboardShellArgs.acceptance, onToggle: fn() },
-    onOpenCommand: fn(),
-    onSignOut: fn(),
-    children: (
-      <div className="rounded-xl border p-6">{dashboardShellSlotText}</div>
-    ),
   },
   argTypes: {
+    acceptance: { control: "object", description: "Message Acceptance" },
     activeNav: {
       control: "radio",
-      options: ["inbox", "profile", "settings"],
       description: "Current route",
+      options: ["inbox", "profile", "settings"],
     },
-    unreadCount: { control: "number", description: "Inbox badge" },
-    username: { control: "text", description: "Account row" },
-    profileLink: { control: "object", description: "Link card" },
-    acceptance: { control: "object", description: "Message Acceptance" },
     children: { control: false, description: "Routed page" },
     onOpenCommand: { description: "Jump to… / ⌘K" },
     onSignOut: { description: "Log out clicked" },
+    profileLink: { control: "object", description: "Link card" },
+    unreadCount: { control: "number", description: "Inbox badge" },
+    username: { control: "text", description: "Account row" },
   },
+  component: DashboardShell,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/DashboardShell",
 } satisfies Meta<typeof DashboardShell>;
 
 export default meta;
@@ -94,5 +94,5 @@ export const Paused: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

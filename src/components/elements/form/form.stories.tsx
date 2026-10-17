@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type React from "react";
-import { useForm } from "react-hook-form";
+import { useCallback } from "react";
+import { type ControllerRenderProps, useForm } from "react-hook-form";
 import { expect, fn } from "storybook/test";
 import { Button } from "@/components/elements/button";
 import { Input } from "@/components/elements/input";
@@ -30,22 +31,26 @@ function FormDemo({
   onSubmit,
 }: FormDemoProps): React.JSX.Element {
   const form = useForm<FormStoryValues>({ defaultValues });
+  const renderEmailField = useCallback(
+    ({ field }: { field: ControllerRenderProps<FormStoryValues, "email"> }) => (
+      <FormItem>
+        <FormLabel>{formMockContent.label}</FormLabel>
+        <FormControl>
+          <Input placeholder={formMockContent.placeholder} {...field} />
+        </FormControl>
+        <FormDescription>{formMockContent.description}</FormDescription>
+        <FormMessage />
+      </FormItem>
+    ),
+    []
+  );
   return (
     <Form {...form}>
       <form className="w-80 space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{formMockContent.label}</FormLabel>
-              <FormControl>
-                <Input placeholder={formMockContent.placeholder} {...field} />
-              </FormControl>
-              <FormDescription>{formMockContent.description}</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={renderEmailField}
           rules={{ required: formMockContent.requiredMessage }}
         />
         <Button type="submit">Submit</Button>
@@ -55,15 +60,15 @@ function FormDemo({
 }
 
 const meta = {
-  title: "Elements/Form",
-  component: FormDemo,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
-  args: { onSubmit: fn(), defaultValues: defaultFormValues },
+  args: { defaultValues: defaultFormValues, onSubmit: fn() },
   argTypes: {
-    onSubmit: { description: "Called with validated values" },
     defaultValues: { control: "object", description: "Initial form values" },
+    onSubmit: { description: "Called with validated values" },
   },
+  component: FormDemo,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Form",
 } satisfies Meta<typeof FormDemo>;
 
 export default meta;

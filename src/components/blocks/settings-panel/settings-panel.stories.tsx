@@ -12,51 +12,51 @@ const DARK_REGEX = /^dark/i;
 const UNBLOCK_REGEX = /^unblock sender #/i;
 
 const withSpies = (args: SettingsPanelProps): SettingsPanelProps => ({
-  messages: {
-    ...args.messages,
-    onToggleAcceptance: fn(),
-    onOfferSuggestionsChange: fn(),
-    onPublishByDefaultChange: fn(),
-  },
-  safety: {
-    ...args.safety,
-    onQuarantineChange: fn(),
-    onSensitivityChange: fn(),
-    onBlurSpicyChange: fn(),
-    onUnblock: fn(),
-  },
-  notifications: {
-    ...args.notifications,
-    onEmailAlertChange: fn(),
-    onToggleWebPush: fn(),
-    onHideMessageTextChange: fn(),
-    onQuietHoursChange: fn(),
-  },
   appearance: {
     ...args.appearance,
     onModeChange: fn(),
     onPaletteChange: fn(),
   },
+  danger: { onDeleteAccount: fn(), onDeleteAll: fn() },
   data: { onExport: fn() },
-  danger: { onDeleteAll: fn(), onDeleteAccount: fn() },
+  messages: {
+    ...args.messages,
+    onOfferSuggestionsChange: fn(),
+    onPublishByDefaultChange: fn(),
+    onToggleAcceptance: fn(),
+  },
+  notifications: {
+    ...args.notifications,
+    onEmailAlertChange: fn(),
+    onHideMessageTextChange: fn(),
+    onQuietHoursChange: fn(),
+    onToggleWebPush: fn(),
+  },
+  safety: {
+    ...args.safety,
+    onBlurSpicyChange: fn(),
+    onQuarantineChange: fn(),
+    onSensitivityChange: fn(),
+    onUnblock: fn(),
+  },
 });
 
 const meta = {
-  title: "Blocks/SettingsPanel",
-  component: SettingsPanel,
-  tags: ["autodocs"],
   args: withSpies(defaultSettingsPanelArgs),
   argTypes: {
+    appearance: { control: "object", description: "Mode + palette" },
+    danger: { control: "object", description: "Delete all / account" },
+    data: { control: "object", description: "Export" },
     messages: { control: "object", description: "Messages section" },
-    safety: { control: "object", description: "Safety & blocking section" },
     notifications: {
       control: "object",
       description: "Notifications section",
     },
-    appearance: { control: "object", description: "Mode + palette" },
-    data: { control: "object", description: "Export" },
-    danger: { control: "object", description: "Delete all / account" },
+    safety: { control: "object", description: "Safety & blocking section" },
   },
+  component: SettingsPanel,
+  tags: ["autodocs"],
+  title: "Blocks/SettingsPanel",
 } satisfies Meta<typeof SettingsPanel>;
 
 export default meta;
@@ -132,11 +132,11 @@ export const AllPending: Story = {
     await expect(
       canvas.getByRole("switch", { name: ACCEPT_REGEX })
     ).toBeDisabled();
-    for (const button of canvas.getAllByRole("button", {
-      name: UNBLOCK_REGEX,
-    })) {
-      await expect(button).toBeDisabled();
-    }
+    await Promise.all(
+      canvas
+        .getAllByRole("button", { name: UNBLOCK_REGEX })
+        .map((button) => expect(button).toBeDisabled())
+    );
   },
 };
 
@@ -151,5 +151,5 @@ export const QuarantineOff: Story = {
 
 export const Mobile: Story = {
   args: withSpies(closedWithBlocksSettingsPanelArgs),
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

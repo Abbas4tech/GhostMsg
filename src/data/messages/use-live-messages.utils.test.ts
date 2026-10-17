@@ -32,8 +32,8 @@ describe("buildLiveMessageToast", () => {
 
   it("previews short messages in full and truncates long ones", () => {
     expect(buildLiveMessageToast({ content: "hello there" }, false)).toEqual({
-      title: LIVE_TOAST_TITLE,
       description: "hello there",
+      title: LIVE_TOAST_TITLE,
     });
     expect(
       buildLiveMessageToast({ content: LONG_CONTENT }, false)?.description
@@ -60,11 +60,11 @@ describe("toLiveMessageDto", () => {
       _id: "msg-live",
       content: "Hello there friend",
       createdAt: "2026-10-14T10:00:00.000Z",
-      sentimentTag: "sweet",
-      isQuarantined: false,
       isPinned: false,
+      isQuarantined: false,
       isRead: false,
       reply: null,
+      sentimentTag: "sweet",
     });
     expect(toLiveMessageDto({ content: "no id" })).toBeNull();
   });
@@ -74,8 +74,8 @@ describe("insertLiveMessage", () => {
   const live = buildMessage({ _id: "msg-live", isRead: false });
   const quarantined = buildMessage({ _id: "msg-live-q", isQuarantined: true });
   const pageOf = (messages: MessageDto[], total = messages.length) => ({
-    pages: [{ success: true, messages, total, nextCursor: null }],
     pageParams: [undefined],
+    pages: [{ messages, nextCursor: null, success: true, total }],
   });
 
   it("prepends to lists the message belongs to and bumps the total", () => {
@@ -95,7 +95,7 @@ describe("insertLiveMessage", () => {
     const data = pageOf([sweetMessage]);
     expect(insertLiveMessage(data, { status: "all" }, quarantined)).toBe(data);
     expect(insertLiveMessage(data, { status: "starred" }, live)).toBe(data);
-    expect(insertLiveMessage(data, { status: "all", q: "hi" }, live)).toBe(
+    expect(insertLiveMessage(data, { q: "hi", status: "all" }, live)).toBe(
       data
     );
     const withLive = pageOf([live]);
@@ -119,7 +119,7 @@ describe("addToInboxCounts", () => {
   it("counts a clean unread message in all, unread and total", () => {
     expect(
       addToInboxCounts(EMPTY_INBOX_COUNTS, buildMessage({ isRead: false }))
-    ).toEqual({ ...EMPTY_INBOX_COUNTS, all: 1, unread: 1, total: 1 });
+    ).toEqual({ ...EMPTY_INBOX_COUNTS, all: 1, total: 1, unread: 1 });
   });
 
   it("counts a quarantined message only in quarantined and total", () => {

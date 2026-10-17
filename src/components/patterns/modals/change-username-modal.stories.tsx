@@ -4,9 +4,6 @@ import { ChangeUsernameModal } from "./change-username-modal";
 import { defaultChangeUsernameModalArgs } from "./modals.mock";
 
 const meta = {
-  title: "Patterns/Modals/ChangeUsernameModal",
-  component: ChangeUsernameModal,
-  tags: ["autodocs"],
   args: {
     ...defaultChangeUsernameModalArgs,
     onOpenChange: fn(),
@@ -14,20 +11,23 @@ const meta = {
     onValueChange: fn(),
   },
   argTypes: {
-    open: { control: "boolean", description: "Dialog visibility" },
-    value: { control: "text", description: "Controlled new username" },
     availability: {
       control: "radio",
-      options: ["idle", "checking", "available", "taken"],
       description: "Debounced availability check",
+      options: ["idle", "checking", "available", "taken"],
     },
     errorMessage: { control: "text", description: "Server/validation error" },
-    linkPrefix: { control: "text", description: "Shown before the input" },
     isSaving: { control: "boolean", description: "Spinner, Save disabled" },
-    onValueChange: { description: "Input changed → value" },
-    onSubmit: { description: "Change username (only when available)" },
+    linkPrefix: { control: "text", description: "Shown before the input" },
     onOpenChange: { description: "Cancel / Escape / overlay" },
+    onSubmit: { description: "Change username (only when available)" },
+    onValueChange: { description: "Input changed → value" },
+    open: { control: "boolean", description: "Dialog visibility" },
+    value: { control: "text", description: "Controlled new username" },
   },
+  component: ChangeUsernameModal,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/ChangeUsernameModal",
 } satisfies Meta<typeof ChangeUsernameModal>;
 
 export default meta;

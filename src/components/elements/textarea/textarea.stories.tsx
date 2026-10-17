@@ -4,18 +4,18 @@ import { Textarea } from "./textarea";
 import { defaultTextareaArgs } from "./textarea.mock";
 
 const meta = {
-  title: "Elements/Textarea",
-  component: Textarea,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultTextareaArgs, onChange: fn() },
   argTypes: {
-    placeholder: { control: "text", description: "Placeholder text" },
+    "aria-invalid": { control: "boolean", description: "Error styling" },
     disabled: { control: "boolean", description: "Disables editing" },
     maxLength: { control: "number", description: "Native max length" },
-    "aria-invalid": { control: "boolean", description: "Error styling" },
     onChange: { description: "Fires on every keystroke" },
+    placeholder: { control: "text", description: "Placeholder text" },
   },
+  component: Textarea,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/Textarea",
 } satisfies Meta<typeof Textarea>;
 
 export default meta;
@@ -44,7 +44,7 @@ export const Invalid: Story = {
 };
 
 export const Disabled: Story = {
-  args: { disabled: true, defaultValue: "Replies are closed" },
+  args: { defaultValue: "Replies are closed", disabled: true },
 };
 
 export const LongContent: Story = {

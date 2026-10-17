@@ -22,9 +22,46 @@ const REPLY_REGEX = /^reply$/i;
 const DELETE_REGEX = /delete message/i;
 
 const meta = {
-  title: "Patterns/MessageCard",
+  args: {
+    ...defaultMessageCardArgs,
+    onOpenBlock: fn(),
+    onOpenDelete: fn(),
+    onOpenReply: fn(),
+    onOpenStoryCard: fn(),
+    onReveal: fn(),
+    onStarToggle: fn(),
+    onToggleSelect: fn(),
+  },
+  argTypes: {
+    isFocused: { control: "boolean", description: "j/k keyboard cursor" },
+    isRevealed: {
+      control: "boolean",
+      description: "Quarantined body revealed by the recipient",
+    },
+    isSelected: { control: "boolean", description: "Bulk-selection state" },
+    isSenderBlocked: {
+      control: "boolean",
+      description: "Shows Blocked and an Unblock action",
+    },
+    layout: {
+      control: "radio",
+      description: "Card or compact list row",
+      options: ["grid", "list"],
+    },
+    message: {
+      control: "object",
+      description: "Inbox message (`MessageItem` from the API)",
+    },
+    now: { control: "date", description: "Reference time for the age" },
+    onOpenBlock: { description: "Block / Unblock → message (needs a hash)" },
+    onOpenDelete: { description: "Delete clicked → message" },
+    onOpenReply: { description: "Reply / Edit answer clicked → message" },
+    onOpenStoryCard: { description: "Share as Story Card → message" },
+    onReveal: { description: "Reveal a quarantined message → message" },
+    onStarToggle: { description: "Star clicked → message" },
+    onToggleSelect: { description: "Checkbox clicked → message id" },
+  },
   component: MessageCard,
-  tags: ["autodocs"],
   decorators: [
     (Story) => (
       <div className="max-w-md">
@@ -32,45 +69,8 @@ const meta = {
       </div>
     ),
   ],
-  args: {
-    ...defaultMessageCardArgs,
-    onToggleSelect: fn(),
-    onStarToggle: fn(),
-    onOpenReply: fn(),
-    onOpenStoryCard: fn(),
-    onOpenBlock: fn(),
-    onOpenDelete: fn(),
-    onReveal: fn(),
-  },
-  argTypes: {
-    message: {
-      control: "object",
-      description: "Inbox message (`MessageItem` from the API)",
-    },
-    layout: {
-      control: "radio",
-      options: ["grid", "list"],
-      description: "Card or compact list row",
-    },
-    isSelected: { control: "boolean", description: "Bulk-selection state" },
-    isFocused: { control: "boolean", description: "j/k keyboard cursor" },
-    isRevealed: {
-      control: "boolean",
-      description: "Quarantined body revealed by the recipient",
-    },
-    isSenderBlocked: {
-      control: "boolean",
-      description: "Shows Blocked and an Unblock action",
-    },
-    now: { control: "date", description: "Reference time for the age" },
-    onToggleSelect: { description: "Checkbox clicked → message id" },
-    onStarToggle: { description: "Star clicked → message" },
-    onOpenReply: { description: "Reply / Edit answer clicked → message" },
-    onOpenStoryCard: { description: "Share as Story Card → message" },
-    onOpenBlock: { description: "Block / Unblock → message (needs a hash)" },
-    onOpenDelete: { description: "Delete clicked → message" },
-    onReveal: { description: "Reveal a quarantined message → message" },
-  },
+  tags: ["autodocs"],
+  title: "Patterns/MessageCard",
 } satisfies Meta<typeof MessageCard>;
 
 export default meta;
@@ -214,11 +214,11 @@ export const ListRow: Story = {
 
 export const ReadOnly: Story = {
   args: {
-    onToggleSelect: undefined,
-    onOpenReply: undefined,
-    onOpenStoryCard: undefined,
     onOpenBlock: undefined,
     onOpenDelete: undefined,
+    onOpenReply: undefined,
+    onOpenStoryCard: undefined,
+    onToggleSelect: undefined,
   },
   play: async ({ canvas }) => {
     await expect(
@@ -234,5 +234,5 @@ export const LongContent: Story = { args: longContentMessageCardArgs };
 
 export const Mobile: Story = {
   args: answeredMessageCardArgs,
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

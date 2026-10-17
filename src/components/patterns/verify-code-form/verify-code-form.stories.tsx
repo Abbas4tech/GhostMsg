@@ -21,9 +21,9 @@ function VerifyCodeFormHarness({
   onSubmit,
 }: VerifyCodeFormStoryArgs): React.JSX.Element {
   const form = useForm<VerifyCodeValues>({
-    resolver: zodResolver(verifySchema),
     defaultValues: { code: "" },
     mode: "onChange",
+    resolver: zodResolver(verifySchema),
   });
   return (
     <Card className="w-full max-w-lg">
@@ -37,10 +37,6 @@ function VerifyCodeFormHarness({
 }
 
 const meta = {
-  title: "Patterns/VerifyCodeForm",
-  component: VerifyCodeFormHarness,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultVerifyCodeFormArgs, onSubmit: fn() },
   argTypes: {
     isSubmitting: {
@@ -49,6 +45,10 @@ const meta = {
     },
     onSubmit: { description: "Valid 6-digit code submitted → `{ code }`" },
   },
+  component: VerifyCodeFormHarness,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Patterns/VerifyCodeForm",
 } satisfies Meta<typeof VerifyCodeFormHarness>;
 
 export default meta;

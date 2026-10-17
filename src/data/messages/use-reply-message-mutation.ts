@@ -26,32 +26,32 @@ export const useReplyMessageMutation = () => {
     mutationFn: ({ messageId, text, isPublished }: ReplyMessageParams) =>
       clientFetch(
         api.POST("/api/messages/{messageId}/reply", {
+          body: { isPublished: Boolean(isPublished), text },
           params: { path: { messageId } },
-          body: { text, isPublished: Boolean(isPublished) },
         })
       ),
-    onMutate: async ({ messageId, text, isPublished }) => {
+    onError: (error, _variables, context) => {
+      restoreCachedMessages(queryClient, context?.snapshot);
+      toast.error(error.message || "Failed to save reply");
+    },
+    onMutate: async ({ messageId, text, isPublished }: ReplyMessageParams) => {
       const snapshot = await patchCachedMessage(queryClient, messageId, {
         isRead: true,
         reply: {
-          text,
           isPublished: Boolean(isPublished),
+          text,
           ...(isPublished ? { publishedAt: new Date().toISOString() } : {}),
         },
       });
       return { snapshot };
     },
-    onSuccess: () => {
-      toast.success("Reply saved successfully!");
-    },
-    onError: (error, _variables, context) => {
-      restoreCachedMessages(queryClient, context?.snapshot);
-      toast.error(error.message || "Failed to save reply");
-    },
     onSettled: () => {
       invalidateCachedMessages(queryClient);
       // A published answer changes the recipient's public page.
       queryClient.invalidateQueries({ queryKey: queryKeys.public.all });
+    },
+    onSuccess: () => {
+      toast.success("Reply saved successfully!");
     },
   });
 };

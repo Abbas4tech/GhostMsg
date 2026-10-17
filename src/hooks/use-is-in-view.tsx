@@ -15,11 +15,11 @@ function useIsInView<T extends HTMLElement = HTMLElement>(
   const localRef = useRef<T>(null);
   useImperativeHandle(ref, () => localRef.current as T);
   const inViewResult = useInView(localRef, {
-    once: inViewOnce,
     margin: inViewMargin,
+    once: inViewOnce,
   });
   const isInView = !inView || inViewResult;
-  return { ref: localRef, isInView };
+  return { isInView, ref: localRef };
 }
 
 export { type UseIsInViewOptions, useIsInView };

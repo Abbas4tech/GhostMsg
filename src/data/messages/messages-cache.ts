@@ -28,8 +28,8 @@ function updateListData(
   }
   const pages = isPaged(data) ? data.pages : [data];
   const updatedPages = pages.map((page) => ({
-    page,
     messages: update(page.messages ?? []),
+    page,
   }));
   const removed = updatedPages.reduce(
     (sum, { page, messages }) => sum + (page.messages.length - messages.length),

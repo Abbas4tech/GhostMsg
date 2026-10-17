@@ -10,22 +10,22 @@ const inputVariants = cva(
     "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
   ],
   {
+    defaultVariants: {
+      sizeVariant: "md",
+      variant: "default",
+    },
     variants: {
+      sizeVariant: {
+        lg: "h-11 px-4 text-base",
+        md: "h-9 px-3 text-base md:text-sm",
+        sm: "h-8 px-2.5 text-xs",
+      },
       variant: {
         default: "border-input bg-transparent dark:bg-input/30",
         filled: "border-accent bg-accent/40 focus-visible:bg-transparent",
         glass:
           "border-white/20 bg-white/10 backdrop-blur-md dark:border-white/10 dark:bg-black/20",
       },
-      sizeVariant: {
-        sm: "h-8 px-2.5 text-xs",
-        md: "h-9 px-3 text-base md:text-sm",
-        lg: "h-11 px-4 text-base",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      sizeVariant: "md",
     },
   }
 );
@@ -44,7 +44,7 @@ function Input({
 }: InputProps): React.JSX.Element {
   return (
     <input
-      className={cn(inputVariants({ variant, sizeVariant }), className)}
+      className={cn(inputVariants({ sizeVariant, variant }), className)}
       data-slot="input"
       type={type}
       {...props}
@@ -53,4 +53,3 @@ function Input({
 }
 
 export { Input, inputVariants };
-export default Input;

@@ -29,15 +29,15 @@ function PasswordFieldHarness({
 }
 
 const meta = {
-  title: "Patterns/AuthForm/PasswordField",
-  component: PasswordFieldHarness,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { defaultPassword: "", placeholder: "Enter your password.." },
   argTypes: {
     defaultPassword: { control: "text", description: "Initial value" },
     placeholder: { control: "text", description: "Input placeholder" },
   },
+  component: PasswordFieldHarness,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Patterns/AuthForm/PasswordField",
 } satisfies Meta<typeof PasswordFieldHarness>;
 
 export default meta;

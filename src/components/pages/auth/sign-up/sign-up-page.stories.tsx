@@ -9,14 +9,14 @@ const PAGE_LOAD = { timeout: 15_000 };
 const SIGN_UP_REGEX = /^send my verification code$/i;
 
 const meta = {
-  title: "Pages/Auth/SignUp",
   component: SignUpPage,
-  tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
-    pageProviders: true,
     msw: { handlers: authPageHandlers.default },
+    pageProviders: true,
   },
+  tags: ["autodocs"],
+  title: "Pages/Auth/SignUp",
 } satisfies Meta<typeof SignUpPage>;
 
 export default meta;
@@ -87,5 +87,5 @@ export const SignsUp: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

@@ -29,5 +29,3 @@ export function SignUpPage({
     </AuthPanel>
   );
 }
-
-export default SignUpPage;

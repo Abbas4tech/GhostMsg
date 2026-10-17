@@ -7,10 +7,6 @@ import {
 } from "./claim-link-form.mock";
 
 const meta = {
-  title: "Patterns/ClaimLinkForm",
-  component: ClaimLinkForm,
-  tags: ["autodocs"],
-  parameters: { layout: "padded" },
   args: {
     ...defaultClaimLinkFormArgs,
     onSubmit: fn(),
@@ -18,11 +14,15 @@ const meta = {
   },
   argTypes: {
     linkPrefix: { control: "text", description: "Host shown before input" },
-    value: { control: "text", description: "Typed username" },
     liveProfileHref: { control: "text", description: "Example profile link" },
     onSubmit: { description: "Called on submit" },
     onValueChange: { description: "Called on every keystroke" },
+    value: { control: "text", description: "Typed username" },
   },
+  component: ClaimLinkForm,
+  parameters: { layout: "padded" },
+  tags: ["autodocs"],
+  title: "Patterns/ClaimLinkForm",
 } satisfies Meta<typeof ClaimLinkForm>;
 
 export default meta;

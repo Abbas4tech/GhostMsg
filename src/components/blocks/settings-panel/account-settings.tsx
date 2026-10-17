@@ -2,6 +2,7 @@
 
 import { DownloadIcon } from "lucide-react";
 import type React from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/elements/button";
 import type { MessageExportFormat } from "@/lib/messages/export";
 import {
@@ -21,6 +22,13 @@ export function DataSettings({
   onExport,
   isExporting = false,
 }: DataSettingsProps): React.JSX.Element {
+  const handleExportCsv = useCallback(() => {
+    onExport("csv");
+  }, [onExport]);
+  const handleExportJson = useCallback(() => {
+    onExport("json");
+  }, [onExport]);
+
   return (
     <SettingsSection id="data" title="Data & account">
       <SettingRow
@@ -30,7 +38,7 @@ export function DataSettings({
             <Button
               className="rounded-full"
               disabled={isExporting}
-              onClick={() => onExport("csv")}
+              onClick={handleExportCsv}
               size="sm"
               variant="outline"
             >
@@ -40,7 +48,7 @@ export function DataSettings({
             <Button
               className="rounded-full"
               disabled={isExporting}
-              onClick={() => onExport("json")}
+              onClick={handleExportJson}
               size="sm"
               variant="outline"
             >

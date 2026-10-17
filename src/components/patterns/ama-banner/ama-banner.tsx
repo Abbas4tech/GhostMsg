@@ -8,28 +8,28 @@ export const DEFAULT_AMA_PROMPT =
 const amaBannerVariants = cva(
   "relative flex flex-col gap-1.5 overflow-hidden rounded-[calc(var(--radius)+6px)]",
   {
+    defaultVariants: { size: "md", tone: "brand" },
     variants: {
+      size: { lg: "p-7", md: "p-5", sm: "px-4 py-3.5" },
       tone: {
         /** Accepting: the loud one. */
         brand: "bg-brand-gradient text-brand-foreground",
-        /** Dashboard preview, Q&A header. */
-        soft: "bg-accent text-accent-foreground",
         /** Paused / not found. */
         quiet: "border border-input border-dashed bg-muted text-foreground",
+        /** Dashboard preview, Q&A header. */
+        soft: "bg-accent text-accent-foreground",
       },
-      size: { sm: "px-4 py-3.5", md: "p-5", lg: "p-7" },
     },
-    defaultVariants: { tone: "brand", size: "md" },
   }
 );
 
 const promptVariants = cva(
   "text-balance font-bold font-display leading-[1.1]",
   {
-    variants: {
-      size: { sm: "text-base", md: "text-[22px]", lg: "text-[26px]" },
-    },
     defaultVariants: { size: "md" },
+    variants: {
+      size: { lg: "text-[26px]", md: "text-[22px]", sm: "text-base" },
+    },
   }
 );
 
@@ -56,7 +56,7 @@ export function AmaBanner({
 }: AmaBannerProps): React.JSX.Element {
   return (
     <section
-      className={cn(amaBannerVariants({ tone, size }), className)}
+      className={cn(amaBannerVariants({ size, tone }), className)}
       data-slot="ama-banner"
       {...props}
     >
@@ -75,4 +75,3 @@ export function AmaBanner({
 }
 
 export { amaBannerVariants };
-export default AmaBanner;

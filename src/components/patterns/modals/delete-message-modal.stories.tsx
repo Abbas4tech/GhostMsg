@@ -8,20 +8,20 @@ const DELETE_REGEX = /^delete$/i;
 const DELETING_REGEX = /deleting/i;
 
 const meta = {
-  title: "Patterns/Modals/DeleteMessageModal",
-  component: DeleteMessageModal,
-  tags: ["autodocs"],
   args: { ...defaultDeleteMessageModalArgs, onClose: fn(), onConfirm: fn() },
   argTypes: {
-    open: { control: "boolean", description: "Dialog visibility" },
+    isPending: { control: "boolean", description: "Shows “Deleting...”" },
     message: {
       control: "object",
       description: "Message to delete; renders nothing when null",
     },
-    isPending: { control: "boolean", description: "Shows “Deleting...”" },
-    onConfirm: { description: "Delete clicked → message" },
     onClose: { description: "Cancel / Escape / overlay" },
+    onConfirm: { description: "Delete clicked → message" },
+    open: { control: "boolean", description: "Dialog visibility" },
   },
+  component: DeleteMessageModal,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/DeleteMessageModal",
 } satisfies Meta<typeof DeleteMessageModal>;
 
 export default meta;

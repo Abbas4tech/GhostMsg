@@ -4,7 +4,8 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
-import type { UseFormReturn } from "react-hook-form";
+import { useCallback } from "react";
+import type { ControllerRenderProps, UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
 import { Button } from "@/components/elements/button";
 import {
@@ -39,6 +40,35 @@ export function VerifyCodeForm({
   isSubmitting = false,
   onSubmit,
 }: VerifyCodeFormProps): React.JSX.Element {
+  const renderCodeField = useCallback(
+    ({ field }: { field: ControllerRenderProps<VerifyCodeValues, "code"> }) => (
+      <FormItem>
+        <FormLabel className="sr-only">Verification Code</FormLabel>
+        <FormControl>
+          <InputOTP
+            autoComplete="one-time-code"
+            containerClassName="w-full"
+            maxLength={OTP_LENGTH}
+            pattern={REGEXP_ONLY_DIGITS}
+            {...field}
+          >
+            <InputOTPGroup className="grid w-full grid-cols-6 gap-2">
+              {OTP_SLOT_INDEXES.map((index) => (
+                <InputOTPSlot
+                  className="h-[60px] w-full rounded-xl border border-input bg-card font-bold font-display text-[26px] tabular-nums shadow-none first:rounded-xl last:rounded-xl data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-2 data-[active=true]:ring-offset-card"
+                  index={index}
+                  key={`otp-${index}`}
+                />
+              ))}
+            </InputOTPGroup>
+          </InputOTP>
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    ),
+    []
+  );
+
   return (
     <Form {...form}>
       <form
@@ -49,31 +79,7 @@ export function VerifyCodeForm({
         <FormField
           control={form.control}
           name="code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="sr-only">Verification Code</FormLabel>
-              <FormControl>
-                <InputOTP
-                  autoComplete="one-time-code"
-                  containerClassName="w-full"
-                  maxLength={OTP_LENGTH}
-                  pattern={REGEXP_ONLY_DIGITS}
-                  {...field}
-                >
-                  <InputOTPGroup className="grid w-full grid-cols-6 gap-2">
-                    {OTP_SLOT_INDEXES.map((index) => (
-                      <InputOTPSlot
-                        className="h-[60px] w-full rounded-xl border border-input bg-card font-bold font-display text-[26px] tabular-nums shadow-none first:rounded-xl last:rounded-xl data-[active=true]:ring-2 data-[active=true]:ring-ring data-[active=true]:ring-offset-2 data-[active=true]:ring-offset-card"
-                        index={index}
-                        key={`otp-${index}`}
-                      />
-                    ))}
-                  </InputOTPGroup>
-                </InputOTP>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={renderCodeField}
         />
         <Button
           className="w-full rounded-full"
@@ -103,5 +109,3 @@ export function VerifyCodeForm({
     </Form>
   );
 }
-
-export default VerifyCodeForm;

@@ -4,20 +4,20 @@ import { DeleteAllMessagesModal } from "./delete-all-messages-modal";
 import { defaultDeleteAllMessagesModalArgs } from "./modals.mock";
 
 const meta = {
-  title: "Patterns/Modals/DeleteAllMessagesModal",
-  component: DeleteAllMessagesModal,
-  tags: ["autodocs"],
   args: {
     ...defaultDeleteAllMessagesModalArgs,
     onConfirm: fn(),
     onOpenChange: fn(),
   },
   argTypes: {
-    open: { control: "boolean", description: "Dialog visibility" },
-    total: { control: "number", description: "Messages that will go" },
     onConfirm: { description: "Delete all clicked" },
     onOpenChange: { description: "Keep them / Escape" },
+    open: { control: "boolean", description: "Dialog visibility" },
+    total: { control: "number", description: "Messages that will go" },
   },
+  component: DeleteAllMessagesModal,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/DeleteAllMessagesModal",
 } satisfies Meta<typeof DeleteAllMessagesModal>;
 
 export default meta;

@@ -4,5 +4,3 @@ import { NotFoundPanel } from "@/components/blocks/not-found-panel";
 export function NotFoundPage(): React.JSX.Element {
   return <NotFoundPanel homeHref="/" />;
 }
-
-export default NotFoundPage;

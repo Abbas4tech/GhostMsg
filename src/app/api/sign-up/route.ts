@@ -8,14 +8,14 @@ export async function POST(req: NextRequest): Promise<Response> {
     await dbConnect();
     const { username, email, password } = await req.json();
     const existingUserVerifiedByUsername = await UserModel.findOne({
-      username,
       isVerified: true,
+      username,
     });
     if (existingUserVerifiedByUsername) {
       return Response.json(
         {
-          success: false,
           message: "Username is already taken",
+          success: false,
         },
         { status: 400 }
       );
@@ -29,8 +29,8 @@ export async function POST(req: NextRequest): Promise<Response> {
       if (existingUserByEmail.isVerified) {
         return Response.json(
           {
-            success: false,
             message: "User already exist with this email",
+            success: false,
           },
           {
             status: 400,
@@ -48,14 +48,14 @@ export async function POST(req: NextRequest): Promise<Response> {
       const expiryDate = new Date();
       expiryDate.setHours(expiryDate.getHours() + 1);
       const newUser = new UserModel({
-        username,
         email,
+        isAcceptingMessage: true,
+        isVerified: false,
+        messages: [],
         password: hashedPassword,
+        username,
         verifyCode,
         verifyCodeExpiry: expiryDate,
-        isVerified: false,
-        isAcceptingMessage: true,
-        messages: [],
       });
 
       await newUser.save();
@@ -71,8 +71,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     if (!emailResponse.success) {
       return Response.json(
         {
-          success: false,
           message: emailResponse.message,
+          success: false,
         },
         {
           status: 500,
@@ -82,8 +82,8 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         message: "User registered successfully. Please verify your email",
+        success: true,
       },
       {
         status: 201,
@@ -93,8 +93,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     console.error("Internal Server Error", error);
     return Response.json(
       {
-        success: false,
         message: "Internal Server Error",
+        success: false,
       },
       {
         status: 500,

@@ -14,19 +14,19 @@ const HEADING_TAGS: Partial<
 };
 
 const meta = {
-  title: "Elements/Text",
-  component: Text,
-  tags: ["autodocs"],
   args: defaultTextArgs,
   argTypes: {
-    variant: {
-      control: "select",
-      options: TEXT_VARIANTS,
-      description: "Typography preset",
-    },
     as: { control: "text", description: "Rendered element (`p` by default)" },
     children: { control: "text", description: "Text content" },
+    variant: {
+      control: "select",
+      description: "Typography preset",
+      options: TEXT_VARIANTS,
+    },
   },
+  component: Text,
+  tags: ["autodocs"],
+  title: "Elements/Text",
 } satisfies Meta<typeof Text>;
 
 export default meta;
@@ -45,14 +45,14 @@ export const Heading1: Story = {
 
 export const Lead: Story = {
   args: {
-    variant: "lead",
     children:
       "GhostMsg lets you send anonymous messages that appear out of nowhere.",
+    variant: "lead",
   },
 };
 
 export const Muted: Story = {
-  args: { variant: "muted", children: "Continue your journey with GhostMsg" },
+  args: { children: "Continue your journey with GhostMsg", variant: "muted" },
 };
 
 export const TypeScale: Story = {

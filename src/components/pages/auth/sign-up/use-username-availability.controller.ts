@@ -31,10 +31,10 @@ export function useUsernameAvailabilityController(
 
   return {
     availability: deriveUsernameAvailability({
-      isFetching,
-      isCheckable,
-      error,
       data,
+      error,
+      isCheckable,
+      isFetching,
     }),
     availabilityMessage: error?.message,
   };

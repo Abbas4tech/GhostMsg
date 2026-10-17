@@ -30,8 +30,8 @@ export interface UseSettingsControllerOptions {
 
 const DEFAULT_QUIET_HOURS: QuietHoursValue = {
   enabled: false,
-  start: "22:00",
   end: "08:00",
+  start: "22:00",
 };
 
 /** The browser's IANA zone, so quiet hours follow the recipient's clock. */
@@ -129,56 +129,56 @@ export function useSettingsController({
   const blockedHashes = blockedData?.blockedSenderHashes ?? [];
 
   return {
-    // Messages
-    isAccepting,
-    isAcceptancePending: controlledIsSubmitting ?? acceptMutation.isPending,
-    handleToggleAcceptance,
-    offerSuggestions: preferences?.messages.offerSuggestions ?? true,
-    handleOfferSuggestionsChange: (offerSuggestions: boolean) =>
-      updatePreferences({ messages: { offerSuggestions } }),
-    publishByDefault: preferences?.messages.publishByDefault ?? false,
-    handlePublishByDefaultChange: (publishByDefault: boolean) =>
-      updatePreferences({ messages: { publishByDefault } }),
-    // Safety
-    quarantineEnabled: preferences?.safety.quarantineEnabled ?? true,
-    handleQuarantineChange: (quarantineEnabled: boolean) =>
-      updatePreferences({ safety: { quarantineEnabled } }),
-    sensitivity: (preferences?.safety.sensitivity ??
-      "balanced") as QuarantineSensitivity,
-    handleSensitivityChange: (sensitivity: QuarantineSensitivity) =>
-      updatePreferences({ safety: { sensitivity } }),
-    blurSpicy: preferences?.safety.blurSpicy ?? false,
-    handleBlurSpicyChange: (blurSpicy: boolean) =>
-      updatePreferences({ safety: { blurSpicy } }),
     blockedHashes,
     blockedSenders:
       blockedData?.blockedSenders ?? blockedHashes.map((hash) => ({ hash })),
-    isUnblockPending: unblockMutation.isPending,
-    handleUnblock,
-    handleUnblockAll,
+    blurSpicy: preferences?.safety.blurSpicy ?? false,
     // Notifications
     email: profileData?.profile.email ?? "",
     emailAlerts: (notifications?.emailAlerts ?? "instant") as EmailAlertMode,
-    isNotificationPending: notifMutation.isPending,
+    handleBlurSpicyChange: (blurSpicy: boolean) =>
+      updatePreferences({ safety: { blurSpicy } }),
     handleEmailAlertChange,
+    handleExport,
+    handleHideMessageTextChange,
+    handleOfferSuggestionsChange: (offerSuggestions: boolean) =>
+      updatePreferences({ messages: { offerSuggestions } }),
+    handlePublishByDefaultChange: (publishByDefault: boolean) =>
+      updatePreferences({ messages: { publishByDefault } }),
+    handleQuarantineChange: (quarantineEnabled: boolean) =>
+      updatePreferences({ safety: { quarantineEnabled } }),
+    handleQuietHoursChange,
+    handleSensitivityChange: (sensitivity: QuarantineSensitivity) =>
+      updatePreferences({ safety: { sensitivity } }),
+    handleToggleAcceptance,
+    handleToggleWebPush,
+    handleUnblock,
+    handleUnblockAll,
+    hideMessageText: notifications?.hideMessageText ?? true,
+    isAcceptancePending: controlledIsSubmitting ?? acceptMutation.isPending,
+    // Messages
+    isAccepting,
+    isExporting,
+    isNotificationPending: notifMutation.isPending,
+    isUnblockPending: unblockMutation.isPending,
+    isWebPushPending: pushAdapter.isPending || notifMutation.isPending,
+    offerSuggestions: preferences?.messages.offerSuggestions ?? true,
+    publishByDefault: preferences?.messages.publishByDefault ?? false,
+    // Safety
+    quarantineEnabled: preferences?.safety.quarantineEnabled ?? true,
+    quietHours: {
+      enabled:
+        notifications?.quietHours?.enabled ?? DEFAULT_QUIET_HOURS.enabled,
+      end: notifications?.quietHours?.end ?? DEFAULT_QUIET_HOURS.end,
+      start: notifications?.quietHours?.start ?? DEFAULT_QUIET_HOURS.start,
+    },
+    sensitivity: (preferences?.safety.sensitivity ??
+      "balanced") as QuarantineSensitivity,
+    // Data
+    totalMessages: countsData?.counts.total ?? 0,
     // This device's subscription, not the account flag (push is per device).
     webPushEnabled:
       Boolean(notifications?.webPushEnabled) &&
       pushAdapter.isSubscribedHere === true,
-    isWebPushPending: pushAdapter.isPending || notifMutation.isPending,
-    handleToggleWebPush,
-    hideMessageText: notifications?.hideMessageText ?? true,
-    handleHideMessageTextChange,
-    quietHours: {
-      enabled:
-        notifications?.quietHours?.enabled ?? DEFAULT_QUIET_HOURS.enabled,
-      start: notifications?.quietHours?.start ?? DEFAULT_QUIET_HOURS.start,
-      end: notifications?.quietHours?.end ?? DEFAULT_QUIET_HOURS.end,
-    },
-    handleQuietHoursChange,
-    // Data
-    totalMessages: countsData?.counts.total ?? 0,
-    handleExport,
-    isExporting,
   };
 }

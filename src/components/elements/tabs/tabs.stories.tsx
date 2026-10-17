@@ -4,18 +4,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 import { defaultTabsArgs, tabsMockItems } from "./tabs.mock";
 
 const meta = {
-  title: "Elements/Tabs",
-  component: Tabs,
-  tags: ["autodocs"],
   args: { ...defaultTabsArgs, onValueChange: fn() },
   argTypes: {
     defaultValue: {
       control: "select",
-      options: tabsMockItems.map((item) => item.value),
       description: "Initially selected tab (uncontrolled)",
+      options: tabsMockItems.map((item) => item.value),
     },
     onValueChange: { description: "Called with the newly selected tab value" },
   },
+  component: Tabs,
   render: (args) => (
     <Tabs {...args} className="w-[28rem]">
       <TabsList className="grid grid-cols-3">
@@ -36,6 +34,8 @@ const meta = {
       ))}
     </Tabs>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Tabs",
 } satisfies Meta<typeof Tabs>;
 
 export default meta;

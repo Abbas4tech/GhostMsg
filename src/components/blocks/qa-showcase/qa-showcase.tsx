@@ -61,5 +61,3 @@ export function QaShowcase({
     </section>
   );
 }
-
-export default QaShowcase;

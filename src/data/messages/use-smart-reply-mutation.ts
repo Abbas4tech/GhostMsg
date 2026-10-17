@@ -7,8 +7,8 @@ interface SmartReplyParams {
   tone: "witty" | "wholesome" | "thoughtful";
 }
 
-export const useSmartReplyMutation = () => {
-  return useMutation({
+export const useSmartReplyMutation = () =>
+  useMutation({
     mutationFn: ({ content, tone }: SmartReplyParams) =>
       clientFetch(
         api.POST("/api/ai/smart-reply", {
@@ -19,4 +19,3 @@ export const useSmartReplyMutation = () => {
       toast.error(err.message || "Failed to generate smart reply");
     },
   });
-};

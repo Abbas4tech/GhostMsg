@@ -14,12 +14,12 @@ import { server } from "./msw-server";
 export function createTestQueryClient() {
   return new QueryClient({
     defaultOptions: {
+      mutations: {
+        retry: false,
+      },
       queries: {
         retry: false,
         staleTime: Number.POSITIVE_INFINITY,
-      },
-      mutations: {
-        retry: false,
       },
     },
   });

@@ -50,9 +50,14 @@ export function useOptimisticResourceMutation<TData, TVariables, TResult>({
   const isLastPending = () => queryClient.isMutating({ mutationKey }) <= 1;
 
   return useMutation({
-    mutationKey,
-    scope: { id: scopeId },
     mutationFn,
+    mutationKey,
+    onError: (error, _variables, context) => {
+      if (isLastPending() && context?.previous !== undefined) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+      toast.error(error.message || errorMessage);
+    },
     onMutate: async (variables: TVariables) => {
       await queryClient.cancelQueries({ queryKey });
       const previous = queryClient.getQueryData<TData>(queryKey);
@@ -60,18 +65,6 @@ export function useOptimisticResourceMutation<TData, TVariables, TResult>({
         queryClient.setQueryData<TData>(queryKey, merge(previous, variables));
       }
       return { previous };
-    },
-    onError: (error, _variables, context) => {
-      if (isLastPending() && context?.previous !== undefined) {
-        queryClient.setQueryData(queryKey, context.previous);
-      }
-      toast.error(error.message || errorMessage);
-    },
-    onSuccess: (result) => {
-      const message = successMessage?.(result);
-      if (message) {
-        toast.success(message);
-      }
     },
     onSettled: async () => {
       if (!isLastPending()) {
@@ -83,5 +76,12 @@ export function useOptimisticResourceMutation<TData, TVariables, TResult>({
         )
       );
     },
+    onSuccess: (result) => {
+      const message = successMessage?.(result);
+      if (message) {
+        toast.success(message);
+      }
+    },
+    scope: { id: scopeId },
   });
 }

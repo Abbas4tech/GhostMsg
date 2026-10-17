@@ -11,19 +11,27 @@ import {
  * demonstrates the button + its view-transition; switch themes with the toolbar.
  */
 const meta = {
-  title: "Elements/ThemeToggler",
-  component: ThemeTogglerButton,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultThemeTogglerArgs, onClick: fn() },
   argTypes: {
+    direction: {
+      control: "select",
+      description: "View-transition wipe direction",
+      options: ["ltr", "rtl", "ttb", "btt"],
+    },
     modes: {
       control: "check",
-      options: ["light", "dark", "system"],
       description: "Themes cycled through, in order",
+      options: ["light", "dark", "system"],
+    },
+    onClick: { description: "Click handler" },
+    size: {
+      control: "radio",
+      description: "Square size",
+      options: ["xs", "sm", "default", "lg"],
     },
     variant: {
       control: "select",
+      description: "Button style",
       options: [
         "default",
         "accent",
@@ -33,20 +41,12 @@ const meta = {
         "ghost",
         "link",
       ],
-      description: "Button style",
     },
-    size: {
-      control: "radio",
-      options: ["xs", "sm", "default", "lg"],
-      description: "Square size",
-    },
-    direction: {
-      control: "select",
-      options: ["ltr", "rtl", "ttb", "btt"],
-      description: "View-transition wipe direction",
-    },
-    onClick: { description: "Click handler" },
   },
+  component: ThemeTogglerButton,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Elements/ThemeToggler",
 } satisfies Meta<typeof ThemeTogglerButton>;
 
 export default meta;

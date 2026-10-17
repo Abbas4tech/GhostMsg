@@ -6,14 +6,14 @@ export const INPUT_SIZES = ["sm", "md", "lg"] as const;
 
 export const defaultInputArgs: InputProps = {
   "aria-label": "Search messages",
-  placeholder: "Search messages...",
-  variant: "default",
-  sizeVariant: "md",
   disabled: false,
   onChange: noop,
+  placeholder: "Search messages...",
+  sizeVariant: "md",
+  variant: "default",
 };
 
 export const filledInputArgs = {
-  defaultValue: "johndoe",
   "aria-label": "Username",
+  defaultValue: "johndoe",
 } satisfies Partial<InputProps>;

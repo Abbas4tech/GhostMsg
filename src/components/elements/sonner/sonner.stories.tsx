@@ -5,6 +5,13 @@ import { Button } from "@/components/elements/button";
 import { Toaster } from "./sonner";
 import { toastMockMessages } from "./sonner.mock";
 
+const handleSuccessToast = () => toast.success(toastMockMessages.success);
+const handleErrorToast = () => toast.error(toastMockMessages.error);
+const handleInfoToast = () =>
+  toast.info(toastMockMessages.info, {
+    description: toastMockMessages.description,
+  });
+
 /**
  * The global `<Toaster/>` is mounted by `.storybook/preview.tsx` (like the app
  * root layout), so stories only trigger toasts.
@@ -12,23 +19,11 @@ import { toastMockMessages } from "./sonner.mock";
 function ToastTriggers() {
   return (
     <div className="flex flex-wrap gap-2">
-      <Button onClick={() => toast.success(toastMockMessages.success)}>
-        Success
-      </Button>
-      <Button
-        onClick={() => toast.error(toastMockMessages.error)}
-        variant="destructive"
-      >
+      <Button onClick={handleSuccessToast}>Success</Button>
+      <Button onClick={handleErrorToast} variant="destructive">
         Error
       </Button>
-      <Button
-        onClick={() =>
-          toast.info(toastMockMessages.info, {
-            description: toastMockMessages.description,
-          })
-        }
-        variant="outline"
-      >
+      <Button onClick={handleInfoToast} variant="outline">
         Info with description
       </Button>
     </div>
@@ -36,11 +31,11 @@ function ToastTriggers() {
 }
 
 const meta = {
-  title: "Elements/Toaster",
   component: Toaster,
-  tags: ["autodocs"],
   parameters: { layout: "centered" },
   render: () => <ToastTriggers />,
+  tags: ["autodocs"],
+  title: "Elements/Toaster",
 } satisfies Meta<typeof Toaster>;
 
 export default meta;

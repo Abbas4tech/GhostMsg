@@ -17,18 +17,16 @@ import {
 import { sidebarMockContent } from "./sidebar.mock";
 
 const meta = {
-  title: "Elements/Sidebar",
-  component: Sidebar,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: { collapsible: "offcanvas" },
   argTypes: {
     collapsible: {
       control: "radio",
-      options: ["offcanvas", "icon", "none"],
       description: "How the desktop sidebar collapses",
+      options: ["offcanvas", "icon", "none"],
     },
   },
+  component: Sidebar,
+  parameters: { layout: "fullscreen" },
   render: (args) => (
     <SidebarProvider>
       <Sidebar {...args} aria-label={sidebarMockContent.label}>
@@ -64,6 +62,8 @@ const meta = {
       </SidebarInset>
     </SidebarProvider>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Sidebar",
 } satisfies Meta<typeof Sidebar>;
 
 export default meta;
@@ -91,8 +91,8 @@ export const Collapses: Story = {
     await expect(
       canvas
         .getByRole("complementary", {
-          name: sidebarMockContent.label,
           hidden: true,
+          name: sidebarMockContent.label,
         })
         .closest("[data-state]")
     ).toHaveAttribute("data-state", "collapsed");
@@ -100,5 +100,5 @@ export const Collapses: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

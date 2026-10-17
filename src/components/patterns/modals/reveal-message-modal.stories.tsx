@@ -5,16 +5,16 @@ import { RevealMessageModal } from "./reveal-message-modal";
 
 /** Opt-in reveal of a Quarantined Message; "Keep hidden" has initial focus. */
 const meta = {
-  title: "Patterns/Modals/RevealMessageModal",
-  component: RevealMessageModal,
-  tags: ["autodocs"],
   args: { ...defaultRevealMessageModalArgs, onClose: fn(), onConfirm: fn() },
   argTypes: {
-    open: { control: "boolean", description: "Dialog visibility" },
     message: { control: "object", description: "Quarantined message" },
-    onConfirm: { description: "Reveal once → message" },
     onClose: { description: "Keep hidden / Escape" },
+    onConfirm: { description: "Reveal once → message" },
+    open: { control: "boolean", description: "Dialog visibility" },
   },
+  component: RevealMessageModal,
+  tags: ["autodocs"],
+  title: "Patterns/Modals/RevealMessageModal",
 } satisfies Meta<typeof RevealMessageModal>;
 
 export default meta;

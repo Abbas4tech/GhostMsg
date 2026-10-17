@@ -26,5 +26,3 @@ export function SiteLayout({ children }: SiteLayoutProps): React.JSX.Element {
     </div>
   );
 }
-
-export default SiteLayout;

@@ -21,16 +21,16 @@ export async function GET(): Promise<Response> {
 
     return Response.json(
       {
-        success: true,
         blockedSenderHashes: hashes,
         blockedSenders: toBlockedSenders(hashes, userDoc?.blockedSenders),
+        success: true,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to fetch blocked senders:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     if (!parseResult.success) {
       return Response.json(
-        { success: false, message: "Invalid sender hash payload" },
+        { message: "Invalid sender hash payload", success: false },
         { status: 400 }
       );
     }
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     // Record the date once; re-blocking keeps the original date.
     await UserModel.updateOne(
       { _id: userId, "blockedSenders.hash": { $ne: senderHash } },
-      { $push: { blockedSenders: { hash: senderHash, blockedAt: new Date() } } }
+      { $push: { blockedSenders: { blockedAt: new Date(), hash: senderHash } } }
     );
     await UserModel.updateOne(
       { _id: userId },
@@ -68,13 +68,13 @@ export async function POST(request: NextRequest): Promise<Response> {
     );
 
     return Response.json(
-      { success: true, message: "Sender blocked successfully" },
+      { message: "Sender blocked successfully", success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to block sender:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }
@@ -90,7 +90,7 @@ export async function DELETE(request: NextRequest): Promise<Response> {
     }
 
     const body = await request.json().catch(() => ({}));
-    const senderHash = body.senderHash;
+    const { senderHash } = body;
 
     if (senderHash === "ALL") {
       await UserModel.updateOne(
@@ -98,7 +98,7 @@ export async function DELETE(request: NextRequest): Promise<Response> {
         { $set: { blockedSenderHashes: [], blockedSenders: [] } }
       );
       return Response.json(
-        { success: true, message: "All blocked senders cleared successfully" },
+        { message: "All blocked senders cleared successfully", success: true },
         { status: 200 }
       );
     }
@@ -107,7 +107,7 @@ export async function DELETE(request: NextRequest): Promise<Response> {
 
     if (!parseResult.success) {
       return Response.json(
-        { success: false, message: "Invalid sender hash payload" },
+        { message: "Invalid sender hash payload", success: false },
         { status: 400 }
       );
     }
@@ -123,13 +123,13 @@ export async function DELETE(request: NextRequest): Promise<Response> {
     );
 
     return Response.json(
-      { success: true, message: "Sender unblocked successfully" },
+      { message: "Sender unblocked successfully", success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to unblock sender:", error);
     return Response.json(
-      { success: false, message: "Internal server error" },
+      { message: "Internal server error", success: false },
       { status: 500 }
     );
   }

@@ -130,26 +130,26 @@ export function useDashboardShellController() {
   );
 
   return {
-    status,
-    username: link.username,
-    activeNav: getActiveNav(pathname),
-    unreadCount,
-    avatarUrl: profileData?.profile.avatarUrl ?? null,
-    profileLink: {
-      label: link.profileLabel,
-      onCopy: link.handleCopy,
-      onShare: link.handleShare,
-    },
     acceptance: {
       isAccepting,
       isPending: acceptMutation.isPending,
       onToggle: handleToggleAcceptance,
     },
-    isCommandOpen,
-    setIsCommandOpen,
-    handleOpenCommand,
+    activeNav: getActiveNav(pathname),
+    avatarUrl: profileData?.profile.avatarUrl ?? null,
     commandGroups,
-    handleSignOut,
     handleGoToLogin,
+    handleOpenCommand,
+    handleSignOut,
+    isCommandOpen,
+    profileLink: {
+      label: link.profileLabel,
+      onCopy: link.handleCopy,
+      onShare: link.handleShare,
+    },
+    setIsCommandOpen,
+    status,
+    unreadCount,
+    username: link.username,
   };
 }

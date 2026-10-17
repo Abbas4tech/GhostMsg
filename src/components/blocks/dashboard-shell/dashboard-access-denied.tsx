@@ -33,5 +33,3 @@ export function DashboardAccessDenied({
     </div>
   );
 }
-
-export default DashboardAccessDenied;

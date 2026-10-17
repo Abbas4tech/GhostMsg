@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useId } from "react";
+import { useCallback, useId } from "react";
 import {
   Select,
   SelectContent,
@@ -21,9 +21,9 @@ import {
 export type EmailAlertMode = "instant" | "daily" | "off";
 
 const EMAIL_OPTIONS: { label: string; value: EmailAlertMode }[] = [
-  { value: "instant", label: "Instantly" },
-  { value: "daily", label: "Daily digest" },
-  { value: "off", label: "Never" },
+  { label: "Instantly", value: "instant" },
+  { label: "Daily digest", value: "daily" },
+  { label: "Never", value: "off" },
 ];
 
 const isEmailAlertMode = (value: string): value is EmailAlertMode =>
@@ -100,6 +100,32 @@ export function NotificationSettings({
   onQuietHoursChange,
 }: NotificationSettingsProps): React.JSX.Element {
   const quietId = useId();
+  const handleEmailAlertChange = useCallback(
+    (value: string) => {
+      if (isEmailAlertMode(value)) {
+        onEmailAlertChange(value);
+      }
+    },
+    [onEmailAlertChange]
+  );
+  const handleQuietHoursEnabledChange = useCallback(
+    (enabled: boolean) => {
+      onQuietHoursChange({ ...quietHours, enabled });
+    },
+    [onQuietHoursChange, quietHours]
+  );
+  const handleQuietHoursStartChange = useCallback(
+    (start: string) => {
+      onQuietHoursChange({ ...quietHours, start });
+    },
+    [onQuietHoursChange, quietHours]
+  );
+  const handleQuietHoursEndChange = useCallback(
+    (end: string) => {
+      onQuietHoursChange({ ...quietHours, end });
+    },
+    [onQuietHoursChange, quietHours]
+  );
 
   return (
     <SettingsSection id="notifications" title="Notifications">
@@ -107,11 +133,7 @@ export function NotificationSettings({
         control={
           <Select
             disabled={isNotificationPending}
-            onValueChange={(value) => {
-              if (isEmailAlertMode(value)) {
-                onEmailAlertChange(value);
-              }
-            }}
+            onValueChange={handleEmailAlertChange}
             value={emailAlerts}
           >
             <SelectTrigger
@@ -160,22 +182,20 @@ export function NotificationSettings({
             <Switch
               checked={quietHours.enabled}
               id={quietId}
-              onCheckedChange={(enabled) =>
-                onQuietHoursChange({ ...quietHours, enabled })
-              }
+              onCheckedChange={handleQuietHoursEnabledChange}
               size="xl"
             />
             <TimeSelect
               disabled={!quietHours.enabled}
               label="Quiet hours from"
-              onChange={(start) => onQuietHoursChange({ ...quietHours, start })}
+              onChange={handleQuietHoursStartChange}
               value={quietHours.start}
             />
             <span className="text-muted-foreground">to</span>
             <TimeSelect
               disabled={!quietHours.enabled}
               label="Quiet hours to"
-              onChange={(end) => onQuietHoursChange({ ...quietHours, end })}
+              onChange={handleQuietHoursEndChange}
               value={quietHours.end}
             />
           </div>

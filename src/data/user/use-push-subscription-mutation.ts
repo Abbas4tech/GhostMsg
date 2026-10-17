@@ -12,8 +12,8 @@ import { api, clientFetch } from "@/data/api-client";
  * The PushSubscription is serialised to JSON (endpoint + keys) which maps
  * directly to the PushSubscriptionRequest schema.
  */
-export const usePushSubscriptionMutation = () => {
-  return useMutation({
+export const usePushSubscriptionMutation = () =>
+  useMutation({
     mutationFn: (subscription: PushSubscription) => {
       const { endpoint, keys } = subscription.toJSON();
       if (!(endpoint && keys?.p256dh && keys.auth)) {
@@ -23,15 +23,14 @@ export const usePushSubscriptionMutation = () => {
       }
       return clientFetch(
         api.POST("/api/user/push-subscription", {
-          body: { endpoint, keys: { p256dh: keys.p256dh, auth: keys.auth } },
+          body: { endpoint, keys: { auth: keys.auth, p256dh: keys.p256dh } },
         })
       );
-    },
-    onSuccess: () => {
-      toast.success("Web push notifications enabled! 🔔");
     },
     onError: (err: Error) => {
       toast.error(err.message || "Failed to register web push subscription");
     },
+    onSuccess: () => {
+      toast.success("Web push notifications enabled! 🔔");
+    },
   });
-};

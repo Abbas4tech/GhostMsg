@@ -35,10 +35,10 @@ describe("buildMessagesJson", () => {
     const [record] = JSON.parse(buildMessagesJson([answeredSpicyMessage]));
     expect(record).toEqual(toMessageExportRecord(answeredSpicyMessage));
     expect(record).toMatchObject({
-      id: String(answeredSpicyMessage._id),
       content: answeredSpicyMessage.content,
-      sentimentTag: answeredSpicyMessage.sentimentTag,
+      id: String(answeredSpicyMessage._id),
       reply: { text: answeredSpicyMessage.reply?.text },
+      sentimentTag: answeredSpicyMessage.sentimentTag,
     });
   });
 

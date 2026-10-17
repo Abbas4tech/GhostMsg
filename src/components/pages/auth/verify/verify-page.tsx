@@ -22,5 +22,3 @@ export function VerifyPage({ username }: VerifyPageProps): React.JSX.Element {
     </VerifyPanel>
   );
 }
-
-export default VerifyPage;

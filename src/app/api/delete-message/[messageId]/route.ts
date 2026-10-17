@@ -8,8 +8,7 @@ export async function DELETE(
   _request: NextRequest,
   props: { params: Promise<{ messageId: string }> }
 ): Promise<Response> {
-  const params = await props.params;
-  const messageId = params.messageId;
+  const { messageId } = await props.params;
 
   try {
     await dbConnect();
@@ -20,7 +19,7 @@ export async function DELETE(
 
     if (!mongoose.Types.ObjectId.isValid(messageId)) {
       return Response.json(
-        { success: false, message: "Invalid message ID format" },
+        { message: "Invalid message ID format", success: false },
         { status: 400 }
       );
     }
@@ -33,23 +32,23 @@ export async function DELETE(
     if (deleteResult.deletedCount === 0) {
       return Response.json(
         {
-          success: false,
           message: "Message not found or already deleted",
+          success: false,
         },
         { status: 404 }
       );
     }
 
     return Response.json(
-      { success: true, message: "Message deleted successfully" },
+      { message: "Message deleted successfully", success: true },
       { status: 200 }
     );
   } catch (error) {
     console.error("Failed to delete message:", error);
     return Response.json(
       {
-        success: false,
         message: "Failed to delete message - Internal Server Error",
+        success: false,
       },
       { status: 500 }
     );

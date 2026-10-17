@@ -25,9 +25,9 @@ function SignInFormHarness({
   onSubmit,
 }: SignInFormStoryArgs): React.JSX.Element {
   const form = useForm<SignInValues>({
-    resolver: zodResolver(signInSchema),
     defaultValues: { identifier: "", password: "" },
     mode: "onChange",
+    resolver: zodResolver(signInSchema),
   });
   return (
     <div className="w-96">
@@ -42,21 +42,21 @@ function SignInFormHarness({
 }
 
 const meta = {
-  title: "Patterns/AuthForm/SignInForm",
-  component: SignInFormHarness,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: { ...defaultSignInFormArgs, onGoogleSignIn: fn(), onSubmit: fn() },
   argTypes: {
     isSubmitting: {
       control: "boolean",
       description: "Shows “Logging in...” and disables Login",
     },
+    onGoogleSignIn: { description: "Continue with Google clicked" },
     onSubmit: {
       description: "Valid credentials submitted → `{ identifier, password }`",
     },
-    onGoogleSignIn: { description: "Continue with Google clicked" },
   },
+  component: SignInFormHarness,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Patterns/AuthForm/SignInForm",
 } satisfies Meta<typeof SignInFormHarness>;
 
 export default meta;

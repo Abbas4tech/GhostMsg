@@ -10,18 +10,18 @@ export async function sendVerificationEmail(
   verifyCode: string
 ): Promise<EmailResult> {
   try {
-    const html = await render(VerificationEmail({ username, otp: verifyCode }));
+    const html = await render(VerificationEmail({ otp: verifyCode, username }));
 
     await transporter.sendMail({
       from: FROM_ADDRESS,
-      to: email,
-      subject: "GhostMsg | Verification Code",
       html,
+      subject: "GhostMsg | Verification Code",
+      to: email,
     });
 
-    return { success: true, message: "Verification email sent successfully!" };
+    return { message: "Verification email sent successfully!", success: true };
   } catch (error) {
     console.error("Error sending verification email", error);
-    return { success: false, message: "Failed to send verification email" };
+    return { message: "Failed to send verification email", success: false };
   }
 }

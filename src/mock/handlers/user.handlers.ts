@@ -8,80 +8,80 @@ type SettingsScenario = (typeof userSettingsScenarios)["defaults"];
 export const settingsHandlers = (scenario: SettingsScenario) => [
   http.get(mswPath("/api/accept-message"), () =>
     ok("/api/accept-message", "get", {
-      success: true,
       isAcceptingMessage: scenario.isAcceptingMessage,
       message: "Status fetched",
+      success: true,
     })
   ),
   http.post(mswPath("/api/accept-message"), () =>
-    HttpResponse.json({ success: true, message: "Acceptance updated" })
+    HttpResponse.json({ message: "Acceptance updated", success: true })
   ),
   http.get(mswPath("/api/user/notifications"), () =>
     ok("/api/user/notifications", "get", {
-      success: true,
-      notificationSettings: scenario.notificationSettings,
       isAcceptingMessage: scenario.isAcceptingMessage,
+      notificationSettings: scenario.notificationSettings,
+      success: true,
     })
   ),
   http.patch(mswPath("/api/user/notifications"), () =>
     HttpResponse.json({
-      success: true,
       message: "Notification settings updated",
+      success: true,
     })
   ),
   http.get(mswPath("/api/block-sender"), () =>
     ok("/api/block-sender", "get", {
-      success: true,
       blockedSenderHashes: scenario.blockedSenderHashes,
       blockedSenders: scenario.blockedSenders,
+      success: true,
     })
   ),
   http.post(mswPath("/api/block-sender"), () =>
-    HttpResponse.json({ success: true, message: "Sender blocked" })
+    HttpResponse.json({ message: "Sender blocked", success: true })
   ),
   http.delete(mswPath("/api/block-sender"), () =>
-    HttpResponse.json({ success: true, message: "Sender unblocked" })
+    HttpResponse.json({ message: "Sender unblocked", success: true })
   ),
   http.patch(mswPath("/api/user/ama-prompt"), async ({ request }) => {
     const body = (await request.json()) as { amaPrompt?: string };
     return ok("/api/user/ama-prompt", "patch", {
-      success: true,
       amaPrompt: body.amaPrompt ?? "",
       message: "AMA prompt updated",
+      success: true,
     });
   }),
   http.post(mswPath("/api/user/push-subscription"), () =>
-    HttpResponse.json({ success: true, message: "Subscribed" })
+    HttpResponse.json({ message: "Subscribed", success: true })
   ),
   http.delete(mswPath("/api/user/push-subscription"), () =>
-    HttpResponse.json({ success: true, message: "Push subscription removed" })
+    HttpResponse.json({ message: "Push subscription removed", success: true })
   ),
   http.get(mswPath("/api/user/profile"), () =>
     ok("/api/user/profile", "get", {
-      success: true,
       profile: scenario.profile,
+      success: true,
     })
   ),
   http.patch(mswPath("/api/user/profile"), async ({ request }) => {
     const body = (await request.json()) as Partial<SettingsScenario["profile"]>;
     return ok("/api/user/profile", "patch", {
-      success: true,
       message: "Profile updated",
       profile: { ...scenario.profile, ...body },
+      success: true,
     });
   }),
   http.patch(mswPath("/api/user/username"), async ({ request }) => {
     const { username } = (await request.json()) as { username: string };
     return ok("/api/user/username", "patch", {
-      success: true,
       message: "Username updated",
+      success: true,
       username,
     });
   }),
   http.get(mswPath("/api/user/preferences"), () =>
     ok("/api/user/preferences", "get", {
-      success: true,
       preferences: scenario.preferences,
+      success: true,
     })
   ),
   http.patch(mswPath("/api/user/preferences"), async ({ request }) => {
@@ -90,19 +90,19 @@ export const settingsHandlers = (scenario: SettingsScenario) => [
       safety?: Partial<SettingsScenario["preferences"]["safety"]>;
     };
     return ok("/api/user/preferences", "patch", {
-      success: true,
       message: "Preferences updated",
       preferences: {
         messages: { ...scenario.preferences.messages, ...body.messages },
         safety: { ...scenario.preferences.safety, ...body.safety },
       },
+      success: true,
     });
   }),
   http.delete(mswPath("/api/messages"), () =>
     ok("/api/messages", "delete", {
-      success: true,
-      message: "All messages deleted",
       deletedCount: 6,
+      message: "All messages deleted",
+      success: true,
     })
   ),
   http.delete(mswPath("/api/user"), async ({ request }) => {
@@ -113,8 +113,8 @@ export const settingsHandlers = (scenario: SettingsScenario) => [
       return apiError(400, "Type your username exactly to confirm");
     }
     return ok("/api/user", "delete", {
-      success: true,
       message: "Account deleted",
+      success: true,
     });
   }),
   http.post(mswPath("/api/ai/ama-suggestions"), () =>
@@ -131,8 +131,8 @@ export const settingsHandlers = (scenario: SettingsScenario) => [
 
 export const userHandlers = {
   settings: {
-    defaults: settingsHandlers(userSettingsScenarios.defaults),
     closedWithBlocks: settingsHandlers(userSettingsScenarios.closedWithBlocks),
+    defaults: settingsHandlers(userSettingsScenarios.defaults),
     usernameTaken: [
       http.patch(mswPath("/api/user/username"), () =>
         apiError(409, "Username is already taken")

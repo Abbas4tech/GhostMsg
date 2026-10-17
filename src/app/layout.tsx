@@ -14,37 +14,37 @@ import { Toaster } from "@/components/elements/sonner";
 import { DEFAULT_PALETTE, PALETTE_BOOT_SCRIPT } from "@/lib/theme/palette";
 import AuthProvider from "@/providers/auth-provider";
 import PaletteProvider from "@/providers/palette-provider";
-import QueryProvider from "@/providers/query-provider";
+import { QueryProvider } from "@/providers/query-provider";
 import ThemeProvider from "@/providers/theme-provider";
 
 // Every palette's fonts (src/app/globals.css). Only Soft spectral, the
 // default, preloads; the others download when their palette is applied.
-const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"] });
+const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
 const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
   subsets: ["latin"],
+  variable: "--font-bricolage",
 });
 const geist = Geist({
-  variable: "--font-geist",
-  subsets: ["latin"],
   preload: false,
+  subsets: ["latin"],
+  variable: "--font-geist",
 });
 const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
   preload: false,
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--font-instrument-serif",
+  weight: "400",
 });
 const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
-  subsets: ["latin"],
   preload: false,
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
 });
 const gabarito = Gabarito({
-  variable: "--font-gabarito",
-  subsets: ["latin"],
   preload: false,
+  subsets: ["latin"],
+  variable: "--font-gabarito",
 });
 
 const fontVariables = [
@@ -59,42 +59,42 @@ const fontVariables = [
   .join(" ");
 
 export const metadata: Metadata = {
-  title: {
-    default: "GhostMsg - Send Anonymous Messages",
-    template: "%s | GhostMsg 👻",
-  },
+  authors: [{ name: "Abbas Shaikh" }],
   description:
     "Send anonymous messages like a ghost. Share secrets, compliments, or fun hints without revealing your identity.",
   keywords:
     "anonymous messaging, secret messages, ghost messages, privacy, secure chat",
-  authors: [{ name: "Abbas Shaikh" }],
   metadataBase: new URL("https://ghost-msg.vercel.app/"),
   openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://ghost-msg.vercel.app/",
-    siteName: "GhostMsg",
-    title: "GhostMsg - Send Anonymous Messages 👻",
     description:
       "Send messages like a ghost - appear and vanish without a trace!",
     images: [
       {
+        alt: "GhostMsg - Send Anonymous Messages",
+        height: 630,
         url: "/og-image.png",
         width: 1200,
-        height: 630,
-        alt: "GhostMsg - Send Anonymous Messages",
       },
     ],
+    locale: "en_US",
+    siteName: "GhostMsg",
+    title: "GhostMsg - Send Anonymous Messages 👻",
+    type: "website",
+    url: "https://ghost-msg.vercel.app/",
+  },
+  robots: {
+    follow: true,
+    index: true,
+  },
+  title: {
+    default: "GhostMsg - Send Anonymous Messages",
+    template: "%s | GhostMsg 👻",
   },
   twitter: {
     card: "summary_large_image",
-    title: "GhostMsg - Send Anonymous Messages 👻",
-    description: "Send messages like a ghost and keep your identity secret!",
     creator: "@ghostmsg",
-  },
-  robots: {
-    index: true,
-    follow: true,
+    description: "Send messages like a ghost and keep your identity secret!",
+    title: "GhostMsg - Send Anonymous Messages 👻",
   },
 };
 

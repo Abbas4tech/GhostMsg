@@ -304,5 +304,3 @@ export function PublicProfile({
     </div>
   );
 }
-
-export default PublicProfile;

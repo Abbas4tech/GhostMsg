@@ -13,9 +13,7 @@ import { breadcrumbMockContent } from "./breadcrumb.mock";
 const { parent, current } = breadcrumbMockContent;
 
 const meta = {
-  title: "Elements/Breadcrumb",
   component: Breadcrumb,
-  tags: ["autodocs"],
   parameters: { layout: "centered" },
   render: (args) => (
     <Breadcrumb {...args}>
@@ -30,6 +28,8 @@ const meta = {
       </BreadcrumbList>
     </Breadcrumb>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Breadcrumb",
 } satisfies Meta<typeof Breadcrumb>;
 
 export default meta;

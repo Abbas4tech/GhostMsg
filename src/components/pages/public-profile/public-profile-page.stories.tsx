@@ -20,22 +20,22 @@ const SEND_REGEX = /^send anonymously$/i;
 const MESSAGE = "You always make the team calls more fun. Thanks!";
 
 const meta = {
-  title: "Pages/PublicProfile",
-  component: PublicProfilePage,
-  tags: ["autodocs"],
-  parameters: {
-    layout: "fullscreen",
-    pageProviders: true,
-    msw: { handlers: publicProfileHandlers.default },
-  },
   args: defaultPublicProfilePageArgs,
   argTypes: {
-    username: { control: "text", description: "Route param `/u/[username]`" },
     autoFetchSuggestions: {
       control: "boolean",
       description: "Fetch AI suggestions on mount",
     },
+    username: { control: "text", description: "Route param `/u/[username]`" },
   },
+  component: PublicProfilePage,
+  parameters: {
+    layout: "fullscreen",
+    msw: { handlers: publicProfileHandlers.default },
+    pageProviders: true,
+  },
+  tags: ["autodocs"],
+  title: "Pages/PublicProfile",
 } satisfies Meta<typeof PublicProfilePage>;
 
 export default meta;
@@ -63,7 +63,7 @@ export const Default: Story = {
 
 export const SuggestionFillsForm: Story = {
   play: async ({ canvas, userEvent }) => {
-    const suggestion = suggestionScenarios.default[1];
+    const [, suggestion] = suggestionScenarios.default;
     await userEvent.click(
       await canvas.findByRole("button", { name: suggestion }, PAGE_LOAD)
     );
@@ -177,7 +177,7 @@ export const UserNotFound: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
   play: async ({ canvas }) => {
     await expect(
       await canvas.findByText(FIXTURE_AMA_PROMPT, undefined, PAGE_LOAD)

@@ -21,23 +21,23 @@ function SignInSlot(): React.JSX.Element {
 
 function SignUpSlot(): React.JSX.Element {
   const form = useForm<SignUpValues>({
-    defaultValues: { username: "", email: "", password: "" },
+    defaultValues: { email: "", password: "", username: "" },
   });
   return <SignUpForm form={form} onGoogleSignIn={noop} onSubmit={noop} />;
 }
 
 const meta = {
-  title: "Blocks/AuthPanel",
-  component: AuthPanel,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: { ...signInAuthPanelArgs, children: <SignInSlot /> },
   argTypes: {
-    title: { control: "text", description: "h1 heading" },
-    icon: { control: false, description: "Optional icon tile" },
-    description: { control: "text", description: "Muted subtitle" },
     children: { control: false, description: "Auth form slot" },
+    description: { control: "text", description: "Muted subtitle" },
+    icon: { control: false, description: "Optional icon tile" },
+    title: { control: "text", description: "h1 heading" },
   },
+  component: AuthPanel,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/AuthPanel",
 } satisfies Meta<typeof AuthPanel>;
 
 export default meta;
@@ -69,5 +69,5 @@ export const SignUp: Story = {
 };
 
 export const Mobile: Story = {
-  globals: { viewport: { value: "mobile1", isRotated: false } },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
 };

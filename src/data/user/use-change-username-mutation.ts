@@ -13,13 +13,13 @@ export function useChangeUsernameMutation() {
   return useMutation({
     mutationFn: (username: string) =>
       clientFetch(api.PATCH("/api/user/username", { body: { username } })),
+    onError: (error: Error) => {
+      toast.error(error.message || "Couldn't change your username");
+    },
     onSuccess: (data) => {
       toast.success(`Your link is now /u/${data.username}`);
       queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() });
       queryClient.invalidateQueries({ queryKey: queryKeys.public.all });
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Couldn't change your username");
     },
   });
 }

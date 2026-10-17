@@ -24,7 +24,7 @@ const thisDeviceRegistration = () =>
 /** Any 65-byte base64url string: the test PushManager does not validate it. */
 const TEST_VAPID_PUBLIC_KEY = `B${"A".repeat(86)}`;
 
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/lib/browser/download", () => ({ downloadTextFile: vi.fn() }));
 
 describe("useSettingsController", () => {

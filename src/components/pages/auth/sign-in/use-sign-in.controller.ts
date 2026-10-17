@@ -22,18 +22,18 @@ export function useSignInController({
   const onGoogleSignIn = useGoogleSignInController();
 
   const form = useForm<SignInValues>({
-    resolver: zodResolver(signInSchema),
     defaultValues: { identifier: "", password: "" },
     mode: "onChange",
+    resolver: zodResolver(signInSchema),
   });
 
   const handleSubmit = useCallback(
     async ({ identifier, password }: SignInValues) => {
       try {
         const response = await signIn("credentials", {
-          redirect: false,
           identifier,
           password,
+          redirect: false,
         });
 
         if (response?.ok) {

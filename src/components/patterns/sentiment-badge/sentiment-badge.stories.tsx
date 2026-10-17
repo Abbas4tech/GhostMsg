@@ -8,24 +8,24 @@ import {
 } from "./sentiment-badge.mock";
 
 const meta = {
-  title: "Patterns/SentimentBadge",
-  component: SentimentBadge,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
   args: defaultSentimentBadgeArgs,
   argTypes: {
     sentiment: {
       control: "select",
-      options: [...SENTIMENTS, null],
       description:
         "AI sentiment tag. Unknown or missing values fall back to `neutral` (“Note”).",
+      options: [...SENTIMENTS, null],
     },
     size: {
       control: "radio",
-      options: SENTIMENT_BADGE_SIZES,
       description: "Padding + text size",
+      options: SENTIMENT_BADGE_SIZES,
     },
   },
+  component: SentimentBadge,
+  parameters: { layout: "centered" },
+  tags: ["autodocs"],
+  title: "Patterns/SentimentBadge",
 } satisfies Meta<typeof SentimentBadge>;
 
 export default meta;

@@ -4,16 +4,16 @@ import { DashboardAccessDenied } from "./dashboard-access-denied";
 import { defaultDashboardAccessDeniedArgs } from "./dashboard-shell.mock";
 
 const meta = {
-  title: "Blocks/DashboardShell/AccessDenied",
-  component: DashboardAccessDenied,
-  tags: ["autodocs"],
-  parameters: { layout: "fullscreen" },
   args: { ...defaultDashboardAccessDeniedArgs, onGoToLogin: fn() },
   argTypes: {
     onGoToLogin: {
       description: "Sign in clicked (page navigates to /sign-in)",
     },
   },
+  component: DashboardAccessDenied,
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
+  title: "Blocks/DashboardShell/AccessDenied",
 } satisfies Meta<typeof DashboardAccessDenied>;
 
 export default meta;

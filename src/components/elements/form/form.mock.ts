@@ -3,9 +3,9 @@ export interface FormStoryValues {
 }
 
 export const formMockContent = {
+  description: "We never share your email.",
   label: "Email *",
   placeholder: "you@example.com",
-  description: "We never share your email.",
   requiredMessage: "Email is required",
 };
 

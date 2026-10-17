@@ -1,7 +1,7 @@
 export const tabsMockItems = [
-  { value: "messages", label: "Messages", content: "Your inbox appears here." },
-  { value: "profile", label: "Profile", content: "Share your profile link." },
-  { value: "settings", label: "Settings", content: "Manage notifications." },
+  { content: "Your inbox appears here.", label: "Messages", value: "messages" },
+  { content: "Share your profile link.", label: "Profile", value: "profile" },
+  { content: "Manage notifications.", label: "Settings", value: "settings" },
 ] as const;
 
 export const defaultTabsArgs = {

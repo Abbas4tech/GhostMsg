@@ -40,5 +40,3 @@ export function AuthPanel({
     </main>
   );
 }
-
-export default AuthPanel;

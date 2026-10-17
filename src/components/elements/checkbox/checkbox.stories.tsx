@@ -5,26 +5,26 @@ import { Checkbox } from "./checkbox";
 import { CHECKBOX_SIZES, checkboxMockContent } from "./checkbox.mock";
 
 const meta = {
-  title: "Elements/Checkbox",
-  component: Checkbox,
-  tags: ["autodocs"],
-  parameters: { layout: "centered" },
-  args: { size: "default", onCheckedChange: fn() },
+  args: { onCheckedChange: fn(), size: "default" },
   argTypes: {
-    size: {
-      control: "radio",
-      options: CHECKBOX_SIZES,
-      description: "Box size (`lg` = 22px touch target for cards)",
-    },
     disabled: { control: "boolean", description: "Prevents toggling" },
     onCheckedChange: { description: "Called with the next checked state" },
+    size: {
+      control: "radio",
+      description: "Box size (`lg` = 22px touch target for cards)",
+      options: CHECKBOX_SIZES,
+    },
   },
+  component: Checkbox,
+  parameters: { layout: "centered" },
   render: (args) => (
     <div className="flex items-center gap-2">
       <Checkbox {...args} id="checkbox-demo" />
       <Label htmlFor="checkbox-demo">{checkboxMockContent.label}</Label>
     </div>
   ),
+  tags: ["autodocs"],
+  title: "Elements/Checkbox",
 } satisfies Meta<typeof Checkbox>;
 
 export default meta;

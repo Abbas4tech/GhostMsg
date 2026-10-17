@@ -29,9 +29,9 @@ export function useSendMessageController({
   autoFetchSuggestions = true,
 }: UseSendMessageControllerOptions) {
   const form = useForm<SendMessageValues>({
-    resolver: zodResolver(messageSchema),
     defaultValues: { content: "" },
     mode: "onChange",
+    resolver: zodResolver(messageSchema),
   });
 
   const { mutateAsync: sendAsync, isPending: isSubmitting } =
@@ -60,7 +60,7 @@ export function useSendMessageController({
   const handleSubmit = useCallback(
     async ({ content }: SendMessageValues) => {
       try {
-        const response = await sendAsync({ username, content });
+        const response = await sendAsync({ content, username });
         if (response?.success) {
           toast.success(response.message);
           form.reset({ content: "" });
@@ -87,14 +87,14 @@ export function useSendMessageController({
   }, []);
 
   return {
-    form,
-    handleSubmit,
-    isSent,
-    handleSendAnother,
-    isSubmitting,
-    suggestions,
     fetchSuggestions,
+    form,
+    handleSendAnother,
+    handleSubmit,
     isFetchingSuggestions: suggestionsQuery.isFetching,
+    isSent,
+    isSubmitting,
     selectSuggestion,
+    suggestions,
   };
 }
