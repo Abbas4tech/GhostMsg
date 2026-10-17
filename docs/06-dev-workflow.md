@@ -54,6 +54,12 @@ Typed handlers (`ok()` for 200 and `created()` for 201) fail compilation when th
 3. Use it in a story with `parameters: { msw: { handlers: withScenario(scenarios.x.y) } }`, most specific override first.
 4. Run `pnpm docs:registry`, which lists fixtures and scenarios.
 
+### 2.4 Infrastructure changes (Terraform)
+1. Edit variables or resources in [`terraform/`](../terraform/) (e.g. `app_env_vars` in `variables.tf`).
+2. Run `terraform fmt -check` and `tflint`.
+3. Preview changes with `terraform plan`.
+4. Apply deliberate changes with `terraform apply`. See [`terraform/README.md`](../terraform/README.md), [Recipe J](agents/feature-recipes.md#recipe-j-add-or-change-a-productionpreview-environment-variable), and [Chapter 21](21-infrastructure-and-terraform.md).
+
 ---
 
 ## 3. Git hooks (Husky)

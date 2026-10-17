@@ -41,4 +41,20 @@ describe("useVerifyController", () => {
     expect(toast.error).toHaveBeenCalledWith("Incorrect verification code");
     expect(replace).not.toHaveBeenCalled();
   });
+
+  it("tracks form validity reactively on change", async () => {
+    const { result } = renderHookWithProviders(() =>
+      useVerifyController(USERNAME)
+    );
+
+    expect(result.current.form.formState.isValid).toBe(false);
+
+    await act(async () => {
+      await result.current.form.setValue("code", "123456", {
+        shouldValidate: true,
+      });
+    });
+
+    expect(result.current.form.formState.isValid).toBe(true);
+  });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 import type React from "react";
 import { useCallback, useState } from "react";
 import type {
@@ -72,7 +72,7 @@ export function PasswordField<TFieldValues extends FieldValues>({
               onClick={handleToggleShowPassword}
               size="sm"
             >
-              {showPassword ? "Hide" : "Show"}
+              {showPassword ? <Eye /> : <EyeOff />}
             </InputGroupButton>
           </InputGroupAddon>
         </InputGroup>

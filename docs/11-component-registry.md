@@ -732,13 +732,13 @@ Compose with `withScenario(...overrides)` (overrides first, then `defaultHandler
 
 | Group | Scenarios |
 | :--- | :--- |
-| `scenarios.session` | `session.authenticated`, `session.unauthenticated`, `session.loading` |
+| `scenarios.ai` | `ai.default`, `ai.error`, `ai.loading`, `ai.none` |
+| `scenarios.answers` | `answers.error`, `answers.loading`, `answers.none`, `answers.paused`, `answers.some` |
 | `scenarios.credentials` | `credentials.invalid` |
+| `scenarios.inbox` | `inbox.allQuarantined`, `inbox.empty`, `inbox.error`, `inbox.loading`, `inbox.longContent`, `inbox.mixed` |
+| `scenarios.send` | `send.notAccepting`, `send.success` |
+| `scenarios.session` | `session.authenticated`, `session.loading`, `session.unauthenticated` |
+| `scenarios.settings` | `settings.closedWithBlocks`, `settings.defaults`, `settings.usernameTaken` |
+| `scenarios.signUp` | `signUp.error`, `signUp.success` |
 | `scenarios.username` | `username.available`, `username.taken` |
-| `scenarios.signUp` | `signUp.success`, `signUp.error` |
-| `scenarios.verify` | `verify.success`, `verify.invalid` |
-| `scenarios.inbox` | `inbox.mixed`, `inbox.empty`, `inbox.allQuarantined`, `inbox.longContent`, `inbox.loading`, `inbox.error` |
-| `scenarios.settings` | `settings.defaults`, `settings.closedWithBlocks`, `settings.usernameTaken` |
-| `scenarios.answers` | `answers.some`, `answers.none`, `answers.paused`, `answers.loading`, `answers.error` |
-| `scenarios.send` | `send.success`, `send.notAccepting` |
-| `scenarios.ai` | `ai.default`, `ai.none`, `ai.loading`, `ai.error` |
+| `scenarios.verify` | `verify.invalid`, `verify.success` |

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Link2, X } from "lucide-react";
+import { Check, Link2, Loader2, X } from "lucide-react";
 import type React from "react";
 import { useCallback } from "react";
 import type {
@@ -47,7 +47,8 @@ function AvailabilityStatus({
   if (availability === "checking") {
     return (
       <InputGroupAddon align="inline-end" role="status">
-        Checking…
+        <Loader2 aria-hidden="true" className="animate-spin" />
+        <span className="sr-only">Checking…</span>
       </InputGroupAddon>
     );
   }
@@ -102,7 +103,7 @@ export function UsernameField<TFieldValues extends FieldValues>({
             <InputGroupAddon aria-hidden="true">@</InputGroupAddon>
             <FormControl>
               <InputGroupInput
-                aria-invalid={isTaken || undefined}
+                aria-invalid={isTaken || Boolean(fieldState.error) || undefined}
                 autoCapitalize="none"
                 autoComplete="username"
                 placeholder="yourname"

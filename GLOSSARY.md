@@ -235,3 +235,22 @@ _Avoid_: Soft delete, trash
 **Documentation screenshot**:
 A PNG in `docs/assets/screenshots/` generated from a Storybook story by `pnpm docs:screenshots`. Never hand-made.
 _Avoid_: Mockup, hand-captured image
+
+## Infrastructure Language
+
+**HCP Terraform Workspace**:
+The CLI-driven remote state backend in HCP Terraform (organization `PersonalAbbasSpace`, workspace `ghostmsg`) used by `terraform/` for state locking and shared team state without VCS auto-triggers.
+_Avoid_: Local state, VCS workspace, Terraform Cloud project
+
+**App Environment Variable (`app_env_vars`)**:
+The Terraform map in `terraform/variables.tf` configuring per-environment (`production`, `preview`, `development`) values for Vercel, flattened into discrete `vercel_project_environment_variable` resources.
+_Avoid_: Global env var, system variable
+
+**Adopted Resource**:
+A pre-existing cloud resource (Vercel project, MongoDB Atlas M0 cluster, existing production env vars) brought under Terraform management via `terraform import` rather than recreated.
+_Avoid_: Recreated resource, orphan resource
+
+**Database User Isolation**:
+The security boundary wherein the shared Atlas cluster hosts two separate MongoDB database users (`honest-feedback-production` and `honest-feedback-preview`), each scoped exclusively with `readWrite` access to its own database (`honest_feedback` vs `honest_feedback_preview`).
+_Avoid_: Shared database, cluster admin user
+
