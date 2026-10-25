@@ -10,5 +10,8 @@ export function useDeleteAccountMutation() {
     onError: (error: Error) => {
       toast.error(error.message || "Couldn't delete your account");
     },
+    onSuccess(data) {
+      toast.success(data.message);
+    },
   });
 }

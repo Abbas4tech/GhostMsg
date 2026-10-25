@@ -59,7 +59,8 @@ export function DeleteAccountModal({
         </AlertDialogHeader>
         <Field>
           <FieldLabel htmlFor={inputId}>
-            Type <b className="font-semibold">{username}</b> to confirm
+            Type <b className="font-semibold text-destructive">{username}</b> to
+            confirm
           </FieldLabel>
           <Input
             autoCapitalize="none"
