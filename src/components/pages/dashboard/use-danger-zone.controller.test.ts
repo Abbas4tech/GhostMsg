@@ -4,9 +4,14 @@ import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
 import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
 import { useDangerZoneController } from "./use-danger-zone.controller";
 
-const { signOut, toast } = vi.hoisted(() => ({
+const { showUndoToast, signOut, toast } = vi.hoisted(() => ({
+  showUndoToast: vi.fn(() => UNDO_TOAST_ID),
   signOut: vi.fn(),
-  toast: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }),
+  toast: Object.assign(vi.fn(), {
+    dismiss: vi.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
+  }),
 }));
 
 vi.mock("next-auth/react", async (importOriginal) => ({
@@ -14,11 +19,22 @@ vi.mock("next-auth/react", async (importOriginal) => ({
   signOut,
 }));
 vi.mock("sonner", () => ({ toast }));
+// `notify` (the design's toast API) forwards to the mocked Sonner spies above.
+vi.mock("@/components/elements/sonner", async () => {
+  const sonner = await import("sonner");
+  return { notify: sonner.toast };
+});
+vi.mock("@/components/patterns/undo-toast", () => ({ showUndoToast }));
 
 interface UndoToastOptions {
-  action: { onClick: () => void };
+  onCommit: () => void;
+  onUndo: () => void;
 }
 
+const lastUndoToast = () =>
+  showUndoToast.mock.calls.at(-1)?.at(0) as unknown as UndoToastOptions;
+
+const UNDO_TOAST_ID = "undo-delete-all";
 const DELETE_ALL_REQUEST = "DELETE /api/messages";
 const SETTLE_MS = 50;
 
@@ -39,8 +55,20 @@ describe("useDangerZoneController", () => {
     act(() => result.current.handleConfirmDeleteAll());
 
     expect(result.current.isDeleteAllOpen).toBe(false);
-    expect(toast).toHaveBeenCalledOnce();
+    expect(showUndoToast).toHaveBeenCalledOnce();
     expect(requests).not.toContain(DELETE_ALL_REQUEST);
+  });
+
+  it("deletes when the Undo toast closes without Undo", async () => {
+    const requests = recordRequests();
+    const { result } = renderHookWithProviders(() =>
+      useDangerZoneController(FIXTURE_USERNAME)
+    );
+
+    act(() => result.current.handleConfirmDeleteAll());
+    act(() => lastUndoToast().onCommit());
+
+    await waitFor(() => expect(requests).toContain(DELETE_ALL_REQUEST));
   });
 
   it("cancels the delete when Undo is clicked", async () => {
@@ -50,8 +78,7 @@ describe("useDangerZoneController", () => {
     );
 
     act(() => result.current.handleConfirmDeleteAll());
-    const options = toast.mock.calls[0]?.[1] as UndoToastOptions;
-    act(() => options.action.onClick());
+    act(() => lastUndoToast().onUndo());
     unmount();
 
     expect(toast.success).toHaveBeenCalledWith("Nothing was deleted");
@@ -68,6 +95,7 @@ describe("useDangerZoneController", () => {
     act(() => result.current.handleConfirmDeleteAll());
     unmount();
 
+    expect(toast.dismiss).toHaveBeenCalledWith(UNDO_TOAST_ID);
     await waitFor(() => expect(requests).toContain(DELETE_ALL_REQUEST));
   });
 

@@ -36,6 +36,9 @@ export async function PATCH(
     }
 
     const updateFields: Record<string, unknown> = {};
+    if (typeof parseResult.data.isArchived === "boolean") {
+      updateFields.isArchived = parseResult.data.isArchived;
+    }
     if (typeof parseResult.data.isPinned === "boolean") {
       updateFields.isPinned = parseResult.data.isPinned;
     }

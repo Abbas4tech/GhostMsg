@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "@/data/query-keys";
 import {
@@ -32,7 +32,7 @@ export const useReplyMessageMutation = () => {
       ),
     onError: (error, _variables, context) => {
       restoreCachedMessages(queryClient, context?.snapshot);
-      toast.error(error.message || "Failed to save reply");
+      notify.error(error.message || "Failed to save reply");
     },
     onMutate: async ({ messageId, text, isPublished }: ReplyMessageParams) => {
       const snapshot = await patchCachedMessage(queryClient, messageId, {
@@ -51,7 +51,7 @@ export const useReplyMessageMutation = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.public.all });
     },
     onSuccess: () => {
-      toast.success("Reply saved successfully!");
+      notify.success("Reply saved successfully!");
     },
   });
 };

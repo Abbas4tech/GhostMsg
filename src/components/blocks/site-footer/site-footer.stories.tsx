@@ -25,3 +25,8 @@ export const Default: Story = {
     );
   },
 };
+
+/** Design MobLanding: tagline above 44px links. */
+export const Mobile: Story = {
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+};

@@ -26,11 +26,13 @@ import { messagesQueries } from "@/data/messages/messages.queries";
 import { useAcceptMessageMutation } from "@/data/user/use-accept-message-mutation";
 import { userQueries } from "@/data/user/user.queries";
 import { getActiveNav } from "./dashboard.utils";
+import { useGlobalShortcutsController } from "./use-global-shortcuts.controller";
 import { useProfileLinkController } from "./use-profile-link.controller";
 
 /**
  * Dashboard frame: session gate, unread badge, Message Acceptance, the
- * profile link card, ⌘K command palette and sign-out.
+ * profile link card, ⌘K command palette, page-wide shortcuts (g-chords, ⇧C,
+ * the `?` sheet) and sign-out.
  */
 export function useDashboardShellController() {
   const { status } = useSession();
@@ -74,6 +76,20 @@ export function useDashboardShellController() {
   }, []);
   const handleOpenCommand = useCallback(() => setIsCommandOpen(true), []);
 
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const handleOpenShortcuts = useCallback(() => setIsShortcutsOpen(true), []);
+  const handleNavigate = useCallback(
+    (href: string) => {
+      router.push(href);
+    },
+    [router]
+  );
+  useGlobalShortcutsController({
+    onCopyLink: link.handleCopy,
+    onNavigate: handleNavigate,
+    onOpenShortcuts: handleOpenShortcuts,
+  });
+
   const handleSignOut = useCallback(() => {
     signOut({ callbackUrl: "/" });
   }, []);
@@ -92,6 +108,7 @@ export function useDashboardShellController() {
             id: "copy-link",
             label: "Copy my Public Profile Link",
             onSelect: link.handleCopy,
+            shortcut: "⇧C",
           },
           {
             icon: createElement(isAccepting ? Pause : Play),
@@ -117,6 +134,7 @@ export function useDashboardShellController() {
             id: "inbox",
             label: "Inbox",
             onSelect: () => router.push("/dashboard"),
+            shortcut: "g i",
           },
           {
             icon: createElement(Mail),
@@ -135,12 +153,14 @@ export function useDashboardShellController() {
             id: "profile",
             label: "Profile",
             onSelect: () => router.push("/dashboard/profile"),
+            shortcut: "g p",
           },
           {
             icon: createElement(Settings),
             id: "settings",
             label: "Settings",
             onSelect: () => router.push("/dashboard/settings"),
+            shortcut: "g s",
           },
         ],
       },
@@ -165,14 +185,17 @@ export function useDashboardShellController() {
     commandGroups,
     handleGoToLogin,
     handleOpenCommand,
+    handleOpenShortcuts,
     handleSignOut,
     isCommandOpen,
+    isShortcutsOpen,
     profileLink: {
       label: link.profileLabel,
       onCopy: link.handleCopy,
       onShare: link.handleShare,
     },
     setIsCommandOpen,
+    setIsShortcutsOpen,
     status,
     unreadCount,
     username: link.username,

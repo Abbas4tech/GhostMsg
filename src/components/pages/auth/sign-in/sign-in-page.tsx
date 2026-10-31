@@ -1,5 +1,6 @@
 "use client";
 
+import { Ghost } from "lucide-react";
 import type React from "react";
 import { AuthPanel } from "@/components/blocks/auth-panel";
 import { SignInForm } from "@/components/patterns/auth-form";
@@ -16,7 +17,10 @@ export function SignInPage({
 
   return (
     <AuthPanel
-      description="Sign in to read your Anonymous Messages."
+      backHref="/"
+      description="Your inbox missed you."
+      icon={<Ghost aria-hidden="true" />}
+      iconTone="brand"
       title="Welcome back"
     >
       <SignInForm

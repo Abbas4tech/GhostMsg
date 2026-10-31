@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { useAmaSuggestionsMutation } from "@/data/user/use-ama-suggestions-mutation";
 import { useUpdateProfileMutation } from "@/data/user/use-update-profile-mutation";
 import { userQueries } from "@/data/user/user.queries";
@@ -90,7 +90,7 @@ export function useProfileController() {
       try {
         setAvatarUrl(await resizeImageToDataUrl(file));
       } catch {
-        toast.error("Couldn't read that image. Try a PNG, JPEG or WebP.");
+        notify.error("Couldn't read that image. Try a PNG, JPEG or WebP.");
       } finally {
         setIsPhotoProcessing(false);
       }

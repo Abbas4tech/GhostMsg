@@ -10,6 +10,11 @@ const { replace } = vi.hoisted(() => ({ replace: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+// `notify` (the design's toast API) forwards to the mocked Sonner spies above.
+vi.mock("@/components/elements/sonner", async () => {
+  const sonner = await import("sonner");
+  return { notify: sonner.toast };
+});
 
 const NEW_USER = {
   email: "newghost@example.com",

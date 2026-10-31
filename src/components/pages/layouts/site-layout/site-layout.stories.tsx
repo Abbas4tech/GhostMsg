@@ -20,6 +20,10 @@ const meta = {
   },
   argTypes: {
     children: { control: false, description: "Page rendered under the header" },
+    hideHeaderOnPhones: {
+      control: "boolean",
+      description: "Auth routes: no site header below 640px",
+    },
   },
   component: SiteLayout,
   parameters: {
@@ -40,6 +44,18 @@ export const SignedIn: Story = {
       await canvas.findByRole("button", { name: LOGOUT_REGEX }, PAGE_LOAD)
     ).toBeVisible();
     await expect(canvas.getByText("Page content")).toBeVisible();
+  },
+};
+
+/** Auth routes on a phone: the screen's own top bar replaces the header. */
+export const AuthRouteOnPhone: Story = {
+  args: { hideHeaderOnPhones: true },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Page content")).toBeVisible();
+    await expect(
+      canvas.getByRole("banner", { hidden: true })
+    ).not.toBeVisible();
   },
 };
 

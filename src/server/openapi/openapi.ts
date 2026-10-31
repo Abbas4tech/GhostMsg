@@ -15,8 +15,10 @@ import {
   inboxCountsResponseSchema,
   messageItemSchema,
   publicAnswersResponseSchema,
+  resendCodeResponseSchema,
   sendMessageResponseSchema,
   signUpResponseSchema,
+  smartReplyDraftSchema,
   smartReplyResponseSchema,
   suggestedMessagesResponseSchema,
   usernameUniqueResponseSchema,
@@ -57,7 +59,11 @@ import {
   updateUserProfileRequestSchema,
   updateUserProfileResponseSchema,
 } from "@/schemas/user-settings-schema";
-import { verifyCodeRequestSchema, verifySchema } from "@/schemas/verify-schema";
+import {
+  resendCodeRequestSchema,
+  verifyCodeRequestSchema,
+  verifySchema,
+} from "@/schemas/verify-schema";
 import { z } from "@/schemas/zod";
 
 const registry = new OpenAPIRegistry();
@@ -71,6 +77,8 @@ registry.register("SignUpResponse", signUpResponseSchema);
 registry.register("VerifySchema", verifySchema);
 registry.register("VerifyCodeRequest", verifyCodeRequestSchema);
 registry.register("VerifyCodeResponse", verifyCodeResponseSchema);
+registry.register("ResendCodeRequest", resendCodeRequestSchema);
+registry.register("ResendCodeResponse", resendCodeResponseSchema);
 registry.register("MessageSchema", messageSchema);
 registry.register("SendMessageRequest", sendMessageSchema);
 registry.register("SendMessageResponse", sendMessageResponseSchema);
@@ -85,6 +93,7 @@ registry.register("ReplyMessageRequest", replyMessageSchema);
 registry.register("BulkActionRequest", bulkActionSchema);
 registry.register("BlockSenderRequest", blockSenderSchema);
 registry.register("SmartReplyRequest", smartReplySchema);
+registry.register("SmartReplyDraft", smartReplyDraftSchema);
 registry.register("SmartReplyResponse", smartReplyResponseSchema);
 registry.register("PublicAnswersResponse", publicAnswersResponseSchema);
 registry.register("AmaPromptRequest", amaPromptSchema);
@@ -244,6 +253,14 @@ registry.registerPath({
       },
       description: "User not found",
     },
+    429: {
+      content: {
+        "application/json": {
+          schema: verifyCodeResponseSchema,
+        },
+      },
+      description: "No tries left for this code: request a new one",
+    },
     500: {
       content: {
         "application/json": {
@@ -254,6 +271,67 @@ registry.registerPath({
     },
   },
   summary: "Verify Email Code",
+  tags: ["Authentication & Verification"],
+});
+
+// 3b. POST /api/verify-code/resend
+registry.registerPath({
+  description:
+    "Email a new Verification Code and reset the tries. At most once a minute (429 with retryAfterSeconds).",
+  method: "post",
+  path: "/api/verify-code/resend",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: resendCodeRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: resendCodeResponseSchema,
+        },
+      },
+      description: "New code sent",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Missing username or already verified",
+    },
+    404: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "User not found",
+    },
+    429: {
+      content: {
+        "application/json": {
+          schema: resendCodeResponseSchema,
+        },
+      },
+      description: "Too soon or too many: wait retryAfterSeconds",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: errorResponseSchema,
+        },
+      },
+      description: "Email dispatch failed or internal error",
+    },
+  },
+  summary: "Resend Verification Code",
   tags: ["Authentication & Verification"],
 });
 
@@ -359,7 +437,15 @@ registry.registerPath({
         .optional()
         .openapi({ description: "Search query string", example: "project" }),
       status: z
-        .enum(["all", "unread", "starred", "quarantined", "answered", "any"])
+        .enum([
+          "all",
+          "unread",
+          "starred",
+          "quarantined",
+          "answered",
+          "archived",
+          "any",
+        ])
         .optional()
         .openapi({
           description:
@@ -673,7 +759,7 @@ registry.registerPath({
 // 13. POST /api/ai/smart-reply
 registry.registerPath({
   description:
-    "Generate witty, wholesome, or thoughtful reply drafts via Gemini 2.5 Flash Lite.",
+    "Generate three Smart Reply drafts (thoughtful, witty, wholesome) in one Gemini 2.5 Flash Lite call. Falls back to stock drafts when AI is unavailable.",
   method: "post",
   path: "/api/ai/smart-reply",
   request: {
@@ -692,13 +778,13 @@ registry.registerPath({
           schema: smartReplyResponseSchema,
         },
       },
-      description: "Smart reply generated successfully",
+      description: "Three drafts, one per tone",
     },
     401: { description: "Unauthorized" },
     500: { description: "Internal server error" },
   },
   security: [{ [bearerAuth.name]: [] }],
-  summary: "Generate AI Smart Reply Draft",
+  summary: "Generate AI Smart Reply Drafts",
   tags: ["AI Assistant"],
 });
 

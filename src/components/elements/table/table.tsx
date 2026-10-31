@@ -68,7 +68,8 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       className={cn(
-        "h-10 whitespace-nowrap px-2 text-left align-middle font-medium text-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        // GhostMsg: design `th` (SettingsPage): 12px overline caps, muted.
+        "h-auto whitespace-nowrap px-2 py-2 text-left align-middle font-semibold text-muted-foreground text-xs uppercase tracking-[0.05em] [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       data-slot="table-head"

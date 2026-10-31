@@ -70,9 +70,11 @@ export async function GET(req: NextRequest): Promise<Response> {
       _id: String(msg._id),
       content: msg.content,
       createdAt: new Date(msg.createdAt).toISOString(),
+      isArchived: Boolean(msg.isArchived),
       isPinned: Boolean(msg.isPinned),
       isQuarantined: Boolean(msg.isQuarantined),
       isRead: Boolean(msg.isRead),
+      quarantineReason: msg.isQuarantined ? msg.quarantineReason : undefined,
       reply: msg.reply
         ? {
             isPublished: Boolean(msg.reply.isPublished),

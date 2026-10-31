@@ -14,6 +14,7 @@ export interface LiveMessageEvent {
   isPinned?: boolean;
   isQuarantined?: boolean;
   isRead?: boolean;
+  quarantineReason?: MessageDto["quarantineReason"];
   sentimentTag?: MessageDto["sentimentTag"];
 }
 
@@ -64,9 +65,11 @@ export function toLiveMessageDto(event: LiveMessageEvent): MessageDto | null {
     _id: event._id,
     content: event.content,
     createdAt: event.createdAt,
+    isArchived: false,
     isPinned: Boolean(event.isPinned),
     isQuarantined: Boolean(event.isQuarantined),
     isRead: Boolean(event.isRead),
+    quarantineReason: event.isQuarantined ? event.quarantineReason : undefined,
     reply: null,
     sentimentTag: event.sentimentTag ?? "neutral",
   };
@@ -119,6 +122,7 @@ export function addToInboxCounts(
   return {
     all: add("all"),
     answered: add("answered"),
+    archived: add("archived"),
     quarantined: add("quarantined"),
     starred: add("starred"),
     total: counts.total + 1,

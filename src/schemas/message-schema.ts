@@ -7,6 +7,15 @@ export const sentimentTagEnum = z
     example: "sweet",
   });
 
+/** Why moderation held a message back (shown as the Quarantined tag). */
+export const QUARANTINE_REASONS = ["hurtful", "spam", "threat"] as const;
+
+export const quarantineReasonEnum = z.enum(QUARANTINE_REASONS).openapi({
+  description:
+    "hurtful = insults, bullying, hate; spam = spam or scam links; threat = violent threats, doxxing, sexual harassment",
+  example: "hurtful",
+});
+
 export const messageReplySchema = z
   .object({
     isPublished: z.boolean().default(false).openapi({
@@ -97,6 +106,9 @@ export const sendMessageSchema = z
 
 export const updateMessageSchema = z
   .object({
+    isArchived: z.boolean().optional().openapi({
+      description: "Archived: hidden from every inbox view but Archived",
+    }),
     isPinned: z
       .boolean()
       .optional()
@@ -149,18 +161,19 @@ export const blockSenderSchema = z
   })
   .openapi("BlockSenderRequest");
 
+/** One Smart Reply draft per tone, listed in this order. */
+export const SMART_REPLY_TONES = ["thoughtful", "witty", "wholesome"] as const;
+
+export const smartReplyToneEnum = z.enum(SMART_REPLY_TONES).openapi({
+  description: "Tone of a Smart Reply draft",
+  example: "witty",
+});
+
 export const smartReplySchema = z
   .object({
     content: z.string().min(1).openapi({
       description: "Original anonymous message content",
     }),
-    tone: z
-      .enum(["witty", "wholesome", "thoughtful"])
-      .default("wholesome")
-      .openapi({
-        description: "Desired tone for the AI generated response",
-        example: "witty",
-      }),
   })
   .openapi("SmartReplyRequest");
 

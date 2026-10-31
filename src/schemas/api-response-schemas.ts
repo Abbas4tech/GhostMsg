@@ -1,5 +1,10 @@
 import { z } from "@/schemas/zod";
-import { messageReplySchema, sentimentTagEnum } from "./message-schema";
+import {
+  messageReplySchema,
+  quarantineReasonEnum,
+  sentimentTagEnum,
+  smartReplyToneEnum,
+} from "./message-schema";
 
 export const baseResponseSchema = z
   .object({
@@ -33,10 +38,23 @@ export const signUpResponseSchema = z
 
 export const verifyCodeResponseSchema = z
   .object({
+    /** Tries left for this code after a wrong guess. */
+    attemptsLeft: z.number().int().optional().openapi({ example: 2 }),
     message: z.string().openapi({ example: "Account Verified Successfully!" }),
+    /** Why it failed: a wrong code, an expired one, or no tries left. */
+    reason: z.enum(["wrong", "expired", "locked"]).optional(),
     success: z.boolean().openapi({ example: true }),
   })
   .openapi("VerifyCodeResponse");
+
+export const resendCodeResponseSchema = z
+  .object({
+    message: z.string().openapi({ example: "We sent you a new code." }),
+    /** Seconds until another code can be requested. */
+    retryAfterSeconds: z.number().int().openapi({ example: 60 }),
+    success: z.boolean().openapi({ example: true }),
+  })
+  .openapi("ResendCodeResponse");
 
 export const sendMessageResponseSchema = z
   .object({
@@ -60,9 +78,14 @@ export const messageItemSchema = z
     _id: z.string().openapi({ example: "660c1d2e1b9d4c001f3e8a1a" }),
     content: z.string().openapi({ example: "Hey! Loved your recent project." }),
     createdAt: z.string().openapi({ example: "2026-10-06T12:00:00.000Z" }),
+    isArchived: z.boolean().default(false),
     isPinned: z.boolean().default(false),
     isQuarantined: z.boolean().default(false),
     isRead: z.boolean().default(false),
+    quarantineReason: quarantineReasonEnum.optional().openapi({
+      description:
+        "Why a Quarantined Message was held back; absent on older messages",
+    }),
     reply: messageReplySchema.nullable().optional(),
     senderHash: z.string().optional(),
     sentimentTag: sentimentTagEnum.default("neutral"),
@@ -90,6 +113,7 @@ export const inboxCountsSchema = z
   .object({
     all: z.number().int().openapi({ example: 24 }),
     answered: z.number().int().openapi({ example: 9 }),
+    archived: z.number().int().openapi({ example: 0 }),
     quarantined: z.number().int().openapi({ example: 2 }),
     starred: z.number().int().openapi({ example: 5 }),
     total: z.number().int().openapi({
@@ -126,11 +150,19 @@ export const acceptMessagePostResponseSchema = z
   })
   .openapi("AcceptMessagePostResponse");
 
+export const smartReplyDraftSchema = z
+  .object({
+    text: z
+      .string()
+      .openapi({ example: "Never. The hard days were the point." }),
+    tone: smartReplyToneEnum,
+  })
+  .openapi("SmartReplyDraft");
+
 export const smartReplyResponseSchema = z
   .object({
-    reply: z
-      .string()
-      .openapi({ example: "Haha, thanks for keeping me on my toes! 😉" }),
+    /** One draft per tone (thoughtful, witty, wholesome), from one AI call. */
+    drafts: z.array(smartReplyDraftSchema),
     success: z.boolean().openapi({ example: true }),
   })
   .openapi("SmartReplyResponse");

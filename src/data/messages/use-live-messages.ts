@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { queryKeys } from "@/data/query-keys";
 import type { MessagesPageDto } from "@/types/api";
 import {
@@ -76,7 +76,7 @@ export const useLiveMessages = ({
         const payload = JSON.parse(event.data) as LiveMessageEvent;
         const notice = buildLiveMessageToast(payload, hideTextRef.current);
         if (notice) {
-          toast.info(notice.title, { description: notice.description });
+          notify.info(notice.title, { description: notice.description });
         }
         const message = toLiveMessageDto(payload);
         if (message) {

@@ -7,6 +7,7 @@ import {
   DashboardSkeleton,
 } from "@/components/blocks/dashboard-shell";
 import { CommandPalette } from "@/components/patterns/command-palette";
+import { ShortcutSheet } from "@/components/patterns/shortcut-sheet";
 import { useDashboardShellController } from "./use-dashboard-shell.controller";
 
 export interface DashboardLayoutProps {
@@ -14,7 +15,7 @@ export interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-/** Session gate + sidebar shell + ⌘K palette around every dashboard route. */
+/** Session gate + sidebar shell + ⌘K palette + `?` shortcut sheet around every dashboard route. */
 export function DashboardLayout({
   children,
 }: DashboardLayoutProps): React.JSX.Element {
@@ -46,6 +47,10 @@ export function DashboardLayout({
         groups={shell.commandGroups}
         onOpenChange={shell.setIsCommandOpen}
         open={shell.isCommandOpen}
+      />
+      <ShortcutSheet
+        onOpenChange={shell.setIsShortcutsOpen}
+        open={shell.isShortcutsOpen}
       />
     </>
   );

@@ -24,8 +24,13 @@ import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
 import { useInboxController } from "./use-inbox.controller";
 
 vi.mock("sonner", () => ({
-  toast: { error: vi.fn(), info: vi.fn(), success: vi.fn() },
+  toast: { dismiss: vi.fn(), error: vi.fn(), info: vi.fn(), success: vi.fn() },
 }));
+// `notify` (the design's toast API) forwards to the mocked Sonner spies above.
+vi.mock("@/components/elements/sonner", async () => {
+  const sonner = await import("sonner");
+  return { notify: sonner.toast };
+});
 vi.mock("@/lib/browser/download", () => ({ downloadTextFile: vi.fn() }));
 
 const VISIBLE_IN_ALL = mixedMessageCounts.all;
@@ -202,6 +207,35 @@ describe("useInboxController", () => {
     );
   });
 
+  it("archives a message: it leaves the list at once and a toast confirms", async () => {
+    const requests = recordRequests();
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.handleToggleArchive(sweetMessage));
+
+    await waitFor(() =>
+      expect(ids(result.current.messages)).not.toContain(
+        String(sweetMessage._id)
+      )
+    );
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith("Message archived")
+    );
+    expect(requests).toContain(`PATCH /api/messages/${sweetMessage._id}`);
+  });
+
+  it("puts an archived message back in the inbox", async () => {
+    const { result } = await renderLoadedInbox();
+
+    act(() =>
+      result.current.handleToggleArchive({ ...sweetMessage, isArchived: true })
+    );
+
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith("Moved back to Inbox")
+    );
+  });
+
   it("applies a bulk action to the selection, then clears it", async () => {
     const requests = recordRequests();
     const { result } = await renderLoadedInbox();
@@ -277,7 +311,7 @@ describe("useInboxController", () => {
     );
   });
 
-  it("applies bulk delete optimistically", async () => {
+  it("confirms a bulk delete, then deletes optimistically", async () => {
     server.use(
       http.post(mswPath("/api/messages/bulk"), async () => {
         await delay("infinite");
@@ -286,10 +320,15 @@ describe("useInboxController", () => {
     const { result } = await renderLoadedInbox();
 
     act(() => result.current.handleToggleSelect(String(sweetMessage._id)));
+    await act(() => result.current.handleBulkAction("delete"));
+
+    expect(result.current.bulkDelete).toMatchObject({ count: 1, open: true });
+
     act(() => {
-      result.current.handleBulkAction("delete");
+      result.current.bulkDelete.onConfirm();
     });
 
+    expect(result.current.bulkDelete.open).toBe(false);
     expect(result.current.selectedIds).toEqual([]);
     await waitFor(() =>
       expect(ids(result.current.messages)).not.toContain(
@@ -298,7 +337,7 @@ describe("useInboxController", () => {
     );
   });
 
-  it("rolls back a failed bulk action", async () => {
+  it("rolls back a failed bulk delete", async () => {
     server.use(
       http.post(mswPath("/api/messages/bulk"), () =>
         apiError(500, "Bulk failed")
@@ -308,6 +347,7 @@ describe("useInboxController", () => {
 
     act(() => result.current.handleToggleSelect(String(sweetMessage._id)));
     await act(() => result.current.handleBulkAction("delete"));
+    await act(() => result.current.bulkDelete.onConfirm());
 
     expect(toast.error).toHaveBeenCalledWith("Bulk failed");
     await waitFor(() =>

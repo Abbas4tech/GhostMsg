@@ -1,6 +1,6 @@
 import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
 import { noop } from "@/mock/noop";
-import type { IdentityCardProps } from "./identity-card";
+import type { IdentityCardProps, IdentitySummaryProps } from "./identity-card";
 
 /** 1×1 lavender PNG, so the photo state renders without a network image. */
 export const FIXTURE_AVATAR_DATA_URL =
@@ -21,3 +21,11 @@ export const defaultIdentityCardArgs: IdentityCardProps = {
 export const withPhotoIdentityCardArgs = {
   avatarUrl: FIXTURE_AVATAR_DATA_URL,
 } satisfies Partial<IdentityCardProps>;
+
+/** Design MobProfile: the collapsed identity row. */
+export const defaultIdentitySummaryArgs: IdentitySummaryProps = {
+  avatarUrl: null,
+  displayName: "John",
+  onEdit: noop,
+  username: FIXTURE_USERNAME,
+};

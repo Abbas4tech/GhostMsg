@@ -17,15 +17,27 @@ const RECIPIENT = new Types.ObjectId("660c1d2e1b9d4c001f3e8a1a");
 
 describe("statusFilter", () => {
   it("mirrors the shared inbox rules", () => {
-    expect(statusFilter("all")).toEqual({ isQuarantined: false });
+    const notArchived = { isArchived: { $ne: true } };
+    expect(statusFilter("all")).toEqual({
+      ...notArchived,
+      isQuarantined: false,
+    });
     expect(statusFilter("unread")).toEqual({
+      ...notArchived,
       isQuarantined: false,
       isRead: false,
     });
-    expect(statusFilter("starred")).toEqual({ isPinned: true });
-    expect(statusFilter("quarantined")).toEqual({ isQuarantined: true });
+    expect(statusFilter("starred")).toEqual({ ...notArchived, isPinned: true });
+    expect(statusFilter("quarantined")).toEqual({
+      ...notArchived,
+      isQuarantined: true,
+    });
+    expect(statusFilter("archived")).toEqual({ isArchived: true });
     expect(statusFilter("any")).toEqual({});
-    expect(Object.keys(statusFilter("answered"))).toEqual(["reply.text"]);
+    expect(Object.keys(statusFilter("answered"))).toEqual([
+      "isArchived",
+      "reply.text",
+    ]);
   });
 
   it("has a filter for every inbox status", () => {
@@ -105,6 +117,7 @@ describe("inbox counts", () => {
       "_id",
       "all",
       "answered",
+      "archived",
       "quarantined",
       "starred",
       "total",

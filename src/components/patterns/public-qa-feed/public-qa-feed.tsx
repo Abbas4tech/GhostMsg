@@ -49,7 +49,7 @@ export function PublicQaFeed({
       className="flex flex-col gap-2"
       data-slot="public-qa-feed"
     >
-      <h2 className="text-h2" id="public-qa-title">
+      <h2 className="text-h3" id="public-qa-title">
         Public Q&amp;A
       </h2>
       {answers.map((item) => (

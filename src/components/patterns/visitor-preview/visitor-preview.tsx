@@ -53,6 +53,7 @@ export function VisitorPreview({
             <div className="min-w-0">
               <b className="block truncate font-display text-h3">{name}</b>
               <p className="text-muted-foreground text-sm">
+                {/* Design ProfilePage: "@maya.writes · Accepting Anonymous Messages". */}
                 @{username} ·{" "}
                 {isAccepting
                   ? "Accepting Anonymous Messages"

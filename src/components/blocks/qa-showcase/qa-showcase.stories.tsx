@@ -31,3 +31,8 @@ export const QaAndStoryCard: Story = {
     await expect(canvas.getAllByText(args.answer)).toHaveLength(2);
   },
 };
+
+/** Design MobLanding: heading, short lead and the tilted Story Card only. */
+export const Mobile: Story = {
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+};

@@ -41,7 +41,7 @@ type Story = StoryObj<typeof meta>;
 export const Block: Story = {
   play: async ({ args, userEvent }) => {
     await expect(
-      await screen.findByRole("alertdialog", { name: "Block this sender?" })
+      await screen.findByRole("dialog", { name: "Block this sender?" })
     ).toBeVisible();
     await expect(
       screen.getByRole("radio", { name: "Block and delete this message" })
@@ -59,7 +59,7 @@ export const Unblock: Story = {
   args: { isSenderBlocked: true },
   play: async ({ args, userEvent }) => {
     await expect(
-      await screen.findByRole("alertdialog", { name: "Unblock this sender?" })
+      await screen.findByRole("dialog", { name: "Unblock this sender?" })
     ).toBeVisible();
     await expect(screen.queryByRole("radio")).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: UNBLOCK_REGEX }));
@@ -108,6 +108,6 @@ export const WithoutSenderHash: Story = {
     message: { ...sweetMessage, senderHash: undefined },
   },
   play: async () => {
-    await expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    await expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   },
 };

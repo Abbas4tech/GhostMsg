@@ -28,7 +28,8 @@ function FieldLegend({
   return (
     <legend
       className={cn(
-        "mb-3 font-medium",
+        // GhostMsg: 600 like every label (design `.label`).
+        "mb-3 font-semibold",
         "data-[variant=legend]:text-base",
         "data-[variant=label]:text-sm",
         className
@@ -128,7 +129,8 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "flex w-fit items-center gap-2 font-medium text-sm leading-snug group-data-[disabled=true]/field:opacity-50",
+        // GhostMsg: 600 like every label (design `.label`).
+        "flex w-fit items-center gap-2 font-semibold text-sm leading-snug group-data-[disabled=true]/field:opacity-50",
         className
       )}
       data-slot="field-label"

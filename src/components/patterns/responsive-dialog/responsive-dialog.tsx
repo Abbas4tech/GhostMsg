@@ -18,6 +18,7 @@ import {
   DrawerTitle,
 } from "@/components/elements/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 export interface ResponsiveDialogProps {
   children: React.ReactNode;
@@ -50,14 +51,34 @@ export interface ResponsiveDialogContentProps {
   className?: string;
 }
 
+/**
+ * Desktop: `className` lands on `DialogContent` (padded grid). Phones: the
+ * Drawer keeps its own chrome (handle, 28px top radius, up to 92dvh) and
+ * `className` goes on a padded, scrolling body, so tall content (Smart
+ * Reply, Story Card) scrolls instead of being cut off.
+ */
 function ResponsiveDialogContent({
   children,
   className,
 }: ResponsiveDialogContentProps): React.JSX.Element {
   const isMobile = useIsMobile();
-  const Content = isMobile ? DrawerContent : DialogContent;
 
-  return <Content className={className}>{children}</Content>;
+  if (isMobile) {
+    return (
+      <DrawerContent className="max-h-[92dvh] rounded-t-drawer data-[vaul-drawer-direction=bottom]:max-h-[92dvh] data-[vaul-drawer-direction=bottom]:rounded-t-drawer">
+        <div
+          className={cn(
+            "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 pt-3 pb-[calc(16px+env(safe-area-inset-bottom))]",
+            className
+          )}
+        >
+          {children}
+        </div>
+      </DrawerContent>
+    );
+  }
+
+  return <DialogContent className={className}>{children}</DialogContent>;
 }
 
 export interface ResponsiveDialogHeaderProps {
@@ -70,9 +91,22 @@ function ResponsiveDialogHeader({
   className,
 }: ResponsiveDialogHeaderProps): React.JSX.Element {
   const isMobile = useIsMobile();
-  const Header = isMobile ? DrawerHeader : DialogHeader;
 
-  return <Header className={className}>{children}</Header>;
+  if (isMobile) {
+    // Left-aligned like the design's drawers (stock Drawer centres its header).
+    return (
+      <DrawerHeader
+        className={cn(
+          "gap-1.5 p-0 text-left group-data-[vaul-drawer-direction=bottom]/drawer-content:text-left",
+          className
+        )}
+      >
+        {children}
+      </DrawerHeader>
+    );
+  }
+
+  return <DialogHeader className={className}>{children}</DialogHeader>;
 }
 
 export interface ResponsiveDialogTitleProps {
@@ -87,7 +121,9 @@ function ResponsiveDialogTitle({
   const isMobile = useIsMobile();
   const Title = isMobile ? DrawerTitle : DialogTitle;
 
-  return <Title className={className ?? "text-h2"}>{children}</Title>;
+  return (
+    <Title className={cn("font-display text-h3", className)}>{children}</Title>
+  );
 }
 
 export interface ResponsiveDialogDescriptionProps {
@@ -110,14 +146,30 @@ export interface ResponsiveDialogFooterProps {
   className?: string;
 }
 
+/**
+ * Phones: full-width buttons, primary action first (design drawers), so put
+ * the primary action last in JSX as on desktop and the column reverses it.
+ */
 function ResponsiveDialogFooter({
   children,
   className,
 }: ResponsiveDialogFooterProps): React.JSX.Element {
   const isMobile = useIsMobile();
-  const Footer = isMobile ? DrawerFooter : DialogFooter;
 
-  return <Footer className={className}>{children}</Footer>;
+  if (isMobile) {
+    return (
+      <DrawerFooter
+        className={cn(
+          "mt-2 flex-col-reverse p-0 *:h-13 *:w-full *:text-body",
+          className
+        )}
+      >
+        {children}
+      </DrawerFooter>
+    );
+  }
+
+  return <DialogFooter className={className}>{children}</DialogFooter>;
 }
 
 export {

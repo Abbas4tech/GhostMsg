@@ -55,5 +55,9 @@ export const Reveals: Story = {
     );
     await expect(input).toHaveAttribute("type", "text");
     await expect(input).toHaveValue("secret123");
+    // Design: a "Show" / "Hide" text toggle, not an eye icon.
+    await expect(
+      canvas.getByRole("button", { name: "Hide password" })
+    ).toHaveTextContent("Hide");
   },
 };

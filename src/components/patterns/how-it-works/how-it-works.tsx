@@ -26,26 +26,32 @@ export interface HowItWorksProps {
   sentiment: SentimentType;
 }
 
-const stepCardInner = "flex min-h-[178px] flex-col gap-3 p-4";
-const stepTitle = "font-bold text-muted-foreground text-sm";
+type StepLayout = "desktop" | "phone";
 
-/**
- * The product loop in four beats (share → receive → answer → Story Card).
- * Illustrative only, so nothing inside is interactive.
- */
-export function HowItWorks({
-  profileLabel,
-  message,
-  answer,
-  sentiment,
-  className,
-}: HowItWorksProps): React.JSX.Element {
-  const steps = [
+interface Step {
+  /** Card body under the step title. */
+  body: React.ReactNode;
+  /** The brand-gradient Story Card step (its own title style). */
+  isStoryCard?: boolean;
+  key: string;
+  /** "Share your link" (shown as "1 · …" or "Step 1 · …"). */
+  name: string;
+}
+
+const STEP_TITLE_CLASS: Record<StepLayout, string> = {
+  desktop: "font-bold text-muted-foreground text-sm",
+  phone: "text-muted-foreground text-overline uppercase",
+};
+
+function buildSteps(
+  { answer, message, profileLabel, sentiment }: HowItWorksProps,
+  layout: StepLayout
+): Step[] {
+  return [
     {
-      content: (
-        <div className={stepCardInner}>
-          <span className={stepTitle}>1 · Share your link</span>
-          <span className="flex min-h-11 items-center gap-2 rounded-full border border-input px-3.5 text-sm">
+      body: (
+        <>
+          <span className="flex min-h-11 items-center gap-2 rounded-full border border-input px-3.5 text-sm max-sm:min-h-12 max-sm:font-semibold">
             <Link2
               aria-hidden="true"
               className="size-4 text-muted-foreground"
@@ -59,28 +65,36 @@ export function HowItWorks({
             <Copy className="size-4" />
             Copy
           </span>
-        </div>
+          {layout === "phone" ? (
+            <p className="text-muted-foreground text-sm">
+              Paste it in your Instagram or Snapchat bio.
+            </p>
+          ) : null}
+        </>
       ),
       key: "share",
-      label: "Step 1 · Share your link",
+      name: "Share your link",
     },
     {
-      content: (
-        <div className={stepCardInner} data-step="receive">
-          <span className={stepTitle}>2 · Receive</span>
-          <div className="relative flex flex-col gap-2 rounded-xl border bg-card p-3 before:absolute before:top-4 before:-left-px before:h-5 before:w-1 before:rounded-r before:bg-primary">
-            <SentimentBadge className="self-start" sentiment={sentiment} />
-            <p className="text-sm leading-relaxed">{message}</p>
-          </div>
+      body: (
+        <div className="relative flex flex-col gap-2 rounded-xl border bg-card p-3 before:absolute before:top-4 before:-left-px before:h-5 before:w-1 before:rounded-r before:bg-primary">
+          <SentimentBadge className="self-start" sentiment={sentiment} />
+          <p
+            className={cn(
+              "leading-relaxed",
+              layout === "phone" ? "text-body" : "text-sm"
+            )}
+          >
+            {message}
+          </p>
         </div>
       ),
       key: "receive",
-      label: "Step 2 · Receive",
+      name: "Receive",
     },
     {
-      content: (
-        <div className={stepCardInner}>
-          <span className={stepTitle}>3 · Answer</span>
+      body: (
+        <>
           <p className="min-h-16 rounded-[14px] border border-input px-3 py-2.5 text-sm">
             {answer}
           </p>
@@ -88,63 +102,101 @@ export function HowItWorks({
             <Sparkles aria-hidden="true" className="size-3.5 text-primary" />
             Smart Reply suggestions
           </span>
-        </div>
+        </>
       ),
       key: "answer",
-      label: "Step 3 · Answer",
+      name: "Answer",
     },
     {
-      content: (
-        <div
-          className={cn(
-            stepCardInner,
-            "justify-between rounded-xl bg-brand-gradient text-brand-foreground shadow-lift"
-          )}
-        >
-          <span className="font-bold text-xs uppercase tracking-wider">
-            4 · Share as Story Card
-          </span>
+      body: (
+        <>
           <p className="font-display text-lg leading-tight">
             &ldquo;{message}&rdquo;
           </p>
           <span className="font-semibold text-xs">{profileLabel}</span>
-        </div>
+        </>
       ),
+      isStoryCard: true,
       key: "story-card",
-      label: "Step 4 · Share as Story Card",
+      name: "Share as Story Card",
     },
   ];
+}
+
+function StepCard({
+  step,
+  index,
+  layout,
+}: {
+  index: number;
+  layout: StepLayout;
+  step: Step;
+}): React.JSX.Element {
+  const number = index + 1;
+  const title =
+    layout === "phone"
+      ? `Step ${number} · ${step.name}`
+      : `${number} · ${step.name}`;
+
+  if (step.isStoryCard) {
+    return (
+      <div className="flex min-h-44.5 flex-col justify-between gap-3 rounded-xl bg-brand-gradient p-4 text-brand-foreground shadow-lift">
+        <span className="font-bold text-xs uppercase tracking-wider">
+          {title}
+        </span>
+        {step.body}
+      </div>
+    );
+  }
 
   return (
-    <div className={className} data-slot="how-it-works">
+    <div
+      className={cn(
+        "flex flex-col rounded-xl border bg-card text-card-foreground shadow-soft",
+        layout === "phone" ? "gap-3.5 p-4.5" : "min-h-44.5 gap-3 p-4"
+      )}
+    >
+      <span className={STEP_TITLE_CLASS[layout]}>{title}</span>
+      {step.body}
+    </div>
+  );
+}
+
+/**
+ * The product loop in four beats (share → receive → answer → Story Card).
+ * Illustrative only, so nothing inside is interactive. Desktop: a staggered
+ * 2×2 grid. Phones (design MobLanding): "How it works", a counter, one card
+ * plus a peek, and pill dots.
+ */
+export function HowItWorks(props: HowItWorksProps): React.JSX.Element {
+  const desktopSteps = buildSteps(props, "desktop");
+
+  return (
+    <div className={props.className} data-slot="how-it-works">
       <ol
         aria-label="How GhostMsg works in four steps"
         className="hidden grid-cols-2 gap-3.5 sm:grid"
       >
-        {steps.map((step, index) => (
+        {desktopSteps.map((step, index) => (
           <li
             className={cn(
-              "rounded-xl border bg-card text-card-foreground shadow-soft motion-safe:animate-rise",
-              (index === 1 || index === 3) && "mt-7"
+              "motion-safe:animate-rise",
+              index % 2 === 1 && "mt-7"
             )}
             data-slot="how-it-works-step"
             key={step.key}
             style={{ animationDelay: `${index * 80}ms` }}
           >
-            {step.content}
+            <StepCard index={index} layout="desktop" step={step} />
           </li>
         ))}
       </ol>
-      <HowItWorksMobile steps={steps} />
+      <HowItWorksMobile steps={buildSteps(props, "phone")} />
     </div>
   );
 }
 
-function HowItWorksMobile({
-  steps,
-}: {
-  steps: { content: React.ReactNode; key: string; label: string }[];
-}): React.JSX.Element {
+function HowItWorksMobile({ steps }: { steps: Step[] }): React.JSX.Element {
   const [api, setApi] = useState<CarouselApi>();
   const [selected, setSelected] = useState(0);
 
@@ -161,36 +213,44 @@ function HowItWorksMobile({
   }, [api]);
 
   return (
-    <div className="sm:hidden">
-      <div className="mb-2 flex items-center justify-between">
-        <span className={stepTitle}>{steps[selected]?.label}</span>
+    <section
+      aria-label="How it works"
+      aria-roledescription="carousel"
+      className="flex flex-col gap-3.5 sm:hidden"
+    >
+      <div className="flex items-baseline justify-between">
+        <h2 className="text-h2">How it works</h2>
         <span className="text-muted-foreground text-xs tabular-nums">
           {selected + 1} / {steps.length}
         </span>
       </div>
       <Carousel opts={{ align: "start" }} setApi={setApi}>
-        <CarouselContent>
-          {steps.map((step) => (
-            <CarouselItem className="basis-[88%]" key={step.key}>
-              <div className="rounded-xl border bg-card text-card-foreground shadow-soft">
-                {step.content}
-              </div>
+        <CarouselContent className="-ml-3">
+          {steps.map((step, index) => (
+            <CarouselItem
+              aria-label={`Step ${index + 1} of ${steps.length}`}
+              className="basis-68 pl-3"
+              key={step.key}
+            >
+              <StepCard index={index} layout="phone" step={step} />
             </CarouselItem>
           ))}
         </CarouselContent>
       </Carousel>
-      <div className="mt-3 flex items-center justify-center gap-1.5">
+      <div
+        aria-hidden="true"
+        className="flex items-center justify-center gap-1.5"
+      >
         {steps.map((step, index) => (
           <span
-            aria-hidden="true"
             className={cn(
-              "size-1.5 rounded-full transition-colors",
-              index === selected ? "bg-primary" : "bg-border"
+              "h-1.5 rounded-full transition-all",
+              index === selected ? "w-5 bg-primary" : "w-1.5 bg-input"
             )}
             key={step.key}
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

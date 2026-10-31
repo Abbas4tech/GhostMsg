@@ -15,4 +15,8 @@ export {
   formatSenderHash,
   type SafetySettingsProps,
 } from "./safety-settings";
-export { SettingsPanel, type SettingsPanelProps } from "./settings-panel";
+export {
+  type SettingsAccount,
+  SettingsPanel,
+  type SettingsPanelProps,
+} from "./settings-panel";

@@ -15,6 +15,7 @@ export const scenarios = {
   answers: publicHandlers.answers,
   credentials: authHandlers.credentials,
   inbox: messageHandlers.inbox,
+  resendCode: authHandlers.resendCode,
   send: publicHandlers.send,
   session: authHandlers.session,
   settings: userHandlers.settings,
@@ -34,6 +35,7 @@ export const defaultHandlers: HttpHandler[] = [
   ...scenarios.username.available,
   ...scenarios.signUp.success,
   ...scenarios.verify.success,
+  ...scenarios.resendCode.success,
 ];
 
 /** Combine a scenario override with the defaults (override wins). */

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isToxicityLevel, shouldQuarantine } from "./quarantine-policy";
+import {
+  isToxicityLevel,
+  shouldQuarantine,
+  toQuarantineReason,
+} from "./quarantine-policy";
 
 describe("shouldQuarantine", () => {
   it("defaults to balanced: hurtful and severe are held", () => {
@@ -32,5 +36,17 @@ describe("isToxicityLevel", () => {
   it("narrows known levels", () => {
     expect(isToxicityLevel("hurtful")).toBe(true);
     expect(isToxicityLevel("nasty")).toBe(false);
+  });
+});
+
+describe("toQuarantineReason", () => {
+  it("keeps moderation's category", () => {
+    expect(toQuarantineReason("spam")).toBe("spam");
+    expect(toQuarantineReason("threat")).toBe("threat");
+    expect(toQuarantineReason("hurtful")).toBe("hurtful");
+  });
+
+  it("reads an uncategorised hold as hurtful", () => {
+    expect(toQuarantineReason("none")).toBe("hurtful");
   });
 });

@@ -87,7 +87,9 @@
 @theme {
   --animate-float: ghost-float 6s ease-in-out infinite;
   --animate-rise: ghost-rise 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  --animate-pulse-ring: ghost-pulse-ring 2s ease-out infinite;
+  --animate-pulse-ring: ghost-pulse-ring 2s ease-out 2;
+  /* Undo toast time-left bar. Not motion-safe: it carries information. Set the duration inline. */
+  --animate-countdown: ghost-countdown 1s linear forwards;
 
   @keyframes ghost-float {
     0%,
@@ -106,6 +108,14 @@
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+  @keyframes ghost-countdown {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0;
     }
   }
   @keyframes ghost-pulse-ring {

@@ -49,7 +49,7 @@ export function DeleteAccountModal({
     <AlertDialog onOpenChange={onOpenChange} open={open}>
       <AlertDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
         <AlertDialogHeader className="text-left sm:text-left">
-          <AlertDialogTitle className="text-h2">
+          <AlertDialogTitle className="text-h3">
             Delete your account?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-sm">

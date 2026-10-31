@@ -10,7 +10,10 @@ import {
   longContentInboxArgs,
   moreToLoadInboxArgs,
   noMatchesInboxArgs,
+  quarantinedFilterOverride,
   quarantinedInboxArgs,
+  searchFilterOverride,
+  unreadFilterOverride,
 } from "./inbox.mock";
 
 const MESSAGE_CARD_ID_REGEX = /^message-card-/;
@@ -32,16 +35,21 @@ const spies = () => ({
     onReveal: fn(),
     onStarToggle: fn(),
   },
-  filters: {
-    ...defaultInboxArgs.filters,
-    onSearchChange: fn(),
-    onStatusChange: fn(),
-  },
+  filters: storyFilters,
   onCopyLink: fn(),
   onRefresh: fn(),
   onViewModeChange: fn(),
   selection: { ...defaultInboxArgs.selection, onClear: fn(), onToggle: fn() },
 });
+
+const QUARANTINE_NOTICE_REGEX = /auto-flagged as hurtful or spam/;
+
+/** Spied filter callbacks; empty-state stories spread their override onto these. */
+const storyFilters = {
+  ...defaultInboxArgs.filters,
+  onSearchChange: fn(),
+  onStatusChange: fn(),
+};
 
 const meta = {
   args: { ...defaultInboxArgs, ...spies() },
@@ -93,7 +101,9 @@ export const Grid: Story = {
     await expect(
       canvas.getByRole("heading", { level: 1, name: "Inbox" })
     ).toBeVisible();
-    await expect(canvas.getByText("2 unread")).toBeVisible();
+    await expect(
+      canvas.getByText("2 unread · last checked a moment ago")
+    ).toBeVisible();
     await expect(canvas.getAllByTestId(MESSAGE_CARD_ID_REGEX)).toHaveLength(
       defaultInboxArgs.messages.length
     );
@@ -170,18 +180,51 @@ export const Empty: Story = {
     await expect(
       canvas.queryByRole("group", { name: "Filter messages" })
     ).not.toBeInTheDocument();
-    await userEvent.click(canvas.getByRole("button", { name: "Copy my link" }));
+    await expect(
+      canvas.getByText("Share your link to get the first one.")
+    ).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Copy link" }));
     await expect(args.onCopyLink).toHaveBeenCalledOnce();
   },
 };
 
 export const NoMatches: Story = {
-  args: noMatchesInboxArgs,
+  args: {
+    ...noMatchesInboxArgs,
+    filters: { ...storyFilters, ...unreadFilterOverride },
+  },
   play: async ({ args, canvas, userEvent }) => {
-    await expect(canvas.getByText("Nothing here")).toBeVisible();
+    await expect(canvas.getByText("Nothing unread")).toBeVisible();
+    await expect(canvas.getByText("You're all caught up.")).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: "Clear filter" }));
     await expect(args.filters.onStatusChange).toHaveBeenCalledWith("all");
     await expect(args.filters.onSearchChange).toHaveBeenCalledWith("");
+  },
+};
+
+export const SearchNoMatches: Story = {
+  args: {
+    ...noMatchesInboxArgs,
+    filters: { ...storyFilters, ...searchFilterOverride },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("No matches for “jacket”")).toBeVisible();
+    await expect(
+      canvas.getByText("Search looks at message text only.")
+    ).toBeVisible();
+  },
+};
+
+export const NothingQuarantined: Story = {
+  args: {
+    ...noMatchesInboxArgs,
+    filters: { ...storyFilters, ...quarantinedFilterOverride },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("Nothing held back")).toBeVisible();
+    await expect(
+      canvas.getByText("No Quarantined Messages. Nice.")
+    ).toBeVisible();
   },
 };
 
@@ -192,10 +235,9 @@ export const QuarantinedOnly: Story = {
   },
   play: async ({ canvas }) => {
     await expect(
-      canvas.getByText(
-        "Quarantined Messages are blurred. Nothing here reaches your main inbox."
-      )
+      canvas.getByRole("heading", { level: 1, name: "Quarantined" })
     ).toBeVisible();
+    await expect(canvas.getByText(QUARANTINE_NOTICE_REGEX)).toBeVisible();
   },
 };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { BanIcon, ShieldCheckIcon } from "lucide-react";
 import type React from "react";
 import { useCallback } from "react";
 import { Badge } from "@/components/elements/badge";
@@ -27,8 +28,11 @@ import type { QuarantineSensitivity } from "@/types/api";
 import {
   SettingRow,
   SettingsDivider,
+  SettingsListRow,
+  SettingsListRowBody,
   SettingsSection,
   SwitchSetting,
+  useSettingsLayout,
 } from "./settings-section";
 
 const SENSITIVITIES: { label: string; value: QuarantineSensitivity }[] = [
@@ -108,6 +112,43 @@ function BlockedSenderTableRow({
   );
 }
 
+/** Phone layout: one blocked sender as a list row instead of a table row. */
+function BlockedSenderListRow({
+  hash,
+  blockedAt,
+  isUnblockPending,
+  onUnblock,
+}: {
+  blockedAt?: string;
+  hash: string;
+  isUnblockPending: boolean;
+  onUnblock: (hash: string) => void;
+}): React.JSX.Element {
+  const handleUnblock = useCallback(() => {
+    onUnblock(hash);
+  }, [onUnblock, hash]);
+  const label = formatSenderHash(hash);
+
+  return (
+    <SettingsListRow>
+      <SettingsListRowBody
+        description={`Blocked ${formatBlockedDate(blockedAt)}`}
+        icon={<BanIcon />}
+        title={`Sender ${label}`}
+      />
+      <Button
+        aria-label={`Unblock sender ${label}`}
+        className="h-11 rounded-full px-5"
+        disabled={isUnblockPending}
+        onClick={handleUnblock}
+        variant="outline"
+      >
+        Unblock
+      </Button>
+    </SettingsListRow>
+  );
+}
+
 /** Quarantine, sensitivity, Spicy blur and the blocked-senders table. */
 export function SafetySettings({
   quarantineEnabled,
@@ -120,7 +161,11 @@ export function SafetySettings({
   isUnblockPending = false,
   onUnblock,
 }: SafetySettingsProps): React.JSX.Element {
+  const isList = useSettingsLayout() === "list";
   const count = blockedSenders.length;
+  const sensitivityLabel =
+    SENSITIVITIES.find((option) => option.value === sensitivity)?.label ??
+    "Balanced";
   const handleSensitivityChange = useCallback(
     (value: string) => {
       if (isSensitivity(value)) {
@@ -131,7 +176,12 @@ export function SafetySettings({
   );
 
   return (
-    <SettingsSection id="safety" title="Safety & blocking">
+    <SettingsSection
+      icon={<ShieldCheckIcon />}
+      id="safety"
+      summary={`${quarantineEnabled ? sensitivityLabel : "Quarantine off"} · ${count} blocked`}
+      title="Safety & blocking"
+    >
       <SwitchSetting
         checked={quarantineEnabled}
         description="Flagged messages are held in Quarantined, blurred, never in your main inbox."
@@ -144,6 +194,7 @@ export function SafetySettings({
         control={
           <ToggleGroup
             aria-label="Sensitivity"
+            className={isList ? "w-full *:flex-1" : undefined}
             disabled={!quarantineEnabled}
             onValueChange={handleSensitivityChange}
             size="touch"
@@ -189,7 +240,25 @@ export function SafetySettings({
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
-        ) : (
+        ) : null}
+        {count > 0 && isList ? (
+          <ul
+            aria-label="Blocked senders"
+            className="divide-y overflow-hidden rounded-xl border"
+          >
+            {blockedSenders.map(({ hash, blockedAt }) => (
+              <li key={hash}>
+                <BlockedSenderListRow
+                  blockedAt={blockedAt}
+                  hash={hash}
+                  isUnblockPending={isUnblockPending}
+                  onUnblock={onUnblock}
+                />
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {count > 0 && !isList ? (
           <Table aria-label="Blocked senders">
             <TableHeader>
               <TableRow>
@@ -212,7 +281,7 @@ export function SafetySettings({
               ))}
             </TableBody>
           </Table>
-        )}
+        ) : null}
       </div>
     </SettingsSection>
   );

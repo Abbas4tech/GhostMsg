@@ -17,6 +17,12 @@ Which docs a change must update, how to keep screenshots and diagrams current, a
 | Moderation, blocking, rate limits, privacy | [Chapter 17](../17-trust-safety-and-privacy.md) (and its known-issues table) | — |
 | Email, push, SSE, quiet hours | [Chapter 18](../18-notifications-and-realtime.md) | — |
 | A query, mutation, cache rule or where some state lives | [Chapter 20](../20-state-management.md) (state map, rules, review status) | — |
+| Sign-up, verification, sign-in, NextAuth | [Chapter 22](../22-authentication-and-verification.md) | — |
+| Inbox filters, read state, archive, selection, deletes, live updates | [Chapter 23](../23-inbox-triage.md) | — |
+| A prompt, model, AI route or AI client hook | [Chapter 24](../24-ai-features.md) | — |
+| A keyboard shortcut, toast copy or duration, focus rule, live region, animation | [Chapter 25](../25-accessibility-and-feedback.md) (and the `?` sheet's `SHORTCUT_GROUPS`) | — |
+| A phone/desktop difference, a breakpoint, a layout prop | [Chapter 26](../26-responsive-design.md) | phone screenshots |
+| A confusing error you solved | [Chapter 27](../27-developer-troubleshooting.md) (symptom → cause → fix) | — |
 | A domain term | [`GLOSSARY.md`](../../GLOSSARY.md) (with `_Avoid_`) | — |
 | A hard-to-reverse or surprising decision | New ADR in `docs/adr/` (next number) + [docs/README.md](../README.md) index + root README list | — |
 | Env vars | [`.env.example`](../../.env.example) (the complete list: purpose, default, what breaks without it; optional lines commented out), the [Chapter 2](../02-getting-started.md) summary table, the [Chapter 9](../09-deployment-and-operations.md) production checklist | — |

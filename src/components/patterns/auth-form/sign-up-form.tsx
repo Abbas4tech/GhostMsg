@@ -74,7 +74,7 @@ export function SignUpForm({
   return (
     <Form {...form}>
       <form
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 max-sm:flex-1"
         data-slot="sign-up-form"
         noValidate
         onSubmit={form.handleSubmit(onSubmit)}

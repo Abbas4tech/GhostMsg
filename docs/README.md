@@ -2,7 +2,16 @@
 
 Welcome to the comprehensive engineering documentation for GhostMsg. This documentation is organized into numbered chapters for sequential onboarding and reference.
 
-**New here?** Read [12 Product Guide](12-product-guide-and-features.md) for what the product does, [14 UI Screens](14-ui-screens-and-user-flows.md) for how it looks, then [03 System Architecture](03-system-architecture.md). **AI agents** start at [agents/README.md](agents/README.md).
+**New here?** Read [12 Product Guide](12-product-guide-and-features.md) for what the product does, [14 UI Screens](14-ui-screens-and-user-flows.md) for how it looks, then [03 System Architecture](03-system-architecture.md). Feature deep-dives: [22 Auth](22-authentication-and-verification.md), [23 Inbox](23-inbox-triage.md), [24 AI](24-ai-features.md). Cross-cutting guides: [25 Accessibility & Feedback](25-accessibility-and-feedback.md), [26 Responsive Design](26-responsive-design.md), [27 Troubleshooting](27-developer-troubleshooting.md). **AI agents** start at [agents/README.md](agents/README.md).
+
+```mermaid
+flowchart LR
+    START["New to GhostMsg"] --> P["12 Product"] --> S["14 Screens"] --> A["03 Architecture"]
+    A --> DEEP["Deep-dives<br/>22 Auth · 23 Inbox · 24 AI"]
+    A --> REF["Reference<br/>13 Design · 15 Data · 16 API · 17 Safety · 18 Notifications · 20 State"]
+    A --> HOW["How-to<br/>25 Accessibility · 26 Responsive · 27 Troubleshooting"]
+    A --> OPS["Run it<br/>02 Setup · 06 Workflow · 07 Tests · 09 Deploy · 21 Terraform"]
+```
 
 ![GhostMsg inbox (Soft spectral, light)](assets/screenshots/palette-spectral-light.png)
 
@@ -33,6 +42,12 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 | **19** | [**Redesign Change Summary**](19-redesign-change-summary.md) | What the October 2026 redesign changed: features, UI, API, database, code, quality gates. |
 | **20** | [**State Management**](20-state-management.md) | Where each kind of state lives, the rules for new state, inbox data flow, and the completed state-management review. |
 | **21** | [**Infrastructure & Terraform**](21-infrastructure-and-terraform.md) | Terraform-managed Vercel project and MongoDB Atlas cluster, two-database isolation, HCP state backend, env var management, and known limitations. |
+| **22** | [**Authentication & Verification**](22-authentication-and-verification.md) | Middleware guards, sign-up, the Verification Code lifecycle (3 tries, 60 s resend, 1 h expiry), verify screen states, sign-in checks, Google, known gaps. |
+| **23** | [**Inbox Triage**](23-inbox-triage.md) | Filters and the shared filter contract, URL state, auto-read, archive, selection, confirmed deletes, keyboard, live pill, empty states. |
+| **24** | [**AI Features**](24-ai-features.md) | Moderation, Smart Reply (three drafts, one call), Suggested Messages (Edge, cached), AMA ideas: schemas, fallbacks, testing, adding a feature. |
+| **25** | [**Accessibility & Feedback**](25-accessibility-and-feedback.md) | Keyboard map and guard, adding a shortcut, focus rules, live regions, `notify` and toast rules, Undo toast lifecycle, motion, forms, PR checklist. |
+| **26** | [**Responsive Design**](26-responsive-design.md) | Breakpoints, CSS-only vs `useIsMobile` branch, ResponsiveDialog, top-bar portals, layout props, container queries, screen-by-screen phone vs desktop. |
+| **27** | [**Developer Troubleshooting**](27-developer-troubleshooting.md) | Symptom → cause → fix for styling, types, tests, lint, merges and local tooling. |
 
 ---
 
@@ -72,10 +87,13 @@ Welcome to the comprehensive engineering documentation for GhostMsg. This docume
 - [**ADR 0031: State Management Consistency and Structure**](adr/0031-state-management-consistency-and-structure.md)
 - [**ADR 0032: Terraform-Managed Vercel and MongoDB Atlas Infrastructure**](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)
 - [**ADR 0033: Standardized Form Architecture with React Hook Form and Shadcn Primitives**](adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md)
+- [**ADR 0034: Confirmed Message Deletes, Undo Only for Delete All, Toast Lifecycle Commits and Phone Dashboard Chrome**](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)
 
 ---
 
-## 📐 Architecture Blueprints
+## 📐 Architecture Blueprints (historical)
+
+Original plans, kept for history. Where they differ from the code, the numbered chapters win.
 
 - [**Feature & Implementation Master Blueprint**](feature-and-implementation-blueprint.md)
 - [**API & React Query Architecture Blueprint**](api-and-react-query-architecture.md)

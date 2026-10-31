@@ -25,6 +25,11 @@ const thisDeviceRegistration = () =>
 const TEST_VAPID_PUBLIC_KEY = `B${"A".repeat(86)}`;
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+// `notify` (the design's toast API) forwards to the mocked Sonner spies above.
+vi.mock("@/components/elements/sonner", async () => {
+  const sonner = await import("sonner");
+  return { notify: sonner.toast };
+});
 vi.mock("@/lib/browser/download", () => ({ downloadTextFile: vi.fn() }));
 
 describe("useSettingsController", () => {

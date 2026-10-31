@@ -8,6 +8,10 @@ const meta = {
   argTypes: {
     actionHref: { control: "text", description: "Button target" },
     actionLabel: { control: "text", description: "Button label" },
+    subtitle: {
+      control: "text",
+      description: "Second sentence (own line on phones)",
+    },
     title: { control: "text", description: "Headline" },
   },
   component: CtaBanner,
@@ -24,5 +28,21 @@ export const GetYourLink: Story = {
     await expect(
       canvas.getByRole("link", { name: "Get your link" })
     ).toHaveAttribute("href", "/sign-up");
+  },
+};
+
+/** Design MobLanding: short heading, the subtitle on its own line, full-width button. */
+export const Mobile: Story = {
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("heading", {
+        level: 2,
+        name: "Your friends have things to say.",
+      })
+    ).toBeVisible();
+    await expect(
+      canvas.getByText("Give them a safe place to say it.")
+    ).toBeVisible();
   },
 };

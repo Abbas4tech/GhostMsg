@@ -15,6 +15,7 @@ import {
   defaultPublicProfileArgs,
   newProfilePublicProfileArgs,
   type PublicProfileStoryArgs,
+  sentPublicProfileArgs,
 } from "./public-profile.mock";
 
 /** Creates the send form the page controller would own and maps flat args onto the block. */
@@ -36,6 +37,7 @@ function PublicProfileHarness(args: PublicProfileStoryArgs): React.JSX.Element {
         isSubmitting: args.isSubmitting,
         onSendAnother: args.onSendAnother,
         onSubmit: args.onSubmit,
+        sentContent: args.sentContent,
       }}
       suggestions={{
         isLoading: args.isLoadingSuggestions,
@@ -94,9 +96,7 @@ export const Accepting: Story = {
     await expect(
       canvas.getByRole("heading", { level: 1, name: "johndoe" })
     ).toBeVisible();
-    await expect(
-      canvas.getByText("Accepting Anonymous Messages")
-    ).toBeVisible();
+    await expect(canvas.getByText("Accepting")).toBeVisible();
     await expect(canvas.getByText(FIXTURE_AMA_PROMPT)).toBeVisible();
     await expect(
       canvas.getByRole("heading", { name: "Public Q&A" })
@@ -110,27 +110,44 @@ export const Accepting: Story = {
   },
 };
 
+/** Design MobPublicSent: the whole page becomes the reassurance screen. */
 export const Sent: Story = {
-  args: { isSent: true },
+  args: sentPublicProfileArgs,
   play: async ({ args, canvas, userEvent }) => {
     await expect(
-      canvas.getByText("Sent. johndoe will never know it was you.")
+      canvas.getByRole("heading", {
+        level: 1,
+        name: "Sent. johndoe will never know it was you.",
+      })
     ).toBeVisible();
+    await expect(
+      canvas.getByText(sentPublicProfileArgs.sentContent)
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("link", { name: "Get your own link" })
+    ).toHaveAttribute("href", "/sign-up");
     await userEvent.click(canvas.getByRole("button", { name: "Send another" }));
     await expect(args.onSendAnother).toHaveBeenCalledOnce();
+    // "‹ johndoe" in the header goes back to the profile too.
+    await userEvent.click(canvas.getByRole("button", { name: "johndoe" }));
+    await expect(args.onSendAnother).toHaveBeenCalledTimes(2);
   },
 };
 
+/** Design MobPublicPaused: "@handle · Paused" and one way forward. */
 export const Paused: Story = {
   args: { isAccepting: false },
   play: async ({ canvas }) => {
-    await expect(canvas.getByText("Messages paused")).toBeVisible();
+    await expect(canvas.getByText("Paused")).toBeVisible();
     await expect(
-      canvas.getByText("johndoe is taking a breather.")
+      canvas.getByRole("heading", {
+        level: 2,
+        name: "johndoe is taking a breather.",
+      })
     ).toBeVisible();
     await expect(
-      canvas.getByRole("button", { name: "Sending is paused" })
-    ).toBeDisabled();
+      canvas.getByRole("link", { name: "Make your own link" })
+    ).toHaveAttribute("href", "/sign-up");
     await expect(
       canvas.queryByRole("form", { name: "Send an Anonymous Message" })
     ).not.toBeInTheDocument();
@@ -146,6 +163,10 @@ export const NotFound: Story = {
     await expect(
       canvas.getByRole("link", { name: "Claim /u/johndoe" })
     ).toHaveAttribute("href", "/sign-up?username=johndoe");
+    // Design MobPublicNotFound: brand only in the header.
+    await expect(
+      canvas.queryByRole("link", { name: "Get your own link" })
+    ).not.toBeInTheDocument();
   },
 };
 

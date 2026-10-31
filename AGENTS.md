@@ -16,11 +16,15 @@ Single-context (`GLOSSARY.md` and `docs/adr/` at root). See `docs/agents/domain.
 
 ### Agent guide index
 
-`docs/agents/README.md` maps each kind of task to its guide and to reference chapters 12–21 (product, design system, screens, data model, API, trust & safety, notifications, release summary, state management, infrastructure).
+`docs/agents/README.md` maps each kind of task to its guide and to reference chapters 12–27 (product, design system, screens, data model, API, trust & safety, notifications, release summary, state management, infrastructure, auth, inbox, AI, accessibility, responsive design, troubleshooting).
 
 ### Product rules & safety
 
 Before changing user-facing behaviour, settings, copy, moderation, notifications, or anything that stores or shows sender data, read `docs/agents/product-rules.md` (invariants S1–S10, recipient-control and copy rules). Depth: `docs/17-trust-safety-and-privacy.md`.
+
+### Feature deep-dives and cross-cutting guides
+
+Auth and the Verification Code: `docs/22-authentication-and-verification.md`. Inbox (filters, archive, selection, deletes, keyboard, live): `docs/23-inbox-triage.md`. AI calls (prompts, schemas, fallbacks): `docs/24-ai-features.md`. Shortcuts, focus, live regions, `notify` toasts and motion: `docs/25-accessibility-and-feedback.md`. Phone vs desktop: `docs/26-responsive-design.md`. Known errors and fixes: `docs/27-developer-troubleshooting.md`. App code toasts through `notify` from `@/components/elements/sonner`, never `toast` from `sonner`.
 
 ### State management
 

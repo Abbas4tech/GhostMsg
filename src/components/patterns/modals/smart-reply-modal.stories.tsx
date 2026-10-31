@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useCallback, useState } from "react";
 import { expect, fn, screen } from "storybook/test";
-import { sweetMessage } from "@/mock/fixtures/messages.fixtures";
+import {
+  smartReplyDrafts,
+  sweetMessage,
+} from "@/mock/fixtures/messages.fixtures";
 import {
   defaultSmartReplyModalArgs,
   editingSmartReplyModalArgs,
@@ -14,7 +17,8 @@ import {
 
 const SAVE_REGEX = /^save answer$/i;
 const SAVING_REGEX = /saving/i;
-const WITTY_REGEX = /witty/i;
+const TRY_AGAIN_REGEX = /try again/i;
+const [THOUGHTFUL_DRAFT] = smartReplyDrafts;
 
 /** Local state keeps the controlled draft + switch interactive (Storybook UI and tests). */
 function StatefulSmartReplyModal(args: SmartReplyModalProps) {
@@ -49,16 +53,25 @@ const meta = {
   args: {
     ...defaultSmartReplyModalArgs,
     onClose: fn(),
-    onGenerate: fn(),
+    onPickDraft: fn(),
     onPublishedChange: fn(),
     onReplyTextChange: fn(),
+    onRetryDrafts: fn(),
     onSave: fn(),
     onSaveAndShare: fn(),
   },
   argTypes: {
+    drafts: {
+      control: "object",
+      description: "Three Smart Reply drafts `{ text, tone }`, one per tone",
+    },
+    hasDraftsError: {
+      control: "boolean",
+      description: "Drafts failed to load (shows “Try again”)",
+    },
     isGenerating: {
       control: "boolean",
-      description: "AI draft in progress (“Thinking...”)",
+      description: "Drafts loading: three skeleton rows and “Thinking…”",
     },
     isOpen: { control: "boolean", description: "Dialog visibility" },
     isPublished: {
@@ -68,11 +81,10 @@ const meta = {
     isSaving: { control: "boolean", description: "Saving the reply" },
     message: { control: "object", description: "Message being answered" },
     onClose: { description: "Cancel / Escape / overlay" },
-    onGenerate: {
-      description: "Tone chip clicked → `witty` | `wholesome` | `thoughtful`",
-    },
+    onPickDraft: { description: "Smart Reply idea picked → draft text" },
     onPublishedChange: { description: "Publish switch toggled → boolean" },
     onReplyTextChange: { description: "Draft changed → text" },
+    onRetryDrafts: { description: "“Try again” after a failed load" },
     onSave: { description: "Save answer clicked" },
     onSaveAndShare: { description: "Answer + Story Card clicked" },
     replyText: {
@@ -112,12 +124,18 @@ export const NewReply: Story = {
   },
 };
 
-export const GeneratesWithAi: Story = {
+/** Design Modals board: three drafts, one per tone; a pick fills the answer. */
+export const PicksSmartReplyIdea: Story = {
   play: async ({ args, userEvent }) => {
-    await userEvent.click(
-      await screen.findByRole("button", { name: WITTY_REGEX })
+    await screen.findByRole("dialog", { name: "Answer this message" });
+    const ideas = smartReplyDrafts.map((draft) =>
+      screen.getByRole("button", { name: draft.text })
     );
-    await expect(args.onGenerate).toHaveBeenCalledWith("witty");
+    await expect(ideas).toHaveLength(smartReplyDrafts.length);
+    await userEvent.click(
+      screen.getByRole("button", { name: THOUGHTFUL_DRAFT?.text })
+    );
+    await expect(args.onPickDraft).toHaveBeenCalledWith(THOUGHTFUL_DRAFT?.text);
   },
 };
 
@@ -135,12 +153,36 @@ export const TogglesPublish: Story = {
 export const EditingExistingReply: Story = { args: editingSmartReplyModalArgs };
 
 export const Generating: Story = {
-  args: { isGenerating: true },
+  args: { drafts: [], isGenerating: true },
   play: async () => {
     await expect(await screen.findByText("Thinking…")).toBeVisible();
     await expect(
-      screen.getByRole("button", { name: WITTY_REGEX })
-    ).toBeDisabled();
+      screen.queryByRole("button", { name: THOUGHTFUL_DRAFT?.text })
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const DraftsFailed: Story = {
+  args: { drafts: [], hasDraftsError: true },
+  play: async ({ args, userEvent }) => {
+    await userEvent.click(
+      await screen.findByRole("button", { name: TRY_AGAIN_REGEX })
+    );
+    await expect(args.onRetryDrafts).toHaveBeenCalledOnce();
+  },
+};
+
+/** Design MobDrawerReply: "Reply" drawer, ideas scroll sideways, Save + Story Card. */
+export const Mobile: Story = {
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+  play: async () => {
+    await expect(
+      await screen.findByRole("dialog", { name: "Reply" })
+    ).toBeVisible();
+    await expect(
+      screen.getByRole("button", { name: "Story Card" })
+    ).toBeVisible();
+    await expect(screen.getByRole("button", { name: "Save" })).toBeVisible();
   },
 };
 

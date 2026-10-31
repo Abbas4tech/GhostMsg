@@ -1,6 +1,9 @@
 import type { NextRequest } from "next/server";
 import { moderateAndClassifyMessage } from "@/server/ai/moderation";
-import { shouldQuarantine } from "@/server/ai/quarantine-policy";
+import {
+  shouldQuarantine,
+  toQuarantineReason,
+} from "@/server/ai/quarantine-policy";
 import dbConnect from "@/server/db/db-connect";
 import { sendMessageAlertEmail } from "@/server/email/send-message-alert-email";
 import MessageModel from "@/server/models/message.model";
@@ -98,8 +101,12 @@ export async function POST(req: NextRequest): Promise<Response> {
     // 5. Create Standalone Message Document
     const messageDoc = await MessageModel.create({
       content: content.trim(),
+      isArchived: false,
       isPinned: false,
       isQuarantined,
+      ...(isQuarantined
+        ? { quarantineReason: toQuarantineReason(moderation.category) }
+        : {}),
       isRead: false,
       recipientId: user._id,
       senderHash,
@@ -111,9 +118,11 @@ export async function POST(req: NextRequest): Promise<Response> {
       _id: String(messageDoc._id),
       content: messageDoc.content,
       createdAt: messageDoc.createdAt.toISOString(),
+      isArchived: false,
       isPinned: messageDoc.isPinned,
       isQuarantined: messageDoc.isQuarantined,
       isRead: messageDoc.isRead,
+      quarantineReason: messageDoc.quarantineReason,
       sentimentTag: messageDoc.sentimentTag,
     });
 

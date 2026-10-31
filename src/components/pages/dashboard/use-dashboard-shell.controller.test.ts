@@ -22,6 +22,11 @@ vi.mock("next-auth/react", async (importOriginal) => ({
   signOut,
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+// `notify` (the design's toast API) forwards to the mocked Sonner spies above.
+vi.mock("@/components/elements/sonner", async () => {
+  const sonner = await import("sonner");
+  return { notify: sonner.toast };
+});
 
 const renderShell = () =>
   renderHookWithProviders(() => useDashboardShellController(), {

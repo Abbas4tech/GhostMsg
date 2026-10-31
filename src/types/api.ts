@@ -19,6 +19,8 @@ export type MessageReplyDto = Schemas["MessageReply"];
 export type PublicProfileDto = Schemas["PublicAnswersResponse"];
 /** Published Q&A item on `/u/[username]`. */
 export type PublicAnswerDto = Schemas["PublicAnswerItem"];
+/** One AI Smart Reply draft (`POST /api/ai/smart-reply` returns three). */
+export type SmartReplyDraftDto = Schemas["SmartReplyDraft"];
 /** Recipient notification preferences. */
 export type NotificationSettingsDto = Schemas["NotificationSettings"];
 /** Notification quiet-hours window. */

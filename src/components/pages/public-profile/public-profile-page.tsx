@@ -48,6 +48,7 @@ export function PublicProfilePage({
         isSubmitting: sender.isSubmitting,
         onSendAnother: sender.handleSendAnother,
         onSubmit: sender.handleSubmit,
+        sentContent: sender.sentContent,
       }}
       showAmaBanner={publicAnswers.showAmaBanner}
       suggestions={{

@@ -25,8 +25,10 @@ erDiagram
         string username UK "trimmed"
         string email UK
         string password "bcrypt; absent for Google accounts"
-        string verifyCode
-        Date verifyCodeExpiry
+        string verifyCode "6 digits, crypto.randomInt"
+        Date verifyCodeExpiry "sent + 1 hour"
+        number verifyAttempts "default 0, max 3"
+        Date verifyCodeSentAt "resend cooldown"
         boolean isVerified "default false"
         boolean isAcceptingMessage "default true"
         string amaPrompt "max 120"
@@ -44,6 +46,8 @@ erDiagram
         string content "10-300, trimmed"
         string sentimentTag "sweet|curious|spicy|advice|neutral"
         boolean isQuarantined "indexed"
+        string quarantineReason "hurtful|spam|threat, only when held"
+        boolean isArchived "indexed, default false"
         boolean isPinned "indexed (starred)"
         boolean isRead "indexed"
         string senderHash "indexed, HMAC-SHA256"
@@ -91,7 +95,9 @@ erDiagram
 | `username` | string | required, **unique**, trimmed; Zod `usernameValidation` on input | `POST /api/sign-up`, Google sign-in, `PATCH /api/user/username` | session, profile, public answers |
 | `email` | string | required, **unique**, regex `.+@.+\..+` | sign-up, Google | `GET /api/user/profile` (owner only) |
 | `password` | string? | bcrypt hash (10 rounds); Google sign-up stores a random unusable password | sign-up, Google sign-in | never |
-| `verifyCode`, `verifyCodeExpiry` | string, Date | required; code expires 1 hour after sign-up | sign-up | never |
+| `verifyCode`, `verifyCodeExpiry` | string, Date | required; `crypto.randomInt` 6 digits, expires 1 hour after it was sent (`issueVerificationCode`) | sign-up, `POST /api/verify-code/resend` | never |
+| `verifyAttempts` | number | `0`; +1 per wrong guess, locked at 3; reset by a new code or success | `POST /api/verify-code`, resend | never (the response says `attemptsLeft`) |
+| `verifyCodeSentAt` | Date? | when the current code went out (60 s resend cooldown) | sign-up, resend | never (the 429 says `retryAfterSeconds`) |
 | `isVerified` | boolean | `false` | `POST /api/verify-code`, Google | session |
 | `isAcceptingMessage` | boolean | `true` | `POST /api/accept-message` | `GET /api/accept-message`, `GET /api/user/notifications`, public answers (`isAcceptingMessages`), `send-message` check. **Not in the session token** ([ADR 0031](adr/0031-state-management-consistency-and-structure.md) D13): the client reads it through `user.acceptance`. |
 | `lastDigestSentAt` | Date \| null | `null` | `GET /api/cron/daily-digest` after a successful digest | never (server-only; [ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)) |
@@ -138,11 +144,22 @@ erDiagram
 | `content` | string | required, trimmed, 10–300 chars (also enforced in the route) | send-message |
 | `sentimentTag` | enum | `"neutral"`; from moderation | send-message |
 | `isQuarantined` | boolean | `false`; `shouldQuarantine(toxicity, safetySettings)` | send-message |
+| `quarantineReason` | enum? `hurtful` \| `spam` \| `threat` | set with `isQuarantined` from moderation's `category` (`toQuarantineReason`; none → hurtful); absent on messages held before the field existed | send-message |
+| `isArchived` | boolean | `false`, indexed; archived messages appear only under `status=archived` | `PATCH /api/messages/{id}` |
 | `isPinned` (Starred) | boolean | `false` | `PATCH /api/messages/{id}`, bulk `star` |
 | `isRead` | boolean | `false` | `PATCH /api/messages/{id}`, bulk `read` |
 | `reply` | `{ text ≤1000, isPublished, publishedAt? }` \| null | `null` | `POST /api/messages/{id}/reply` (sets `publishedAt` only when published) |
 | `senderHash` | string | required, indexed | send-message (`HMAC-SHA256(ip:recipientId, pepper)`) |
 | `createdAt`, `updatedAt` | Date | timestamps | automatic |
+
+The Mongoose shape for the two newest message fields (from `src/server/models/message.model.ts`):
+
+```ts
+isArchived: { default: false, index: true, type: Boolean },
+quarantineReason: { enum: QUARANTINE_REASONS, type: String }, // "hurtful" | "spam" | "threat"
+```
+
+`quarantineReason` is written only together with `isQuarantined: true`, from moderation's category ([Chapter 24 §3](24-ai-features.md#3-moderation)). Messages held before the field existed have none and show "Quarantined".
 
 Messages migrated from the old embedded model carry a placeholder hash (`sha256("legacy-<userId>")`) that no real sender can produce, so blocking it has no effect. The UI hides **Block** for any message without a `senderHash`.
 
@@ -153,7 +170,7 @@ Messages migrated from the old embedded model carry a placeholder hash (`sha256(
 | `{ recipientId: 1, isQuarantined: 1, createdAt: -1 }` | Inbox "All" (non-quarantined) and "Quarantined", newest first |
 | `{ recipientId: 1, isPinned: 1, createdAt: -1 }` | "Starred" |
 | `{ recipientId: 1, "reply.isPublished": 1, createdAt: -1 }` | Public Q&A feed on `/u/[username]` |
-| single-field: `recipientId`, `isQuarantined`, `isPinned`, `isRead`, `senderHash` | Filters, bulk updates, blocklist joins |
+| single-field: `recipientId`, `isQuarantined`, `isPinned`, `isRead`, `isArchived`, `senderHash` | Filters, bulk updates, blocklist joins |
 | `users.username` unique, `users.email` unique | Lookups by link and sign-in |
 
 `GET /api/get-messages` filters by status, searches `content` and `reply.text` with an escaped case-insensitive pattern, sorts by `{ createdAt: -1, _id: -1 }` and pages with a keyset cursor (default 30, max 100). `GET /api/messages/counts` computes every filter count in one `$group` over the recipient's messages (`recipientId` index). Both are built in `src/server/messages/inbox-query.ts` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). The public feed returns at most 50 published answers sorted by `reply.publishedAt`.
@@ -178,9 +195,10 @@ One-off migrations live in `scripts/` (for example `migrate-embedded-messages.ts
 ```mermaid
 flowchart LR
     SU["Sign up"] --> U[(User)]
+    VER["verify-code · resend"] -. "verifyAttempts · verifyCode · isVerified" .-> U
     SEND["send-message"] --> M[(Message)]
     U -. "PATCH profile / preferences / notifications" .-> U
-    M -. "read · star · reply · publish" .-> M
+    M -. "read · star · archive · reply · publish" .-> M
     DEL1["DELETE /api/delete-message/{id}"] -->|deleteOne| M
     BULK["POST /api/messages/bulk delete"] -->|deleteMany| M
     DALL["DELETE /api/messages"] -->|"deleteMany {recipientId}"| M
@@ -188,7 +206,8 @@ flowchart LR
     DACC -->|deleteOne| U
 ```
 
-- Deletes are **hard deletes**. There is no soft-delete flag, so the 10-second undo for Delete all is a client timer before the request ([ADR 0027](adr/0027-destructive-account-actions-undo-window-and-typed-confirmation.md)).
+- Deletes are **hard deletes**. There is no soft-delete flag, so the 10-second undo for Delete all is a client timer before the request ([ADR 0027](adr/0027-destructive-account-actions-undo-window-and-typed-confirmation.md)). Single and bulk deletes confirm first and have no undo ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)).
+- **Archive is not a delete.** `isArchived` only moves a message out of All / Unread / Starred into the Archived view; it is reversible and keeps the answer.
 - Deleting a message deletes its public answer (the answer is embedded).
 - Deleting the account removes the User and every Message. Rate-limit entries (in memory, keyed by IP) expire on their own.
 
@@ -197,7 +216,7 @@ flowchart LR
 | Data | Rule |
 | :--- | :--- |
 | Sender IP, user agent | Never stored. Only the HMAC Sender Hash. |
-| `password`, `verifyCode`, `verifyCodeExpiry` | Never returned by any API. |
+| `password`, `verifyCode`, `verifyCodeExpiry`, `verifyAttempts`, `verifyCodeSentAt` | Never returned by any API (the verify routes return only `attemptsLeft` and `retryAfterSeconds`). |
 | `pushSubscriptions` keys | Never returned. |
 | `email` | Only to its owner (`GET /api/user/profile`). |
 | `senderHash` | Only to the Recipient (`GET /api/get-messages`, blocklist). Never on the public profile and never in exports (allow-listed fields). |
@@ -205,9 +224,16 @@ flowchart LR
 
 ## 7. Changing the model: checklist
 
-1. **Schema:** add the field with a default in `src/server/models/*.model.ts` (and the TypeScript interface).
+1. **Schema:** add the field with a default in `src/server/models/*.model.ts` (and the TypeScript interface). Add `index: true` if a filter will use it.
+
+   ```ts
+   // message.model.ts: interface + schema stay side by side
+   isArchived?: boolean;
+   // …
+   isArchived: { default: false, index: true, type: Boolean },
+   ```
 2. **Contract:** add or extend the Zod schema in `src/schemas/*` and register it in `src/server/openapi/openapi.ts`; run `pnpm typegen`.
 3. **Read path:** add a default in the DTO mapper (`src/server/users/user-dto.ts`) and a unit test.
 4. **Write path:** validate with `safeParse`, write with dot-path `$set` (or `$addToSet`/`$pull` for arrays).
-5. **Client:** extend `src/types/api.ts` aliases if needed, the query/mutation in `src/data/`, fixtures in `src/mock/fixtures/`, and the MSW handler.
+5. **Client:** extend `src/types/api.ts` aliases if needed, the query/mutation in `src/data/`, fixtures in `src/mock/fixtures/` (`buildMessage` defaults), and the MSW handler. For a field the inbox filters on, also update `src/lib/messages/inbox-filter.ts`, `src/server/messages/inbox-query.ts` and the SSE payload mapping in `src/data/messages/use-live-messages.utils.ts`.
 6. **Docs:** update this chapter, [Chapter 16](16-api-reference.md), and the ADR if the decision is non-obvious.

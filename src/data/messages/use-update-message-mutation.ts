@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { api, clientFetch } from "@/data/api-client";
 import {
   invalidateCachedMessages,
@@ -31,7 +31,7 @@ export const useUpdateMessageMutation = () => {
       ),
     onError: (error, _variables, context) => {
       restoreCachedMessages(queryClient, context?.snapshot);
-      toast.error(error.message || "Failed to update message");
+      notify.error(error.message || "Failed to update message");
     },
     onMutate: async ({ messageId, isPinned, isRead }: UpdateMessageParams) => {
       const snapshot = await patchCachedMessage(queryClient, messageId, {

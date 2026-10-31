@@ -16,6 +16,15 @@ export const queryKeys = {
       [...queryKeys.public.all, "answers", username] as const,
     suggestions: () => [...queryKeys.public.all, "suggestions"] as const,
   },
+  /**
+   * AI drafts per message. Kept outside `messages.all` so inbox invalidations
+   * never re-run the AI call.
+   */
+  smartReplies: {
+    all: ["smart-replies"] as const,
+    drafts: (messageId: string) =>
+      [...queryKeys.smartReplies.all, messageId] as const,
+  },
   user: {
     acceptance: () => [...queryKeys.user.all, "acceptance"] as const,
     all: ["user"] as const,

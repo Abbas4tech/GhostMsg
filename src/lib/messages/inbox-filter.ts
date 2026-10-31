@@ -11,6 +11,7 @@ export const INBOX_STATUSES = [
   "starred",
   "quarantined",
   "answered",
+  "archived",
 ] as const;
 
 export type InboxStatus = (typeof INBOX_STATUSES)[number];
@@ -21,6 +22,8 @@ export type InboxQueryStatus = InboxStatus | "any";
 export interface InboxCounts {
   all: number;
   answered: number;
+  /** Archived messages (the Archived chip shows once this is > 0). */
+  archived: number;
   quarantined: number;
   starred: number;
   /** Every message, quarantined included (Delete all, empty state). */
@@ -31,6 +34,7 @@ export interface InboxCounts {
 export const EMPTY_INBOX_COUNTS: InboxCounts = {
   all: 0,
   answered: 0,
+  archived: 0,
   quarantined: 0,
   starred: 0,
   total: 0,
@@ -47,20 +51,32 @@ export const isInboxQueryStatus = (value: unknown): value is InboxQueryStatus =>
 type FilterableMessage = Pick<
   MessageDto,
   "content" | "isPinned" | "isQuarantined" | "isRead" | "reply"
->;
+> &
+  Partial<Pick<MessageDto, "isArchived">>;
 
 const NON_BLANK = /\S/;
 
 export const hasReplyText = (message: FilterableMessage): boolean =>
   Boolean(message.reply?.text && NON_BLANK.test(message.reply.text));
 
+/**
+ * Archived messages appear only under "archived" (and "any"); every other
+ * view leaves them out.
+ */
 export function matchesInboxStatus(
   message: FilterableMessage,
   status: InboxQueryStatus
 ): boolean {
+  if (status === "any") {
+    return true;
+  }
+  if (status === "archived") {
+    return Boolean(message.isArchived);
+  }
+  if (message.isArchived) {
+    return false;
+  }
   switch (status) {
-    case "any":
-      return true;
     case "unread":
       return !(message.isQuarantined || message.isRead);
     case "starred":
@@ -95,6 +111,7 @@ export function countInboxStatuses(messages: FilterableMessage[]): InboxCounts {
   return {
     all: count("all"),
     answered: count("answered"),
+    archived: count("archived"),
     quarantined: count("quarantined"),
     starred: count("starred"),
     total: messages.length,

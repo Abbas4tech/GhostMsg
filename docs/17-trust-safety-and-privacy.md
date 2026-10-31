@@ -76,7 +76,9 @@ Email and push are fire-and-forget (`.catch(console.warn)`); they never delay or
 | `borderline` | Rude, mean-spirited or crude but not clearly abusive |
 | `none` | Everything else, including playful teasing |
 
-…plus a `sentimentTag` (sweet, curious, spicy, advice, neutral). Without `GOOGLE_AI_STUDIO_SECRET`, or on any error or unparsable reply, the result is `{ toxicity: "none", sentimentTag: "neutral" }` (fail open, invariant 7). An old-shape reply `{ isToxic: true }` maps to `severe`.
+…plus a `sentimentTag` (sweet, curious, spicy, advice, neutral) and a `category` (`none`, `hurtful`, `spam`, `threat`). Without `GOOGLE_AI_STUDIO_SECRET`, or on any error or unparsable reply, the result is `{ toxicity: "none", category: "none", sentimentTag: "neutral" }` (fail open, invariant 7). An old-shape reply `{ isToxic: true }` maps to `severe`.
+
+When a message is held, `toQuarantineReason(category)` stores `quarantineReason` (`none` → `hurtful`, the promise of the Quarantine setting). The reason only labels the message; the hold decision is still `shouldQuarantine` alone (S5).
 
 ### 4.2 The policy
 
@@ -98,7 +100,7 @@ Email and push are fire-and-forget (`.catch(console.warn)`); they never delay or
 
 | Situation | Inbox treatment | Reveal | Alerts |
 | :--- | :--- | :--- | :--- |
-| `isQuarantined` | Only under **Quarantined** (attention badge count). Card is dashed, body hidden: "Hidden. Flagged as hurtful." Keyboard actions skip it. | Dialog; **Keep hidden** has initial focus; reveal lasts until reload. | Never |
+| `isQuarantined` | Only under **Quarantined** (attention badge count). Card is dashed, tagged with its reason (Hurtful language, Spam, Threat; older messages: Quarantined), body hidden: "Hidden. Flagged as hurtful." / "… as spam." / "… as a threat." Keyboard actions skip it. | Dialog ("It was flagged for hurtful language." etc.); **Keep hidden** has initial focus; reveal lasts until reload. | Never |
 | Spicy + `blurSpicy` on | Normal inbox, body concealed: "Spicy 🔥 Reveal to read." | Click reveals (no dialog). | Normal |
 | Spicy + `blurSpicy` off | Normal | — | Normal |
 
@@ -143,7 +145,7 @@ Details and the decision flow: [Chapter 18](18-notifications-and-realtime.md).
 | **Pause** | Message Acceptance off | Visitors see a calm paused state; answers remain public. |
 | **Hide** | Unpublish an answer, hide the AMA banner, turn off suggestions | Immediate. |
 | **Export** | Settings → Export all (CSV/JSON) | Pages through the server for **every** message (quarantined included, not just what is loaded), then builds the file in the browser from allow-listed fields only; no Sender Hashes. |
-| **Erase messages** | Danger zone → Delete all (10 s undo) | Hard delete, answers included. |
+| **Erase messages** | Danger zone → Delete all (confirm + 10 s undo); per message (confirm, no undo); selected (confirm, no undo); Quarantined view → Delete all quarantined (confirm, no undo) ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)) | Hard delete, answers included. |
 | **Erase account** | Danger zone → Delete account (type username) | Hard delete of User + Messages, then sign-out. The username becomes available to others. |
 | **Rename** | Change username | The old link stops working at once (no redirect, so an old link can't keep pointing at a renamed person). |
 

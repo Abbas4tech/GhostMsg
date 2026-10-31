@@ -22,6 +22,8 @@ import { cn } from "@/lib/utils";
 
 export interface MessageAction {
   disabled?: boolean;
+  /** Small trailing note on the phone Drawer row, e.g. a shortcut. */
+  hint?: string;
   icon: React.ReactNode;
   key: string;
   label: string;
@@ -35,6 +37,8 @@ export interface MessageActionsMenuProps {
   actions: MessageAction[];
   /** Accessible name for the trigger and the mobile Drawer title. */
   label?: string;
+  /** Phones: a one-line summary of the message above the actions. */
+  preview?: React.ReactNode;
 }
 
 interface DrawerActionButtonProps {
@@ -62,7 +66,12 @@ function DrawerActionButton({ action, onSelect }: DrawerActionButtonProps) {
       <span aria-hidden="true" className="[&_svg]:size-5">
         {action.icon}
       </span>
-      {action.label}
+      <span className="flex-1">{action.label}</span>
+      {action.hint ? (
+        <span className="font-normal text-muted-foreground text-xs">
+          {action.hint}
+        </span>
+      ) : null}
     </button>
   );
 }
@@ -71,6 +80,7 @@ function DrawerActionButton({ action, onSelect }: DrawerActionButtonProps) {
 export function MessageActionsMenu({
   actions,
   label = "Message actions",
+  preview,
 }: MessageActionsMenuProps): React.JSX.Element | null {
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -104,6 +114,11 @@ export function MessageActionsMenu({
           <DrawerHeader className="sr-only">
             <DrawerTitle>{label}</DrawerTitle>
           </DrawerHeader>
+          {preview ? (
+            <div className="mx-4 flex items-center gap-2.5 border-b px-1 pt-2 pb-3">
+              {preview}
+            </div>
+          ) : null}
           <div className="flex flex-col pb-[env(safe-area-inset-bottom)]">
             {actions.map((action) => (
               <DrawerActionButton

@@ -43,7 +43,7 @@ export const defaultSignUpFormArgs: SignUpFormStoryArgs = {
 
 export const defaultAuthFormFooterArgs: AuthFormFooterProps = {
   alternateHref: "/sign-up",
-  alternateLabel: "Get your link",
+  alternateLabel: "Make your link",
   alternatePrompt: "New here?",
   isSubmitDisabled: false,
   isSubmitting: false,

@@ -11,6 +11,11 @@ import { recordRequests, renderHookWithProviders } from "@/test/test-utils";
 import { useSendMessageController } from "./use-send-message.controller";
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
+// `notify` (the design's toast API) forwards to the mocked Sonner spies above.
+vi.mock("@/components/elements/sonner", async () => {
+  const sonner = await import("sonner");
+  return { notify: sonner.toast };
+});
 
 const SUGGESTION = "What is your favorite book of all time?";
 
@@ -76,8 +81,11 @@ describe("useSendMessageController", () => {
 
     expect(toast.success).toHaveBeenCalledWith("Message sent successfully");
     expect(result.current.isSent).toBe(true);
+    // The "Sent." screen repeats the message ("You sent").
+    expect(result.current.sentContent).toBe(SUGGESTION);
     act(() => result.current.handleSendAnother());
     expect(result.current.isSent).toBe(false);
+    expect(result.current.sentContent).toBeNull();
     expect(result.current.form.getValues("content")).toBe("");
   });
 

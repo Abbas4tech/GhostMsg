@@ -35,7 +35,7 @@ export function DeleteAllMessagesModal({
           <span className="grid size-11 place-items-center rounded-[14px] bg-destructive/15 text-destructive">
             <Trash2Icon aria-hidden="true" className="size-5" />
           </span>
-          <AlertDialogTitle className="text-h2">
+          <AlertDialogTitle className="text-h3">
             {total === 1
               ? "Delete 1 message?"
               : `Delete all ${total} messages?`}

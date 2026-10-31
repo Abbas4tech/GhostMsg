@@ -58,7 +58,7 @@ export function DeleteMessageModal({
           <span className="grid size-11 place-items-center rounded-[14px] bg-destructive/15 text-destructive">
             <Trash2 aria-hidden="true" className="size-5" />
           </span>
-          <AlertDialogTitle className="text-h2">
+          <AlertDialogTitle className="text-h3">
             Delete this message?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-sm">
