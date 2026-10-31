@@ -1,6 +1,6 @@
-# Chapter 18: Notifications & Real-Time Delivery
+# Notifications & Real-Time Delivery
 
-How a Recipient learns about a new Anonymous Message: the live in-app feed (SSE), email alerts, and Web Push, plus the delivery policy that decides which channels fire (quarantine, quiet hours, hidden text). Decisions: [ADR 0020](adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md) (Web Push) and [ADR 0026](adr/0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md) (quiet hours + hidden previews).
+How a Recipient learns about a new Anonymous Message: the live in-app feed (SSE), email alerts, and Web Push, plus the delivery policy that decides which channels fire (quarantine, quiet hours, hidden text). Decisions: [ADR 0020](../adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md) (Web Push) and [ADR 0026](../adr/0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md) (quiet hours + hidden previews).
 
 ---
 
@@ -13,11 +13,11 @@ How a Recipient learns about a new Anonymous Message: the live in-app feed (SSE)
 | **Web Push** | Every subscribed device | `webPushEnabled` and ≥1 subscription | ✓ never | ✓ | ✓ |
 | **Daily digest** | Inbox of `user.email` | `emailAlerts = "daily"`, once a day (17:00 UTC) | ✓ never counted | ✓ skipped, rolls to the next run | ✓ count only |
 
-The in-app toast rules come from `buildLiveMessageToast` (`src/data/messages/use-live-messages.utils.ts`); the digest from `runDailyDigest` ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)).
+The in-app toast rules come from `buildLiveMessageToast` (`src/data/messages/use-live-messages.utils.ts`); the digest from `runDailyDigest` ([ADR 0029](../adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)).
 
 ## 2. The delivery decision
 
-All alert logic lives in `POST /api/send-message` after the message is stored, using the pure helpers in [`src/server/notifications/delivery-policy.ts`](../src/server/notifications/delivery-policy.ts) (unit-tested in `delivery-policy.test.ts`):
+All alert logic lives in `POST /api/send-message` after the message is stored, using the pure helpers in [`src/server/notifications/delivery-policy.ts`](../../src/server/notifications/delivery-policy.ts) (unit-tested in `delivery-policy.test.ts`):
 
 ```mermaid
 flowchart TD
@@ -53,7 +53,7 @@ flowchart TD
 - **Subjects:** instant "GhostMsg 👻 | You received a new anonymous message!"; digest "GhostMsg 👻 | 3 new anonymous messages today".
 - **Frequency:** `instant` sends one email per eligible message. `off` sends none. `daily` sends one digest per day, described below.
 
-### 3.1 Daily digest ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md))
+### 3.1 Daily digest ([ADR 0029](../adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md))
 
 ```mermaid
 sequenceDiagram
@@ -115,8 +115,8 @@ sequenceDiagram
     PS-->>SM: 404/410 for a revoked device → $pull that subscription
 ```
 
-- **Per device.** "Push notifications: On this device only." Each browser registers its own subscription, and the Settings switch shows **this browser's** subscription. Turning push off removes this device only; `webPushEnabled` ("some device is subscribed") goes false only when the last subscription is removed or pruned ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md) D9).
-- **Server:** [`src/server/push/web-push.ts`](../src/server/push/web-push.ts): `getVapidConfig()` (null when keys are missing → push skipped), `sendPushToUser()` (never throws; prunes gone endpoints).
+- **Per device.** "Push notifications: On this device only." Each browser registers its own subscription, and the Settings switch shows **this browser's** subscription. Turning push off removes this device only; `webPushEnabled` ("some device is subscribed") goes false only when the last subscription is removed or pruned ([ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md) D9).
+- **Server:** [`src/server/push/web-push.ts`](../../src/server/push/web-push.ts): `getVapidConfig()` (null when keys are missing → push skipped), `sendPushToUser()` (never throws; prunes gone endpoints).
 - **Client adapter:** `src/data/user/use-push-notification.ts` hides browser APIs from controllers (ADR 0014/0020). Missing VAPID config surfaces as `PUSH_NOT_CONFIGURED_MESSAGE`.
 - **Env:** `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (default `mailto:support@ghostmsg.app`).
 
@@ -144,12 +144,12 @@ sequenceDiagram
 ```
 
 - `runtime = "nodejs"`, `dynamic = "force-dynamic"`. The listener and heartbeat are removed when the request aborts.
-- **Client:** `useLiveMessages` inserts each new message into every cached inbox list it belongs to (not searches) and into the counts (`insertLiveMessage`, `addToInboxCounts`), then refetches once after 1.5 s to fill in the Sender Hash and reply. It reports `isConnected`; while disconnected the inbox polls every 30 s, and inbox + counts refetch on window focus ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)).
+- **Client:** `useLiveMessages` inserts each new message into every cached inbox list it belongs to (not searches) and into the counts (`insertLiveMessage`, `addToInboxCounts`), then refetches once after 1.5 s to fill in the Sender Hash and reply. It reports `isConnected`; while disconnected the inbox polls every 30 s, and inbox + counts refetch on window focus ([ADR 0031](../adr/0031-state-management-consistency-and-structure.md)).
 - The bus is a process-wide `EventEmitter` (`src/server/realtime/event-bus.ts`, max 100 listeners, kept on `global` in development to survive hot reload).
 
 ### Scaling limits
 
-The event bus and the rate limiter ([Chapter 17 §6](17-trust-safety-and-privacy.md#6-rate-limiting-and-abuse-limits)) are **in-memory per server process**:
+The event bus and the rate limiter ([Trust, Safety & Privacy §6](trust-safety-and-privacy.md#6-rate-limiting-and-abuse-limits)) are **in-memory per server process**:
 
 | Deployment | Effect |
 | :--- | :--- |

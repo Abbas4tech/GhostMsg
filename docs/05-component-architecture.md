@@ -1,4 +1,4 @@
-# Chapter 5: Component Architecture & UI Design System
+# Component Architecture & UI Design System
 
 This chapter details GhostMsg's React 19 component hierarchy, Tailwind CSS v4 design tokens, micro-animations with Motion, and component state management based on the **Elements ➔ Patterns ➔ Blocks ➔ Pages** architecture ([ADR 0013](adr/0013-elements-patterns-blocks-composable-architecture.md), [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
 
@@ -181,7 +181,7 @@ src/components/pages/dashboard/              # page (impure by design)
 
 GhostMsg uses Tailwind CSS v4 with custom CSS variable tokens defined in [`src/app/globals.css`](../src/app/globals.css):
 
-> The full design system (brand direction, every token, the six theme screenshots, motion, the shadcn-first rule and the CVA variant catalog) is in [Chapter 13: Design System & Theming](13-design-system-and-theming.md). Screen-by-screen composition is in [Chapter 14](14-ui-screens-and-user-flows.md).
+> The full design system (brand direction, every token, the six theme screenshots, motion, the shadcn-first rule and the CVA variant catalog) is in [Design System & Theming](reference/design-system.md). Screen-by-screen composition is in [UI Screens & User Flows](features/screens-and-user-flows.md).
 
 ### Palettes × mode ([ADR 0022](adr/0022-palette-theming-and-claude-design-redesign.md))
 
@@ -227,7 +227,7 @@ Tokens beyond stock shadcn (all wired into `@theme inline`):
 - **Ports & Adapters for Browser Infrastructure**: External browser APIs (`PushManager`, ServiceWorker, Web Push) are encapsulated in dedicated adapters (`src/data/user/use-push-notification.ts`) rather than leaking into React component trees.
 - **Form Validation & Shadcn Compound Primitives**: Page controllers create the `react-hook-form` instance with `zodResolver(schema)` and `mode: "onChange"`. Form patterns receive it as `form: UseFormReturn<Values>`, render fields using shadcn `<Form>` compound primitives (`Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage` from `src/components/elements/form/form.tsx`), suppress native browser validation popups via `<form noValidate ...>`, and call `form.handleSubmit(onSubmit)`. Pending state comes from the controller (`isSubmitting`) ([ADR 0033](adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md)).
 - **Server-fed drafts**: the Profile page's form is `useForm({ values: serverValues, resetOptions: { keepDirtyValues: true } })`: it follows the server profile, keeps fields being edited when a refetch lands, and `isDirty` drives the `UnsavedChangesBar` and the leave guard (`useLeaveGuard` + `DiscardChangesModal`). Saving sends only the dirty fields in one `PATCH` (`buildProfilePatch`) ([ADR 0031](adr/0031-state-management-consistency-and-structure.md) D11).
-- **Deterministic Optimistic Updates**: Standardized on TanStack Query `onMutate` cache updates with context rollback in `onError` as specified in [ADR 0006](adr/0006-standardized-api-calling-and-react-query-architecture.md). Inbox mutations share `src/data/messages/messages-cache.ts` (which walks every page of every cached inbox list), and confirm dialogs close **before** the request is awaited ([ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md)). Settings-like resources (acceptance, notifications, preferences, profile) use the `useOptimisticResourceMutation` factory: queued per resource, silent on success, one error toast ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)). Server data is never copied into `useState`; see [Chapter 20](20-state-management.md).
+- **Deterministic Optimistic Updates**: Standardized on TanStack Query `onMutate` cache updates with context rollback in `onError` as specified in [ADR 0006](adr/0006-standardized-api-calling-and-react-query-architecture.md). Inbox mutations share `src/data/messages/messages-cache.ts` (which walks every page of every cached inbox list), and confirm dialogs close **before** the request is awaited ([ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md)). Settings-like resources (acceptance, notifications, preferences, profile) use the `useOptimisticResourceMutation` factory: queued per resource, silent on success, one error toast ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)). Server data is never copied into `useState`; see [State Management](guides/state-management.md).
 - **Debounced Username Availability**: `useUsernameAvailabilityController` (in `pages/auth/sign-up/use-username-availability.controller.ts`, composed by `useSignUpController`) watches the username with `useWatch`, debounces it by 400 ms (`USERNAME_DEBOUNCE_MS`) with `useDebounceValue`, and queries `authQueries.checkUsername`. The result is **derived, never written into form state**: the status mapping is the pure `deriveUsernameAvailability` in `src/lib/users/username-availability.ts` (shared with Change username), `SignUpForm` disables submit while the name is taken, and `useSignUpController` re-checks it before sending. The pure `UsernameField` pattern only renders `availability: "idle" | "checking" | "available" | "taken"`.
 - **Client-Side Story Card Engine**: `StoryCardModal` reads the palette tokens with `getComputedStyle` and draws the card on a canvas (format, look, answer and link toggles), then saves or shares the PNG without server roundtrips.
 
@@ -243,7 +243,7 @@ Tokens beyond stock shadcn (all wired into `@theme inline`):
 
 ## 6. Component Registry
 
-The full, always-current inventory is generated into [Chapter 11: Component Registry](11-component-registry.md). It lists every module, its public API, stories, `play()` tests, mock exports and controllers, plus fixtures and MSW scenarios. Regenerate it with `pnpm docs:registry`; `pnpm docs:registry:check` (part of the pre-push gate) fails if it's stale.
+The full, always-current inventory is generated into [Component Registry](reference/component-registry.md). It lists every module, its public API, stories, `play()` tests, mock exports and controllers, plus fixtures and MSW scenarios. Regenerate it with `pnpm docs:registry`; `pnpm docs:registry:check` (part of the pre-push gate) fails if it's stale.
 
 Folder contract per module:
 
@@ -261,6 +261,6 @@ Shared callback stub: `src/mock/noop.ts`.
 ---
 
 ## 7. Next Chapter
-Proceed to [Chapter 6: Developer Workflow](06-dev-workflow.md).
+Proceed to [Developer Workflow](06-dev-workflow.md).
 
 

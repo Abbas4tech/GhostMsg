@@ -1,8 +1,8 @@
-# Chapter 26: Responsive Design (Phone ↔ Desktop)
+# Responsive Design (Phone ↔ Desktop)
 
 How one codebase renders the phone boards (`Mob*`) and the desktop boards of the design handoff, which technique to use for a given difference, and what differs on each screen. Read this before adding a phone-only or desktop-only behaviour.
 
-Decisions: [ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md) D7–D8 (phone chrome, tablet rail). Visual targets: the handoff's `screenshots/` and `reference/boards/Mob*.dc.html` (local only, see [redesign-progress.md](agents/redesign-progress.md)).
+Decisions: [ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md) D7–D8 (phone chrome, tablet rail). Visual targets: the handoff's `screenshots/` and `reference/boards/Mob*.dc.html` (local only, see [redesign-progress.md](../agents/redesign-progress.md)).
 
 ---
 

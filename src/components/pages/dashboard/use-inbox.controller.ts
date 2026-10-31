@@ -49,7 +49,7 @@ export interface UseInboxControllerOptions {
 const NO_IDS: string[] = [];
 
 /**
- * Headless Inbox controller (ADR 0014, Chapter 20): composes the URL-synced
+ * Headless Inbox controller (ADR 0014, State Management): composes the URL-synced
  * filters and the server data, and owns selection, the hoisted dialog (by
  * message id) and the message actions. The Inbox block renders; this decides.
  */

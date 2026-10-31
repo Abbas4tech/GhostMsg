@@ -1,8 +1,8 @@
-# Chapter 9: Deployment & Operations
+# Deployment & Operations
 
 This chapter covers deployment architecture on Vercel, MongoDB Atlas production clustering, SMTP email provider setup, and operational monitoring.
 
-The Vercel project's settings and environment variables, and the Atlas project/cluster/database users, are managed as code in [`terraform/`](../terraform/) ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)) rather than by hand in each dashboard. Start at [`terraform/README.md`](../terraform/README.md) for setup and day-to-day commands; [Chapter 21](21-infrastructure-and-terraform.md) has the full architecture. The sections below describe what that config produces, not a dashboard-first workflow.
+The Vercel project's settings and environment variables, and the Atlas project/cluster/database users, are managed as code in [`terraform/`](../terraform/) ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)) rather than by hand in each dashboard. Start at [`terraform/README.md`](../terraform/README.md) for setup and day-to-day commands; [Infrastructure & Terraform](guides/infrastructure-and-terraform.md) has the full architecture. The sections below describe what that config produces, not a dashboard-first workflow.
 
 ```mermaid
 flowchart TB
@@ -54,7 +54,7 @@ Vercel detects pnpm from `packageManager` (`pnpm@10.29.1`) and `pnpm-lock.yaml`,
 
 ## 2. Production Environment Variables Checklist
 
-These are set via [`terraform/`](../terraform/)'s `app_env_vars` input, not by hand in Vercel Project Settings ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)): editing one in the dashboard directly gets overwritten on the next `terraform apply`. `MONGODB_URI` isn't in that list: it's computed from the Atlas cluster and a per-environment database user (`terraform/vercel.tf`), one value for Production and a separate one for Preview, each scoped to its own database. [`.env.example`](../.env.example) is still the complete, commented reference for what each variable does, and [Chapter 2 §2.1](02-getting-started.md#21-every-variable-the-code-reads) shows where each one is read. Vercel variables the code doesn't read (`RESEND_API_KEY`, `GOOGLE_OAUTH_CALLBACK_URL`) can be deleted ([§2.2](02-getting-started.md#22-set-automatically-or-not-used)):
+These are set via [`terraform/`](../terraform/)'s `app_env_vars` input, not by hand in Vercel Project Settings ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)): editing one in the dashboard directly gets overwritten on the next `terraform apply`. `MONGODB_URI` isn't in that list: it's computed from the Atlas cluster and a per-environment database user (`terraform/vercel.tf`), one value for Production and a separate one for Preview, each scoped to its own database. [`.env.example`](../.env.example) is still the complete, commented reference for what each variable does, and [Getting Started §2.1](02-getting-started.md#21-every-variable-the-code-reads) shows where each one is read. Vercel variables the code doesn't read (`RESEND_API_KEY`, `GOOGLE_OAUTH_CALLBACK_URL`) can be deleted ([§2.2](02-getting-started.md#22-set-automatically-or-not-used)):
 
 | Variable | Description |
 | :--- | :--- |
@@ -74,7 +74,7 @@ These are set via [`terraform/`](../terraform/)'s `app_env_vars` input, not by h
 | `VAPID_SUBJECT` | Optional `mailto:`/`https:` contact for push services (default `mailto:support@ghostmsg.app`). |
 | `CRON_SECRET` | Bearer secret for the daily digest cron (`vercel.json` schedules `GET /api/cron/daily-digest` at 17:00 UTC). Vercel Cron sends it automatically; unset = digests off ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)). |
 | `NEXT_PUBLIC_LIVE_PROFILE_USERNAME` | Optional. A real public username the landing links as "See a live profile"; unset hides the link. Built into the bundle, so redeploy after changing it. |
-| `SENDER_PEPPER_SECRET` | HMAC pepper for Sender Hashes ([Chapter 17 §2](17-trust-safety-and-privacy.md#2-anonymity-model)). Set a dedicated random value; rotating it makes existing blocks stop matching. |
+| `SENDER_PEPPER_SECRET` | HMAC pepper for Sender Hashes ([Trust, Safety & Privacy §2](features/trust-safety-and-privacy.md#2-anonymity-model)). Set a dedicated random value; rotating it makes existing blocks stop matching. |
 
 ---
 
@@ -92,7 +92,7 @@ async function dbConnect(): Promise<void> {
 }
 ```
 
-Indexes are declared on the Mongoose schemas ([Chapter 15 §3.1](15-data-model-and-database.md#31-indexes-and-the-queries-they-serve)); Mongoose builds missing ones on first connection. For large production collections, build new indexes ahead of a deploy in Atlas.
+Indexes are declared on the Mongoose schemas ([Data Model §3.1](reference/data-model.md#31-indexes-and-the-queries-they-serve)); Mongoose builds missing ones on first connection. For large production collections, build new indexes ahead of a deploy in Atlas.
 
 ---
 
@@ -105,7 +105,7 @@ Two subsystems keep state **in the Node process**, not in a shared store:
 | Send rate limiter (5 per IP per 10 min) | `src/server/security/security.ts` | Each instance counts separately, so the effective limit is higher. |
 | Live-message event bus (SSE) | `src/server/realtime/event-bus.ts` | A message stored on instance A reaches only SSE clients connected to A; others see it on the next refetch. |
 
-Both sit behind small function signatures (`checkRateLimit`, `publishNewMessage`/`subscribeToMessages`) and can be swapped for a shared store such as Redis without touching callers ([Chapter 18 §5](18-notifications-and-realtime.md#5-live-feed-server-sent-events)). Email and Web Push are unaffected.
+Both sit behind small function signatures (`checkRateLimit`, `publishNewMessage`/`subscribeToMessages`) and can be swapped for a shared store such as Redis without touching callers ([Notifications & Real-Time §5](features/notifications-and-realtime.md#5-live-feed-server-sent-events)). Email and Web Push are unaffected.
 
 ---
 
@@ -127,5 +127,5 @@ Run it by hand to test: `curl -H "Authorization: Bearer $CRON_SECRET" https://<h
 
 ---
 
-## 7. Next Chapter
-Proceed to [Chapter 10: Storybook & UI Catalog](10-storybook-and-ui-catalog.md).
+## 7. Where to go next
+The [documentation index](README.md) maps the rest: [features](features/product-guide.md), [reference](reference/data-model.md) and [guides](guides/state-management.md) such as [Infrastructure & Terraform](guides/infrastructure-and-terraform.md).

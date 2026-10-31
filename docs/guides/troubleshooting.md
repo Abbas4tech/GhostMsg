@@ -1,8 +1,8 @@
-# Chapter 27: Developer Troubleshooting
+# Developer Troubleshooting
 
 Symptoms we have hit while building GhostMsg, what causes them, and the fix. Search this page for the error text first. Each entry is **Symptom → Cause → Fix**.
 
-Related: [Chapter 6](06-dev-workflow.md) (commands), [Chapter 7](07-testing-strategy.md) (tests), [Chapter 8](08-code-quality.md) (lint), [Chapter 10](10-storybook-and-ui-catalog.md) (stories).
+Related: [Developer Workflow](../06-dev-workflow.md) (commands), [Testing Strategy](../07-testing-strategy.md) (tests), [Code Quality](../08-code-quality.md) (lint), [Storybook & UI Catalog](storybook-and-ui-catalog.md) (stories).
 
 ---
 
@@ -33,7 +33,7 @@ conflictingClassGroups: {
 
 ### 1.4 An element looks different after a shadcn update
 **Cause.** Someone changed a stock default instead of adding a variant.
-**Fix.** Defaults stay stock; the approved deviations are listed in [Chapter 13 §6](13-design-system-and-theming.md#6-elements-shadcn-first-design-through-variants) and marked `GhostMsg:` in the source.
+**Fix.** Defaults stay stock; the approved deviations are listed in [Design System §6](../reference/design-system.md#6-elements-shadcn-first-design-through-variants) and marked `GhostMsg:` in the source.
 
 ## 2. API and types
 
@@ -71,7 +71,7 @@ function readRetryAfter(error: unknown): number | null {
 
 ### 2.3 A new inbox status shows archived messages in All
 **Cause.** The three copies of the filter rules drifted.
-**Fix.** Change `src/lib/messages/inbox-filter.ts`, `src/server/messages/inbox-query.ts` (`NOT_ARCHIVED`) and the MSW handler together; `inbox-query.test.ts` checks they agree ([Chapter 23 §2](23-inbox-triage.md#2-filters)).
+**Fix.** Change `src/lib/messages/inbox-filter.ts`, `src/server/messages/inbox-query.ts` (`NOT_ARCHIVED`) and the MSW handler together; `inbox-query.test.ts` checks they agree ([Inbox Triage §2](../features/inbox-triage.md#2-filters)).
 
 ## 3. Tests and stories
 
@@ -82,7 +82,7 @@ function readRetryAfter(error: unknown): number | null {
 
 ### 3.2 `Found multiple elements with the role "alert"`
 **Cause.** More than one `role="alert"` in the canvas.
-**Fix.** Query the text (`getByText("That code isn't right.")`) or scope with `within(container)`. The Toaster's assertive region deliberately has no `role` ([Chapter 25 §4](25-accessibility-and-feedback.md#4-live-regions)).
+**Fix.** Query the text (`getByText("That code isn't right.")`) or scope with `within(container)`. The Toaster's assertive region deliberately has no `role` ([Accessibility & Feedback §4](accessibility-and-feedback.md#4-live-regions)).
 
 ### 3.3 `[Function noop] is not a spy`
 **Cause.** A story's `args` replaced a whole object (for example `filters`) with one from a `*.mock.ts`, whose callbacks are `noop`, so the meta's `fn()` spies are gone. Storybook merges args shallowly.
@@ -156,7 +156,7 @@ git diff <last-redesign-commit> HEAD -- src | grep -E '^-.*text-(h1|h2|h3|title|
 ## 6. Local tooling
 
 ### 6.0 A config file or font contains a huge unreadable blob
-**Cause.** Possibly the supply-chain payload described in [Chapter 28](28-supply-chain-security.md). **Fix.** Stop running the project, run `pnpm security:check` (it only reads files) and follow the first-hour steps there.
+**Cause.** Possibly the supply-chain payload described in [Supply-Chain Security](supply-chain-security.md). **Fix.** Stop running the project, run `pnpm security:check` (it only reads files) and follow the first-hour steps there.
 
 ### 6.1 Storybook won't start: port 6006 in use
 **Fix.** Stop only the process on that port (not every `node`):
@@ -174,7 +174,7 @@ lsof -ti :6006 | xargs kill   # macOS / Linux
 The first start after a dependency change takes minutes (Vite pre-bundling); later starts are fast.
 
 ### 6.2 AI features show the same stock text every time
-**Cause.** `GOOGLE_AI_STUDIO_SECRET` is unset; every AI module falls back by design ([Chapter 24 §2](24-ai-features.md#2-shared-rules)).
+**Cause.** `GOOGLE_AI_STUDIO_SECRET` is unset; every AI module falls back by design ([AI Features §2](../features/ai-features.md#2-shared-rules)).
 **Fix.** Set the key in `.env.local` and restart `pnpm dev`.
 
 ### 6.3 Settings says push notifications aren't configured

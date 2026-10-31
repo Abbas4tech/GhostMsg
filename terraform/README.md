@@ -225,7 +225,7 @@ started. Two distinct cases:
 - **Local dev:** `.env.local`'s `NEXTAUTH_URL` must stay `http://localhost:3000`.
   Running `vercel env pull` overwrites it with whatever this config set for
   the pulled environment (the production domain, or unset for Preview); change
-  it back to `localhost` afterward. See [Chapter 2](../docs/02-getting-started.md#2-environment-variables-configuration).
+  it back to `localhost` afterward. See [Getting Started](../docs/02-getting-started.md#2-environment-variables-configuration).
 - **A real Preview deployment:** there is no single correct static value.
   `app_env_vars.NEXTAUTH_URL` in `terraform.tfvars` deliberately has no
   `preview` field for this reason (it briefly did, pointing at the production

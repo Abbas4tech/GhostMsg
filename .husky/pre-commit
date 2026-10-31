@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-# Supply-chain guard: refuse to commit obfuscated payloads (docs/28-supply-chain-security.md)
+# Supply-chain guard: refuse to commit obfuscated payloads (docs/guides/supply-chain-security.md)
 npx tsx scripts/check-suspicious-code.ts
 
 # Check staged files (excluding deleted files)

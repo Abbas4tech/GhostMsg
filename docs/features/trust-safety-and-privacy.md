@@ -1,8 +1,8 @@
-# Chapter 17: Trust, Safety & Privacy
+# Trust, Safety & Privacy
 
 How GhostMsg keeps senders anonymous and Recipients safe: the anonymity model, the send pipeline, graded moderation and the Recipient-controlled quarantine policy, Spicy blur, silent blocking, rate limiting, private notifications, and data rights. **Read this before touching `/api/send-message`, moderation, blocking, notifications or anything that stores or shows sender data.**
 
-Decisions: [ADR 0010](adr/0010-standalone-messages-schema-and-feature-architecture.md), [ADR 0011](adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md) (reversible blocking), [ADR 0025](adr/0025-graded-toxicity-and-recipient-controlled-quarantine.md) (graded toxicity + quarantine policy), [ADR 0026](adr/0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md) (quiet hours + hidden previews), [ADR 0027](adr/0027-destructive-account-actions-undo-window-and-typed-confirmation.md) (destructive actions).
+Decisions: [ADR 0010](../adr/0010-standalone-messages-schema-and-feature-architecture.md), [ADR 0011](../adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md) (reversible blocking), [ADR 0025](../adr/0025-graded-toxicity-and-recipient-controlled-quarantine.md) (graded toxicity + quarantine policy), [ADR 0026](../adr/0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md) (quiet hours + hidden previews), [ADR 0027](../adr/0027-destructive-account-actions-undo-window-and-typed-confirmation.md) (destructive actions).
 
 ---
 
@@ -34,7 +34,7 @@ flowchart LR
 
 ## 3. The send pipeline
 
-`POST /api/send-message` ([`route.ts`](../src/app/api/send-message/route.ts)):
+`POST /api/send-message` ([`route.ts`](../../src/app/api/send-message/route.ts)):
 
 ```mermaid
 flowchart TD
@@ -67,7 +67,7 @@ Email and push are fire-and-forget (`.catch(console.warn)`); they never delay or
 
 ### 4.1 Graded toxicity
 
-`moderateAndClassifyMessage` ([`src/server/ai/moderation.ts`](../src/server/ai/moderation.ts)) asks Gemini 2.5 Flash Lite for one JSON object:
+`moderateAndClassifyMessage` ([`src/server/ai/moderation.ts`](../../src/server/ai/moderation.ts)) asks Gemini 2.5 Flash Lite for one JSON object:
 
 | `toxicity` | Meaning (from the prompt) |
 | :--- | :--- |
@@ -82,7 +82,7 @@ When a message is held, `toQuarantineReason(category)` stores `quarantineReason`
 
 ### 4.2 The policy
 
-`shouldQuarantine(toxicity, safetySettings)` ([`quarantine-policy.ts`](../src/server/ai/quarantine-policy.ts), unit-tested) compares the level with the Recipient's **sensitivity**:
+`shouldQuarantine(toxicity, safetySettings)` ([`quarantine-policy.ts`](../../src/server/ai/quarantine-policy.ts), unit-tested) compares the level with the Recipient's **sensitivity**:
 
 | Sensitivity → / toxicity ↓ | Relaxed | **Balanced** (default) | Strict |
 | :--- | :---: | :---: | :---: |
@@ -109,9 +109,9 @@ When a message is held, `toQuarantineReason(category)` stores `quarantineReason`
 ## 5. Blocking
 
 - **Where:** the Block icon on a message card → `BlockSenderModal` (block, optionally also delete). Settings → Safety → Blocked senders table (Unblock per row).
-- **Data:** `blockedSenderHashes` (authoritative lookup) + `blockedSenders[{hash, blockedAt}]` (display). Details in [Chapter 15 §2.4](15-data-model-and-database.md#24-arrays).
+- **Data:** `blockedSenderHashes` (authoritative lookup) + `blockedSenders[{hash, blockedAt}]` (display). Details in [Data Model §2.4](../reference/data-model.md#24-arrays).
 - **Effect:** future sends with that hash are dropped silently (200). Existing messages stay unless deleted.
-- **Reversible:** Unblock restores delivery immediately ([ADR 0011](adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md)). `DELETE {senderHash:"ALL"}` clears the list (no UI button today).
+- **Reversible:** Unblock restores delivery immediately ([ADR 0011](../adr/0011-openapi-sdk-smtp-mailer-and-sender-unblocking.md)). `DELETE {senderHash:"ALL"}` clears the list (no UI button today).
 
 ## 6. Rate limiting and abuse limits
 
@@ -126,7 +126,7 @@ When a message is held, `toQuarantineReason(category)` stores `quarantineReason`
 | Inbox page | 12 per page, ≤ 100 per request | get-messages |
 | Inbox search | Literal text only (regex characters escaped) | `escapeRegExp` in `server/messages/inbox-query.ts` |
 
-The limiter is an **in-memory Map per server instance** (cleaned every 5 minutes). It is not shared across serverless instances; see [Chapter 18 §5](18-notifications-and-realtime.md#scaling-limits) for the scaling note.
+The limiter is an **in-memory Map per server instance** (cleaned every 5 minutes). It is not shared across serverless instances; see [Notifications & Real-Time §5](notifications-and-realtime.md#scaling-limits) for the scaling note.
 
 ## 7. Private notifications
 
@@ -136,7 +136,7 @@ The limiter is an **in-memory Map per server instance** (cleaned every 5 minutes
 | Quiet hours | Off (22:00–08:00 when enabled) | No email or push inside the window, evaluated in the Recipient's IANA time zone; windows may cross midnight. |
 | Quarantined | — | Never alerts. |
 
-Details and the decision flow: [Chapter 18](18-notifications-and-realtime.md).
+Details and the decision flow: [Notifications & Real-Time](notifications-and-realtime.md).
 
 ## 8. Recipient data rights
 
@@ -145,7 +145,7 @@ Details and the decision flow: [Chapter 18](18-notifications-and-realtime.md).
 | **Pause** | Message Acceptance off | Visitors see a calm paused state; answers remain public. |
 | **Hide** | Unpublish an answer, hide the AMA banner, turn off suggestions | Immediate. |
 | **Export** | Settings → Export all (CSV/JSON) | Pages through the server for **every** message (quarantined included, not just what is loaded), then builds the file in the browser from allow-listed fields only; no Sender Hashes. |
-| **Erase messages** | Danger zone → Delete all (confirm + 10 s undo); per message (confirm, no undo); selected (confirm, no undo); Quarantined view → Delete all quarantined (confirm, no undo) ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)) | Hard delete, answers included. |
+| **Erase messages** | Danger zone → Delete all (confirm + 10 s undo); per message (confirm, no undo); selected (confirm, no undo); Quarantined view → Delete all quarantined (confirm, no undo) ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)) | Hard delete, answers included. |
 | **Erase account** | Danger zone → Delete account (type username) | Hard delete of User + Messages, then sign-out. The username becomes available to others. |
 | **Rename** | Change username | The old link stops working at once (no redirect, so an old link can't keep pointing at a renamed person). |
 
@@ -161,7 +161,7 @@ Details and the decision flow: [Chapter 18](18-notifications-and-realtime.md).
 
 ## 10. Known issues (code that does not yet meet these rules)
 
-**None open.** Resolved on 2026-10-14 (K1–K4 in [ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md), K5–K7 in [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)):
+**None open.** Resolved on 2026-10-14 (K1–K4 in [ADR 0029](../adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md), K5–K7 in [ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)):
 
 | # | Was | Fix | Test |
 | :--- | :--- | :--- | :--- |
@@ -169,7 +169,7 @@ Details and the decision flow: [Chapter 18](18-notifications-and-realtime.md).
 | K2 | The live toast previewed every message, including quarantined ones, and ignored hidden text. | `buildLiveMessageToast`: silent for quarantined, text-free when hidden. | `use-live-messages.utils.test.ts` |
 | K3 | "Daily digest" was never sent. | Scheduled `GET /api/cron/daily-digest` (Vercel Cron + `CRON_SECRET`). | `daily-digest.test.ts`, `send-daily-digest-email.test.ts` |
 | K4 | Hidden-text alert emails quoted the placeholder "New Anonymous Message" and showed the tone; the button linked to a hard-coded domain. | `preview: null` renders a neutral sentence; links use `APP_URL`. | `send-message-alert-email.test.ts` |
-| K5 | "Export all" contained only the messages loaded in the inbox. | `fetchAllMessages("any")` pages through the server ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). | `fetch-all-messages.test.ts`, `use-settings.controller.test.ts` |
+| K5 | "Export all" contained only the messages loaded in the inbox. | `fetchAllMessages("any")` pages through the server ([ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)). | `fetch-all-messages.test.ts`, `use-settings.controller.test.ts` |
 | K6 | A selection survived a filter or search change, so a bulk action (delete, mark read) could reach messages no longer on screen. | Selection is scoped to the filter + search and counts only loaded ids (ADR 0030 D6). | `use-inbox.controller.test.ts`, `inbox.utils.test.ts` |
 | K7 | Turning push off on one device switched it off for every device. | Per-device switch; the server clears `webPushEnabled` only when no device is left (ADR 0030 D9). | `use-settings.controller.test.ts`, `web-push.test.ts` |
 

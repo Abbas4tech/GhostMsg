@@ -1,7 +1,7 @@
 /**
  * Supply-chain guard: fails when a tracked file looks like the obfuscated
  * "download and eval" payload that was once hidden in `postcss.config.mjs`
- * and in a fake `.eot` font (see docs/28-supply-chain-security.md).
+ * and in a fake `.eot` font (see docs/guides/supply-chain-security.md).
  *
  *   pnpm security:check   → prints every finding, exit 1 if there is any
  *
@@ -159,7 +159,7 @@ if (findings.length === 0) {
     console.error(`✗ ${file}: ${reason}`);
   }
   console.error(
-    `\nsecurity:check failed (${findings.length}). Do not run or build this branch until reviewed: docs/28-supply-chain-security.md`
+    `\nsecurity:check failed (${findings.length}). Do not run or build this branch until reviewed: docs/guides/supply-chain-security.md`
   );
   process.exit(1);
 }

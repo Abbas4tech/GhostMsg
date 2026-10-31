@@ -1,6 +1,6 @@
-# Chapter 14: UI Screens & User Flows
+# UI Screens & User Flows
 
-Every screen of GhostMsg with a real screenshot, how it is composed through the four tiers, which controller owns its behaviour, its states, and the Storybook story that renders it. Use this chapter to find **where** to change a screen. The tier rules are in [Chapter 5](05-component-architecture.md) and [agents/component-architecture.md](agents/component-architecture.md).
+Every screen of GhostMsg with a real screenshot, how it is composed through the four tiers, which controller owns its behaviour, its states, and the Storybook story that renders it. Use this chapter to find **where** to change a screen. The tier rules are in [Component Architecture](../05-component-architecture.md) and [agents/component-architecture.md](../agents/component-architecture.md).
 
 ```mermaid
 flowchart LR
@@ -16,7 +16,7 @@ flowchart LR
 
 ## 1. Landing (`/`)
 
-![Landing page](assets/screenshots/landing.png)
+![Landing page](../assets/screenshots/landing.png)
 
 | | |
 | :--- | :--- |
@@ -26,13 +26,13 @@ flowchart LR
 | **States** | Guest only. Signed-in visitors are redirected to `/dashboard` by middleware. The `SignedIn` story shows the header variant. |
 | **Stories** | `Pages/Home` → Guest, ClaimLink, SignedIn, Mobile |
 
-<img src="assets/screenshots/landing-mobile.png" alt="Landing on a phone" width="260" />
+<img src="../assets/screenshots/landing-mobile.png" alt="Landing on a phone" width="260" />
 
 ## 2. Authentication (`/sign-up`, `/verify/[username]`, `/sign-in`)
 
 | Sign up | Verify | Sign in |
 | :--- | :--- | :--- |
-| ![](assets/screenshots/sign-up.png) | ![](assets/screenshots/verify.png) | ![](assets/screenshots/sign-in.png) |
+| ![](../assets/screenshots/sign-up.png) | ![](../assets/screenshots/verify.png) | ![](../assets/screenshots/sign-in.png) |
 
 | | |
 | :--- | :--- |
@@ -56,39 +56,39 @@ flowchart TB
 
 | Signed out | Phone |
 | :--- | :--- |
-| ![](assets/screenshots/dashboard-signed-out.png) | <img src="assets/screenshots/dashboard-inbox-mobile.png" alt="Dashboard on a phone" width="260" /> |
+| ![](../assets/screenshots/dashboard-signed-out.png) | <img src="../assets/screenshots/dashboard-inbox-mobile.png" alt="Dashboard on a phone" width="260" /> |
 
-![Command palette](assets/screenshots/modal-command-palette.png)
+![Command palette](../assets/screenshots/modal-command-palette.png)
 
 - **Controller:** `use-dashboard-shell.controller.ts`: session status, unread count (`messagesQueries.counts()`, from the server, so it is right before the inbox has loaded), acceptance query + mutation, profile avatar, ⌘K listener, command groups, sign-out.
 - **Session:** `app/(dashboard)/dashboard/layout.tsx` reads `getServerSession` and passes it to `AuthProvider` → `SessionProvider`, so a signed-in visit renders the shell at once. The `SessionLoading` story covers the client-only case (no server session).
-- **Phones:** the top bar shows the brand tile and whatever the page portals in through `MobileHeaderActions` (Inbox: Search + Select; Profile: View as visitor) or `MobileHeaderLeading` (Quarantined: back arrow, which hides the brand). The tab bar puts a pill behind the active icon. Message Acceptance and Sign out live in Settings ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)).
+- **Phones:** the top bar shows the brand tile and whatever the page portals in through `MobileHeaderActions` (Inbox: Search + Select; Profile: View as visitor) or `MobileHeaderLeading` (Quarantined: back arrow, which hides the brand). The tab bar puts a pill behind the active icon. Message Acceptance and Sign out live in Settings ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)).
 - **Tablet (768–1023 px):** the sidebar starts on its icon rail (link card, acceptance and account details hide); `lg+` opens it fully. The rail toggle sits by the brand.
 - **Accessibility:** the Inbox nav link's name includes "Unread: N" (visually a badge, `aria-hidden`).
 - **Stories:** `Blocks/DashboardShell` (Desktop, SettingsActive, Paused, Mobile), `Pages/Dashboard` (SessionLoading, SignedOut, CommandPalette).
 
 ## 4. Inbox (`/dashboard`)
 
-![Inbox (Soft spectral, light)](assets/screenshots/dashboard-inbox.png)
+![Inbox (Soft spectral, light)](../assets/screenshots/dashboard-inbox.png)
 
 | | |
 | :--- | :--- |
-| **Composition** | `InboxPage` → `Inbox` block: header (title, unread count, search `InputGroup` pill with `/` `Kbd`, grid/list segmented `ToggleGroup`, Refresh) → `FilterBar` (chip `ToggleGroup` + `Badge count/attention`) → `BulkActionToolbar` (when selecting) → `MessageCard` grid/list → **Load more** (when the server has more pages) → shortcut legend (`Kbd`). Hoisted modals: `SmartReplyModal`, `StoryCardModal`, `RevealMessageModal`, `BlockSenderModal`, `DeleteMessageModal` (single delete), `DeleteSelectedModal` (bulk delete); both deletes confirm and have no Undo ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)). `ShortcutSheet` (`?`) is mounted by the dashboard layout. A sticky "N new Anonymous Messages" pill appears above the list when messages arrive while scrolled. Phones: search and Select move to the top bar, chips scroll sideways, grid only, selection header + bottom `BulkActionToolbar layout="bar"`. **Quarantined filter** = the Quarantined view: title "Quarantined", "N held back · never in your main inbox", a reassurance notice, "Delete all quarantined"; on phones the chips hide and a back arrow returns to All. |
-| **Controllers** | `use-inbox.controller.ts` composes `use-inbox-filters.controller.ts` (filter + debounced search, written to `?filter=&q=`) and `use-inbox-data.controller.ts` (server-filtered paged query, counts, live SSE inserts, 30 s polling fallback); it owns scoped selection, dialog state by message id, mark-read and actions. Plus `use-inbox-keyboard.controller.ts`, `use-smart-reply.controller.ts` (draft seeded once per opening). State rules: [Chapter 20](20-state-management.md). |
+| **Composition** | `InboxPage` → `Inbox` block: header (title, unread count, search `InputGroup` pill with `/` `Kbd`, grid/list segmented `ToggleGroup`, Refresh) → `FilterBar` (chip `ToggleGroup` + `Badge count/attention`) → `BulkActionToolbar` (when selecting) → `MessageCard` grid/list → **Load more** (when the server has more pages) → shortcut legend (`Kbd`). Hoisted modals: `SmartReplyModal`, `StoryCardModal`, `RevealMessageModal`, `BlockSenderModal`, `DeleteMessageModal` (single delete), `DeleteSelectedModal` (bulk delete); both deletes confirm and have no Undo ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)). `ShortcutSheet` (`?`) is mounted by the dashboard layout. A sticky "N new Anonymous Messages" pill appears above the list when messages arrive while scrolled. Phones: search and Select move to the top bar, chips scroll sideways, grid only, selection header + bottom `BulkActionToolbar layout="bar"`. **Quarantined filter** = the Quarantined view: title "Quarantined", "N held back · never in your main inbox", a reassurance notice, "Delete all quarantined"; on phones the chips hide and a back arrow returns to All. |
+| **Controllers** | `use-inbox.controller.ts` composes `use-inbox-filters.controller.ts` (filter + debounced search, written to `?filter=&q=`) and `use-inbox-data.controller.ts` (server-filtered paged query, counts, live SSE inserts, 30 s polling fallback); it owns scoped selection, dialog state by message id, mark-read and actions. Plus `use-inbox-keyboard.controller.ts`, `use-smart-reply.controller.ts` (draft seeded once per opening). State rules: [State Management](../guides/state-management.md). |
 | **States** | Loading skeleton (after 150 ms) · first run (`Empty`, floating ghost, Copy link) · empty filter ("Nothing unread" + Clear filter) · nothing quarantined ("Nothing held back") · no search matches · populated · selecting (phones: selection mode) · focused card · concealed (quarantined with its reason / spicy) · revealed · archived (Archived chip once any) · new-messages pill · Quarantined view. Subtitle: "N unread · last checked a moment ago". |
 | **Stories** | `Pages/Dashboard` → Inbox, DeletesAMessage, RepliesWithAi, RevealsQuarantined, KeyboardTriage, EmptyInbox, InboxError, InboxLoading, Mobile; `Blocks/Inbox` (… NoMatches, SearchNoMatches, NothingQuarantined); `Patterns/MessageCard`, `Patterns/FilterBar`, `Patterns/BulkActionToolbar`, `Patterns/ShortcutSheet`, `Patterns/MessageActionsMenu` |
 
 | Dark mode | Empty inbox |
 | :--- | :--- |
-| ![](assets/screenshots/dashboard-inbox-dark.png) | ![](assets/screenshots/dashboard-empty.png) |
+| ![](../assets/screenshots/dashboard-inbox-dark.png) | ![](../assets/screenshots/dashboard-empty.png) |
 
 ### Inbox dialogs
 
 | Smart Reply | Story Card | Reveal quarantined |
 | :--- | :--- | :--- |
-| ![](assets/screenshots/modal-smart-reply.png) | ![](assets/screenshots/modal-story-card.png) | ![](assets/screenshots/modal-reveal.png) |
+| ![](../assets/screenshots/modal-smart-reply.png) | ![](../assets/screenshots/modal-story-card.png) | ![](../assets/screenshots/modal-reveal.png) |
 
-The modal rules (focus defaults, close-first deletes, publish default) are in [Chapter 12 §5.5](12-product-guide-and-features.md#55-message-actions-dialogs).
+The modal rules (focus defaults, close-first deletes, publish default) are in [Product Guide §5.5](product-guide.md#55-message-actions-dialogs).
 
 ### Flow: answering and publishing
 
@@ -122,7 +122,7 @@ sequenceDiagram
 
 | Accepting | Paused | Not found |
 | :--- | :--- | :--- |
-| <img src="assets/screenshots/public-profile.png" alt="Public profile" width="260" /> | <img src="assets/screenshots/public-profile-paused.png" alt="Paused profile" width="260" /> | <img src="assets/screenshots/public-profile-not-found.png" alt="Unknown username" width="260" /> |
+| <img src="../assets/screenshots/public-profile.png" alt="Public profile" width="260" /> | <img src="../assets/screenshots/public-profile-paused.png" alt="Paused profile" width="260" /> | <img src="../assets/screenshots/public-profile-not-found.png" alt="Unknown username" width="260" /> |
 
 | | |
 | :--- | :--- |
@@ -134,7 +134,7 @@ sequenceDiagram
 
 ## 6. Profile (`/dashboard/profile`)
 
-![Profile](assets/screenshots/dashboard-profile.png)
+![Profile](../assets/screenshots/dashboard-profile.png)
 
 | | |
 | :--- | :--- |
@@ -143,7 +143,7 @@ sequenceDiagram
 | **States** | Clean · dirty (bar visible) · saving · photo processing · suggesting · username checking/available/taken |
 | **Stories** | `Pages/Dashboard` → Profile; `Blocks/ProfilePanel` (Default, UnsavedChanges, BannerHidden, Paused, Mobile); `Patterns/IdentityCard`, `Patterns/AmaPromptEditor`, `Patterns/ShareLinkCard`, `Patterns/VisitorPreview`, `Patterns/UnsavedChangesBar`, `Patterns/Modals/ChangeUsernameModal` |
 
-![Change username](assets/screenshots/modal-change-username.png)
+![Change username](../assets/screenshots/modal-change-username.png)
 
 ### Flow: draft → save
 
@@ -170,7 +170,7 @@ sequenceDiagram
 
 ## 7. Settings (`/dashboard/settings`)
 
-![Settings](assets/screenshots/dashboard-settings.png)
+![Settings](../assets/screenshots/dashboard-settings.png)
 
 | | |
 | :--- | :--- |
@@ -179,7 +179,7 @@ sequenceDiagram
 | **States** | Each control optimistic; pending disables its control; quarantine off disables sensitivity; quiet hours off disables the time selects; blocklist empty vs table |
 | **Stories** | `Pages/Dashboard` → Settings; `Blocks/SettingsPanel` (Defaults, EmitsChanges, ClosedWithBlockedSenders, AllPending, QuarantineOff, Mobile); `Patterns/Modals/DeleteAllMessagesModal`, `DeleteAccountModal` |
 
-![Delete account](assets/screenshots/modal-delete-account.png)
+![Delete account](../assets/screenshots/modal-delete-account.png)
 
 ### Flow: Delete all messages with undo
 
@@ -205,7 +205,7 @@ sequenceDiagram
     end
 ```
 
-The bar pauses while the toaster is hovered, together with Sonner's timer, so the commit always matches what the toast shows. Only Delete all uses this hold. Single and bulk message deletes confirm in a dialog and then delete at once, with no Undo ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)):
+The bar pauses while the toaster is hovered, together with Sonner's timer, so the commit always matches what the toast shows. Only Delete all uses this hold. Single and bulk message deletes confirm in a dialog and then delete at once, with no Undo ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)):
 
 ```mermaid
 sequenceDiagram
@@ -249,4 +249,4 @@ pnpm docs:screenshots       # → docs/assets/screenshots/*.png (all shots)
 pnpm docs:screenshots dashboard-settings palette-paper-dark   # only these
 ```
 
-`scripts/capture-doc-screenshots.ts` serves `storybook-static/`, opens each story's iframe in headless Chromium (Playwright) with a fixed viewport, the `palette`/`theme` globals and reduced motion, waits for Storybook's render phase to finish (loaders, MSW, `play()`), and saves a PNG. To add a shot, add an entry to `SHOTS` (story id = `title` lower-kebab + `--` + export name in kebab case). **Re-capture after any visible UI change** and commit the PNGs with the change ([agents/documentation-maintenance.md](agents/documentation-maintenance.md)).
+`scripts/capture-doc-screenshots.ts` serves `storybook-static/`, opens each story's iframe in headless Chromium (Playwright) with a fixed viewport, the `palette`/`theme` globals and reduced motion, waits for Storybook's render phase to finish (loaders, MSW, `play()`), and saves a PNG. To add a shot, add an entry to `SHOTS` (story id = `title` lower-kebab + `--` + export name in kebab case). **Re-capture after any visible UI change** and commit the PNGs with the change ([agents/documentation-maintenance.md](../agents/documentation-maintenance.md)).

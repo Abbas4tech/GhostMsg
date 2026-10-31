@@ -1,8 +1,8 @@
-# Chapter 16: API Reference
+# API Reference
 
-Every HTTP endpoint: purpose, auth, request, response, errors and side effects, plus the client hook that calls it. The machine-readable contract is the OpenAPI 3.1 document built from Zod in [`src/server/openapi/openapi.ts`](../src/server/openapi/openapi.ts), served at `/api/openapi.json` and browsable at **`/docs`** (Scalar). This chapter adds the behaviour the schema can't express.
+Every HTTP endpoint: purpose, auth, request, response, errors and side effects, plus the client hook that calls it. The machine-readable contract is the OpenAPI 3.1 document built from Zod in [`src/server/openapi/openapi.ts`](../../src/server/openapi/openapi.ts), served at `/api/openapi.json` and browsable at **`/docs`** (Scalar). This chapter adds the behaviour the schema can't express.
 
-How the contract is produced and consumed is covered in [Chapter 4](04-api-and-type-safety.md) and [agents/api-patterns.md](agents/api-patterns.md).
+How the contract is produced and consumed is covered in [API & Type Safety](../04-api-and-type-safety.md) and [agents/api-patterns.md](../agents/api-patterns.md).
 
 ---
 
@@ -16,7 +16,7 @@ How the contract is produced and consumed is covered in [Chapter 4](04-api-and-t
 | **Validation** | Bodies are parsed with Zod `safeParse`. Failure → **400** with the first issue's message (or a fixed "Invalid …" string). |
 | **Status codes** | 200 OK · 201 Created (sign-up) · 400 invalid input or confirmation mismatch · 401 no session (or wrong cron secret) · 404 unknown user/message, or recipient not accepting (send-message) · 409 username taken (change username) · 429 rate limited · 500 unexpected (logged with `console.error`) · 503 cron not configured. |
 | **Ownership** | Message routes always filter by `recipientId: session.user._id`; a message you don't own is a 404, never a 403 (no existence leak). |
-| **Client** | Only through the typed SDK: `clientFetch(api.GET("/api/…"))` from `@/data/api-client` inside `src/data/**` hooks. Never `fetch()` or `axios` ([AGENTS.md](../AGENTS.md)). `clientFetch` throws `ApiError` (with the server `message` and HTTP `status`) for non-2xx responses. |
+| **Client** | Only through the typed SDK: `clientFetch(api.GET("/api/…"))` from `@/data/api-client` inside `src/data/**` hooks. Never `fetch()` or `axios` ([AGENTS.md](../../AGENTS.md)). `clientFetch` throws `ApiError` (with the server `message` and HTTP `status`) for non-2xx responses. |
 | **Types** | `pnpm typegen` writes `src/generated/api-schema.d.ts`; client aliases live in `src/types/api.ts` (`MessageDto`, `UserProfileDto`, `UserPreferencesDto`, `QuietHoursDto`, `BlockedSenderDto`, `QuarantineSensitivity`, …). |
 
 ## 2. Endpoint index
@@ -86,7 +86,7 @@ Credentials sign-in via NextAuth. Client validates inputs via `signInSchema` (`i
 | Recipient paused | 404 | "Recipient is not accepting messages at this time" |
 | More than 5 sends per IP per 10 minutes | 429 | "Too many messages sent…" |
 
-Side effects, in order: rate limit → Sender Hash → blocklist check (silent 200) → moderation (`toxicity`, `sentimentTag`) → `shouldQuarantine` → create Message → publish SSE event → email (instant, if allowed) → Web Push (if allowed). Alerts are skipped for quarantined messages and inside quiet hours. With `hideMessageText` (default) push says "New Anonymous Message" and the email shows a neutral sentence without text or tone. Full diagram: [Chapter 17 §3](17-trust-safety-and-privacy.md#3-the-send-pipeline). Client: `useSendMessageMutation`.
+Side effects, in order: rate limit → Sender Hash → blocklist check (silent 200) → moderation (`toxicity`, `sentimentTag`) → `shouldQuarantine` → create Message → publish SSE event → email (instant, if allowed) → Web Push (if allowed). Alerts are skipped for quarantined messages and inside quiet hours. With `hideMessageText` (default) push says "New Anonymous Message" and the email shows a neutral sentence without text or tone. Full diagram: [Trust, Safety & Privacy §3](../features/trust-safety-and-privacy.md#3-the-send-pipeline). Client: `useSendMessageMutation`.
 
 ### `GET /api/suggest-messages` (Edge)
 **200** `{ success: true, messages: "q1||q2||q3" }`, a single string split by `||` on the client. Falls back to a fixed set without an AI key or on error (still 200). Client: `publicQueries.suggestions()` (a cached query, no retries, failure toasted once; "New ideas" refetches); only enabled when the profile's `offerSuggestions` is true. Not personalized, so the server caches one AI result for 15 minutes (`src/server/ai/suggested-messages.ts`) and serves it to every visitor in that window instead of calling the model per request; the no-key/error fallback is picked fresh (not cached) each time.
@@ -113,7 +113,7 @@ Side effects, in order: rate limit → Sender Hash → blocklist check (silent 2
 }
 ```
 
-Up to 50 published answers, newest published first; no paging parameters. **404** "User not found" (the page renders its not-found state and does not retry). `displayName` is omitted when empty. Server: `getPublicProfile(username)` in `src/server/users/public-profile.ts` (React `cache`) builds this body; the route returns it, and `app/u/[username]/page.tsx` + `generateMetadata` call it directly so the page renders filled ([ADR 0031](adr/0031-state-management-consistency-and-structure.md) D14). Client: `messagesQueries.publicAnswers(username)`, seeded with the server copy as `initialData`.
+Up to 50 published answers, newest published first; no paging parameters. **404** "User not found" (the page renders its not-found state and does not retry). `displayName` is omitted when empty. Server: `getPublicProfile(username)` in `src/server/users/public-profile.ts` (React `cache`) builds this body; the route returns it, and `app/u/[username]/page.tsx` + `generateMetadata` call it directly so the page renders filled ([ADR 0031](../adr/0031-state-management-consistency-and-structure.md) D14). Client: `messagesQueries.publicAnswers(username)`, seeded with the server copy as `initialData`.
 
 ### `POST /api/messages/{messageId}/reply`
 Body `{ text (1–1000), isPublished }`. Sets `reply` (and `publishedAt` when published) and marks the message **read**. **404** if not yours. Client: `useReplyMessageMutation` (optimistic with rollback; Smart Reply save).
@@ -121,7 +121,7 @@ Body `{ text (1–1000), isPublished }`. Sets `reply` (and `publishedAt` when pu
 ## 6. Inbox
 
 ### `GET /api/get-messages`
-One page of one inbox filter, filtered and searched on the server ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
+One page of one inbox filter, filtered and searched on the server ([ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
 
 | Param | Values |
 | :--- | :--- |
@@ -142,10 +142,10 @@ Body `{ isPinned?, isRead?, isArchived? }`. **200** with the updated message. Cl
 Body `{ action: "read" | "star" | "delete", ids: string[] (≥1) }`. Invalid ObjectIds are dropped; updates are scoped to the Recipient. Client: `useBulkActionMutation` (optimistic, shared cache helpers in `messages-cache.ts`).
 
 ### `DELETE /api/delete-message/{messageId}`
-**200** or **404**. Client: `useDeleteMessageMutation` (after the confirm dialog: close-first + optimistic removal, [ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md); no Undo, [ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)).
+**200** or **404**. Client: `useDeleteMessageMutation` (after the confirm dialog: close-first + optimistic removal, [ADR 0021](../adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md); no Undo, [ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)).
 
 ### `GET /api/messages/stream` (SSE)
-`text/event-stream`. Events: `ping` on connect and every 30 s; `new_message` with `{ _id, content, sentimentTag, isQuarantined, quarantineReason?, isPinned, isRead, createdAt }` for each new message to this Recipient. **401** plain text without a session. Client: `useLiveMessages()` (EventSource → toast + invalidate the `messages` queries; reconnects 5 s after an error). See [Chapter 18](18-notifications-and-realtime.md).
+`text/event-stream`. Events: `ping` on connect and every 30 s; `new_message` with `{ _id, content, sentimentTag, isQuarantined, quarantineReason?, isPinned, isRead, createdAt }` for each new message to this Recipient. **401** plain text without a session. Client: `useLiveMessages()` (EventSource → toast + invalidate the `messages` queries; reconnects 5 s after an error). See [Notifications & Real-Time](../features/notifications-and-realtime.md).
 
 ### `GET /api/accept-message` · `POST /api/accept-message`
 GET → `{ success, isAcceptingMessage }`. POST body `{ acceptMessages: boolean }`. Client: `userQueries.acceptance()`, `useAcceptMessageMutation` (sidebar, Settings, ⌘K).
@@ -191,7 +191,7 @@ Body `{ currentPrompt? (≤120) }` → `{ success, suggestions: string[3] }`. Ge
 Body `{ username }` (sign-up rules). **409** "Username is already taken" (another user); **200** `{ success, message, username }`. The old `/u/<old>` link stops resolving immediately. The client then calls `useSession().update({ username })` (the NextAuth `jwt` callback copies it into the token on `trigger === "update"`) and `router.refresh()`. Client: `useChangeUsernameMutation`.
 
 ### `PATCH /api/user/ama-prompt` *(legacy)*
-Body `{ amaPrompt }` (≤120) → `{ success, message: "AMA prompt updated successfully!", amaPrompt }`. Kept for compatibility; the Profile page sends `amaPrompt` inside `PATCH /api/user/profile` so Save is one atomic request ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)).
+Body `{ amaPrompt }` (≤120) → `{ success, message: "AMA prompt updated successfully!", amaPrompt }`. Kept for compatibility; the Profile page sends `amaPrompt` inside `PATCH /api/user/profile` so Save is one atomic request ([ADR 0031](../adr/0031-state-management-consistency-and-structure.md)).
 
 ### `GET /api/user/preferences` · `PATCH /api/user/preferences`
 
@@ -221,7 +221,7 @@ Writes dot paths (`safetySettings.sensitivity`) so siblings are never reset. Cli
 GET → `{ success, notificationSettings: { emailAlerts, webPushEnabled, hideMessageText, quietHours }, isAcceptingMessage }`. Times are `HH:MM` 24-hour; `timeZone` is an IANA name (1–64 chars). Client: `userQueries.notifications()`, `useNotificationSettingsMutation` (optimistic).
 
 ### `POST /api/user/push-subscription` · `DELETE /api/user/push-subscription`
-POST body = the browser's `PushSubscription` JSON `{ endpoint (URL), keys: { p256dh, auth } }`; replaces any record with the same endpoint and sets `webPushEnabled: true`. DELETE body `{ endpoint }` removes that device only; the server sets `webPushEnabled: false` once **no** device remains (`disablePushWhenNoDevices`, also after pruning gone endpoints). The Settings switch reflects this browser's subscription ([ADR 0020](adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md), [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
+POST body = the browser's `PushSubscription` JSON `{ endpoint (URL), keys: { p256dh, auth } }`; replaces any record with the same endpoint and sets `webPushEnabled: true`. DELETE body `{ endpoint }` removes that device only; the server sets `webPushEnabled: false` once **no** device remains (`disablePushWhenNoDevices`, also after pruning gone endpoints). The Settings switch reflects this browser's subscription ([ADR 0020](../adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md), [ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
 
 ### `DELETE /api/messages`
 No body. Deletes every message of the Recipient (public answers included). **200** `{ success, message: "All messages deleted", deletedCount }`. The client delays this call by 10 s behind an Undo toast. Client: `useDeleteAllMessagesMutation`.
@@ -240,11 +240,11 @@ Scheduler-only route, called daily by Vercel Cron (`vercel.json`, `0 17 * * *`).
 | Authorised | **200** `{ success: true, considered, sent, empty, skippedQuietHours, failed }` |
 | Unexpected error | **500** |
 
-Side effects: one digest email per recipient with `emailAlerts = "daily"` and new non-quarantined messages since their last digest; sets `lastDigestSentAt` after each accepted email. Recipients inside quiet hours are skipped and their messages roll over. Details: [Chapter 18 §3.1](18-notifications-and-realtime.md#31-daily-digest-adr-0029), [ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md).
+Side effects: one digest email per recipient with `emailAlerts = "daily"` and new non-quarantined messages since their last digest; sets `lastDigestSentAt` after each accepted email. Recipients inside quiet hours are skipped and their messages roll over. Details: [Notifications & Real-Time §3.1](../features/notifications-and-realtime.md#31-daily-digest-adr-0029), [ADR 0029](../adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md).
 
 ## 11. Client data-layer map
 
-Settings-like mutations (acceptance, notifications, preferences, profile) are built with `useOptimisticResourceMutation` (`src/data/optimistic-resource-mutation.ts`): optimistic, serialised per resource, silent on success, rollback + toast on error ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)). Pages never call endpoints directly; controllers use these hooks ([ADR 0006](adr/0006-standardized-api-calling-and-react-query-architecture.md), [ADR 0018](adr/0018-source-structure-server-data-lib-utils-controllers-tests.md)).
+Settings-like mutations (acceptance, notifications, preferences, profile) are built with `useOptimisticResourceMutation` (`src/data/optimistic-resource-mutation.ts`): optimistic, serialised per resource, silent on success, rollback + toast on error ([ADR 0031](../adr/0031-state-management-consistency-and-structure.md)). Pages never call endpoints directly; controllers use these hooks ([ADR 0006](../adr/0006-standardized-api-calling-and-react-query-architecture.md), [ADR 0018](../adr/0018-source-structure-server-data-lib-utils-controllers-tests.md)).
 
 | Query key | `queryOptions` / hook | Endpoint | Optimistic | Used by controllers |
 | :--- | :--- | :--- | :---: | :--- |
@@ -279,4 +279,4 @@ Each endpoint has an MSW handler in `src/mock/handlers/*.handlers.ts`, typed by 
 3. **Route:** `src/app/api/<path>/route.ts`: session check → `safeParse` → server modules (`src/server/**`) → envelope. Put logic worth testing in a server module with a colocated test.
 4. **Data hook:** `src/data/<domain>/` query in `<domain>.queries.ts` (key in `query-keys.ts`) or `use-<verb>-mutation.ts`; toast on error; optimistic when it backs a switch.
 5. **Mock:** MSW handler + fixture + scenario; controller test with `renderHookWithProviders` and `recordRequests()`.
-6. **Docs:** a row in §2, a section here, and [Chapter 4](04-api-and-type-safety.md)'s operations matrix.
+6. **Docs:** a row in §2, a section here, and [API & Type Safety](../04-api-and-type-safety.md)'s operations matrix.

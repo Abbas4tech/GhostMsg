@@ -130,16 +130,16 @@ Most formatting and common issues are automatically fixed by Biome. Run `npm exe
 - **Components / UI / route pages:** before touching `src/components/**` or `src/app/**/page.tsx|layout.tsx`, read `docs/agents/component-architecture.md`. It defines the four tiers (`elements → patterns → blocks → pages`), keeps all business logic in `pages/` controllers, and explains how Biome enforces this.
 - **Source structure / utils / controllers / tests:** before adding or moving files under `src/` outside `src/components/`, extracting a `*.utils.ts`, or writing a `*.controller.test.ts`, read `docs/agents/source-structure.md` (ADR 0018, ADR 0019).
 - **Product behaviour / settings / moderation / notifications / sender data:** read `docs/agents/product-rules.md` first; never break invariants S1–S10.
-- **Tokens, variants, palettes, new shadcn elements:** read `docs/13-design-system-and-theming.md` (shadcn first, design via CVA variants, `className` for layout only).
-- **Queries, mutations, controller/URL/device state:** read `docs/20-state-management.md` (server data only in React Query, server-side filtering + paging, optimistic switches, stable callbacks, derived UI state).
+- **Tokens, variants, palettes, new shadcn elements:** read `docs/reference/design-system.md` (shadcn first, design via CVA variants, `className` for layout only).
+- **Queries, mutations, controller/URL/device state:** read `docs/guides/state-management.md` (server data only in React Query, server-side filtering + paging, optimistic switches, stable callbacks, derived UI state).
 - **Common end-to-end changes** (new setting, endpoint, screen section): follow `docs/agents/feature-recipes.md`.
-- **Finishing any change:** update the docs it affects per `docs/agents/documentation-maintenance.md` (chapters 12–19, `GLOSSARY.md`, ADRs, `pnpm docs:screenshots` for visible UI).
+- **Finishing any change:** update the docs it affects per `docs/agents/documentation-maintenance.md` (the matching doc in `docs/features/`, `docs/reference/` or `docs/guides/`, `GLOSSARY.md`, ADRs, `pnpm docs:screenshots` for visible UI).
 - **Before push:** follow `.agents/rules/pre-push-quality-checks.md`.
 - **Mobile redesign / typography sweep / Toaster / Command Palette / Sidebar / Settings accordion:** read `docs/agents/redesign-progress.md` first — it tracks what's done, what's blocked, and what's confirmed-but-not-started for the current design-alignment effort, so you don't redo work or re-ask questions already answered.
 
 ## GhostMsg UI rules (redesign v2: see `ghostmsg-handoff/ghostmsg-handoff/HANDOFF.md`, gitignored scratch material, not committed)
 
-Base UI, cva variants, colour/type/spacing tokens and the four-tier `elements → patterns → blocks → pages` split already have canonical docs — read `docs/agents/component-architecture.md` and `docs/13-design-system-and-theming.md` before touching components, not this section. This section only covers what the v2 handoff adds on top:
+Base UI, cva variants, colour/type/spacing tokens and the four-tier `elements → patterns → blocks → pages` split already have canonical docs — read `docs/agents/component-architecture.md` and `docs/reference/design-system.md` before touching components, not this section. This section only covers what the v2 handoff adds on top:
 
 - Base UI = shadcn/Radix (or Animate UI) parts in `src/components/elements` only (ADR 0015). Never create new base primitives; build GhostMsg pieces as compositions in `patterns/`, `blocks/` or `pages/`. There is no `components/ui` or `features/` directory in this repo — ignore any handoff reference to those paths.
 - Type: semantic utilities only (`text-display/h1/h2/h3/title/body-lg/body/sm/xs/overline`). Messages and inputs use `text-body` (16px). Headings use `font-display`.
