@@ -1,5 +1,19 @@
 # ghostmsg
 
+## 2.4.1
+
+### Patch Changes
+
+- The documentation is now grouped by what kind of document it is, and the `docs/` root is the project-wide handbook only.
+  - **Root:** `docs/01-overview.md` to `docs/09-deployment-and-operations.md` stay, because they are the project-wide handbook (overview, getting started, system architecture, API and type safety, component architecture, dev workflow, testing strategy, code quality, deployment).
+  - **`docs/features/`:** one document per product area: product guide, screens and user flows, authentication and verification, inbox triage, AI features, notifications and real-time, trust, safety and privacy.
+  - **`docs/reference/`:** lookup material: data model, API reference, design system, and the generated component registry.
+  - **`docs/guides/`:** cross-cutting how-tos: state management, accessibility and feedback, responsive design, Storybook and UI catalog, infrastructure and Terraform, troubleshooting, supply-chain security.
+  - **`docs/archive/`:** the redesign change summary and the two historical blueprints. `adr/`, `agents/` and `assets/` are unchanged.
+  - **Names:** numbers and the word "Chapter" are gone outside the root; files are named by topic. Every link, anchor and "Chapter N" mention in the docs, READMEs, agent rules, scripts and source comments was rewritten, and each folder has a short README.
+  - **Tooling:** `pnpm docs:registry` now writes `docs/reference/component-registry.md` (the `--check` message and the generated links follow). The docs index has a "where does a new document go?" table.
+  - **Breaking for bookmarks:** old paths such as `docs/12-product-guide-and-features.md` no longer exist and there are no redirects.
+
 ## 2.4.0
 
 ### Minor Changes
@@ -7,10 +21,10 @@
 - Design-system foundations and the building blocks for a phone-first UI.
   - **Tokens:** a responsive type scale (`text-display`, `text-h1`, `text-h2`, `text-h3`, `text-title`, `text-body-lg`, `text-body`, `text-sm`, `text-xs`, `text-overline`) and a spacing scale (`px-gutter`, `py-section`, `p-card`, `gap-stack`). `cn()` knows the scale, so a text colour no longer drops the size (a Danger zone title had lost `text-h2`).
   - **Motion:** `src/lib/motion.ts` presets and a root `MotionConfig reducedMotion="user"`. The pulse ring now runs twice, like the design.
-  - **Elements:** button-group, popover, hover-card, progress, drawer and accordion (shadcn); `Button` `dashed` variant; `Alert` success, warning and info variants (this fixed an AA contrast bug in the warning variant); `Table` header uses the design's overline caps; labels and buttons use weight 600 (a documented deviation from stock shadcn, Chapter 13 §6).
+  - **Elements:** button-group, popover, hover-card, progress, drawer and accordion (shadcn); `Button` `dashed` variant; `Alert` success, warning and info variants (this fixed an AA contrast bug in the warning variant); `Table` header uses the design's overline caps; labels and buttons use weight 600 (a documented deviation from stock shadcn, Design System §6).
   - **Compositions:** `ResponsiveDialog` (Dialog at 768px and up, Drawer below) now powers Smart Reply, Story Card, Block sender and the shortcut sheet; `MessageActionsMenu` (DropdownMenu or Drawer) replaces the card's inline icon cluster.
   - **Lint:** a Biome `noTailwindRawColors` rule keeps raw colours out of components.
-  - **Docs:** Chapter 13 variant catalog, `docs/agents/redesign-progress.md`.
+  - **Docs:** Design System variant catalog, `docs/agents/redesign-progress.md`.
 
 - Archive, a full keyboard map, and a calmer live inbox. Pages now load 12 messages instead of 30.
   - **Archive:** `e` (or the card's Archive icon, or the phone sheet) moves a message out of All, Unread and Starred. An **Archived** chip appears once anything is archived, and the same action there reads "Move to Inbox". It is instant with a plain toast and no Undo.
@@ -23,7 +37,7 @@
     - The subtitle reads "N unread · last checked a moment ago".
     - Four empty states: first run, an empty filter, nothing held back, and no search matches.
   - **Page size:** `GET /api/get-messages` defaults to 12 per page (it was 30); the maximum is still 100. Load more adds 12.
-  - **Docs:** Chapter 23 (Inbox Triage), Chapter 25 (Accessibility & Feedback), ADR 0030 note.
+  - **Docs:** Inbox Triage (Inbox Triage), Accessibility & Feedback (Accessibility & Feedback), ADR 0030 note.
 
 - The landing page, public profile and Story Card now match the phone designs.
   - **Landing on phones:** a full-width "Get my link", a How it works carousel (a heading, a "1 / 4" counter, 272px step cards and pill dots), "Safe by default" as icon rows, the Story Card shown on its own, a split call to action, and a stacked footer with 44px links. All of it is CSS-only, so the server-rendered page doesn't shift after hydration. "See a live profile" appears only when `NEXT_PUBLIC_LIVE_PROFILE_USERNAME` names a real profile.
@@ -36,7 +50,7 @@
   - **Story Card on phones:** a drawer with the preview, Format, "Include my answer", and Save and Share side by side.
   - **Inbox cards:** "✓ Answered" shows its text once a card is 24rem wide.
   - **Settings:** mode cards drop the radio circles (the radio stays for keyboard and screen readers). The profile visitor preview reads "Accepting Anonymous Messages".
-  - **Docs:** Chapter 26 (Responsive Design) with a screen-by-screen phone versus desktop table, Chapter 14.
+  - **Docs:** Responsive Design (Responsive Design) with a screen-by-screen phone versus desktop table, UI Screens & User Flows.
 
 - A phone-first dashboard, one toast API, and every message delete now asks first.
   - **Deletes:**
@@ -61,7 +75,7 @@
   - **One call:** a single Gemini structured-output request returns all three drafts. Without an AI key or on an error you get three stock drafts (still 200).
   - **Client:** a query (`smartReplyQueries.drafts`) replaces the mutation. The drafts load when Reply opens, are cached per message for the session, and are never refetched on focus or retried (each retry would be another AI call). Picking an idea fills the answer; you can edit it before saving.
   - **UI:** three skeleton rows while loading, "Couldn't load ideas. Try again" on failure. On phones the modal is a "Reply" drawer with the ideas in a sideways scroller and Save and Story Card side by side.
-  - **Docs:** Chapter 24 (AI Features), Chapter 16 §8.
+  - **Docs:** AI Features (AI Features), API Reference §8.
 
 - One form architecture for every input flow: react-hook-form in the page controller, shadcn Form primitives in the pattern.
   - **Controllers own the form:** each form uses `useForm({ resolver: zodResolver(schema), mode: "onChange" })` in its `pages/*` controller. Sign in, sign up, Verification Code, the send-message form, Change username and Profile all follow it (ADR 0033).
@@ -80,7 +94,7 @@
     - Locked and expired states disable the slots.
   - **Verified:** the page shows "You're in. Your link is live." with the new link, Copy and Share, and "Sign in to open your inbox". Verifying does not sign the person in.
   - **Phones:** auth screens drop the site header and card, get their own Back arrow ("1 / 2", "2 / 2" progress on sign-up and verify), and pin the main button to the bottom. Passwords use a "Show" / "Hide" text toggle, and the sign-in copy now reads "Your inbox missed you."
-  - **Docs:** Chapter 22 (Authentication & Verification), Chapters 15 and 16.
+  - **Docs:** Authentication & Verification (Authentication & Verification), Chapters 15 and 16.
 
 ### Patch Changes
 
@@ -108,8 +122,8 @@
   - **Removed:** the payload hidden in `postcss.config.mjs` (it ran whenever the config loaded: dev, build, Storybook, Vercel builds) and a copy disguised as `public/fonts/fa-solid-600.eot`.
   - **Guard:** `pnpm security:check` (`scripts/check-suspicious-code.ts`) reads every tracked file and fails on known payload markers, code hidden in fonts and images, obfuscated scripts, folder-open editor tasks and install-time scripts. It runs from the Husky pre-commit hook and is step 5b of the pre-push rule. It reads only and never executes what it scans.
   - **Editor:** removed `task.allowAutomaticTasks` and a folder-open task from `.vscode/settings.json`.
-  - **Action needed:** anyone who ran this project while the payload was present should treat that machine and the secrets on it as exposed. See Chapter 28 for the response steps and the list of secrets to rotate.
-  - **Docs:** Chapter 28 (Supply-Chain Security).
+  - **Action needed:** anyone who ran this project while the payload was present should treat that machine and the secrets on it as exposed. See Supply-Chain Security for the response steps and the list of secrets to rotate.
+  - **Docs:** Supply-Chain Security (Supply-Chain Security).
 
 ## 2.3.0
 

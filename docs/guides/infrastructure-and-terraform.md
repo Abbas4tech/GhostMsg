@@ -1,8 +1,8 @@
-# Chapter 21: Infrastructure & Terraform
+# Infrastructure & Terraform
 
-GhostMsg's cloud infrastructure is managed as code in [`terraform/`](../terraform/). This chapter explains what Terraform owns, what stays manual, and how the two environments (Production and Preview) are kept isolated. The operational runbook is [`terraform/README.md`](../terraform/README.md); this chapter adds the architectural rationale and the full picture of the deployment environment.
+GhostMsg's cloud infrastructure is managed as code in [`terraform/`](../../terraform/). This chapter explains what Terraform owns, what stays manual, and how the two environments (Production and Preview) are kept isolated. The operational runbook is [`terraform/README.md`](../../terraform/README.md); this chapter adds the architectural rationale and the full picture of the deployment environment.
 
-Decision: [ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md).
+Decision: [ADR 0032](../adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md).
 
 ---
 
@@ -43,7 +43,7 @@ flowchart LR
 
 ### 1.2 Environment variables
 
-`app_env_vars` (defined in [`terraform/variables.tf`](../terraform/variables.tf)) is a `map(object)` where each entry has optional `production`, `preview`, `development` string values and a `sensitive` bool. [`locals.tf`](../terraform/locals.tf) flattens this into a set of `"NAME::environment"` keys — one per entry that has a value. [`vercel.tf`](../terraform/vercel.tf) creates one `vercel_project_environment_variable.app` resource per key. This lets Production and Preview hold different values without any coupling.
+`app_env_vars` (defined in [`terraform/variables.tf`](../../terraform/variables.tf)) is a `map(object)` where each entry has optional `production`, `preview`, `development` string values and a `sensitive` bool. [`locals.tf`](../../terraform/locals.tf) flattens this into a set of `"NAME::environment"` keys — one per entry that has a value. [`vercel.tf`](../../terraform/vercel.tf) creates one `vercel_project_environment_variable.app` resource per key. This lets Production and Preview hold different values without any coupling.
 
 `MONGODB_URI` is excluded from `app_env_vars` and built directly from the Atlas resources in `vercel.tf`, so the connection string is always correct and nobody ever copies it from the Atlas UI.
 
@@ -77,13 +77,13 @@ The legacy user (`shaikhabbas54`) is left untouched and must be deleted manually
 
 | File | Purpose |
 | :--- | :--- |
-| [`versions.tf`](../terraform/versions.tf) | Provider pins (`vercel ~> 2.4`, `mongodbatlas ~> 1.18`), Terraform `>= 1.7.0`, HCP state backend config |
-| [`variables.tf`](../terraform/variables.tf) | All inputs: API keys, passwords, the `app_env_vars` map, project/cluster names |
-| [`locals.tf`](../terraform/locals.tf) | `env_var_keys` (flattened `NAME::env` set for `for_each`), `mongo_srv_host` |
-| [`vercel.tf`](../terraform/vercel.tf) | Vercel project resource and all env var resources (generic + MongoDB URI) |
-| [`mongodbatlas.tf`](../terraform/mongodbatlas.tf) | Atlas project, cluster, two DB users, IP access list |
-| [`outputs.tf`](../terraform/outputs.tf) | After `apply`: resource IDs, usernames, cluster hostname |
-| [`terraform.tfvars.example`](../terraform/terraform.tfvars.example) | Committed template (placeholder values only) |
+| [`versions.tf`](../../terraform/versions.tf) | Provider pins (`vercel ~> 2.4`, `mongodbatlas ~> 1.18`), Terraform `>= 1.7.0`, HCP state backend config |
+| [`variables.tf`](../../terraform/variables.tf) | All inputs: API keys, passwords, the `app_env_vars` map, project/cluster names |
+| [`locals.tf`](../../terraform/locals.tf) | `env_var_keys` (flattened `NAME::env` set for `for_each`), `mongo_srv_host` |
+| [`vercel.tf`](../../terraform/vercel.tf) | Vercel project resource and all env var resources (generic + MongoDB URI) |
+| [`mongodbatlas.tf`](../../terraform/mongodbatlas.tf) | Atlas project, cluster, two DB users, IP access list |
+| [`outputs.tf`](../../terraform/outputs.tf) | After `apply`: resource IDs, usernames, cluster hostname |
+| [`terraform.tfvars.example`](../../terraform/terraform.tfvars.example) | Committed template (placeholder values only) |
 | `terraform.tfvars` | Real secrets for local `plan`/`apply` runs (**gitignored**) |
 
 ---
@@ -156,7 +156,7 @@ terraform apply    # apply with confirmation prompt
 terraform output   # print outputs.tf values (IDs, hostnames)
 ```
 
-Full runbook (first-time setup, import commands, `ENV_CONFLICT` troubleshooting): [`terraform/README.md`](../terraform/README.md).
+Full runbook (first-time setup, import commands, `ENV_CONFLICT` troubleshooting): [`terraform/README.md`](../../terraform/README.md).
 
 ---
 
@@ -165,7 +165,7 @@ Full runbook (first-time setup, import commands, `ENV_CONFLICT` troubleshooting)
 1. Add or edit the entry in `app_env_vars` in both `terraform/terraform.tfvars` (real values) and `terraform/terraform.tfvars.example` (placeholder).
 2. Run `terraform plan` and read the diff carefully.
 3. Run `terraform apply` to push the change to Vercel.
-4. Update [`.env.example`](../.env.example), [Chapter 2 §2.1](02-getting-started.md#21-every-variable-the-code-reads) and [Chapter 9 §2](09-deployment-and-operations.md#2-production-environment-variables-checklist) in the same commit.
+4. Update [`.env.example`](../../.env.example), [Getting Started §2.1](../02-getting-started.md#21-every-variable-the-code-reads) and [Deployment & Operations §2](../09-deployment-and-operations.md#2-production-environment-variables-checklist) in the same commit.
 
 > Editing a variable value directly in the Vercel dashboard will be overwritten by the next `terraform apply`.
 
@@ -189,7 +189,7 @@ terraform import mongodbatlas_cluster.ghostmsg 670cc22371b1856baf945a9d-Abbas-Sh
 
 If the imported resource's `sensitive` flag doesn't match this config's default (`true`), Terraform shows `must be replaced` instead of a clean no-op. That's a delete-then-recreate of just that one env var — not an outage. Apply it.
 
-See [`terraform/README.md §6–7`](../terraform/README.md#6-importing-what-already-exists) and [ADR 0032 D8](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md).
+See [`terraform/README.md §6–7`](../../terraform/README.md#6-importing-what-already-exists) and [ADR 0032 D8](../adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md).
 
 ---
 
@@ -205,5 +205,5 @@ See [`terraform/README.md §6–7`](../terraform/README.md#6-importing-what-alre
 
 ---
 
-## 11. Next chapter
-Return to [Chapter 9: Deployment & Operations](09-deployment-and-operations.md) for the app-level production picture, or read [ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md) for the full decision history.
+## 11. Where to go next
+Return to [Deployment & Operations](../09-deployment-and-operations.md) for the app-level production picture, or read [ADR 0032](../adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md) for the full decision history.

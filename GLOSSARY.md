@@ -147,7 +147,7 @@ A small component inside a stories file that supplies what a page controller wou
 _Avoid_: Wrapper story, test container
 
 **Component Registry**:
-The generated inventory `docs/11-component-registry.md` (`pnpm docs:registry`) of every module, story, mock, controller, fixture and scenario.
+The generated inventory `docs/reference/component-registry.md` (`pnpm docs:registry`) of every module, story, mock, controller, fixture and scenario.
 _Avoid_: Component list, catalog doc
 
 **Server module**:

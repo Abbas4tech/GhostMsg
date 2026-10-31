@@ -1,8 +1,8 @@
-# Chapter 24: AI Features
+# AI Features
 
 Where GhostMsg calls a language model, what it sends, what it expects back, and what happens when the model is slow, wrong or missing. Read this before changing a prompt, a model, an AI route or the hooks that call them.
 
-Decisions: [ADR 0003](adr/0003-edge-runtime-for-ai-suggestions.md) (Edge for suggestions), [ADR 0025](adr/0025-graded-toxicity-and-recipient-controlled-quarantine.md) (graded toxicity + quarantine policy). Safety rules: [Chapter 17](17-trust-safety-and-privacy.md). Endpoints: [Chapter 16 §8](16-api-reference.md#8-ai-assistant).
+Decisions: [ADR 0003](../adr/0003-edge-runtime-for-ai-suggestions.md) (Edge for suggestions), [ADR 0025](../adr/0025-graded-toxicity-and-recipient-controlled-quarantine.md) (graded toxicity + quarantine policy). Safety rules: [Trust, Safety & Privacy](trust-safety-and-privacy.md). Endpoints: [API Reference §8](../reference/api-reference.md#8-ai-assistant).
 
 ---
 
@@ -29,7 +29,7 @@ flowchart LR
 ```
 
 1. **Server only.** Every module starts with `import "server-only"`; the key never reaches the browser.
-2. **Fail open.** No key, a timeout, a quota error or an off-schema reply returns a fallback of the same shape. A visitor can always send; a Recipient always gets drafts. Moderation failing open means delivery to the inbox, never a block (S4 in [product-rules.md](agents/product-rules.md)).
+2. **Fail open.** No key, a timeout, a quota error or an off-schema reply returns a fallback of the same shape. A visitor can always send; a Recipient always gets drafts. Moderation failing open means delivery to the inbox, never a block (S4 in [product-rules.md](../agents/product-rules.md)).
 3. **Structured output where the shape matters.** Moderation and Smart Reply use `generateObject` with a Zod schema, so there is no JSON to strip and no manual parsing. The two text features use a `||` separator and a tolerant parser.
 4. **Only message text goes to the model.** No sender data, no Sender Hash, no IP, no recipient email. Content is quoted inside the prompt.
 5. **The model never decides alone.** Moderation's toxicity feeds `shouldQuarantine(toxicity, safetySettings)`; the Recipient's setting makes the decision.
@@ -62,7 +62,7 @@ sequenceDiagram
 
 - `toQuarantineReason("none")` is `"hurtful"`: a hold without a category reads as hurtful, which is what the Quarantine setting promises to catch.
 - The reason only labels the message (Hurtful language, Spam, Threat); it never changes the hold.
-- The thresholds per sensitivity are in [Chapter 17 §4.2](17-trust-safety-and-privacy.md#42-the-policy).
+- The thresholds per sensitivity are in [Trust, Safety & Privacy §4.2](trust-safety-and-privacy.md#42-the-policy).
 
 ## 4. Smart Reply
 
@@ -151,7 +151,7 @@ Cover: no key, a good reply, an off-shape or failing reply, and any cleanup (quo
 3. Add the route under `src/app/api/ai/`, register request/response schemas in `src/server/openapi/openapi.ts`, run `pnpm typegen`.
 4. Client: a query when the result is a function of its input and safe to cache; a mutation when the user asks for a fresh result each time. Set `retry: false`.
 5. Add the MSW handler and fixture, the unit test (section 7) and a story for the loading and error states.
-6. Document it here and in [Chapter 16](16-api-reference.md). Done when: no key → the UI still works; the network tab shows one call per user action.
+6. Document it here and in [API Reference](../reference/api-reference.md). Done when: no key → the UI still works; the network tab shows one call per user action.
 
 ## 9. Known limits
 

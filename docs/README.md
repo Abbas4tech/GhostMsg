@@ -1,57 +1,83 @@
 # GhostMsg Engineering Documentation 📖
 
-Welcome to the comprehensive engineering documentation for GhostMsg. This documentation is organized into numbered chapters for sequential onboarding and reference.
+The engineering documentation for GhostMsg, grouped by what kind of document it is. **The root of `docs/` holds only the project-wide handbook (01 to 09).** Anything about one feature, one lookup table or one cross-cutting topic lives in a folder.
 
-**New here?** Read [12 Product Guide](12-product-guide-and-features.md) for what the product does, [14 UI Screens](14-ui-screens-and-user-flows.md) for how it looks, then [03 System Architecture](03-system-architecture.md). Feature deep-dives: [22 Auth](22-authentication-and-verification.md), [23 Inbox](23-inbox-triage.md), [24 AI](24-ai-features.md). Cross-cutting guides: [25 Accessibility & Feedback](25-accessibility-and-feedback.md), [26 Responsive Design](26-responsive-design.md), [27 Troubleshooting](27-developer-troubleshooting.md), [28 Supply-Chain Security](28-supply-chain-security.md). **AI agents** start at [agents/README.md](agents/README.md).
+**New here?** Read [Project Overview](01-overview.md), then [Getting Started](02-getting-started.md) and [System Architecture](03-system-architecture.md). Then the [Product Guide](features/product-guide.md) for what the product does and [Screens & User Flows](features/screens-and-user-flows.md) for how it looks. **AI agents** start at [agents/README.md](agents/README.md).
 
 ```mermaid
-flowchart LR
-    START["New to GhostMsg"] --> P["12 Product"] --> S["14 Screens"] --> A["03 Architecture"]
-    A --> DEEP["Deep-dives<br/>22 Auth · 23 Inbox · 24 AI"]
-    A --> REF["Reference<br/>13 Design · 15 Data · 16 API · 17 Safety · 18 Notifications · 20 State"]
-    A --> HOW["How-to<br/>25 Accessibility · 26 Responsive · 27 Troubleshooting · 28 Security"]
-    A --> OPS["Run it<br/>02 Setup · 06 Workflow · 07 Tests · 09 Deploy · 21 Terraform"]
+flowchart TD
+    ROOT["docs/ root<br/>Handbook 01-09<br/>(how the whole project works)"]
+    ROOT --> F["features/<br/>one product area each"]
+    ROOT --> R["reference/<br/>lookup tables, generated"]
+    ROOT --> G["guides/<br/>cross-cutting how-tos"]
+    ROOT --> A["adr/<br/>why we decided"]
+    ROOT --> AG["agents/<br/>rules and recipes for AI agents"]
+    ROOT --> AR["archive/<br/>history"]
+    ROOT --> AS["assets/<br/>generated screenshots"]
 ```
 
-![GhostMsg inbox (Soft spectral, light)](assets/screenshots/palette-spectral-light.png)
+**Where does a new document go?**
+
+| It answers… | Put it in |
+| :--- | :--- |
+| "How does the whole project work or get built?" | the root (next free number) |
+| "How does one product area work, end to end?" | `features/` |
+| "What are the exact fields, endpoints, tokens or modules?" | `reference/` |
+| "How do I do X across the codebase (or fix Y)?" | `guides/` |
+| "Why did we choose this?" | `adr/` (next number) |
+| "What must an AI agent follow or do?" | `agents/` |
+| "What used to be true?" | `archive/` |
 
 ---
 
-## 📚 Table of Contents
+## 📚 Handbook (this folder)
 
-| Chapter | Title | Key Topics |
+| # | Document | Key topics |
 | :---: | :--- | :--- |
-| **01** | [**Project Overview**](01-overview.md) | Vision, philosophy, ubiquitous domain language, and feature mindmap. |
-| **02** | [**Getting Started & Setup**](02-getting-started.md) | Prerequisites, `.env.local` configuration, local installation, and running with Turbopack. |
-| **03** | [**System Architecture**](03-system-architecture.md) | High-level system diagram, source layers & runtime boundaries (server / data / lib), NextAuth lifecycle, MongoDB schema, and Edge AI pipeline. |
-| **04** | [**API & Type Safety**](04-api-and-type-safety.md) | OpenAPI 3.1 contracts, Scalar UI (`/docs`), automated typegen, and `openapi-fetch` SDK. |
-| **05** | [**Component Architecture**](05-component-architecture.md) | Next.js App Router tree, Tailwind CSS v4 design tokens, Radix/Shadcn primitives, and Motion. |
-| **06** | [**Developer Workflow**](06-dev-workflow.md) | Daily commands, Husky pre-commit hooks, API typegen automation, and Changesets. |
-| **07** | [**Testing Strategy**](07-testing-strategy.md) | Unit + story Vitest projects, MSW-isolated tests, colocated utils/controller tests, `renderHookWithProviders` harness, test inventory (no E2E suite yet). |
-| **08** | [**Code Quality & Standards**](08-code-quality.md) | Ultracite (Biome) rules, TypeScript strict mode configuration, and anti-pattern bans. |
-| **09** | [**Deployment & Operations**](09-deployment-and-operations.md) | Vercel production deployment, MongoDB Atlas connection pooling, and SMTP email provider configuration. |
-| **10** | [**Storybook & UI Catalog**](10-storybook-and-ui-catalog.md) | Storybook 10 (nextjs-vite), story standard, MSW page isolation, fixtures, and story tests in Chromium. |
-| **11** | [**Component Registry**](11-component-registry.md) | Generated inventory: every module, public API, stories, play() tests, mocks, controllers, fixtures and MSW scenarios (`pnpm docs:registry`). |
-| **12** | [**Product Guide & Feature Catalog**](12-product-guide-and-features.md) | Personas, promises, route map, journeys, every feature with its rules and code owners, known gaps. |
-| **13** | [**Design System & Theming**](13-design-system-and-theming.md) | Brand direction, 3 palettes × light/dark, tokens, contrast gate, motion, shadcn-first elements and the CVA variant catalog. |
-| **14** | [**UI Screens & User Flows**](14-ui-screens-and-user-flows.md) | Every screen with a generated screenshot, its tier composition, controllers, states and stories; key flows. |
-| **15** | [**Data Model & Database**](15-data-model-and-database.md) | ER diagram, every User/Message field with defaults, indexes, write patterns, compatibility defaults, data lifecycle. |
-| **16** | [**API Reference**](16-api-reference.md) | Conventions, every endpoint with request/response/errors/side effects, client data-layer map, MSW scenarios. |
-| **17** | [**Trust, Safety & Privacy**](17-trust-safety-and-privacy.md) | Invariants, anonymity model, send pipeline, graded moderation + quarantine policy, blocking, limits, data rights, known issues. |
-| **18** | [**Notifications & Real-Time Delivery**](18-notifications-and-realtime.md) | SSE live feed, instant email and the daily digest, Web Push, quiet hours, hidden previews, scaling limits. |
-| **19** | [**Redesign Change Summary**](19-redesign-change-summary.md) | What the October 2026 redesign changed: features, UI, API, database, code, quality gates. |
-| **20** | [**State Management**](20-state-management.md) | Where each kind of state lives, the rules for new state, inbox data flow, and the completed state-management review. |
-| **21** | [**Infrastructure & Terraform**](21-infrastructure-and-terraform.md) | Terraform-managed Vercel project and MongoDB Atlas cluster, two-database isolation, HCP state backend, env var management, and known limitations. |
-| **22** | [**Authentication & Verification**](22-authentication-and-verification.md) | Middleware guards, sign-up, the Verification Code lifecycle (3 tries, 60 s resend, 1 h expiry), verify screen states, sign-in checks, Google, known gaps. |
-| **23** | [**Inbox Triage**](23-inbox-triage.md) | Filters and the shared filter contract, URL state, auto-read, archive, selection, confirmed deletes, keyboard, live pill, empty states. |
-| **24** | [**AI Features**](24-ai-features.md) | Moderation, Smart Reply (three drafts, one call), Suggested Messages (Edge, cached), AMA ideas: schemas, fallbacks, testing, adding a feature. |
-| **25** | [**Accessibility & Feedback**](25-accessibility-and-feedback.md) | Keyboard map and guard, adding a shortcut, focus rules, live regions, `notify` and toast rules, Undo toast lifecycle, motion, forms, PR checklist. |
-| **26** | [**Responsive Design**](26-responsive-design.md) | Breakpoints, CSS-only vs `useIsMobile` branch, ResponsiveDialog, top-bar portals, layout props, container queries, screen-by-screen phone vs desktop. |
-| **27** | [**Developer Troubleshooting**](27-developer-troubleshooting.md) | Symptom → cause → fix for styling, types, tests, lint, merges and local tooling. |
-| **28** | [**Supply-Chain Security**](28-supply-chain-security.md) | The payload found in `postcss.config.mjs` and a fake font, what it did, first-hour response, secrets to rotate, `pnpm security:check`, prevention habits. |
+| 01 | [**Project Overview**](01-overview.md) | Vision, philosophy, domain language, feature map. |
+| 02 | [**Getting Started**](02-getting-started.md) | Prerequisites, every environment variable, install, first run. |
+| 03 | [**System Architecture**](03-system-architecture.md) | Topology, source layers and runtime boundaries, NextAuth, MongoDB, Edge AI. |
+| 04 | [**API & Type Safety**](04-api-and-type-safety.md) | OpenAPI 3.1 contracts, Scalar UI, typegen, the `openapi-fetch` SDK. |
+| 05 | [**Component Architecture**](05-component-architecture.md) | The four tiers, the dependency rule, controllers, tokens, motion. |
+| 06 | [**Developer Workflow**](06-dev-workflow.md) | Daily commands, git hooks, the pre-push gate, Changesets. |
+| 07 | [**Testing Strategy**](07-testing-strategy.md) | Unit and story projects, MSW isolation, the controller harness, test inventory. |
+| 08 | [**Code Quality**](08-code-quality.md) | Ultracite (Biome), strict TypeScript, banned patterns, tier import rules. |
+| 09 | [**Deployment & Operations**](09-deployment-and-operations.md) | Vercel, MongoDB Atlas, SMTP, the production environment checklist, cron. |
+
+## ✨ Features (`features/`)
+
+| Document | Key topics |
+| :--- | :--- |
+| [**Product Guide**](features/product-guide.md) | Personas, promises, route map, journeys, every feature with its rules and code owners, known gaps. |
+| [**Screens & User Flows**](features/screens-and-user-flows.md) | Every screen with a generated screenshot, its tiers, controllers and states. |
+| [**Authentication & Verification**](features/authentication-and-verification.md) | Guards, sign-up, the Verification Code lifecycle, sign-in. |
+| [**Inbox Triage**](features/inbox-triage.md) | Filters, auto-read, archive, selection, confirmed deletes, keyboard, live updates, empty states. |
+| [**AI Features**](features/ai-features.md) | Moderation, Smart Reply, Suggested Messages, AMA ideas. |
+| [**Notifications & Real-Time**](features/notifications-and-realtime.md) | SSE live feed, email and the daily digest, Web Push, quiet hours. |
+| [**Trust, Safety & Privacy**](features/trust-safety-and-privacy.md) | Invariants, anonymity model, moderation and quarantine, blocking, data rights. |
+
+## 📖 Reference (`reference/`)
+
+| Document | Key topics |
+| :--- | :--- |
+| [**Data Model**](reference/data-model.md) | ER diagram, every User and Message field, indexes, lifecycle. |
+| [**API Reference**](reference/api-reference.md) | Every endpoint with request, response, errors and the client data-layer map. |
+| [**Design System**](reference/design-system.md) | Palettes, tokens, contrast gate, the CVA variant catalog. |
+| [**Component Registry**](reference/component-registry.md) | Generated inventory of modules, stories, mocks and scenarios (`pnpm docs:registry`). |
+
+## 🧭 Guides (`guides/`)
+
+| Document | Key topics |
+| :--- | :--- |
+| [**State Management**](guides/state-management.md) | Where each kind of state lives, the rules, the inbox data flow. |
+| [**Accessibility & Feedback**](guides/accessibility-and-feedback.md) | Keyboard, focus, live regions, `notify` toasts, motion. |
+| [**Responsive Design**](guides/responsive-design.md) | Breakpoints, CSS-only versus JS branches, phone versus desktop. |
+| [**Storybook & UI Catalog**](guides/storybook-and-ui-catalog.md) | Story standard, MSW page stories, fixtures, reliability rules. |
+| [**Infrastructure & Terraform**](guides/infrastructure-and-terraform.md) | Terraform-managed Vercel and MongoDB Atlas, env var flow. |
+| [**Troubleshooting**](guides/troubleshooting.md) | Symptom, cause and fix for styling, types, tests, lint, tooling. |
+| [**Supply-Chain Security**](guides/supply-chain-security.md) | The removed payload, incident response, `pnpm security:check`. |
 
 ---
-
 
 ## 🏛️ Architectural Decision Records (ADRs)
 
@@ -92,12 +118,9 @@ flowchart LR
 
 ---
 
-## 📐 Architecture Blueprints (historical)
+## 🗄️ Archive (history)
 
-Original plans, kept for history. Where they differ from the code, the numbered chapters win.
-
-- [**Feature & Implementation Master Blueprint**](feature-and-implementation-blueprint.md)
-- [**API & React Query Architecture Blueprint**](api-and-react-query-architecture.md)
+Original plans and the redesign write-up, kept for history. Where they differ from the code, the live docs above win. See [archive/README.md](archive/README.md).
 
 
 ## 🤖 Agent Guidelines

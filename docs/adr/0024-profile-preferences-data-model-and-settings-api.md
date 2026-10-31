@@ -35,5 +35,5 @@ The redesigned Profile and Settings pages added about a dozen per-Recipient sett
 ## Consequences
 
 - The `users` document grows by up to ~350 KB when a photo is set. Projections (`.select(...)`) in the settings routes keep reads lean; avoid loading `avatarUrl` where it isn't shown.
-- Every new setting must follow the checklist in [Chapter 15 §7](../15-data-model-and-database.md#7-changing-the-model-checklist): schema default, Zod partial, dot-path write, DTO default, fixture, MSW handler.
+- Every new setting must follow the checklist in [Data Model §7](../reference/data-model.md#7-changing-the-model-checklist): schema default, Zod partial, dot-path write, DTO default, fixture, MSW handler.
 - Clients consume `UserProfileDto`, `UserPreferencesDto`, `QuietHoursDto`, `BlockedSenderDto` from `src/types/api.ts`.

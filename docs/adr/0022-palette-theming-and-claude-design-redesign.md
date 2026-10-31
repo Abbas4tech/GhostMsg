@@ -1,7 +1,7 @@
 # ADR 0022: Palette Theming (3 × light/dark) and the Claude Design Redesign
 
 ## Status
-**Accepted** (2026-10-12). Extends the design-token section of [Chapter 5](../05-component-architecture.md) and the contrast exception of [ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md) (Q17/Q18). Keeps the four tiers of [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md) unchanged.
+**Accepted** (2026-10-12). Extends the design-token section of [Component Architecture](../05-component-architecture.md) and the contrast exception of [ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md) (Q17/Q18). Keeps the four tiers of [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md) unchanged.
 
 ---
 

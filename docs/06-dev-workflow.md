@@ -1,4 +1,4 @@
-# Chapter 6: Developer Workflow & Tooling
+# Developer Workflow & Tooling
 
 Daily commands, the change workflows (API, component, story/mock, registry), git hooks, the pre-push gate and Changesets. **pnpm only** ([ADR 0016, Q1](adr/0016-storybook-msw-and-story-driven-component-testing.md)).
 
@@ -18,7 +18,7 @@ Daily commands, the change workflows (API, component, story/mock, registry), git
 | `pnpm test` / `test:watch` / `test:coverage` | Vitest **unit** project |
 | `pnpm test:stories` | Vitest **storybook** project (headless Chromium + axe) |
 | `pnpm test:all` | Both projects |
-| `pnpm docs:registry` | Regenerate [Chapter 11: Component Registry](11-component-registry.md) |
+| `pnpm docs:registry` | Regenerate [Component Registry](reference/component-registry.md) |
 | `pnpm docs:registry:check` | Fail if the registry is stale |
 | `pnpm docs:screenshots [names…]` | Regenerate documentation screenshots from `storybook-static/` (run `pnpm build-storybook` first) |
 | `pnpm theme:contrast` | Check WCAG AA for every palette × mode token pair |
@@ -46,7 +46,7 @@ Typed handlers (`ok()` for 200 and `created()` for 201) fail compilation when th
 1. **Place the code** with the decision procedure in [agents/component-architecture.md §2](agents/component-architecture.md).
 2. **Create the module folder:** `<name>.tsx`, `index.ts`, `<name>.mock.ts` (args from fixtures) and `<name>.stories.tsx` (five-point standard).
 3. **Run** `pnpm test:stories` for the new stories, then `pnpm docs:registry`.
-4. **Visible change?** Re-capture the affected screenshots (`pnpm build-storybook && pnpm docs:screenshots <names>`) and update [Chapter 14](14-ui-screens-and-user-flows.md). The full change → docs map is in [agents/documentation-maintenance.md](agents/documentation-maintenance.md).
+4. **Visible change?** Re-capture the affected screenshots (`pnpm build-storybook && pnpm docs:screenshots <names>`) and update [UI Screens & User Flows](features/screens-and-user-flows.md). The full change → docs map is in [agents/documentation-maintenance.md](agents/documentation-maintenance.md).
 
 ### 2.3 New mock data or API scenario
 1. Add a builder or named dataset to `src/mock/fixtures/<domain>.fixtures.ts`.
@@ -58,7 +58,7 @@ Typed handlers (`ok()` for 200 and `created()` for 201) fail compilation when th
 1. Edit variables or resources in [`terraform/`](../terraform/) (e.g. `app_env_vars` in `variables.tf`).
 2. Run `terraform fmt -check` and `tflint`.
 3. Preview changes with `terraform plan`.
-4. Apply deliberate changes with `terraform apply`. See [`terraform/README.md`](../terraform/README.md), [Recipe J](agents/feature-recipes.md#recipe-j-add-or-change-a-productionpreview-environment-variable), and [Chapter 21](21-infrastructure-and-terraform.md).
+4. Apply deliberate changes with `terraform apply`. See [`terraform/README.md`](../terraform/README.md), [Recipe J](agents/feature-recipes.md#recipe-j-add-or-change-a-productionpreview-environment-variable), and [Infrastructure & Terraform](guides/infrastructure-and-terraform.md).
 
 ---
 
@@ -93,4 +93,4 @@ pnpm changeset tag      # tag the release
 ---
 
 ## 6. Next Chapter
-Proceed to [Chapter 7: Testing Strategy](07-testing-strategy.md).
+Proceed to [Testing Strategy](07-testing-strategy.md).

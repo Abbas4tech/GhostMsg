@@ -1,7 +1,7 @@
 # ADR 0030: Server-Side Inbox Filtering, Keyset Paging and Counts
 
 ## Status
-**Accepted** (2026-10-14). Phase 1 of the state-management review ([Chapter 20](../20-state-management.md)). Changes how the inbox reads data; keeps the optimistic mutation stance of [ADR 0021](0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md).
+**Accepted** (2026-10-14). Phase 1 of the state-management review ([State Management](../guides/state-management.md)). Changes how the inbox reads data; keeps the optimistic mutation stance of [ADR 0021](0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md).
 
 ---
 

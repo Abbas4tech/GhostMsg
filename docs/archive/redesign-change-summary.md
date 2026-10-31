@@ -1,6 +1,6 @@
-# Chapter 19: Redesign Change Summary (October 2026)
+# Redesign Change Summary (October 2026)
 
-Everything the Claude Design redesign changed, in one place: features, UI, API, database, code structure, tests and docs. Use it to review the release, write release notes, or find out why something moved. Detailed reasoning is in [ADR 0022](adr/0022-palette-theming-and-claude-design-redesign.md)–[ADR 0028](adr/0028-agent-first-documentation-system-and-generated-screenshots.md).
+Everything the Claude Design redesign changed, in one place: features, UI, API, database, code structure, tests and docs. Use it to review the release, write release notes, or find out why something moved. Detailed reasoning is in [ADR 0022](../adr/0022-palette-theming-and-claude-design-redesign.md)–[ADR 0028](../adr/0028-agent-first-documentation-system-and-generated-screenshots.md).
 
 **Baseline:** commit `74479d9` (optimistic inbox + Web Push, ADR 0020/0021). **Scope:** branch `feat/as/source-structure-and-utilities`.
 
@@ -22,7 +22,7 @@ timeline
 
 | Area | Before | After |
 | :--- | :--- | :--- |
-| **Look** | Stock shadcn stone, Poppins, one theme | 3 palettes (Soft spectral, Midnight confessional, Playful paper) × Light/Dark/System, brand fonts and gradients ([Chapter 13](13-design-system-and-theming.md)) |
+| **Look** | Stock shadcn stone, Poppins, one theme | 3 palettes (Soft spectral, Midnight confessional, Playful paper) × Light/Dark/System, brand fonts and gradients ([Design System](../reference/design-system.md)) |
 | **Landing** | Heading + carousel | Claim-your-link hero, How it works, Trust, Q&A showcase, CTA, footer |
 | **Dashboard** | One page with 3 tabs | Routes `/dashboard`, `/dashboard/profile`, `/dashboard/settings` in a sidebar shell; phone top bar + tab bar; ⌘K command palette |
 | **Inbox** | Tabular list | Card grid/list, filter chips with counts, search with `/`, keyboard triage (`j k x s r`), bulk toolbar, sentiment badges, concealed quarantined cards with a Reveal dialog, optional Spicy blur |
@@ -56,9 +56,9 @@ timeline
 | `POST /api/send-message` | Quarantine via the Recipient's sensitivity; alerts respect quiet hours and hidden text |
 | NextAuth `jwt` callback | Handles `trigger === "update"` to refresh `username` |
 
-OpenAPI paths are registered under the new **Profile & Settings** tag; `pnpm typegen` regenerated `src/generated/api-schema.d.ts`. Reference: [Chapter 16](16-api-reference.md).
+OpenAPI paths are registered under the new **Profile & Settings** tag; `pnpm typegen` regenerated `src/generated/api-schema.d.ts`. Reference: [API Reference](../reference/api-reference.md).
 
-### 3.3 State-management follow-up ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md), [ADR 0031](adr/0031-state-management-consistency-and-structure.md))
+### 3.3 State-management follow-up ([ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md), [ADR 0031](../adr/0031-state-management-consistency-and-structure.md))
 
 | Endpoint | Change | Compatible? |
 | :--- | :--- | :--- |
@@ -73,7 +73,7 @@ OpenAPI paths are registered under the new **Profile & Settings** tag; `pnpm typ
 
 ## 4. Database changes
 
-All additive on `users`, with schema defaults and read-side defaults (`src/server/users/user-dto.ts`), so **no migration is required** ([Chapter 15 §4](15-data-model-and-database.md#4-compatibility-documents-older-than-a-field)).
+All additive on `users`, with schema defaults and read-side defaults (`src/server/users/user-dto.ts`), so **no migration is required** ([Data Model §4](../reference/data-model.md#4-compatibility-documents-older-than-a-field)).
 
 | Field | Default |
 | :--- | :--- |
@@ -89,7 +89,7 @@ All additive on `users`, with schema defaults and read-side defaults (`src/serve
 
 `messages` is unchanged. Moderation now returns a graded `toxicity` (stored only as the resulting `isQuarantined`).
 
-**Behaviour change to note:** existing users get `hideMessageText: true` by default, so their alerts stop showing message text until they turn it off. This is intended (privacy by default, [ADR 0026](adr/0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md)).
+**Behaviour change to note:** existing users get `hideMessageText: true` by default, so their alerts stop showing message text until they turn it off. This is intended (privacy by default, [ADR 0026](../adr/0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md)).
 
 ## 5. Code changes
 
@@ -143,15 +143,15 @@ All additive on `users`, with schema defaults and read-side defaults (`src/serve
 
 ## 7. Follow-up: state-management review
 
-After the redesign, a state-management review ([Chapter 20](20-state-management.md)) was carried out in three phases:
+After the redesign, a state-management review ([State Management](../guides/state-management.md)) was carried out in three phases:
 
-- **Correctness** ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)): server-side filters, search and keyset paging with **Load more**; `GET /api/messages/counts` for badges, the unread count and "Delete all N"; export of every message; mark-read on interaction; selection scoped to the current filter; optimistic star/read/reply; a per-device push switch. The MSW mock now runs the same filter rules as the server.
-- **Consistency** ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)): one optimistic-resource mutation factory (serialised per resource, silent switches); live messages inserted into the cache; focus refetch and polling when the stream drops; Suggested Messages as a cached query; AMA Prompt saved with the profile.
-- **Structure** ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)): inbox split into filter/data controllers with URL state and a remembered layout; dialogs by message id; no effects copying state; Profile on react-hook-form with a leave guard; dashboard session from the server; Message Acceptance out of the JWT; public profile rendered on the server with real metadata; palette synced across tabs.
+- **Correctness** ([ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)): server-side filters, search and keyset paging with **Load more**; `GET /api/messages/counts` for badges, the unread count and "Delete all N"; export of every message; mark-read on interaction; selection scoped to the current filter; optimistic star/read/reply; a per-device push switch. The MSW mock now runs the same filter rules as the server.
+- **Consistency** ([ADR 0031](../adr/0031-state-management-consistency-and-structure.md)): one optimistic-resource mutation factory (serialised per resource, silent switches); live messages inserted into the cache; focus refetch and polling when the stream drops; Suggested Messages as a cached query; AMA Prompt saved with the profile.
+- **Structure** ([ADR 0031](../adr/0031-state-management-consistency-and-structure.md)): inbox split into filter/data controllers with URL state and a remembered layout; dialogs by message id; no effects copying state; Profile on react-hook-form with a leave guard; dashboard session from the server; Message Acceptance out of the JWT; public profile rendered on the server with real metadata; palette synced across tabs.
 
 ## 8. Issues found while documenting, and fixed
 
-Writing chapters 12–18 against the code surfaced four places where behaviour broke the product's own rules (K1–K4, [ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)); the state-management review found three more (K5–K7, [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). All are fixed in this release ([Chapter 17 §10](17-trust-safety-and-privacy.md#10-known-issues-code-that-does-not-yet-meet-these-rules)):
+Writing the feature and reference docs against the code surfaced four places where behaviour broke the product's own rules (K1–K4, [ADR 0029](../adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)); the state-management review found three more (K5–K7, [ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)). All are fixed in this release ([Trust, Safety & Privacy §10](../features/trust-safety-and-privacy.md#10-known-issues-code-that-does-not-yet-meet-these-rules)):
 
 | # | Problem | Fix |
 | :--- | :--- | :--- |
@@ -165,9 +165,9 @@ Writing chapters 12–18 against the code surfaced four places where behaviour b
 
 Also added: controller tests for `use-dashboard-shell` and `use-profile-link`, and graded-moderation parsing tests with the AI SDK mocked. The final documentation audit added tests for code the docs already described but nothing exercised: the inbox URL/selection/dialog helpers (`inbox.utils.test.ts`) and **Export all** (`fetch-all-messages.test.ts`, `use-settings.controller.test.ts`), and corrected the OpenAPI descriptions of the reply, AMA Prompt, profile, push-unsubscribe and public-answers operations.
 
-**Still deliberate (not bugs):** no "Unblock all" button (design), the in-memory rate limiter and live-event bus (need shared infrastructure and a privacy decision before moving off-process), avatars stored in MongoDB ([Chapter 12 §6](12-product-guide-and-features.md#6-known-gaps-and-non-goals)).
+**Still deliberate (not bugs):** no "Unblock all" button (design), the in-memory rate limiter and live-event bus (need shared infrastructure and a privacy decision before moving off-process), avatars stored in MongoDB ([Product Guide §6](../features/product-guide.md#6-known-gaps-and-non-goals)).
 
-## 9. Post-redesign: infrastructure as code ([ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md))
+## 9. Post-redesign: infrastructure as code ([ADR 0032](../adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md))
 
 After the redesign the Vercel project, per-environment environment variables and the MongoDB Atlas cluster were adopted into Terraform (`terraform/`). This separates infrastructure concerns from the app codebase: no more manual dashboard edits that drift out of sync.
 
@@ -181,10 +181,10 @@ After the redesign the Vercel project, per-environment environment variables and
 
 **Nothing in the app code changed.** All changes are under `terraform/`. The cron in `vercel.json` stays out of Terraform (no provider resource for it).
 
-Full reference: [Chapter 21: Infrastructure & Terraform](21-infrastructure-and-terraform.md).
+Full reference: [Infrastructure & Terraform](../guides/infrastructure-and-terraform.md).
 
 
-## 10. Design-handoff v2 alignment: phones, toasts and confirmed deletes ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md))
+## 10. Design-handoff v2 alignment: phones, toasts and confirmed deletes ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md))
 
 | Area | For users | For developers |
 | :--- | :--- | :--- |
@@ -201,4 +201,4 @@ Full reference: [Chapter 21: Infrastructure & Terraform](21-infrastructure-and-t
 | Tablet | Sidebar starts as an icon rail. | `useTabletRail` in the shell. |
 | Styling | Danger zone title and other headings with colour variants keep their size again. | `cn()` knows the semantic type scale (`src/lib/utils.ts`). |
 
-Not done, with reasons: [redesign-progress.md §5](agents/redesign-progress.md#5-not-done-and-why).
+Not done, with reasons: [redesign-progress.md §5](../agents/redesign-progress.md#5-not-done-and-why).

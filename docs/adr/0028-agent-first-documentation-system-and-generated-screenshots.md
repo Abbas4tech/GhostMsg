@@ -1,5 +1,7 @@
 # ADR 0028: Agent-First Documentation System and Generated Screenshots
 
+> **Update (2026-10-31):** The documentation layout changed. The root of `docs/` is the project-wide handbook (01 to 09); product areas are in `features/`, lookup material in `reference/`, cross-cutting how-tos in `guides/`, and history in `archive/`. The numbered "Chapter N" names and paths in the text below are the old ones; the change → docs map in [`agents/documentation-maintenance.md`](../agents/documentation-maintenance.md) is current. The decision itself (agent-first docs, generated screenshots and registry) stands.
+
 ## Status
 **Accepted** (2026-10-14). Extends the generated registry of [ADR 0017](0017-generated-component-registry-and-docs-freshness-gate.md).
 

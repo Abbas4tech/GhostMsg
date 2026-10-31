@@ -28,6 +28,6 @@ Alerts showed the first 80 characters of every message on lock screens and in em
 
 ## Consequences
 
-- Existing users' alerts become text-free after this release until they opt in (called out in [Chapter 19](../19-redesign-change-summary.md)).
+- Existing users' alerts become text-free after this release until they opt in (called out in [Redesign Change Summary](../archive/redesign-change-summary.md)).
 - The live in-app toast now follows the same rules (no toast for quarantined messages, no text when hidden); fixed in [ADR 0029](0029-daily-digest-scheduling-and-alert-privacy-fixes.md).
 - A Recipient who travels keeps quiet hours in the zone where they last saved them.

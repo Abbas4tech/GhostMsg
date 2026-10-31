@@ -1,7 +1,7 @@
 # ADR 0031: State Management Consistency and Structure (Review Phases 2–3)
 
 ## Status
-**Accepted** (2026-10-14). Completes the state-management review in [Chapter 20](../20-state-management.md) after Phase 1 ([ADR 0030](0030-server-side-inbox-filtering-paging-and-counts.md)). Builds on [ADR 0021](0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md) and [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md).
+**Accepted** (2026-10-14). Completes the state-management review in [State Management](../guides/state-management.md) after Phase 1 ([ADR 0030](0030-server-side-inbox-filtering-paging-and-counts.md)). Builds on [ADR 0021](0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md) and [ADR 0015](0015-four-tier-components-pages-layer-and-vendor-consolidation.md).
 
 ---
 

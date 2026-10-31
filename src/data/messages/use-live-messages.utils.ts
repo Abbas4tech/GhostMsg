@@ -29,7 +29,7 @@ export const LIVE_TOAST_TITLE = "New anonymous message received! 👻";
 export const HIDDEN_LIVE_TOAST_TITLE = "New Anonymous Message 👻";
 
 /**
- * What the in-app toast may say about a live message (Chapter 17, S3/S7):
+ * What the in-app toast may say about a live message (Trust, Safety & Privacy, S3/S7):
  * nothing for a quarantined message, no text when the recipient hides
  * message text in notifications, otherwise a short preview.
  */

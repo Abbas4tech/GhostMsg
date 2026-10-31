@@ -1,8 +1,8 @@
-# Chapter 25: Accessibility & Feedback
+# Accessibility & Feedback
 
 How GhostMsg stays usable by keyboard, screen reader, touch and reduced-motion users, and how it tells people what just happened (toasts, inline errors, live regions). Read this before adding a shortcut, a toast, a dialog, an animation or a form field.
 
-Related: [Chapter 13](13-design-system-and-theming.md) (contrast gate, motion tokens, `notify` in the variant catalog), [Chapter 23 §7](23-inbox-triage.md#7-keyboard) (inbox keys), [ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md) (toasts and deletes).
+Related: [Design System](../reference/design-system.md) (contrast gate, motion tokens, `notify` in the variant catalog), [Inbox Triage §7](../features/inbox-triage.md#7-keyboard) (inbox keys), [ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md) (toasts and deletes).
 
 ---
 

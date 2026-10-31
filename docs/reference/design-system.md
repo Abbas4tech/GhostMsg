@@ -1,8 +1,8 @@
-# Chapter 13: Design System & Theming
+# Design System & Theming
 
 The GhostMsg look: brand direction, design tokens, the three palettes × light/dark, typography, motion, and the opt-in **CVA variants** that carry the design inside shadcn elements. Read this before you add a colour, a font, a variant or a new element.
 
-Decisions behind it: [ADR 0022](adr/0022-palette-theming-and-claude-design-redesign.md) (palettes, tokens, contrast gate) and [ADR 0023](adr/0023-shadcn-first-elements-and-profile-settings-backend.md) (shadcn-first, variants inside elements). Source of truth for values: [`src/app/globals.css`](../src/app/globals.css). The design canvas is Claude Design's "GhostMsg: Soft spectral redesign" (design tokens, brand direction, CVA component specs, motion, trust & safety).
+Decisions behind it: [ADR 0022](../adr/0022-palette-theming-and-claude-design-redesign.md) (palettes, tokens, contrast gate) and [ADR 0023](../adr/0023-shadcn-first-elements-and-profile-settings-backend.md) (shadcn-first, variants inside elements). Source of truth for values: [`src/app/globals.css`](../../src/app/globals.css). The design canvas is Claude Design's "GhostMsg: Soft spectral redesign" (design tokens, brand direction, CVA component specs, motion, trust & safety).
 
 ---
 
@@ -32,16 +32,16 @@ flowchart LR
 - **Palette** is owned by `src/providers/palette-provider.tsx` and `src/lib/theme/palette.ts`. `PALETTE_BOOT_SCRIPT` runs inline in `<head>` before first paint, so there is no flash of the default palette. The server renders `data-palette="spectral"`. A change in one tab reaches the other open tabs of the same browser through the `storage` event (`palette-provider.test.tsx`); light/dark already syncs through `next-themes`.
 - **Mode** is owned by `next-themes` on the `.dark` class. `@custom-variant dark (&:is(.dark *))` makes `dark:` follow the class, not the OS.
 - **Selector specificity** resolves the 6 combinations: `:root.dark[data-palette=x]` > `:root[data-palette=x]` > `.dark` > `:root`.
-- **Both are per device.** Nothing is stored on the account ([Chapter 12 §6](12-product-guide-and-features.md#6-known-gaps-and-non-goals)).
+- **Both are per device.** Nothing is stored on the account ([Product Guide §6](../features/product-guide.md#6-known-gaps-and-non-goals)).
 - **Where users switch:** the sidebar user row (palette picker + light/dark toggle), the public profile header, and Settings → Appearance (Light · Dark · System + palette cards). Storybook has **Palette** and **Theme** toolbar globals.
 
 ### 2.1 The six themes
 
 | | Light | Dark |
 | :--- | :--- | :--- |
-| **Soft spectral** (default) | ![](assets/screenshots/palette-spectral-light.png) | ![](assets/screenshots/palette-spectral-dark.png) |
-| **Midnight confessional** | ![](assets/screenshots/palette-midnight-light.png) | ![](assets/screenshots/palette-midnight-dark.png) |
-| **Playful paper** | ![](assets/screenshots/palette-paper-light.png) | ![](assets/screenshots/palette-paper-dark.png) |
+| **Soft spectral** (default) | ![](../assets/screenshots/palette-spectral-light.png) | ![](../assets/screenshots/palette-spectral-dark.png) |
+| **Midnight confessional** | ![](../assets/screenshots/palette-midnight-light.png) | ![](../assets/screenshots/palette-midnight-dark.png) |
+| **Playful paper** | ![](../assets/screenshots/palette-paper-light.png) | ![](../assets/screenshots/palette-paper-dark.png) |
 
 ### 2.2 What a palette changes
 
@@ -116,7 +116,7 @@ Tailwind's 4px scale stays the only raw scale; these five semantic tokens are th
 - UI pairs at **3:1**: ring, input border, star, chart series;
 - gradients at their **worst stop**.
 
-The latest run reports "All palette × mode pairs pass WCAG AA". The weakest pairs are inputs at about 3.1:1 and Paper's spicy text at 4.57:1. Story tests also run axe on every story ([Chapter 7](07-testing-strategy.md)); a `color-contrast` failure is fixed by adjusting the token, never by disabling the rule.
+The latest run reports "All palette × mode pairs pass WCAG AA". The weakest pairs are inputs at about 3.1:1 and Paper's spicy text at 4.57:1. Story tests also run axe on every story ([Testing Strategy](../07-testing-strategy.md)); a `color-contrast` failure is fixed by adjusting the token, never by disabling the rule.
 
 Other baseline rules, enforced in review and story tests:
 
@@ -185,7 +185,7 @@ flowchart LR
 
 Pattern-level axes added for phones (props, not cva): `BrandMark size="header"` (32px tile), `BulkActionToolbar layout="pill" | "bar"`, `ShareLinkCard layout="default" | "compact"`, `MessageCard showSelect`, `FilterBar disabled`, `IdentityCard onDone` + `IdentitySummary`, `SettingsLayoutProvider layout="cards" | "list"` (switches every `SettingsSection` between a card and an accordion row), `AuthPanel backHref` / `step` / `align` / `iconTone` (`accent`, `brand`, `success`), `AuthOAuthHeader dividerLabel`, `SiteLayout hideHeaderOnPhones`, `CtaBanner subtitle`. CSS-responsive cva steps for the landing: `StoryCardPreview size="fluid" tilt="fluid"` (220px leaning left on phones, 280px leaning right from `sm`). `MessageCard` is a `@container/card`, so "✓ Answered" shows its text from 24rem.
 
-Installed shadcn elements: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, button-group, card, checkbox, command, dialog, drawer, dropdown-menu, empty, field, hover-card, input, input-group, input-otp, item, kbd, label, popover, progress, radio-group, scroll-area, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, toggle, toggle-group, tooltip. GhostMsg/Animate UI elements: carousel, copy-button, effects, form, icon-button, liquid-button, palette-picker, text, theme-toggler. The live inventory is [Chapter 11](11-component-registry.md).
+Installed shadcn elements: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, button-group, card, checkbox, command, dialog, drawer, dropdown-menu, empty, field, hover-card, input, input-group, input-otp, item, kbd, label, popover, progress, radio-group, scroll-area, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, toggle, toggle-group, tooltip. GhostMsg/Animate UI elements: carousel, copy-button, effects, form, icon-button, liquid-button, palette-picker, text, theme-toggler. The live inventory is [Component Registry](component-registry.md).
 
 ### 6.2 Composition cheatsheet (what to reach for)
 
@@ -208,7 +208,7 @@ Installed shadcn elements: accordion, alert, alert-dialog, avatar, badge, breadc
 | Menus | `DropdownMenu` (items inside `DropdownMenuGroup`) | Popover + buttons |
 | Feedback toast | `notify.success/info/warning/error` (per-type durations, assertive errors; the `Toaster` styles every toast) | Importing `toast` from `sonner` in app code, `richColors`, `toast.custom()` |
 | Held, reversible action | `showUndoToast` (`patterns/undo-toast`): hold the action, commit in `onCommit` when the toast closes without Undo. Used by Delete all only | Committing first, or a separate `setTimeout` |
-| Message deletes (single, bulk) | `AlertDialog` (`DeleteMessageModal`, `DeleteSelectedModal`), then delete; no Undo ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)) | Silent deletes, an Undo hold |
+| Message deletes (single, bulk) | `AlertDialog` (`DeleteMessageModal`, `DeleteSelectedModal`), then delete; no Undo ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)) | Silent deletes, an Undo hold |
 | Instant toggle (archive, star, read) | Optimistic mutation + a plain `notify` toast | A dialog |
 | Keyboard key hint | `Kbd` inside a `Tooltip` (`ActionTooltip` in `MessageCard`); the full list lives in `patterns/shortcut-sheet` (`SHORTCUT_GROUPS`) | Hints in visible labels |
 | Phone top-bar controls | `MobileHeaderActions` (right) / `MobileHeaderLeading` (left, hides the brand) + `MobileHeaderAction` (44px icon) from `patterns/mobile-header-actions` | A second header inside the page |
@@ -220,6 +220,6 @@ Installed shadcn elements: accordion, alert, alert-dialog, avatar, badge, breadc
 | Change | Steps | Done when |
 | :--- | :--- | :--- |
 | New token | Add to all 6 theme blocks in `globals.css` and expose it in `@theme inline`. Add text/UI pairs to `scripts/check-theme-contrast.ts`. | `pnpm theme:contrast` passes. |
-| New variant | Add it to the element's `cva()` config with a one-line comment. Keep the `default` variant untouched. Add the option to the element story's `argTypes` and an `AllVariants` render. | The story test passes; [Chapter 11](11-component-registry.md) is regenerated. |
-| New shadcn element | Follow [agents/component-architecture.md §7.4](agents/component-architecture.md): install, move to `elements/<name>/`, fix imports, `pnpm remove cn`, add mock + story. | Lint, tsc, story test pass. |
+| New variant | Add it to the element's `cva()` config with a one-line comment. Keep the `default` variant untouched. Add the option to the element story's `argTypes` and an `AllVariants` render. | The story test passes; [Component Registry](component-registry.md) is regenerated. |
+| New shadcn element | Follow [agents/component-architecture.md §7.4](../agents/component-architecture.md): install, move to `elements/<name>/`, fix imports, `pnpm remove cn`, add mock + story. | Lint, tsc, story test pass. |
 | New palette | Add to `PALETTES`/`PALETTE_META` in `src/lib/theme/palette.ts`, add two blocks in `globals.css`, load its fonts in `layout.tsx` (`preload: false`), and add it to the contrast script and the screenshot matrix. | Contrast gate passes; `pnpm docs:screenshots` produces its two images. |

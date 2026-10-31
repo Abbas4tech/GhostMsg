@@ -1,12 +1,12 @@
 # API Calling & React Query Architecture Blueprint
 
-> **Current endpoint and hook map (2026-10-14):** [Chapter 16 §11: Client data-layer map](16-api-reference.md#11-client-data-layer-map) lists every query key, query/mutation hook and the controllers that use them, including the Profile & Settings hooks added in the redesign.
+> **Current endpoint and hook map (2026-10-14):** [API Reference §11: Client data-layer map](../reference/api-reference.md#11-client-data-layer-map) lists every query key, query/mutation hook and the controllers that use them, including the Profile & Settings hooks added in the redesign.
 
-> **State rules (2026-10-14):** [Chapter 20: State Management](20-state-management.md) is the current reference. Several samples below are historical: the inbox no longer loads every message with `messagesQueries.list()` and filters on the client; it pages one server-filtered view with `messagesQueries.inbox({ status, q })` plus `messagesQueries.counts()` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). `useSuggestMessagesMutation` became the `publicQueries.suggestions()` query, and settings mutations are built with `useOptimisticResourceMutation` ([ADR 0031](adr/0031-state-management-consistency-and-structure.md)). The inbox and counts queries opt in to `refetchOnWindowFocus`; the global default stays off.
+> **State rules (2026-10-14):** [State Management](../guides/state-management.md) is the current reference. Several samples below are historical: the inbox no longer loads every message with `messagesQueries.list()` and filters on the client; it pages one server-filtered view with `messagesQueries.inbox({ status, q })` plus `messagesQueries.counts()` ([ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)). `useSuggestMessagesMutation` became the `publicQueries.suggestions()` query, and settings mutations are built with `useOptimisticResourceMutation` ([ADR 0031](../adr/0031-state-management-consistency-and-structure.md)). The inbox and counts queries opt in to `refetchOnWindowFocus`; the global default stays off.
 
-> **Since then (2026-10-31):** Smart Reply is a query returning three drafts (`smartReplyQueries.drafts`, [Chapter 24](24-ai-features.md)); verification adds `useResendCodeMutation` and an attempts/cooldown contract ([Chapter 22](22-authentication-and-verification.md)); archive is `useArchiveMessageMutation`; single and bulk deletes confirm first with no Undo ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)); app code toasts through `notify` ([Chapter 25 §5.2](25-accessibility-and-feedback.md#52-notify)). Sections below that predate these are history.
+> **Since then (2026-10-31):** Smart Reply is a query returning three drafts (`smartReplyQueries.drafts`, [AI Features](../features/ai-features.md)); verification adds `useResendCodeMutation` and an attempts/cooldown contract ([Authentication & Verification](../features/authentication-and-verification.md)); archive is `useArchiveMessageMutation`; single and bulk deletes confirm first with no Undo ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)); app code toasts through `notify` ([Accessibility & Feedback §5.2](../guides/accessibility-and-feedback.md#52-notify)). Sections below that predate these are history.
 
-> **Note (2026-10-11):** File paths under `src/components/{auth,dashboard,profile}` in this blueprint are historical. Components now follow the four-tier layout in [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md): pure forms and cards live in `patterns/`, sections in `blocks/`, and every query and mutation lives in `pages/<route>/` controllers.
+> **Note (2026-10-11):** File paths under `src/components/{auth,dashboard,profile}` in this blueprint are historical. Components now follow the four-tier layout in [ADR 0015](../adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md): pure forms and cards live in `patterns/`, sections in `blocks/`, and every query and mutation lives in `pages/<route>/` controllers.
 
 This document specifies the standard architecture, patterns, performance optimizations, component segregation, and optimistic UI implementation guidelines for API consumption across GhostMsg.
 
@@ -61,7 +61,7 @@ flowchart TD
 1. **Zero Direct `api.*` in UI**: All API operations are consumed via React Query hooks (`useQuery`, `useMutation`).
 2. **Throwing Transport Unwrapper**: Transport calls unpack `data` and throw typed `ApiError` instances so React Query error handling is seamless and consistent.
 3. **Pure Query Options (`queryOptions`)**: Query definitions are pure objects decoupled from React hooks, enabling reuse across client hooks, prefetching, and cache invalidators.
-4. **Deterministic Cache-Level Optimism**: Stateful interactions ([`Message Acceptance`](../GLOSSARY.md), [`Anonymous Message`](../GLOSSARY.md) deletion) execute optimistic cache transformations with automated rollback on failure.
+4. **Deterministic Cache-Level Optimism**: Stateful interactions ([`Message Acceptance`](../../GLOSSARY.md), [`Anonymous Message`](../../GLOSSARY.md) deletion) execute optimistic cache transformations with automated rollback on failure.
 5. **Component Segregation & Render Boundary Isolation**: Heavy pages and multi-state forms are split into focused single-responsibility components so state changes (e.g. typing or spinners) never re-render unrelated siblings.
 
 ---
@@ -264,7 +264,7 @@ export function useAcceptMessageMutation() {
 }
 ```
 
-### Optimistic Message Deletion & Bulk Actions ([ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md))
+### Optimistic Message Deletion & Bulk Actions ([ADR 0021](../adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md))
 
 Every inbox mutation shares `src/data/messages/messages-cache.ts`, which snapshots and patches **all** cached inbox lists (any filter key) and restores them on failure. The controller closes the dialog *before* awaiting, so the card and the dialog disappear immediately.
 
@@ -577,7 +577,7 @@ export function makeQueryClient(): QueryClient {
 ## 7. Migration Checklist for Agents & Developers
 
 - [ ] **Milestone 1: Transport Helper**
-  - Update [`src/data/api-client.ts`](../src/data/api-client.ts) with `ApiError` and `clientFetch`.
+  - Update [`src/data/api-client.ts`](../../src/data/api-client.ts) with `ApiError` and `clientFetch`.
 - [ ] **Milestone 2: Query Keys & Pure Options**
   - Create `src/data/query-keys.ts`.
   - Create `src/data/messages/messages.queries.ts`, `src/data/user/user.queries.ts`, `src/data/auth/auth.queries.ts`.
@@ -589,15 +589,15 @@ export function makeQueryClient(): QueryClient {
   - Create `src/data/auth/use-verify-code-mutation.ts`.
   - Create `src/data/public/use-suggest-messages-mutation.ts`.
 - [ ] **Milestone 4: Global Query Provider Configuration**
-  - Configure `QueryClient` defaults in [`src/providers/query-provider.tsx`](../src/providers/query-provider.tsx).
+  - Configure `QueryClient` defaults in [`src/providers/query-provider.tsx`](../../src/providers/query-provider.tsx).
 - [ ] **Milestone 5: Public Profile Component Segregation**
   - Create `src/components/profile/send-message-form.tsx`.
   - Create `src/components/profile/suggested-messages-section.tsx`.
-  - Refactor [`src/app/u/[username]/page.tsx`](../src/app/u/[username]/page.tsx) to assemble the segregated components.
+  - Refactor [`src/app/u/[username]/page.tsx`](../../src/app/u/[username]/page.tsx) to assemble the segregated components.
 - [ ] **Milestone 6: Auth Component Segregation**
   - Create `src/components/auth/username-field.tsx` with isolated debounced query.
   - Create `src/components/auth/sign-in-form.tsx` and `src/components/auth/sign-up-form.tsx`.
-  - Refactor [`src/components/auth/verify-code-form.tsx`](../src/components/patterns/verify-code-form/verify-code-form.tsx) to consume `useVerifyCodeMutation`.
+  - Refactor [`src/components/auth/verify-code-form.tsx`](../../src/components/patterns/verify-code-form/verify-code-form.tsx) to consume `useVerifyCodeMutation`.
 - [ ] **Milestone 7: Dashboard Decoupling & Optimistic Delete**
-  - Refactor [`src/components/dashboard/message-tab.tsx`](../src/components/pages/dashboard/inbox-page.tsx) and [`src/components/dashboard/message-card.tsx`](../src/components/patterns/message-card/message-card.tsx) to subscribe directly to queries and mutations.
-  - Refactor [`src/components/dashboard/settings-tab.tsx`](../src/components/pages/dashboard/settings-page.tsx) for direct acceptance state subscription.
+  - Refactor [`src/components/dashboard/message-tab.tsx`](../../src/components/pages/dashboard/inbox-page.tsx) and [`src/components/dashboard/message-card.tsx`](../../src/components/patterns/message-card/message-card.tsx) to subscribe directly to queries and mutations.
+  - Refactor [`src/components/dashboard/settings-tab.tsx`](../../src/components/pages/dashboard/settings-page.tsx) for direct acceptance state subscription.

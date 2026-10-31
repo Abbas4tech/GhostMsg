@@ -1,7 +1,7 @@
 # ADR 0029: Daily Digest Scheduling and Alert Privacy Fixes
 
 ## Status
-**Accepted** (2026-10-14). Implements the "daily" email frequency that [ADR 0026](0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md) D6 left unbuilt, and closes the alert and export leaks recorded as K1–K3 in [Chapter 17](../17-trust-safety-and-privacy.md).
+**Accepted** (2026-10-14). Implements the "daily" email frequency that [ADR 0026](0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md) D6 left unbuilt, and closes the alert and export leaks recorded as K1–K3 in [Trust, Safety & Privacy](../features/trust-safety-and-privacy.md).
 
 ---
 

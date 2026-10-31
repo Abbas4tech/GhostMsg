@@ -16,27 +16,27 @@ Single-context (`GLOSSARY.md` and `docs/adr/` at root). See `docs/agents/domain.
 
 ### Agent guide index
 
-`docs/agents/README.md` maps each kind of task to its guide and to reference chapters 12–28 (product, design system, screens, data model, API, trust & safety, notifications, release summary, state management, infrastructure, auth, inbox, AI, accessibility, responsive design, troubleshooting).
+`docs/agents/README.md` maps each kind of task to its guide and to the reference docs in `docs/features/`, `docs/reference/` and `docs/guides/` (product, screens, auth, inbox, AI, notifications, trust & safety, data model, API, design system, state management, accessibility, responsive design, infrastructure, troubleshooting, security).
 
 ### Product rules & safety
 
-Before changing user-facing behaviour, settings, copy, moderation, notifications, or anything that stores or shows sender data, read `docs/agents/product-rules.md` (invariants S1–S10, recipient-control and copy rules). Depth: `docs/17-trust-safety-and-privacy.md`.
+Before changing user-facing behaviour, settings, copy, moderation, notifications, or anything that stores or shows sender data, read `docs/agents/product-rules.md` (invariants S1–S10, recipient-control and copy rules). Depth: `docs/features/trust-safety-and-privacy.md`.
 
 ### Feature deep-dives and cross-cutting guides
 
-Auth and the Verification Code: `docs/22-authentication-and-verification.md`. Inbox (filters, archive, selection, deletes, keyboard, live): `docs/23-inbox-triage.md`. AI calls (prompts, schemas, fallbacks): `docs/24-ai-features.md`. Shortcuts, focus, live regions, `notify` toasts and motion: `docs/25-accessibility-and-feedback.md`. Phone vs desktop: `docs/26-responsive-design.md`. Known errors and fixes: `docs/27-developer-troubleshooting.md`. Suspicious or obfuscated code, config changes, secrets to rotate: `docs/28-supply-chain-security.md`; run `pnpm security:check` before committing or pushing, and never run, build or test a branch it flags. App code toasts through `notify` from `@/components/elements/sonner`, never `toast` from `sonner`.
+Auth and the Verification Code: `docs/features/authentication-and-verification.md`. Inbox (filters, archive, selection, deletes, keyboard, live): `docs/features/inbox-triage.md`. AI calls (prompts, schemas, fallbacks): `docs/features/ai-features.md`. Shortcuts, focus, live regions, `notify` toasts and motion: `docs/guides/accessibility-and-feedback.md`. Phone vs desktop: `docs/guides/responsive-design.md`. Known errors and fixes: `docs/guides/troubleshooting.md`. Suspicious or obfuscated code, config changes, secrets to rotate: `docs/guides/supply-chain-security.md`; run `pnpm security:check` before committing or pushing, and never run, build or test a branch it flags. App code toasts through `notify` from `@/components/elements/sonner`, never `toast` from `sonner`.
 
 ### State management
 
-Server data lives only in React Query (`src/data/**` factories); lists are filtered and paged on the server; controller `useState` is for ephemeral UI only; no global client store. Before adding a query, mutation, controller state, URL or device state, read `docs/20-state-management.md`.
+Server data lives only in React Query (`src/data/**` factories); lists are filtered and paged on the server; controller `useState` is for ephemeral UI only; no global client store. Before adding a query, mutation, controller state, URL or device state, read `docs/guides/state-management.md`.
 
 ### Design system
 
-shadcn (Radix) components first; the design is applied through opt-in CVA variants inside `src/components/elements/*`, semantic tokens only, every screen in 3 palettes × light/dark. Before adding a token, variant, palette or element, read `docs/13-design-system-and-theming.md`.
+shadcn (Radix) components first; the design is applied through opt-in CVA variants inside `src/components/elements/*`, semantic tokens only, every screen in 3 palettes × light/dark. Before adding a token, variant, palette or element, read `docs/reference/design-system.md`.
 
 ### Documentation
 
-Every change updates the docs it affects (`docs/agents/documentation-maintenance.md` maps changes to chapters, glossary, ADRs and screenshots). Screenshots are generated: `pnpm build-storybook && pnpm docs:screenshots`.
+Every change updates the docs it affects (`docs/agents/documentation-maintenance.md` maps changes to docs, glossary, ADRs and screenshots). Screenshots are generated: `pnpm build-storybook && pnpm docs:screenshots`.
 
 ### API & client-server patterns
 
@@ -53,12 +53,12 @@ Four-tier `src/components/`: `elements → patterns → blocks → pages`. Busin
 
 ### Testing, Storybook & mocks
 
-Storybook 10 (`@storybook/nextjs-vite`) stories are the component tests. They run via `pnpm test:stories` in headless Chromium with `play()` and axe. Mock data comes only from `src/mock/fixtures`, and network calls only through MSW handlers in `src/mock/handlers`. Before writing a story, `*.mock.ts` or test, read `docs/10-storybook-and-ui-catalog.md`. Rationale: ADR 0016. The generated inventory is in `docs/11-component-registry.md`: run `pnpm docs:registry` after component, story, mock or scenario changes. Package manager: **pnpm only**.
+Storybook 10 (`@storybook/nextjs-vite`) stories are the component tests. They run via `pnpm test:stories` in headless Chromium with `play()` and axe. Mock data comes only from `src/mock/fixtures`, and network calls only through MSW handlers in `src/mock/handlers`. Before writing a story, `*.mock.ts` or test, read `docs/guides/storybook-and-ui-catalog.md`. Rationale: ADR 0016. The generated inventory is in `docs/reference/component-registry.md`: run `pnpm docs:registry` after component, story, mock or scenario changes. Package manager: **pnpm only**.
 
 ### Email Provider
 Nodemailer + `@react-email/render` via SMTP (configured via `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` env variables in `src/server/email/mailer.ts`). `resend` package has been completely removed.
 
 ### Infrastructure (Terraform)
-The Vercel project, its per-environment (Production/Preview) environment variables, and the MongoDB Atlas project/cluster/database users are managed as code in `terraform/`, not by hand in either dashboard. See `terraform/README.md` before changing any of them, [Chapter 21](docs/21-infrastructure-and-terraform.md) for the full architectural picture, and [ADR 0032](docs/adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md). `vercel.json`'s cron declaration is the one exception: the Vercel Terraform provider has no cron resource, so it stays out of `terraform/` on purpose.
+The Vercel project, its per-environment (Production/Preview) environment variables, and the MongoDB Atlas project/cluster/database users are managed as code in `terraform/`, not by hand in either dashboard. See `terraform/README.md` before changing any of them, [Infrastructure & Terraform](docs/guides/infrastructure-and-terraform.md) for the full architectural picture, and [ADR 0032](docs/adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md). `vercel.json`'s cron declaration is the one exception: the Vercel Terraform provider has no cron resource, so it stays out of `terraform/` on purpose.
 
 

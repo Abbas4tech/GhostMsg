@@ -16,7 +16,7 @@ const badRequest = (message: string) =>
 
 /**
  * One page of the inbox for a filter + search, newest first, with a keyset
- * `nextCursor` and the `total` matching the filter (Chapter 16 §6).
+ * `nextCursor` and the `total` matching the filter (API Reference §6).
  */
 export async function GET(req: NextRequest): Promise<Response> {
   try {

@@ -1,4 +1,4 @@
-# Chapter 2: Getting Started & Local Setup
+# Getting Started & Local Setup
 
 This chapter guides you through setting up GhostMsg on your local development machine.
 
@@ -28,7 +28,7 @@ cp .env.example .env.local
 
 ### 2.1 Every variable the code reads
 
-This is the complete list, checked against every `process.env`, `import.meta.env` and `env.X` access in the repository. When you add a variable, update this table, [`.env.example`](../.env.example) and the [Chapter 9](09-deployment-and-operations.md#2-production-environment-variables-checklist) checklist together.
+This is the complete list, checked against every `process.env`, `import.meta.env` and `env.X` access in the repository. When you add a variable, update this table, [`.env.example`](../.env.example) and the [Deployment & Operations](09-deployment-and-operations.md#2-production-environment-variables-checklist) checklist together.
 
 | Variable | Required | Read in | Default / if unset |
 | :--- | :--- | :--- | :--- |
@@ -39,7 +39,7 @@ This is the complete list, checked against every `process.env`, `import.meta.env
 | `SMTP_PORT` | No | [`mailer.ts`](../src/server/email/mailer.ts) | `587` (STARTTLS); `465` switches to TLS |
 | `SMTP_FROM` | No | [`mailer.ts`](../src/server/email/mailer.ts) | `GhostMsg 👻 <SMTP_USER>` |
 | `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` | No | [`options.ts`](../src/app/api/auth/[...nextauth]/options.ts) | Only email sign-up |
-| `GOOGLE_AI_STUDIO_SECRET` | No | [`moderation.ts`](../src/server/ai/moderation.ts), [`smart-reply.ts`](../src/server/ai/smart-reply.ts), [`ama-suggestions.ts`](../src/server/ai/ama-suggestions.ts), [`suggested-messages.ts`](../src/server/ai/suggested-messages.ts) | Every message is delivered as clean (nothing quarantined); AI features use fixed fallbacks ([Chapter 24](24-ai-features.md)) |
+| `GOOGLE_AI_STUDIO_SECRET` | No | [`moderation.ts`](../src/server/ai/moderation.ts), [`smart-reply.ts`](../src/server/ai/smart-reply.ts), [`ama-suggestions.ts`](../src/server/ai/ama-suggestions.ts), [`suggested-messages.ts`](../src/server/ai/suggested-messages.ts) | Every message is delivered as clean (nothing quarantined); AI features use fixed fallbacks ([AI Features](features/ai-features.md)) |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | No | [`use-push-notification.ts`](../src/data/user/use-push-notification.ts) (browser), [`web-push.ts`](../src/server/push/web-push.ts) | Push reported as not configured. Built into the browser bundle: rebuild after changing it |
 | `VAPID_PRIVATE_KEY` | No | [`web-push.ts`](../src/server/push/web-push.ts) | No pushes are sent |
 | `VAPID_SUBJECT` | No | [`web-push.ts`](../src/server/push/web-push.ts) | `mailto:support@ghostmsg.app` |
@@ -69,7 +69,7 @@ Names such as `CI`, `VITEST` or `STRIPE_KEY` appear only in example code under `
 
 Tests never need a real `.env.local`: the network is mocked with MSW. Tests that cover a missing or present key set it themselves: `vi.stubEnv(...)` + `vi.unstubAllEnvs()` for the VAPID keys (`web-push.test.ts`, `use-settings.controller.test.ts`), and save/delete/restore of `GOOGLE_AI_STUDIO_SECRET` for the AI fallbacks (`moderation.test.ts`, `smart-reply.test.ts`, `ama-suggestions.test.ts`).
 
-> Without the VAPID keys the app still runs. Settings then reports that push isn't configured, and the server skips sending pushes. Without `GOOGLE_AI_STUDIO_SECRET`, moderation delivers every message as clean and AI features use fixed fallbacks ([Chapter 17 §4](17-trust-safety-and-privacy.md#4-moderation-and-the-quarantine-policy)).
+> Without the VAPID keys the app still runs. Settings then reports that push isn't configured, and the server skips sending pushes. Without `GOOGLE_AI_STUDIO_SECRET`, moderation delivers every message as clean and AI features use fixed fallbacks ([Trust, Safety & Privacy §4](features/trust-safety-and-privacy.md#4-moderation-and-the-quarantine-policy)).
 
 ---
 
@@ -110,7 +110,7 @@ pnpm storybook        # http://localhost:6006
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-**Done when:** you can sign up, receive the Verification Code (or sign in with Google), and see the empty inbox ("No Anonymous Messages yet"). Without `GOOGLE_AI_STUDIO_SECRET` everything still works with stock AI text. If something is off, see [Chapter 27](27-developer-troubleshooting.md).
+**Done when:** you can sign up, receive the Verification Code (or sign in with Google), and see the empty inbox ("No Anonymous Messages yet"). Without `GOOGLE_AI_STUDIO_SECRET` everything still works with stock AI text. If something is off, see [Troubleshooting](guides/troubleshooting.md).
 
 ---
 
@@ -124,4 +124,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ---
 
 ## 5. Next Chapter
-Proceed to [Chapter 3: System Architecture](03-system-architecture.md) for technical architecture details.
+Proceed to [System Architecture](03-system-architecture.md) for technical architecture details.

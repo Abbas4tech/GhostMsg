@@ -57,4 +57,4 @@ flowchart TD
 - Consistent visual and accessible behavior across all application forms (`SignInForm`, `SignUpForm`, `VerifyCodeForm`, and `SendMessageForm`).
 - Screen reader users receive unambiguous feedback via `aria-describedby` pointing to `<FormDescription>` and `<FormMessage>` IDs.
 - Submitting disabled states remain reactive to `form.formState.isValid` and `isSubmitting` without manual dirty-state plumbing.
-- Documented in [Chapter 5: Component Architecture](../05-component-architecture.md), [Chapter 20: State Management](../20-state-management.md), and [Component Architecture for Agents](../agents/component-architecture.md).
+- Documented in [Component Architecture](../05-component-architecture.md), [State Management](../guides/state-management.md), and [Component Architecture for Agents](../agents/component-architecture.md).

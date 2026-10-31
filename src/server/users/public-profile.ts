@@ -9,7 +9,7 @@ const PUBLIC_ANSWERS_LIMIT = 50;
 
 /**
  * Everything `/u/[username]` shows, in the exact JSON shape of
- * `GET /api/public/{username}/answers`. Only public fields (Chapter 17, S8).
+ * `GET /api/public/{username}/answers`. Only public fields (Trust, Safety & Privacy, S8).
  * Cached per request so the page and its metadata share one lookup.
  */
 export const getPublicProfile = cache(async (username: string) => {

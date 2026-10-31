@@ -1,4 +1,4 @@
-# Chapter 8: Code Quality & Standards
+# Code Quality & Standards
 
 This chapter outlines GhostMsg's strict code standards, linting configuration via Ultracite (Biome), TypeScript compiler settings, and architectural anti-patterns.
 
@@ -47,7 +47,7 @@ if (isQuarantineView) subtitle = `${n} held back · never in your main inbox`;
 const DELETE_REGEX = /^delete$/i;                                                   // ✓
 ```
 
-More, with causes: [Chapter 27 §4](27-developer-troubleshooting.md#4-lint-biome--ultracite).
+More, with causes: [Troubleshooting §4](guides/troubleshooting.md#4-lint-biome--ultracite).
 
 ---
 
@@ -76,9 +76,9 @@ pnpm exec tsc --noEmit
 | Untyped `any` casting | Strongly typed Zod schemas (`z.infer<typeof schema>`) |
 | Unverified string endpoints | Strongly typed OpenAPI `paths` |
 | Array index as React `key` (`key={index}`) | Stable unique IDs (`key={item.id}` or deterministic item attributes) |
-| `import { toast } from "sonner"` in app code | `notify` from `@/components/elements/sonner` (per-type durations, assertive errors; [Chapter 25 §5.2](25-accessibility-and-feedback.md#52-notify)) |
-| Two DOM copies of a form for phone and desktop | One tree chosen with `useIsMobile()` ([Chapter 26 §2](26-responsive-design.md#2-two-techniques)) |
-| Raw type sizes (`text-[22px] font-bold`) for headings and body | Semantic scale (`text-h3`, `text-body`, …) ([Chapter 13 §3.1](13-design-system-and-theming.md#31-type-scale)) |
+| `import { toast } from "sonner"` in app code | `notify` from `@/components/elements/sonner` (per-type durations, assertive errors; [Accessibility & Feedback §5.2](guides/accessibility-and-feedback.md#52-notify)) |
+| Two DOM copies of a form for phone and desktop | One tree chosen with `useIsMobile()` ([Responsive Design §2](guides/responsive-design.md#2-two-techniques)) |
+| Raw type sizes (`text-[22px] font-bold`) for headings and body | Semantic scale (`text-h3`, `text-body`, …) ([Design System §3.1](reference/design-system.md#31-type-scale)) |
 
 ---
 
@@ -125,5 +125,5 @@ GhostMsg enforces a **zero-inline-suppression policy** and strict linter rules f
 ---
 
 ## 8. Next Chapter
-Proceed to [Chapter 9: Deployment & Operations](09-deployment-and-operations.md).
+Proceed to [Deployment & Operations](09-deployment-and-operations.md).
 

@@ -8,7 +8,7 @@ Use the glossary's terms verbatim ([`GLOSSARY.md`](../../GLOSSARY.md)): Recipien
 
 ## 1. Safety and privacy invariants
 
-Full reasoning: [Chapter 17](../17-trust-safety-and-privacy.md). A change that breaks one of these is wrong even if tests pass.
+Full reasoning: [Trust, Safety & Privacy](../features/trust-safety-and-privacy.md). A change that breaks one of these is wrong even if tests pass.
 
 | # | Invariant | Enforced in | How to check |
 | :-- | :--- | :--- | :--- |
@@ -25,7 +25,7 @@ Full reasoning: [Chapter 17](../17-trust-safety-and-privacy.md). A change that b
 
 ## 2. Recipient-control rules
 
-- **Every setting saves itself.** Settings controls are optimistic mutations with rollback and a toast on error, built with `useOptimisticResourceMutation` ([Chapter 20](../20-state-management.md) rule 8). Switches are **silent on success** (the switch moving is the confirmation); rapid toggles are queued per resource, so the last one wins. No page-level Save button in Settings.
+- **Every setting saves itself.** Settings controls are optimistic mutations with rollback and a toast on error, built with `useOptimisticResourceMutation` ([State Management](../guides/state-management.md) rule 8). Switches are **silent on success** (the switch moving is the confirmation); rapid toggles are queued per resource, so the last one wins. No page-level Save button in Settings.
 - **Profile edits are a draft.** The Profile page holds a react-hook-form draft (preview updates live) and saves on **Save changes** in the `UnsavedChangesBar` with **one** `PATCH /api/user/profile` carrying only the changed fields; **Discard** sends nothing. A blank AMA Prompt is never sent.
 - **Unsaved edits are guarded.** With a dirty Profile draft, closing or reloading the tab triggers the browser prompt, and an in-app link opens "Discard unsaved changes?" (`DiscardChangesModal`, **Keep editing** focused) instead of navigating (`useLeaveGuard`).
 - **Pausing is calm.** Message Acceptance off shows "taking a breather" to visitors; answers stay visible. Never render it as an error.
@@ -44,8 +44,8 @@ Full reasoning: [Chapter 17](../17-trust-safety-and-privacy.md). A change that b
 
 | Topic | Rule | Reference |
 | :--- | :--- | :--- |
-| Components | Build from shadcn elements; design via opt-in CVA variants; `className` for layout only. | [Chapter 13 §6](../13-design-system-and-theming.md#6-elements-shadcn-first-design-through-variants) |
-| Colour | Semantic tokens only; no raw Tailwind palette colours; no manual `dark:` colour overrides. | [Chapter 13 §3](../13-design-system-and-theming.md#3-token-reference) |
+| Components | Build from shadcn elements; design via opt-in CVA variants; `className` for layout only. | [Design System §6](../reference/design-system.md#6-elements-shadcn-first-design-through-variants) |
+| Colour | Semantic tokens only; no raw Tailwind palette colours; no manual `dark:` colour overrides. | [Design System §3](../reference/design-system.md#3-token-reference) |
 | Themes | Every screen must work in all 6 palette × mode combinations; check with the Storybook toolbar or `pnpm docs:screenshots`. | `pnpm theme:contrast` |
 | Accessibility | One `<main>`; labelled controls (`FieldLabel`, `aria-label` on icon buttons); 44px targets; `motion-safe:` animations; dialogs have titles; focus defaults to the safe choice in risky dialogs. | Story tests (axe) |
 | Option sets | 2–7 choices → `ToggleGroup` (`chip` filters, `segment` toggles); items are radios in tests. | — |
@@ -72,4 +72,4 @@ Full reasoning: [Chapter 17](../17-trust-safety-and-privacy.md). A change that b
 | `showAmaBanner` | public answers, `VisitorPreview` | Banner visibility |
 | `notificationSettings.*` | `send-message` (email, push), `daily-digest` (`emailAlerts = daily`), `use-inbox-data` → `useLiveMessages` (live toast `hideMessageText`), Settings | Alert channels |
 
-When you add a preference, add a row here and in [Chapter 12 §5.7](../12-product-guide-and-features.md#57-settings-dashboardsettings).
+When you add a preference, add a row here and in [Product Guide §5.7](../features/product-guide.md#57-settings-dashboardsettings).

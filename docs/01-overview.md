@@ -1,4 +1,4 @@
-# Chapter 1: Project Overview
+# Project Overview
 
 GhostMsg is an anonymous messaging platform where users create personal profiles to receive unmoderated, identity-free feedback, confessions, and questions from the public.
 
@@ -12,12 +12,12 @@ In traditional social media platforms, communication is constrained by social an
 1. **Privacy-First**: No sender IP address, device fingerprints, or account information is stored with submitted messages.
 2. **Type Safety & Reliability**: End-to-end type safety from server schemas to client components via Zod, OpenAPI 3.1, and `openapi-fetch`.
 3. **Speed & Sub-Second Latency**: Edge runtime execution for AI prompts and cached serverless connections for MongoDB.
-4. **Delightful Aesthetics**: Three palettes (Soft spectral, Midnight confessional, Playful paper) × light/dark, shadcn components with GhostMsg variants, micro-animations via Motion, and responsive layouts built with Tailwind CSS v4 ([Chapter 13](13-design-system-and-theming.md)).
-5. **Recipient in Control, Calm Safety**: Graded moderation with a Recipient-chosen quarantine sensitivity, silent blocking, private notifications by default (hidden text, quiet hours), and undoable or typed-to-confirm destructive actions ([Chapter 17](17-trust-safety-and-privacy.md)).
+4. **Delightful Aesthetics**: Three palettes (Soft spectral, Midnight confessional, Playful paper) × light/dark, shadcn components with GhostMsg variants, micro-animations via Motion, and responsive layouts built with Tailwind CSS v4 ([Design System](reference/design-system.md)).
+5. **Recipient in Control, Calm Safety**: Graded moderation with a Recipient-chosen quarantine sensitivity, silent blocking, private notifications by default (hidden text, quiet hours), and undoable or typed-to-confirm destructive actions ([Trust, Safety & Privacy](features/trust-safety-and-privacy.md)).
 
 ![GhostMsg inbox](assets/screenshots/dashboard-inbox.png)
 
-The full product walkthrough (personas, routes, journeys, every feature) is in [Chapter 12: Product Guide](12-product-guide-and-features.md).
+The full product walkthrough (personas, routes, journeys, every feature) is in [Product Guide](features/product-guide.md).
 
 ---
 
@@ -97,4 +97,4 @@ mindmap
 ---
 
 ## 4. Next Chapter
-Proceed to [Chapter 2: Getting Started](02-getting-started.md) for local environment setup and configuration, or jump to [Chapter 12: Product Guide](12-product-guide-and-features.md) for the feature walkthrough.
+Proceed to [Getting Started](02-getting-started.md) for local environment setup and configuration, or jump to [Product Guide](features/product-guide.md) for the feature walkthrough.

@@ -1,8 +1,8 @@
-# Chapter 28: Supply-Chain Security & Incident Response
+# Supply-Chain Security & Incident Response
 
 What happened when an obfuscated "download and run" payload was found in this repository, how to recognise that family of attack, what to do the moment you suspect it, and the guard that now runs on every commit. Read this before opening an unfamiliar branch, copying files from another project, or adding a config file you did not write.
 
-Related: [Chapter 8](08-code-quality.md) (gates), [Chapter 9](09-deployment-and-operations.md) (secrets), [Chapter 21](21-infrastructure-and-terraform.md) (Terraform-held secrets), [Chapter 27](27-developer-troubleshooting.md).
+Related: [Code Quality](../08-code-quality.md) (gates), [Deployment & Operations](../09-deployment-and-operations.md) (secrets), [Infrastructure & Terraform](infrastructure-and-terraform.md) (Terraform-held secrets), [Troubleshooting](troubleshooting.md).
 
 ---
 
@@ -65,17 +65,17 @@ Rules while investigating:
 
 ### 3.1 What to rotate
 
-Rotate everything that was readable on a machine or build that loaded the poisoned config. The variable list is in [Chapter 2 §2.1](02-getting-started.md#21-every-variable-the-code-reads).
+Rotate everything that was readable on a machine or build that loaded the poisoned config. The variable list is in [Getting Started §2.1](../02-getting-started.md#21-every-variable-the-code-reads).
 
 | Secret | Where it lives | Side effect of rotating |
 | :--- | :--- | :--- |
 | `MONGODB_URI` (Atlas database user password) | Vercel env, `.env.local`, Terraform | Change in Atlas (Terraform), redeploy |
 | `NEXT_AUTH_SECRET` | Vercel env, `.env.local` | Everyone is signed out |
-| `SENDER_PEPPER_SECRET` | Vercel env | Existing Sender Hashes stop matching: blocks reset ([Chapter 17 §2](17-trust-safety-and-privacy.md#2-anonymity-model)) |
+| `SENDER_PEPPER_SECRET` | Vercel env | Existing Sender Hashes stop matching: blocks reset ([Trust, Safety & Privacy §2](../features/trust-safety-and-privacy.md#2-anonymity-model)) |
 | `SMTP_PASS` | Vercel env, `.env.local` | Update the mail account |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | Vercel env, `.env.local` | Reset in Google Cloud |
 | `GOOGLE_AI_STUDIO_SECRET` | Vercel env, `.env.local` | New key in AI Studio |
-| `VAPID_PRIVATE_KEY` | Vercel env | Saved push subscriptions stop working ([Chapter 18 §4](18-notifications-and-realtime.md#4-web-push)) |
+| `VAPID_PRIVATE_KEY` | Vercel env | Saved push subscriptions stop working ([Notifications & Real-Time §4](../features/notifications-and-realtime.md#4-web-push)) |
 | `CRON_SECRET` | Vercel env | Update `vercel.json` caller (Vercel sends it itself) |
 | Vercel, Atlas API, HCP Terraform tokens | Terraform `terraform.tfvars`, CLI login | New tokens; revoke the old |
 | GitHub tokens (`gh auth`), SSH keys, npm tokens | The developer machine | Revoke in each service, re-login |
@@ -132,7 +132,7 @@ The guard is a tripwire for this payload family and for the generic shapes in §
 1. **Read config files in every diff**, especially ones you didn't touch. A config that grows is a warning sign.
 2. **Never paste in files from another project** without reading them. If a folder comes with a README for a different app, don't keep it.
 3. **Don't run `pnpm install`, `dev` or `build` on a branch you haven't skimmed** when it comes from a fork, a pull request or a template you don't trust. Review in the browser first.
-4. **Keep secrets out of the working tree where you can.** `.env.local`, `.vercel/` and `terraform/terraform.tfvars` are git-ignored but readable by any process you start. Prefer short-lived tokens and least privilege (an Atlas user limited to one database; separate Preview credentials, see [Chapter 21](21-infrastructure-and-terraform.md)).
+4. **Keep secrets out of the working tree where you can.** `.env.local`, `.vercel/` and `terraform/terraform.tfvars` are git-ignored but readable by any process you start. Prefer short-lived tokens and least privilege (an Atlas user limited to one database; separate Preview credentials, see [Infrastructure & Terraform](infrastructure-and-terraform.md)).
 5. **Treat Vercel build logs and env as exposed to the build.** Production variables are visible to code that runs during `next build`.
 6. **Review dependency changes.** New packages with install scripts, tiny packages with huge diffs and look-alike names deserve a look; consider `pnpm install --ignore-scripts` for unfamiliar lockfile changes, then enable scripts only for the packages that need them.
 7. **Turn on 2FA and branch protection** so a stolen token can't push straight to `master`.

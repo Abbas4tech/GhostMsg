@@ -1,8 +1,8 @@
-# Chapter 23: Inbox Triage
+# Inbox Triage
 
 How the inbox at `/dashboard` loads, filters, marks read, archives, selects, deletes and updates live, and how each behaviour maps to code. Read this before touching `blocks/inbox`, `patterns/message-card`, `patterns/filter-bar` or any `use-inbox*.controller.ts`.
 
-Decisions: [ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md) (optimistic mutations), [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md) (server-side filters, paging, counts), [ADR 0031](adr/0031-state-management-consistency-and-structure.md) (state structure), [ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md) (confirmed deletes, phone chrome). Product view: [Chapter 12 §5.4](12-product-guide-and-features.md#54-inbox-dashboard). State rules: [Chapter 20](20-state-management.md).
+Decisions: [ADR 0021](../adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md) (optimistic mutations), [ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md) (server-side filters, paging, counts), [ADR 0031](../adr/0031-state-management-consistency-and-structure.md) (state structure), [ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md) (confirmed deletes, phone chrome). Product view: [Product Guide §5.4](product-guide.md#54-inbox-dashboard). State rules: [State Management](../guides/state-management.md).
 
 ---
 
@@ -96,7 +96,7 @@ Content-Type: application/json
 { "isArchived": true }
 ```
 
-`useArchiveMessageMutation` removes the card from every cached list at once, then confirms with a plain toast: "Message archived" or "Moved back to Inbox". There is no Undo (decision in [redesign-progress §4](agents/redesign-progress.md#4-decisions-the-user-made-dont-re-ask)); moving it back is the undo. Failure rolls back and shows "Couldn't update that message".
+`useArchiveMessageMutation` removes the card from every cached list at once, then confirms with a plain toast: "Message archived" or "Moved back to Inbox". There is no Undo (decision in [redesign-progress §4](../agents/redesign-progress.md#4-decisions-the-user-made-dont-re-ask)); moving it back is the undo. Failure rolls back and shows "Couldn't update that message".
 
 ## 5. Selection and bulk actions
 
@@ -114,7 +114,7 @@ stateDiagram-v2
 
 - Selection is `{ ids, scope }` where `scope` is the current filter + search. Ids that aren't loaded are ignored.
 - Bulk Mark read and Star are optimistic with rollback (`POST /api/messages/bulk`). Export uses `fetchAllMessages(status)`, so it covers every page, not just the loaded one.
-- Phones: **Select** in the top bar turns on checkboxes, a fixed "N selected · Select all" header and `BulkActionToolbar layout="bar"` over the tab bar ([Chapter 26](26-responsive-design.md)).
+- Phones: **Select** in the top bar turns on checkboxes, a fixed "N selected · Select all" header and `BulkActionToolbar layout="bar"` over the tab bar ([Responsive Design](../guides/responsive-design.md)).
 
 ## 6. Deletes
 
@@ -132,7 +132,7 @@ flowchart TD
     R2 -->|fails| RB
 ```
 
-Single and bulk deletes never offer Undo; only Delete all does ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)). The dialog's message is resolved from the live cache by id, so it never shows a stale copy.
+Single and bulk deletes never offer Undo; only Delete all does ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)). The dialog's message is resolved from the live cache by id, so it never shows a stale copy.
 
 ## 7. Keyboard
 
@@ -149,7 +149,7 @@ Single and bulk deletes never offer Undo; only Delete all does ([ADR 0034](adr/0
 | `/` | Focus search | |
 | `esc` | Clear the selection | |
 
-The map is `SHORTCUT_KEYS` in `pages/dashboard/inbox.utils.ts`; `event.key` already includes Shift, so ⇧B arrives as `"B"` and `#` as `"#"`. Page-wide keys (`g i`, `g p`, `g s`, `⇧C`, `?`) are in `use-global-shortcuts.controller.ts`, which listens in the capture phase and stops a consumed chord key so `g s` never also stars a message. How to add a key: [Chapter 25 §2.3](25-accessibility-and-feedback.md#23-adding-a-shortcut).
+The map is `SHORTCUT_KEYS` in `pages/dashboard/inbox.utils.ts`; `event.key` already includes Shift, so ⇧B arrives as `"B"` and `#` as `"#"`. Page-wide keys (`g i`, `g p`, `g s`, `⇧C`, `?`) are in `use-global-shortcuts.controller.ts`, which listens in the capture phase and stops a consumed chord key so `g s` never also stars a message. How to add a key: [Accessibility & Feedback §2.3](../guides/accessibility-and-feedback.md#23-adding-a-shortcut).
 
 ## 8. Live updates and the new-messages pill
 
@@ -172,7 +172,7 @@ sequenceDiagram
     end
 ```
 
-If the stream drops, the inbox polls every 30 s (`INBOX_POLL_MS`). The subtitle reads "N unread · last checked a moment ago" from the query's `dataUpdatedAt`, re-rendered once a minute. Details: [Chapter 18 §5](18-notifications-and-realtime.md#5-live-feed-server-sent-events).
+If the stream drops, the inbox polls every 30 s (`INBOX_POLL_MS`). The subtitle reads "N unread · last checked a moment ago" from the query's `dataUpdatedAt`, re-rendered once a minute. Details: [Notifications & Real-Time §5](notifications-and-realtime.md#5-live-feed-server-sent-events).
 
 ## 9. Loading and empty states
 
@@ -187,11 +187,11 @@ flowchart TD
     F -- "other filter" --> O["'Nothing unread' (or starred / answered / archived)<br/>+ Clear filter"]
 ```
 
-Only the first-run state animates ([Chapter 25 §6](25-accessibility-and-feedback.md#6-motion)).
+Only the first-run state animates ([Accessibility & Feedback §6](../guides/accessibility-and-feedback.md#6-motion)).
 
 ## 10. The Quarantined view
 
-`?filter=quarantined` is a view, not a route: title "Quarantined", "N held back · never in your main inbox", a reassurance notice, and "Delete all quarantined" (the bulk confirm for every loaded message there). Cards are dashed, tagged with their reason (Hurtful language, Spam, Threat) and concealed until **Reveal** ([Chapter 17 §4.3](17-trust-safety-and-privacy.md#43-how-held-content-is-shown)). On phones the chips hide and a back arrow returns to All.
+`?filter=quarantined` is a view, not a route: title "Quarantined", "N held back · never in your main inbox", a reassurance notice, and "Delete all quarantined" (the bulk confirm for every loaded message there). Cards are dashed, tagged with their reason (Hurtful language, Spam, Threat) and concealed until **Reveal** ([Trust, Safety & Privacy §4.3](trust-safety-and-privacy.md#43-how-held-content-is-shown)). On phones the chips hide and a back arrow returns to All.
 
 ## 11. Tests and stories
 

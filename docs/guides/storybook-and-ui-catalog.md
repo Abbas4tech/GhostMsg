@@ -1,6 +1,6 @@
-# Chapter 10: Storybook & UI Component Catalog
+# Storybook & UI Component Catalog
 
-GhostMsg uses **Storybook 10** (`@storybook/nextjs-vite`) as the component catalog and the primary component test harness. Stories run as **Vitest browser tests** in headless Chromium through `@storybook/addon-vitest`, with axe accessibility checks. Page stories isolate their dependencies with **MSW** at the network layer. Rationale: [ADR 0016](adr/0016-storybook-msw-and-story-driven-component-testing.md).
+GhostMsg uses **Storybook 10** (`@storybook/nextjs-vite`) as the component catalog and the primary component test harness. Stories run as **Vitest browser tests** in headless Chromium through `@storybook/addon-vitest`, with axe accessibility checks. Page stories isolate their dependencies with **MSW** at the network layer. Rationale: [ADR 0016](../adr/0016-storybook-msw-and-story-driven-component-testing.md).
 
 ---
 
@@ -10,7 +10,7 @@ GhostMsg uses **Storybook 10** (`@storybook/nextjs-vite`) as the component catal
 | :--- | :--- |
 | `pnpm storybook` | Dev server at `http://localhost:6006` with autodocs, controls, actions, a11y panel and the **Theme** + **Palette** toolbars |
 | `pnpm build-storybook` | Static build into `storybook-static/` (manual/CI step) |
-| `pnpm docs:screenshots [names…]` | Renders stories from `storybook-static/` in headless Chromium and writes the documentation screenshots to `docs/assets/screenshots/` ([Chapter 14 §10](14-ui-screens-and-user-flows.md#10-how-screenshots-are-produced)) |
+| `pnpm docs:screenshots [names…]` | Renders stories from `storybook-static/` in headless Chromium and writes the documentation screenshots to `docs/assets/screenshots/` ([UI Screens & User Flows §10](../features/screens-and-user-flows.md#10-how-screenshots-are-produced)) |
 | `pnpm test:stories` | Runs every story as a Vitest browser test (smoke + `play()` + axe) |
 | `pnpm test` | Unit project only (happy-dom): logic, controllers, page integration |
 | `pnpm test:all` | Both projects; this is the pre-push gate |
@@ -63,7 +63,7 @@ flowchart TD
 
 ## 4. The story standard
 
-Every `*.stories.tsx` must meet all five points ([ADR 0016, Q6](adr/0016-storybook-msw-and-story-driven-component-testing.md)):
+Every `*.stories.tsx` must meet all five points ([ADR 0016, Q6](../adr/0016-storybook-msw-and-story-driven-component-testing.md)):
 
 1. **CSF3, typed.** `satisfies Meta<typeof X>`, `type Story = StoryObj<typeof meta>`, `tags: ["autodocs"]`, and a tier title (`Elements/…`, `Patterns/…`, `Blocks/…`, `Pages/…`).
 2. **Controls and actions.** `argTypes` with a description for every prop, select/radio controls for variants and sizes, and `fn()` for every callback.
@@ -127,7 +127,7 @@ export const SignedOut: Story = { parameters: { msw: { handlers: [...scenarios.s
 
 ## 5. Mock data rules
 
-Full catalog of fixtures and scenarios: [Chapter 11](11-component-registry.md).
+Full catalog of fixtures and scenarios: [Component Registry](../reference/component-registry.md).
 
 
 - **Domain shapes come only from `src/mock/fixtures`** (`buildMessage`, `buildPublicAnswer`, `buildSession`, `messageScenarios.*`, …). Builders accept `Partial<T>` overrides and return fully typed objects.
@@ -149,7 +149,7 @@ Full catalog of fixtures and scenarios: [Chapter 11](11-component-registry.md).
 | `openapi-fetch` (`api`) | pages | real; MSW answers the HTTP |
 | `motion`, `embla-carousel`, `input-otp`, Radix | elements | real browser, no mocking needed |
 
-Nothing below `pages/` imports data modules (enforced by Biome, [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)), so elements, patterns and blocks stories need args only.
+Nothing below `pages/` imports data modules (enforced by Biome, [ADR 0015](../adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)), so elements, patterns and blocks stories need args only.
 
 ---
 
@@ -195,5 +195,5 @@ Nothing below `pages/` imports data modules (enforced by Biome, [ADR 0015](adr/0
 
 ---
 
-## 9. Next Chapter
-Return to the [Documentation Index](README.md).
+## 9. Where to go next
+Return to the [Documentation Index](../README.md).

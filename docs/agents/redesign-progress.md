@@ -2,7 +2,7 @@
 
 **Read this before touching typography, spacing, motion, mobile layout, Toaster, Command Palette, Sidebar, Settings, Inbox or Profile.** It tracks the effort to align the app with the Claude Design handoff at `ghostmsg-handoff/ghostmsg-handoff/` (gitignored, local-only; ask the user for a fresh copy if it's missing). That folder's `HANDOFF.md` is the source brief; `screenshots/` are the visual targets; `reference/boards/*.dc.html` + `ghostmsg.css` hold exact CSS values. Read those for **measurements**, never copy their markup.
 
-Canonical docs this work feeds: [Chapter 13](../13-design-system-and-theming.md) (tokens, variants, cheatsheet), [Chapter 14](../14-ui-screens-and-user-flows.md) (screens, flows, responsive table), [Chapter 12](../12-product-guide-and-features.md) (features), [ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md) (confirmed deletes, Delete all Undo, `notify`, phone chrome), [Chapter 11](../11-component-registry.md) (regenerate with `pnpm docs:registry`).
+Canonical docs this work feeds: [Design System](../reference/design-system.md) (tokens, variants, cheatsheet), [UI Screens & User Flows](../features/screens-and-user-flows.md) (screens, flows, responsive table), [Product Guide](../features/product-guide.md) (features), [ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md) (confirmed deletes, Delete all Undo, `notify`, phone chrome), [Component Registry](../reference/component-registry.md) (regenerate with `pnpm docs:registry`).
 
 ---
 

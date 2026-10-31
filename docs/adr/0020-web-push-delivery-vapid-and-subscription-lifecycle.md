@@ -80,5 +80,5 @@ sequenceDiagram
 
 ### Negative & Mitigations
 - **A new runtime dependency (`web-push`).** It's the reference implementation of VAPID and RFC 8291 encryption, and is only imported by `src/server/push/` (lint keeps it out of client bundles).
-- **Production needs the keys.** Add `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` to Vercel ([Chapter 9](../09-deployment-and-operations.md)). Rotating keys invalidates existing subscriptions; clients resubscribe automatically (D6) the next time push is toggled on.
+- **Production needs the keys.** Add `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` to Vercel ([Deployment & Operations](../09-deployment-and-operations.md)). Rotating keys invalidates existing subscriptions; clients resubscribe automatically (D6) the next time push is toggled on.
 - **Browsers without a push service** (Brave with Google push services off, some private modes) still can't subscribe. They now get a specific message instead of a generic failure.
