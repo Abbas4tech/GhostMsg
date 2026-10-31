@@ -55,8 +55,8 @@ Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/`
 | **Server** | |
 | `src/server/security/security.test.ts` | HMAC-SHA256 `senderHash`, rate-limit helpers, constant-time cron bearer check |
 | `src/server/ai/moderation.test.ts` | Graded toxicity levels and `isToxic`, code-fence stripping, legacy `{ isToxic }` mapping, unknown values, fail-open without a key / on invalid JSON / on AI errors (AI SDK mocked, no network) |
-| `src/server/ai/quarantine-policy.test.ts` | Relaxed/Balanced/Strict thresholds, quarantine off, missing settings (ADR 0025) |
-| `src/server/ai/smart-reply.test.ts` | Multi-tone smart reply + fallback on AI failure |
+| `src/server/ai/quarantine-policy.test.ts` | Relaxed/Balanced/Strict thresholds, quarantine off, missing settings (ADR 0025), `toQuarantineReason` |
+| `src/server/ai/smart-reply.test.ts` | Three drafts from one structured-output call, in tone order, 180-char cap, fallbacks without a key / on AI errors (AI SDK mocked) |
 | `src/server/ai/ama-suggestions.test.ts` | `||` parsing, length filter, fixed fallbacks |
 | `src/server/notifications/delivery-policy.test.ts` | Quiet hours (midnight crossing, zones, zero-length), hidden previews, truncation (ADR 0026) |
 | `src/server/notifications/daily-digest.test.ts` | Digest window (first, since last, 7-day cap), hidden vs shown previews, quiet-hours skip, empty, failed send keeps the window, per-recipient error isolation (ADR 0029) |
@@ -90,14 +90,22 @@ Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/`
 | `src/components/pages/dashboard/profile.utils.test.ts` | Public profile URL, `buildProfilePatch` (changed fields only, trimmed, no blank prompt) |
 | `src/components/pages/home/home.utils.test.ts` | Claim href (trim, encode, empty), link prefix fallback |
 | `src/components/pages/public-profile/send-message.utils.test.ts` | AI suggestion parsing (`||`-separated) |
+| `src/lib/utils.test.ts` | `cn()`: the semantic type scale is a size (not a colour) and replaces raw size/weight/leading/tracking |
+| `src/lib/browser/shortcuts.test.ts` | Shortcut guard: ⌘/Ctrl/Alt, typing in fields, open dialogs |
+| `src/lib/messages/quarantine-reason.test.ts` | Tag, blur and reveal copy per reason, generic copy for older messages |
+| `src/lib/users/verification.test.ts` | Tries left, resend cooldown, `m:ss` countdown |
+| `src/lib/format/relative-time.test.ts` | Card ages and "last checked a moment ago" |
+| `src/components/pages/auth/verify/verify.utils.test.ts` | Verify replies → wrong / locked / expired screens, `retryAfterSeconds` from a refused resend |
+| `src/components/pages/home/home.utils.test.ts` | Claim link, link prefix, "See a live profile" only when configured |
 | **Controllers** | |
-| `src/components/pages/dashboard/use-inbox.controller.test.ts` | Server filters (Quarantined), debounced server search, Load more paging, server counts, selection scoped to filter + loaded ids, mark-read on reply, optimistic star rollback, bulk, export, delete, refresh errors, blocklist (ADR 0021, 0030) |
+| `src/components/pages/dashboard/use-inbox.controller.test.ts` | Server filters (Quarantined), debounced server search, Load more paging, server counts, selection scoped to filter + loaded ids, mark-read on reply, optimistic star rollback, archive / move back, bulk, export, confirmed single + bulk delete with rollback, refresh errors, blocklist (ADR 0021, 0030, 0034) |
 | `src/components/pages/dashboard/use-dashboard-shell.controller.test.ts` | Session + active nav + unread count, acceptance toggle and paused label, ⌘K/Ctrl+K, command routing, sign-out, go to sign-in |
 | `src/components/pages/dashboard/use-profile-link.controller.test.ts` | Link + label from the session, copy + toast, blocked clipboard, share sheet only when supported |
 | `src/components/pages/dashboard/use-inbox-filters.controller.test.ts` | Route filter/search, URL write-through via `history.replaceState`, debounced search + scope, adopting a new `?filter=` |
 | `src/components/pages/dashboard/use-inbox-data.controller.test.ts` | One filter from the server with counts, polling fallback flag, refresh toasts |
-| `src/components/pages/dashboard/use-inbox-keyboard.controller.test.ts` | `j`/`k` cursor, select/star/reply on the focused card, `/` focuses search, ignored while a dialog is open |
-| `src/components/pages/dashboard/use-smart-reply.controller.test.ts` | Draft seeding, AI generate, save / blank-draft guard |
+| `src/components/pages/dashboard/use-inbox-keyboard.controller.test.ts` | `j`/`k` cursor, `⇧J`/`⇧K` extend, select/star/reply/archive/block/delete on the focused card, `esc` clears, `/` focuses search, ignored while a dialog is open |
+| `src/components/pages/dashboard/use-global-shortcuts.controller.test.ts` | `g i` / `g p` / `g s` chords (and their time window), a consumed chord never reaches the inbox, `⇧C`, `?`, ignored under a dialog |
+| `src/components/pages/dashboard/use-smart-reply.controller.test.ts` | Draft seeding, three drafts in one request on open (none while closed), picking an idea, failed load flag, save / blank-draft guard |
 | `src/components/pages/dashboard/use-profile.controller.test.ts` | Profile URL from session, form draft + discard, one-request save with the trimmed AMA prompt, blank-prompt guard, leave guard → discard and navigate, AI ideas |
 | `src/components/pages/dashboard/use-change-username.controller.test.ts` | Opens idle with the current name, debounced available/taken, save → session `update` + `router.refresh` |
 | `src/components/pages/dashboard/use-settings.controller.test.ts` | Defaults, closed-inbox scenario, acceptance (API + controlled), alerts, unblock, web push per device (switch follows this browser; off removes only this device), Export all (every message, quarantined included, no Sender Hashes; failure toasts and downloads nothing) |
@@ -105,12 +113,13 @@ Tests are **always colocated** (`x.ts` + `x.test.ts`); there are no `__tests__/`
 | `src/components/pages/dashboard/use-appearance.controller.test.ts` | Mode/palette exposure, system fallback, unknown palette ignored, `setTheme` |
 | `src/components/pages/home/use-claim-link.controller.test.ts` | Submit opens `/sign-up?username=`, host as link prefix |
 | `src/components/pages/public-profile/use-public-answers.controller.test.ts` | Answers + AMA prompt, Message Acceptance, error fallback |
-| `src/components/pages/public-profile/use-send-message.controller.test.ts` | Auto-fetch suggestions, errors, `selectSuggestion`, send + reset, not-accepting |
+| `src/components/pages/public-profile/use-send-message.controller.test.ts` | Auto-fetch suggestions, errors, `selectSuggestion`, send + reset (keeps the sent text for "You sent"), not-accepting |
 | `src/components/pages/auth/shared/use-google-sign-in.controller.test.ts` | Stable Google OAuth callback |
 | `src/components/pages/auth/sign-in/use-sign-in.controller.test.ts` | Credentials success/redirect, custom redirect, NextAuth error, thrown error |
 | `src/components/pages/auth/sign-up/use-sign-up.controller.test.ts` | Register + redirect, server error, composed availability |
 | `src/components/pages/auth/sign-up/use-username-availability.controller.test.ts` | Short-name skip, available clears error, taken writes form error |
-| `src/components/pages/auth/verify/use-verify.controller.test.ts` | Verify + redirect, incorrect code |
+| `src/components/pages/auth/verify/use-verify.controller.test.ts` | Verified state (no redirect), tries left, locked, expired, cooldown on mount, resend unlocks + restarts, refused resend takes the server's wait |
+| `src/components/pages/auth/verify/use-resend-cooldown.controller.test.ts` | Countdown per second, stops at zero, restart |
 
 **Totals (2026-10-14):** 54 unit test files + 103 story files = 157 files, 676 tests (`pnpm test:all`).
 
@@ -141,7 +150,7 @@ flowchart LR
     HD --> PS
 ```
 
-**Controller test recipe** ([ADR 0019](adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md)). `renderHookWithProviders(() => useXController(), { session? })` from `src/test/test-utils.tsx` wraps the hook in `SessionProvider` (session passed directly, default `null`, so no session fetch and no SSE) and a fresh `QueryClient`. Network goes to the shared MSW handlers; override with `server.use(...scenarios.x.y)`. Assert endpoints with `recordRequests()`. Mock only the edges MSW can't see: `vi.mock("next/navigation")` for `useRouter`, `vi.mock("sonner")` for toasts, `vi.mock("next-auth/react")` for `signIn`, and browser side effects like `@/lib/browser/download`.
+**Controller test recipe** ([ADR 0019](adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md)). `renderHookWithProviders(() => useXController(), { session? })` from `src/test/test-utils.tsx` wraps the hook in `SessionProvider` (session passed directly, default `null`, so no session fetch and no SSE) and a fresh `QueryClient`. Network goes to the shared MSW handlers; override with `server.use(...scenarios.x.y)`. Assert endpoints with `recordRequests()`. Mock only the edges MSW can't see: `vi.mock("next/navigation")` for `useRouter`, `vi.mock("sonner")` plus `vi.mock("@/components/elements/sonner", () => ({ notify: sonner.toast }))` for toasts (app code calls `notify`), `vi.mock("next-auth/react")` for `signIn`, and browser side effects like `@/lib/browser/download`.
 
 Story-test inventory (all components and pages) is generated in [Chapter 11: Component Registry](11-component-registry.md).
 

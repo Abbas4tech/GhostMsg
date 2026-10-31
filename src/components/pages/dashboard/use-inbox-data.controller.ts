@@ -6,7 +6,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import type { MessageFilterStatus } from "@/components/patterns/filter-bar";
 import { messagesQueries } from "@/data/messages/messages.queries";
 import { useLiveMessages } from "@/data/messages/use-live-messages";
@@ -54,8 +54,9 @@ export function useInboxDataController({
 
   const messages = useMemo(
     () =>
-      // biome-ignore lint/suspicious/noUnnecessaryConditions: inboxQuery.data is genuinely undefined before the first load resolves — tsc confirms this optional chain is required.
-      inboxQuery.data?.pages.flatMap((page) => page.messages) ?? NO_MESSAGES,
+      inboxQuery.data
+        ? inboxQuery.data.pages.flatMap((page) => page.messages)
+        : NO_MESSAGES,
     [inboxQuery.data]
   );
   const loadedIds = useMemo(
@@ -69,10 +70,10 @@ export function useInboxDataController({
   const handleRefresh = useCallback(async () => {
     const [result] = await Promise.all([refetchInbox(), refetchCounts()]);
     if (result.isError) {
-      toast.error(result.error?.message || "Failed to fetch messages");
+      notify.error(result.error?.message || "Failed to fetch messages");
       return;
     }
-    toast.success("Messages refreshed successfully");
+    notify.success("Messages refreshed successfully");
   }, [refetchInbox, refetchCounts]);
   const handleLoadMore = useCallback(() => {
     fetchNextPage();
@@ -86,6 +87,8 @@ export function useInboxDataController({
     isRefreshing:
       (inboxQuery.isRefetching && !inboxQuery.isFetchingNextPage) ||
       inboxQuery.isPlaceholderData,
+    /** When the list last came back from the server (ms; null before). */
+    lastCheckedAt: inboxQuery.dataUpdatedAt || null,
     loadedIds,
     messages,
     pagination: {

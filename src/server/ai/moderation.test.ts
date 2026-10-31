@@ -31,6 +31,7 @@ describe("moderateAndClassifyMessage", () => {
     const result = await moderateAndClassifyMessage("You are super awesome!");
 
     expect(result).toEqual({
+      category: "none",
       isToxic: false,
       sentimentTag: "neutral",
       toxicity: "none",

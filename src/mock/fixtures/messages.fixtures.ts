@@ -1,5 +1,5 @@
 import type { InboxCounts } from "@/lib/messages/inbox-filter";
-import type { MessageDto } from "@/types/api";
+import type { MessageDto, SmartReplyDraftDto } from "@/types/api";
 
 /** Inbox message exactly as `GET /api/get-messages` returns it. */
 export type MessageFixture = MessageDto;
@@ -19,6 +19,7 @@ export function buildMessage(
     _id: "msg-1",
     content: "I really love how thoughtful and kind you always are!",
     createdAt: fixtureDate(),
+    isArchived: false,
     isPinned: false,
     isQuarantined: false,
     isRead: false,
@@ -73,6 +74,7 @@ export const quarantinedMessage = buildMessage({
   content: "Click this totally legit link to win a prize!!!",
   createdAt: fixtureDate(5),
   isQuarantined: true,
+  quarantineReason: "spam",
   senderHash: "hash-spammer",
   sentimentTag: "neutral",
 });
@@ -97,6 +99,16 @@ export const longContentMessage = buildMessage({
 });
 
 /** Named inbox datasets reused by stories, MSW handlers and tests. */
+/** Design Modals board: one Smart Reply draft per tone. */
+export const smartReplyDrafts: SmartReplyDraftDto[] = [
+  {
+    text: "Honestly, sometimes. But it taught me what I want.",
+    tone: "thoughtful",
+  },
+  { text: "Never. The hard days were the point.", tone: "witty" },
+  { text: "Thank you for asking. It means a lot.", tone: "wholesome" },
+];
+
 export const messageScenarios = {
   allQuarantined: [
     quarantinedMessage,
@@ -119,6 +131,7 @@ export const messageScenarios = {
 export const mixedMessageCounts = {
   all: 5,
   answered: 2,
+  archived: 0,
   quarantined: 1,
   starred: 1,
   total: messageScenarios.mixed.length,

@@ -60,7 +60,8 @@ The OpenAPI registry in [`src/server/openapi/openapi.ts`](../src/server/openapi/
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | `/api/check-username-unique` | `GET` | No | Query: `username` | `200 OK` | `400`, `500` | Real-time username debounce availability check |
 | `/api/sign-up` | `POST` | No | Body: `SignUpRequest` | `201 Created` | `400`, `500` | User account creation & OTP dispatch |
-| `/api/verify-code` | `POST` | No | Body: `VerifyCodeRequest` | `200 OK` | `400`, `404`, `500` | 6-digit email OTP verification |
+| `/api/verify-code` | `POST` | No | Body: `VerifyCodeRequest` | `200 OK` (a wrong code is `success: false` + `attemptsLeft`) | `400` (expired), `404`, `429` (locked), `500` | 6-digit Verification Code, 3 tries per code |
+| `/api/verify-code/resend` | `POST` | No | Body: `ResendCodeRequest` | `200 OK` (`retryAfterSeconds`) | `400`, `404`, `429` (cooldown / limit), `500` | Email a new Verification Code, reset the tries |
 | `/api/send-message` | `POST` | No | Body: `SendMessageRequest` | `200 OK` | `429`, `404`, `500` | Rate limiting, sender hash, AI moderation, ingestion |
 | `/api/suggest-messages` | `GET` | No (Edge) | None | `200 OK` | `500` | Gemini 2.5 Flash Lite prompt suggestions |
 | `/api/get-messages` | `GET` | Yes (Session) | Query: `status` (incl. `any`), `q`, `cursor`, `limit` | `200 OK` | `400`, `401`, `404`, `500` | One page of one filter: server-side filter + escaped search, keyset paging (`nextCursor`) |
@@ -77,7 +78,7 @@ The OpenAPI registry in [`src/server/openapi/openapi.ts`](../src/server/openapi/
 | `/api/user/push-subscription` | `POST` | Yes (Session) | Body: `PushSubscriptionRequest` (`endpoint`, `keys` required) | `200 OK` | `400`, `401`, `500` | Register (or replace) this device's Web Push subscription |
 | `/api/user/push-subscription` | `DELETE` | Yes (Session) | Body: `PushUnsubscribeRequest` (`endpoint`) | `200 OK` | `400`, `401`, `500` | Remove this device's Web Push subscription; `webPushEnabled` turns false when no device is left |
 | `/api/public/{username}/answers` | `GET` | No | Path: `username` | `200 OK` | `404`, `500` | Public Q&A feed + display name, photo, acceptance, banner and suggestion settings |
-| `/api/ai/smart-reply` | `POST` | Yes (Session) | Body: `{ content, tone }` | `200 OK` | `401`, `500` | Multi-tone AI smart reply generator |
+| `/api/ai/smart-reply` | `POST` | Yes (Session) | Body: `{ content }` | `200 OK` (`drafts: SmartReplyDraft[]`) | `401`, `500` | Three Smart Reply drafts (thoughtful, witty, wholesome) from one AI call |
 | `/api/user/ama-prompt` | `PATCH` | Yes (Session) | Body: `{ amaPrompt }` | `200 OK` | `401`, `500` | *Legacy.* Set the AMA Prompt; the app uses `PATCH /api/user/profile` |
 | `/api/user/profile` | `GET` | Yes (Session) | None | `200 OK` | `401`, `404`, `500` | Profile: username, email, display name, photo, AMA prompt, banner |
 | `/api/user/profile` | `PATCH` | Yes (Session) | Body: `{ displayName?, avatarUrl?, amaPrompt?, showAmaBanner? }` | `200 OK` | `400`, `401`, `500` | One atomic profile save, only changed fields (photo = resized data URL, ≤ 350 kB; prompt 1–120 chars) |

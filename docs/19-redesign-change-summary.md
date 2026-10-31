@@ -183,3 +183,22 @@ After the redesign the Vercel project, per-environment environment variables and
 
 Full reference: [Chapter 21: Infrastructure & Terraform](21-infrastructure-and-terraform.md).
 
+
+## 10. Design-handoff v2 alignment: phones, toasts and confirmed deletes ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md))
+
+| Area | For users | For developers |
+| :--- | :--- | :--- |
+| Deletes | Deleting one message or a selection always asks first ("Delete this message?" / "Delete N messages?"), then deletes at once. Only **Delete all** in Danger zone keeps its 10 s **Undo**. | `DeleteMessageModal` (single) and `DeleteSelectedModal` (bulk) driven by `use-inbox.controller.ts`; `showUndoToast` is used by the danger zone only. An earlier undo-first version was reverted on 2026-10-31. |
+| Toasts | One-line toasts with a coloured icon; success 3 s, info/warning 5 s, errors 6 s (or until dismissed with an action); errors are read out at once. Undo toasts show the time left and pause on hover. | `notify` (`elements/sonner/notify.ts`, `TOAST_DURATION_MS`) wraps Sonner and feeds an assertive live region; `Toaster` is `unstyled` + `classNames`. Bulk success copy is verb-first. |
+| Archive | `e` (or the card / sheet action) archives a message: it leaves the inbox and appears under an **Archived** chip. "Moved back to Inbox" undoes it. | `isArchived` on the message (indexed), `status=archived` in the inbox query, `use-archive-message-mutation.ts`. |
+| Quarantine reasons | Quarantined cards say why: **Hurtful language**, **Spam** or **Threat** (older ones say Quarantined). | Moderation returns a `category`; `toQuarantineReason` stores `quarantineReason`; copy in `lib/messages/quarantine-reason.ts`. |
+| Keyboard | `e`, `⇧B`, `#`, `esc`, `⇧J`/`⇧K`, `g i` / `g p` / `g s`, `⇧C`, and a `?` shortcut sheet; tooltips show keys. | `use-global-shortcuts.controller.ts` (capture phase, chords stop propagation), `patterns/shortcut-sheet`, `lib/browser/shortcuts.ts`. |
+| Inbox feel | Cards are marked read after 600 ms on screen; new messages show a pill instead of jumping; skeletons only after 150 ms; four empty states; "last checked a moment ago". | `useMarkSeen` in `MessageCard`, `useNewMessagesPill` / `useDelayedFlag` / `InboxEmptyState` in `blocks/inbox`, `formatLastChecked`. |
+| Smart Reply | Three drafts (thoughtful, witty, wholesome) appear as soon as Reply opens, from one AI call. | `POST /api/ai/smart-reply` now takes `{ content }` and returns `{ drafts }`; `smartReplyQueries.drafts` replaces the mutation. |
+| Verify | A resend countdown, tries left after a wrong code, a lock after three, and a "You're in. Your link is live." screen. | `POST /api/verify-code/resend`, `verifyAttempts` / `verifyCodeSentAt` on the user, `lib/users/verification.ts`, `blocks/verify-success`. |
+| Auth, landing, public profile on phones | Auth screens have their own Back + progress, no site header; the landing and public profile states match the MobLanding / MobPublic* boards. | `SiteLayout hideHeaderOnPhones`, `AuthPanel backHref/step/align/iconTone`, CSS-only landing variants, `PublicProfile` sent screen. |
+| Phones | New top bar (page actions instead of title/avatar), pill tab bar, Inbox search + selection mode, More actions sheet, Quarantined view, Settings as a grouped list with accordion rows, Profile identity summary. Sign out and Message Acceptance are in Settings. | `patterns/mobile-header-actions` portals; `SettingsLayoutProvider`; new props on `BulkActionToolbar`, `ShareLinkCard`, `MessageCard`, `FilterBar`, `IdentityCard`. |
+| Tablet | Sidebar starts as an icon rail. | `useTabletRail` in the shell. |
+| Styling | Danger zone title and other headings with colour variants keep their size again. | `cn()` knows the semantic type scale (`src/lib/utils.ts`). |
+
+Not done, with reasons: [redesign-progress.md §5](agents/redesign-progress.md#5-not-done-and-why).

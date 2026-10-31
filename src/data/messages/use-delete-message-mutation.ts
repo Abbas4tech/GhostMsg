@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { api, clientFetch } from "@/data/api-client";
 import {
   invalidateCachedMessages,
@@ -31,7 +31,7 @@ export function useDeleteMessageMutation(
     onError: (error, _messageId, context) => {
       restoreCachedMessages(queryClient, context?.snapshot);
       if (!options?.suppressToast) {
-        toast.error(error.message || "Failed to delete message");
+        notify.error(error.message || "Failed to delete message");
       }
     },
 
@@ -48,7 +48,7 @@ export function useDeleteMessageMutation(
 
     onSuccess: (data) => {
       if (!options?.suppressToast) {
-        toast.success(data.message || "Message deleted successfully!");
+        notify.success(data.message || "Message deleted successfully!");
       }
     },
   });

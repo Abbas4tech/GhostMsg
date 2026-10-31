@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import type React from "react";
 import { useCallback, useState } from "react";
 import type {
@@ -33,7 +33,7 @@ export interface PasswordFieldProps<TFieldValues extends FieldValues> {
   placeholder: string;
 }
 
-/** Password input with a lock icon and a Show/Hide toggle (local UI state). */
+/** Password input with a lock icon and a "Show" / "Hide" text toggle (design Auth board). */
 export function PasswordField<TFieldValues extends FieldValues>({
   control,
   name,
@@ -69,10 +69,11 @@ export function PasswordField<TFieldValues extends FieldValues>({
             <InputGroupButton
               aria-label={showPassword ? "Hide password" : "Show password"}
               aria-pressed={showPassword}
+              className="font-semibold text-muted-foreground max-sm:h-11 max-sm:px-3"
               onClick={handleToggleShowPassword}
               size="sm"
             >
-              {showPassword ? <Eye /> : <EyeOff />}
+              {showPassword ? "Hide" : "Show"}
             </InputGroupButton>
           </InputGroupAddon>
         </InputGroup>

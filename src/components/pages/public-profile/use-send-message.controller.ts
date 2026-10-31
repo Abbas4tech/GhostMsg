@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import type { SendMessageValues } from "@/components/patterns/send-message-form";
 import { publicQueries } from "@/data/public/public.queries";
 import { useSendMessageMutation } from "@/data/public/use-send-message-mutation";
@@ -54,22 +54,23 @@ export function useSendMessageController({
   const fetchSuggestions = useCallback(async () => {
     await refetchSuggestions();
   }, [refetchSuggestions]);
-  // After a successful send the form gives way to a reassurance card.
-  const [isSent, setIsSent] = useState(false);
+  // After a successful send the form gives way to the "Sent." screen, which
+  // repeats the message ("You sent"). Null while composing.
+  const [sentContent, setSentContent] = useState<string | null>(null);
 
   const handleSubmit = useCallback(
     async ({ content }: SendMessageValues) => {
       try {
         const response = await sendAsync({ content, username });
         if (response?.success) {
-          toast.success(response.message);
+          notify.success(response.message);
           form.reset({ content: "" });
-          setIsSent(true);
+          setSentContent(content);
         }
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Failed to send message";
-        toast.error(message || "Failed to send message");
+        notify.error(message || "Failed to send message");
       }
     },
     [form, sendAsync, username]
@@ -83,7 +84,7 @@ export function useSendMessageController({
   );
 
   const handleSendAnother = useCallback(() => {
-    setIsSent(false);
+    setSentContent(null);
   }, []);
 
   return {
@@ -92,9 +93,10 @@ export function useSendMessageController({
     handleSendAnother,
     handleSubmit,
     isFetchingSuggestions: suggestionsQuery.isFetching,
-    isSent,
+    isSent: sentContent !== null,
     isSubmitting,
     selectSuggestion,
+    sentContent,
     suggestions,
   };
 }

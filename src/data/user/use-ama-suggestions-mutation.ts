@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { api, clientFetch } from "@/data/api-client";
 
 /** "Suggest with AI" for the AMA Prompt (riffs on the current prompt). */
@@ -12,7 +12,7 @@ export function useAmaSuggestionsMutation() {
         })
       ),
     onError: (error: Error) => {
-      toast.error(error.message || "Couldn't get ideas right now");
+      notify.error(error.message || "Couldn't get ideas right now");
     },
   });
 }

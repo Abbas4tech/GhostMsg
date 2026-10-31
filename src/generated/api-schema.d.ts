@@ -192,8 +192,8 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Generate AI Smart Reply Draft
-     * @description Generate witty, wholesome, or thoughtful reply drafts via Gemini 2.5 Flash Lite.
+     * Generate AI Smart Reply Drafts
+     * @description Generate three Smart Reply drafts (thoughtful, witty, wholesome) in one Gemini 2.5 Flash Lite call. Falls back to stock drafts when AI is unavailable.
      */
     post: {
       parameters: {
@@ -208,7 +208,7 @@ export interface paths {
         };
       };
       responses: {
-        /** @description Smart reply generated successfully */
+        /** @description Three drafts, one per tone */
         200: {
           headers: {
             [name: string]: unknown;
@@ -590,6 +590,7 @@ export interface paths {
             | "starred"
             | "quarantined"
             | "answered"
+            | "archived"
             | "any";
         };
         header?: never;
@@ -1831,7 +1832,95 @@ export interface paths {
             "application/json": components["schemas"]["ErrorResponse"];
           };
         };
+        /** @description No tries left for this code: request a new one */
+        429: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["VerifyCodeResponse"];
+          };
+        };
         /** @description Internal server error */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/verify-code/resend": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Resend Verification Code
+     * @description Email a new Verification Code and reset the tries. At most once a minute (429 with retryAfterSeconds).
+     */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["ResendCodeRequest"];
+        };
+      };
+      responses: {
+        /** @description New code sent */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ResendCodeResponse"];
+          };
+        };
+        /** @description Missing username or already verified */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description User not found */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ErrorResponse"];
+          };
+        };
+        /** @description Too soon or too many: wait retryAfterSeconds */
+        429: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            "application/json": components["schemas"]["ResendCodeResponse"];
+          };
+        };
+        /** @description Email dispatch failed or internal error */
         500: {
           headers: {
             [name: string]: unknown;
@@ -1923,8 +2012,27 @@ export interface components {
       username: string;
     };
     VerifyCodeResponse: {
+      /** @example 2 */
+      attemptsLeft?: number;
       /** @example Account Verified Successfully! */
       message: string;
+      /** @enum {string} */
+      reason?: "wrong" | "expired" | "locked";
+      /** @example true */
+      success: boolean;
+    };
+    ResendCodeRequest: {
+      /**
+       * @description Username whose Verification Code to resend
+       * @example johndoe
+       */
+      username: string;
+    };
+    ResendCodeResponse: {
+      /** @example We sent you a new code. */
+      message: string;
+      /** @example 60 */
+      retryAfterSeconds: number;
       /** @example true */
       success: boolean;
     };
@@ -1967,11 +2075,19 @@ export interface components {
       /** @example 2026-10-06T12:00:00.000Z */
       createdAt: string;
       /** @default false */
+      isArchived: boolean;
+      /** @default false */
       isPinned: boolean;
       /** @default false */
       isQuarantined: boolean;
       /** @default false */
       isRead: boolean;
+      /**
+       * @description Why a Quarantined Message was held back; absent on older messages
+       * @example hurtful
+       * @enum {string}
+       */
+      quarantineReason?: "hurtful" | "spam" | "threat";
       reply?: components["schemas"]["MessageReply"];
       senderHash?: string;
       /**
@@ -2038,6 +2154,8 @@ export interface components {
       success: boolean;
     };
     UpdateMessageRequest: {
+      /** @description Archived: hidden from every inbox view but Archived */
+      isArchived?: boolean;
       /** @description Star/Pin status */
       isPinned?: boolean;
       /** @description Read status */
@@ -2081,17 +2199,19 @@ export interface components {
     SmartReplyRequest: {
       /** @description Original anonymous message content */
       content: string;
+    };
+    SmartReplyDraft: {
+      /** @example Never. The hard days were the point. */
+      text: string;
       /**
-       * @description Desired tone for the AI generated response
-       * @default wholesome
+       * @description Tone of a Smart Reply draft
        * @example witty
        * @enum {string}
        */
-      tone: "witty" | "wholesome" | "thoughtful";
+      tone: "thoughtful" | "witty" | "wholesome";
     };
     SmartReplyResponse: {
-      /** @example Haha, thanks for keeping me on my toes! 😉 */
-      reply: string;
+      drafts: components["schemas"]["SmartReplyDraft"][];
       /** @example true */
       success: boolean;
     };
@@ -2428,6 +2548,8 @@ export interface components {
       all: number;
       /** @example 9 */
       answered: number;
+      /** @example 0 */
+      archived: number;
       /** @example 2 */
       quarantined: number;
       /** @example 5 */

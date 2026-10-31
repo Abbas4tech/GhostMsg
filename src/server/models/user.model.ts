@@ -67,8 +67,12 @@ export interface User extends Document {
   showAmaBanner: boolean;
   updatedAt: Date;
   username: string;
+  /** Wrong Verification Code guesses since the last code was issued. */
+  verifyAttempts?: number;
   verifyCode: string;
   verifyCodeExpiry: Date;
+  /** When the current code was emailed (resend cooldown). */
+  verifyCodeSentAt?: Date;
 }
 
 const PushSubscriptionSchema = new Schema<PushSubscriptionRecord>(
@@ -214,12 +218,19 @@ const UserSchema: Schema<User> = new Schema(
       type: String,
       unique: true,
     },
+    verifyAttempts: {
+      default: 0,
+      type: Number,
+    },
     verifyCode: {
       required: [true, "Verify code is required"],
       type: String,
     },
     verifyCodeExpiry: {
       required: [true, "Verify code Expiry is required"],
+      type: Date,
+    },
+    verifyCodeSentAt: {
       type: Date,
     },
   },

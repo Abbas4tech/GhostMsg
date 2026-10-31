@@ -4,8 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { useIsClient } from "usehooks-ts";
+import { notify } from "@/components/elements/sonner";
 import type { SignUpValues } from "@/components/patterns/auth-form";
 import { useSignUpMutation } from "@/data/auth/use-sign-up-mutation";
 import { signUpSchema } from "@/schemas/sign-up-schema";
@@ -45,12 +45,12 @@ export function useSignUpController({
       try {
         const res = await mutateAsync({ email, password, username });
         if (res?.success) {
-          toast.success(res.message);
+          notify.success(res.message);
           router.replace(`/verify/${username}`);
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : "";
-        toast.error(message || "Signup failed");
+        notify.error(message || "Signup failed");
       }
     },
     [mutateAsync, router, availability]

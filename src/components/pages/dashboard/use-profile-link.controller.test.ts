@@ -10,6 +10,11 @@ const { toast } = vi.hoisted(() => ({
 }));
 
 vi.mock("sonner", () => ({ toast }));
+// `notify` (the design's toast API) forwards to the mocked Sonner spies above.
+vi.mock("@/components/elements/sonner", async () => {
+  const sonner = await import("sonner");
+  return { notify: sonner.toast };
+});
 
 const renderLink = () =>
   renderHookWithProviders(() => useProfileLinkController(), {

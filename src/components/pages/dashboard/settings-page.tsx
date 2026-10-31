@@ -26,6 +26,7 @@ export function SettingsPage(props: SettingsPageProps = {}): React.JSX.Element {
   return (
     <>
       <SettingsPanel
+        account={settings.account}
         appearance={{
           mode: appearance.mode,
           onModeChange: appearance.handleModeChange,
@@ -40,6 +41,7 @@ export function SettingsPage(props: SettingsPageProps = {}): React.JSX.Element {
         data={{
           isExporting: settings.isExporting,
           onExport: settings.handleExport,
+          onSignOut: settings.handleSignOut,
         }}
         messages={{
           isAcceptancePending: settings.isAcceptancePending,

@@ -1,4 +1,5 @@
 import { http } from "msw";
+import { smartReplyDrafts } from "@/mock/fixtures/messages.fixtures";
 import {
   FIXTURE_AMA_PROMPT,
   joinSuggestions,
@@ -60,12 +61,13 @@ export const aiHandlers = (
       success: true,
     });
   }),
-  http.post(mswPath("/api/ai/smart-reply"), () =>
-    ok("/api/ai/smart-reply", "post", {
-      reply: "Thanks for the kind words. You just made my day!",
+  http.post(mswPath("/api/ai/smart-reply"), async () => {
+    await applyLatency(options);
+    return ok("/api/ai/smart-reply", "post", {
+      drafts: smartReplyDrafts,
       success: true,
-    })
-  ),
+    });
+  }),
 ];
 
 export const publicHandlers = {
@@ -78,6 +80,11 @@ export const publicHandlers = {
     ],
     loading: aiHandlers(suggestionScenarios.default, { latency: "infinite" }),
     none: aiHandlers(suggestionScenarios.none),
+    smartReplyError: [
+      http.post(mswPath("/api/ai/smart-reply"), () =>
+        apiError(500, "Smart Reply is unavailable")
+      ),
+    ],
   },
   answers: {
     error: [

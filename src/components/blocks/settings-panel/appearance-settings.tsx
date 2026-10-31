@@ -1,5 +1,6 @@
 "use client";
 
+import { PaletteIcon } from "lucide-react";
 import type React from "react";
 import { useCallback } from "react";
 import {
@@ -87,7 +88,12 @@ export function AppearanceSettings({
   );
 
   return (
-    <SettingsSection id="appearance" title="Appearance">
+    <SettingsSection
+      icon={<PaletteIcon />}
+      id="appearance"
+      summary={MODES.find((option) => option.value === mode)?.label}
+      title="Appearance"
+    >
       <FieldSet>
         <FieldLegend variant="label">Mode</FieldLegend>
         <RadioGroup
@@ -95,18 +101,23 @@ export function AppearanceSettings({
           onValueChange={handleModeChange}
           value={mode}
         >
+          {/* Design SettingsPage `.theme`: the card is the choice, no radio
+              circle; the radio stays for keyboard and screen readers. */}
           {MODES.map(({ value, label }) => (
-            <FieldLabel htmlFor={`mode-${value}`} key={value}>
+            <FieldLabel
+              className="rounded-2xl has-data-[state=checked]:ring-1 has-data-[state=checked]:ring-primary has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50"
+              htmlFor={`mode-${value}`}
+              key={value}
+            >
               <Field className="flex-col items-stretch gap-2">
                 <ModePreview mode={value} />
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem
-                    aria-label={label}
-                    id={`mode-${value}`}
-                    value={value}
-                  />
-                  <FieldTitle>{label}</FieldTitle>
-                </div>
+                <RadioGroupItem
+                  aria-label={label}
+                  className="sr-only"
+                  id={`mode-${value}`}
+                  value={value}
+                />
+                <FieldTitle>{label}</FieldTitle>
               </Field>
             </FieldLabel>
           ))}

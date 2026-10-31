@@ -21,17 +21,20 @@ function GoogleIcon(): React.JSX.Element {
 }
 
 export interface AuthOAuthHeaderProps {
+  /** Divider text: "or with email" (sign-up), "or" (sign-in, design MobSignIn). */
+  dividerLabel?: string;
   onGoogleSignIn: () => void;
 }
 
-/** "Continue with Google" first, then the "or with email" divider. */
+/** "Continue with Google" first, then the divider. 52px on phones. */
 export function AuthOAuthHeader({
+  dividerLabel = "or with email",
   onGoogleSignIn,
 }: AuthOAuthHeaderProps): React.JSX.Element {
   return (
     <div className="flex flex-col gap-4" data-slot="auth-oauth-header">
       <Button
-        className="w-full rounded-full"
+        className="w-full rounded-full max-sm:h-13"
         onClick={onGoogleSignIn}
         size="xl"
         type="button"
@@ -40,9 +43,9 @@ export function AuthOAuthHeader({
         <GoogleIcon />
         Continue with Google
       </Button>
-      <div className="flex items-center gap-3 text-muted-foreground text-sm">
+      <div className="flex items-center gap-3 text-muted-foreground text-xs sm:text-sm">
         <hr className="flex-1 border-border" />
-        or with email
+        {dividerLabel}
         <hr className="flex-1 border-border" />
       </div>
     </div>
@@ -62,7 +65,10 @@ export interface AuthFormFooterProps {
   submitVariant?: "default" | "brand";
 }
 
-/** Full-width submit button and the "switch to sign in / sign up" prompt. */
+/**
+ * Full-width submit button and the "switch to sign in / sign up" prompt.
+ * Phones: pinned to the bottom of the screen (the form is `max-sm:flex-1`).
+ */
 export function AuthFormFooter({
   isSubmitting,
   isSubmitDisabled,
@@ -74,9 +80,9 @@ export function AuthFormFooter({
   alternateLabel,
 }: AuthFormFooterProps): React.JSX.Element {
   return (
-    <footer className="flex flex-col gap-4">
+    <footer className="flex flex-col gap-3 max-sm:mt-auto sm:gap-4">
       <Button
-        className="w-full rounded-full"
+        className="w-full rounded-full max-sm:h-13"
         disabled={isSubmitDisabled}
         size="xl"
         type="submit"
@@ -95,7 +101,7 @@ export function AuthFormFooter({
       <p className="text-center text-muted-foreground text-sm">
         {alternatePrompt}{" "}
         <Link
-          className="font-semibold text-primary underline-offset-4 hover:underline"
+          className="font-bold text-primary underline-offset-4 hover:underline sm:font-semibold"
           href={alternateHref}
         >
           {alternateLabel}

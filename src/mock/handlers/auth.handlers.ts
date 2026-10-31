@@ -95,9 +95,42 @@ export const signUpHandlers = {
 };
 
 export const verifyHandlers = {
+  /** 400: the code is past its hour. */
+  expired: [
+    http.post(mswPath("/api/verify-code"), () =>
+      HttpResponse.json(
+        {
+          message: "That code has expired. Get a new one.",
+          reason: "expired",
+          success: false,
+        },
+        { status: 400 }
+      )
+    ),
+  ],
+  /** A wrong code: the API answers 200 with the tries left. */
   invalid: [
     http.post(mswPath("/api/verify-code"), () =>
-      apiError(400, "Incorrect verification code")
+      ok("/api/verify-code", "post", {
+        attemptsLeft: 2,
+        message: "That code isn't right.",
+        reason: "wrong",
+        success: false,
+      })
+    ),
+  ],
+  /** 429: no tries left for this code. */
+  locked: [
+    http.post(mswPath("/api/verify-code"), () =>
+      HttpResponse.json(
+        {
+          attemptsLeft: 0,
+          message: "Too many tries. Get a new code.",
+          reason: "locked",
+          success: false,
+        },
+        { status: 429 }
+      )
     ),
   ],
   success: [
@@ -110,8 +143,34 @@ export const verifyHandlers = {
   ],
 };
 
+export const resendCodeHandlers = {
+  /** 429 inside the one-minute cooldown. */
+  cooldown: [
+    http.post(mswPath("/api/verify-code/resend"), () =>
+      HttpResponse.json(
+        {
+          message: "You can get a new code in 42 seconds.",
+          retryAfterSeconds: 42,
+          success: false,
+        },
+        { status: 429 }
+      )
+    ),
+  ],
+  success: [
+    http.post(mswPath("/api/verify-code/resend"), () =>
+      ok("/api/verify-code/resend", "post", {
+        message: "We sent you a new code.",
+        retryAfterSeconds: 60,
+        success: true,
+      })
+    ),
+  ],
+};
+
 export const authHandlers = {
   credentials: credentialsHandlers,
+  resendCode: resendCodeHandlers,
   session: {
     authenticated: sessionHandlers(sessionScenarios.authenticated),
     loading: sessionHandlers(sessionScenarios.authenticated, {

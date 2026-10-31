@@ -57,7 +57,7 @@ function ParticlesDemo() {
         variant="outline"
       >
         <Heart />
-        <ParticlesEffect className="size-1 rounded-full bg-pink-500" />
+        <ParticlesEffect className="size-1 rounded-full bg-sentiment-sweet" />
       </Button>
     </Particles>
   );

@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { smartReplySchema } from "@/schemas/message-schema";
-import { generateSmartReply } from "@/server/ai/smart-reply";
+import { generateSmartReplies } from "@/server/ai/smart-reply";
 import { getSessionUserId, unauthorizedResponse } from "@/server/auth/session";
 
 export async function POST(request: NextRequest): Promise<Response> {
@@ -20,16 +20,10 @@ export async function POST(request: NextRequest): Promise<Response> {
       );
     }
 
-    const { content, tone } = parseResult.data;
-    const reply = await generateSmartReply(content, tone);
+    // One AI call returns a draft per tone (thoughtful, witty, wholesome).
+    const drafts = await generateSmartReplies(parseResult.data.content);
 
-    return Response.json(
-      {
-        reply,
-        success: true,
-      },
-      { status: 200 }
-    );
+    return Response.json({ drafts, success: true }, { status: 200 });
   } catch (error) {
     console.error("Failed to generate smart reply:", error);
     return Response.json(

@@ -25,7 +25,8 @@ How the contract is produced and consumed is covered in [Chapter 4](04-api-and-t
 | :--- | :--- | :---: | :--- |
 | Auth & verification | `GET /api/check-username-unique?username=` | — | Username format + availability |
 | | `POST /api/sign-up` | — | Create account, email Verification Code |
-| | `POST /api/verify-code` | — | Verify the 6-digit code |
+| | `POST /api/verify-code` | — | Verify the 6-digit code (3 tries per code) |
+| | `POST /api/verify-code/resend` | — | **New.** Email a new code (60 s cooldown) |
 | | `GET/POST /api/auth/*` | — | NextAuth (credentials + Google) |
 | Anonymous messaging | `POST /api/send-message` | — | Submit an Anonymous Message (rate limited, moderated) |
 | | `GET /api/suggest-messages` | — | AI Suggested Messages (Edge) |
@@ -33,13 +34,13 @@ How the contract is produced and consumed is covered in [Chapter 4](04-api-and-t
 | | `POST /api/messages/{messageId}/reply` | ✓ | Save / publish an answer |
 | Inbox | `GET /api/get-messages?status=&q=&limit=&cursor=` | ✓ | One page of one filter (server-side filter, search, keyset paging) |
 | | `GET /api/messages/counts` | ✓ | **New.** Count per filter + total |
-| | `PATCH /api/messages/{messageId}` | ✓ | Star / read |
+| | `PATCH /api/messages/{messageId}` | ✓ | Star / read / archive |
 | | `POST /api/messages/bulk` | ✓ | Bulk read / star / delete |
 | | `DELETE /api/delete-message/{messageId}` | ✓ | Delete one message |
 | | `GET /api/messages/stream` | ✓ | SSE live feed |
 | | `GET/POST /api/accept-message` | ✓ | Message Acceptance |
 | Abuse prevention | `GET/POST/DELETE /api/block-sender` | ✓ | Blocklist |
-| AI assistant | `POST /api/ai/smart-reply` | ✓ | Draft an answer in a tone |
+| AI assistant | `POST /api/ai/smart-reply` | ✓ | Three answer drafts, one per tone |
 | | `POST /api/ai/ama-suggestions` | ✓ | **New.** AMA Prompt ideas |
 | Profile & settings | `GET/PATCH /api/user/profile` | ✓ | **New.** Display name, photo, AMA banner switch |
 | | `PATCH /api/user/username` | ✓ | **New.** Change username |
@@ -61,7 +62,10 @@ Validates with `usernameValidation` (2–20 chars, `[a-zA-Z0-9_]`). **200** `{ s
 Body `{ username, email, password (≥6) }`. Creates or refreshes an unverified user, hashes the password (bcrypt, 10 rounds), sets a 6-digit code valid for **1 hour**, and emails it over SMTP. **201** on success; **400** if the username is taken by a verified user or the email is registered.
 
 ### `POST /api/verify-code`
-Body `{ username, code }` (6 digits). **200** when correct and unexpired (`isVerified = true`); **400** incorrect or expired; **404** unknown user.
+Body `{ username, code }` (6 digits). **200** `{ success: true }` when correct and unexpired (`isVerified = true`, tries reset), or when already verified. A **wrong code is a 200** `{ success: false, reason: "wrong", attemptsLeft }` (`reason: "locked"` when that was the last try). **400** invalid body, or `reason: "expired"`; **404** unknown user; **429** `reason: "locked"` once three tries are used. Rules: `lib/users/verification.ts`. Client: `useVerifyCodeMutation`, mapped to the on-screen error by `verify.utils.ts`.
+
+### `POST /api/verify-code/resend` *(new)*
+Body `{ username }`. Issues a new code (new expiry, tries reset, `verifyCodeSentAt = now`) and emails it. **200** `{ success, message, retryAfterSeconds: 60 }`; **400** missing username or already verified; **404** unknown user; **429** `{ retryAfterSeconds }` within 60 s of the last code or after 5 resends per username in 10 minutes; **500** if the email can't be sent. Client: `useResendCodeMutation`.
 
 ### `POST /api/auth/callback/credentials`
 Credentials sign-in via NextAuth. Client validates inputs via `signInSchema` (`identifier` validated as a valid email address if `@` is present, or a minimum 2-character username, and `password ≥ 6`). Server resolves `identifier` against either `email` or `username` on registered users.
@@ -121,27 +125,27 @@ One page of one inbox filter, filtered and searched on the server ([ADR 0030](ad
 
 | Param | Values |
 | :--- | :--- |
-| `status` | `all` (default: not quarantined) · `unread` · `starred` · `quarantined` · `answered` · `any` (every message, for exports) |
+| `status` | `all` (default: not quarantined, not archived) · `unread` · `starred` · `answered` · `archived` · `quarantined` · `any` (every message, for exports). Archived messages appear only under `archived` (and `any`). |
 | `q` | Case-insensitive literal match on the message **or its answer** (regex characters are escaped) |
 | `limit` | 1–100, default 30 |
 | `cursor` | `nextCursor` from the previous page (`"<ISO createdAt>_<id>"`) |
 
-**200** `{ success, messages: MessageDto[], total, nextCursor }`: newest first (`createdAt`, then `_id`); `total` counts everything matching the filter + search; `nextCursor` is `null` on the last page. **400** for an unknown status or a malformed cursor. Each `MessageDto` includes `senderHash` (for blocking) and `reply`. Client: `messagesQueries.inbox({ status, q })` (`useInfiniteQuery`), `fetchAllMessages(status)` (exports).
+**200** `{ success, messages: MessageDto[], total, nextCursor }`: newest first (`createdAt`, then `_id`); `total` counts everything matching the filter + search; `nextCursor` is `null` on the last page. **400** for an unknown status or a malformed cursor. Each `MessageDto` includes `senderHash` (for blocking), `reply`, `isArchived` and, for quarantined messages, `quarantineReason`. Client: `messagesQueries.inbox({ status, q })` (`useInfiniteQuery`), `fetchAllMessages(status)` (exports).
 
 ### `GET /api/messages/counts` *(new)*
-**200** `{ success, counts: { all, unread, starred, answered, quarantined, total } }` from one aggregation (`total` includes quarantined). Client: `messagesQueries.counts()` (inbox badges, sidebar unread badge, "Delete all N").
+**200** `{ success, counts: { all, unread, starred, answered, archived, quarantined, total } }` from one aggregation (`total` includes quarantined and archived). Client: `messagesQueries.counts()` (inbox badges, sidebar unread badge, "Delete all N").
 
 ### `PATCH /api/messages/{messageId}`
-Body `{ isPinned?, isRead? }`. **200** with the updated message. Client: `useUpdateMessageMutation` (optimistic with rollback, silent on success). The inbox sends `isRead: true` when the recipient replies, opens the Story Card, reveals or stars an unread message.
+Body `{ isPinned?, isRead?, isArchived? }`. **200** with the updated message. Clients: `useUpdateMessageMutation` (optimistic with rollback, silent on success) and `useArchiveMessageMutation` (removes the card at once, "Message archived" / "Moved back to Inbox"). The inbox sends `isRead: true` when a card has been on screen for 600 ms, and when the recipient replies, opens the Story Card, reveals or stars an unread message.
 
 ### `POST /api/messages/bulk`
 Body `{ action: "read" | "star" | "delete", ids: string[] (≥1) }`. Invalid ObjectIds are dropped; updates are scoped to the Recipient. Client: `useBulkActionMutation` (optimistic, shared cache helpers in `messages-cache.ts`).
 
 ### `DELETE /api/delete-message/{messageId}`
-**200** or **404**. Client: `useDeleteMessageMutation` (close-first dialog + optimistic removal, [ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md)).
+**200** or **404**. Client: `useDeleteMessageMutation` (after the confirm dialog: close-first + optimistic removal, [ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md); no Undo, [ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)).
 
 ### `GET /api/messages/stream` (SSE)
-`text/event-stream`. Events: `ping` on connect and every 30 s; `new_message` with `{ _id, content, sentimentTag, isQuarantined, isPinned, isRead, createdAt }` for each new message to this Recipient. **401** plain text without a session. Client: `useLiveMessages()` (EventSource → toast + invalidate the `messages` queries; reconnects 5 s after an error). See [Chapter 18](18-notifications-and-realtime.md).
+`text/event-stream`. Events: `ping` on connect and every 30 s; `new_message` with `{ _id, content, sentimentTag, isQuarantined, quarantineReason?, isPinned, isRead, createdAt }` for each new message to this Recipient. **401** plain text without a session. Client: `useLiveMessages()` (EventSource → toast + invalidate the `messages` queries; reconnects 5 s after an error). See [Chapter 18](18-notifications-and-realtime.md).
 
 ### `GET /api/accept-message` · `POST /api/accept-message`
 GET → `{ success, isAcceptingMessage }`. POST body `{ acceptMessages: boolean }`. Client: `userQueries.acceptance()`, `useAcceptMessageMutation` (sidebar, Settings, ⌘K).
@@ -159,7 +163,7 @@ Client: `userQueries.blockedSenders()`, `useBlockSenderMutation`, `useUnblockSen
 ## 8. AI assistant
 
 ### `POST /api/ai/smart-reply`
-Body `{ content, tone: "witty" | "wholesome" | "thoughtful" (default wholesome) }` → `{ success, reply }`. Client: `useSmartReplyMutation`.
+Body `{ content }` → `{ success, drafts: [{ text, tone }] }`: three drafts, `thoughtful`, `witty`, `wholesome` in that order, from **one** Gemini 2.5 Flash Lite structured-output call (each ≤ 180 chars). Without `GOOGLE_AI_STUDIO_SECRET` or on error it returns three stock drafts (still 200). Client: `smartReplyQueries.drafts(messageId, content)`, a query loaded when Smart Reply opens, cached per message, never refetched on focus or retried.
 
 ### `POST /api/ai/ama-suggestions` *(new)*
 Body `{ currentPrompt? (≤120) }` → `{ success, suggestions: string[3] }`. Gemini 2.5 Flash Lite riffs on the current prompt; without `GOOGLE_AI_STUDIO_SECRET` or on error it returns three fixed ideas (still 200). Client: `useAmaSuggestionsMutation` ("Suggest with AI" on the Profile page).

@@ -20,6 +20,12 @@ export type BulkAction = "delete" | "read" | "star";
 export interface BulkActionToolbarProps {
   className?: string;
   isPending?: boolean;
+  /**
+   * "pill": the floating dark toolbar (desktop). "bar": phones, a bottom bar
+   * over the tab bar with four icon-over-label actions; the count and
+   * "Clear" live in the selection header instead.
+   */
+  layout?: "bar" | "pill";
   onAction: (action: BulkAction) => void;
   onClearSelection: () => void;
   onExport: (format: MessageExportFormat) => void;
@@ -28,6 +34,8 @@ export interface BulkActionToolbarProps {
 
 const toolbarButton =
   "rounded-full text-background hover:bg-background/15 hover:text-background";
+const barButton =
+  "flex min-h-14 flex-col items-center justify-center gap-1 rounded-[14px] font-semibold text-foreground text-xs outline-none transition-colors hover:bg-muted focus-visible:bg-muted disabled:opacity-50 [&_svg]:size-5";
 
 /** Dark pill that appears while messages are selected. */
 export function BulkActionToolbar({
@@ -37,6 +45,7 @@ export function BulkActionToolbar({
   onExport,
   onClearSelection,
   className,
+  layout = "pill",
 }: BulkActionToolbarProps): React.JSX.Element | null {
   const handleMarkRead = useCallback(() => {
     onAction("read");
@@ -56,6 +65,68 @@ export function BulkActionToolbar({
 
   if (selectedCount === 0) {
     return null;
+  }
+
+  if (layout === "bar") {
+    return (
+      <div
+        aria-label="Bulk actions"
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-card px-2 pt-1.5 pb-[calc(6px+env(safe-area-inset-bottom))]",
+          className
+        )}
+        data-slot="bulk-action-toolbar"
+        role="toolbar"
+      >
+        <button
+          className={barButton}
+          disabled={isPending}
+          onClick={handleMarkRead}
+          type="button"
+        >
+          <Eye aria-hidden="true" />
+          Mark read
+        </button>
+        <button
+          className={barButton}
+          disabled={isPending}
+          onClick={handleStar}
+          type="button"
+        >
+          <Star aria-hidden="true" />
+          Star
+        </button>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <button className={barButton} type="button">
+              <Download aria-hidden="true" />
+              Export
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" side="top">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Download selected as</DropdownMenuLabel>
+              <DropdownMenuItem onSelect={handleExportCsv}>
+                CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={handleExportJson}>
+                JSON
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <button
+          aria-label="Delete selected"
+          className={cn(barButton, "text-destructive")}
+          disabled={isPending}
+          onClick={handleDelete}
+          type="button"
+        >
+          <Trash2 aria-hidden="true" />
+          Delete
+        </button>
+      </div>
+    );
   }
 
   return (

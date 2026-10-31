@@ -67,12 +67,46 @@ Tokens are CSS variables defined per theme and exposed to Tailwind in `@theme in
 | Lines & focus | `border`, `input` (3:1 against background), `ring` | Borders, form outlines, focus rings |
 | Sentiment | `sentiment-{sweet,curious,spicy,advice,neutral}` + `-foreground` + `-subtle` | Sentiment badges and tinted cards |
 | Misc | `star`, `chart-1…5`, `brand-foreground`, `brand-overlay` | Starred icon, Story Card, charts |
-| Geometry | `--radius` → `rounded-sm/md/lg/xl` | Every rounded surface |
+| Geometry | `--radius` → `rounded-sm/md/lg/xl`, `--radius-drawer` | Every rounded surface; Drawer/Sheet corners |
 | Elevation | `shadow-xs`, `shadow-sm`, `shadow-soft`, `shadow-lift` | Cards (soft), floating bars and dialogs (lift) |
-| Type | `font-sans`, `font-display`, `font-message` (utility) | UI, headings, message bodies |
+| Type family | `font-sans`, `font-display`, `font-message` (utility) | UI, headings, message bodies |
+| Type scale | `text-display/h1/h2/h3/title/body-lg/body/sm/xs/overline` | Semantic sizes below; same across every palette |
+| Spacing | `px-gutter`, `py-section`, `p-card`, `gap-stack` | Page/Drawer padding, section gaps, card padding, card-to-field gaps |
 | Utilities | `bg-brand-gradient`, `bg-brand-mist` | Hero buttons and banners; page backgrounds |
 
-**Rule:** a new token must be defined in **all six** theme blocks and added to the contrast gate if text or a UI boundary sits on it.
+**Rule:** a new colour token must be defined in **all six** theme blocks and added to the contrast gate if text or a UI boundary sits on it. The type scale and spacing tokens are palette-independent (same `--fs-*`/`--sp-*` values for every palette) and live in a dedicated `:root` block placed *after* the palette blocks in `globals.css`, because `scripts/check-theme-contrast.ts` resolves a theme from the first `:root {` it finds — a palette-independent block earlier in the file would shadow the real colour tokens for `spectral`.
+
+### 3.1 Type scale
+
+One semantic scale, two sizes: mobile values swap to the `md` (48rem) values in a single place. Headings use `font-display` (automatic on `<h1>`–`<h4>`, explicit via `font-display` on styled non-heading tags); messages and inputs are always `text-body` (16px, never smaller, so iOS never zooms in on focus).
+
+| Token | Mobile | `md` (768px+) | Use |
+| :--- | :--- | :--- | :--- |
+| `text-display` | 40px | 72px | Landing hero only, one per page |
+| `text-h1` | 28px | 36px | Page titles, sheet titles on desktop |
+| `text-h2` | 22px | 28px | Section and Dialog/Drawer titles |
+| `text-h3` | 18px | 20px | Card titles |
+| `text-title` | 16px | 16px | Row labels, list item titles, form labels in Drawers |
+| `text-body-lg` | 17px | 18px | Hero lead, empty-state copy |
+| `text-body` | 16px | 16px | Message text, inputs, textareas — never smaller |
+| `text-sm` | 14px | 14px | Descriptions, helper text, small buttons |
+| `text-xs` | 12px | 12px | Timestamps, counters — the floor, nothing smaller |
+| `text-overline` | 11px | 12px | Uppercase group labels only |
+
+**`cn()` knows the scale.** `src/lib/utils.ts` extends tailwind-merge with a `text-scale` class group (`text-display/h1/h2/h3/title/body-lg/body/overline`). Each step sets size, line height, weight and tracking, so a later `text-title` replaces an earlier `text-sm leading-snug font-medium` (e.g. `FieldLabel className="text-title"` really renders at 650), and a colour like `text-destructive` no longer drops the size. Plain tailwind-merge treated these as colours and silently removed them. If you add a step to the scale, add it to that list too.
+
+### 3.2 Spacing scale
+
+Tailwind's 4px scale stays the only raw scale; these five semantic tokens are the only ones that swap at `md`.
+
+| Token | Mobile | `md` (768px+) | Use |
+| :--- | :--- | :--- | :--- |
+| `px-gutter` | 16px | 32px | Page side padding, Drawer padding, hscroll inset |
+| `py-section` | 40px | 72px | Between landing sections |
+| `p-card` | 16px | 24px | Card, MessageCard, Dialog inner padding |
+| `gap-stack` | 12px | 16px | Gap between cards and form fields |
+
+`px-gutter` is applied across the landing blocks (`hero`, `trust-section`, `qa-showcase`, `cta-banner`, `site-footer`). `py-section`, `p-card` and `gap-stack` are defined and ready to use but not yet swept across the app — existing section/card spacing is still hand-tuned per component; adopt the token when you touch that spacing rather than leaving it as a drive-by rename.
 
 ## 4. Accessibility gate
 
@@ -95,12 +129,15 @@ Other baseline rules, enforced in review and story tests:
 
 | Token | Keyframes | Used for |
 | :--- | :--- | :--- |
-| `animate-float` | 6s gentle bob | Ghost illustrations, not-found mark |
-| `animate-rise` | 0.24s fade-and-rise, `cubic-bezier(0.2,0.8,0.2,1)` | Bulk toolbar, unsaved-changes bar, sent card |
-| `animate-pulse-ring` | 2s expanding ring | "Sent" success check |
+| `animate-float` | 6s gentle bob | Landing hero, first-run empty inbox, not-found mark (idle loops stay off everything else) |
+| `animate-rise` | 0.24s fade-and-rise, `cubic-bezier(0.2,0.8,0.2,1)` | Bulk toolbar, unsaved-changes bar, How it works cards |
+| `animate-pulse-ring` | 2s expanding ring, **runs twice** (design `.pulse { animation: gm-pulse 2s ease-out 2 }`) | Verified mark (`AuthPanel iconTone="success"`), public-profile success checks |
+| `animate-countdown` | width 100% → 0, linear; set `animationDuration` inline | Undo toast time-left bar. **Not** `motion-safe`: it carries information. Paused with `in-data-[expanded=true]:[animation-play-state:paused]` so it stops when Sonner's timer does. |
 | Motion library (`motion`) | Spring presses and morphs | Icon buttons, copy button, theme toggler (Animate UI elements) |
 
 Always prefix CSS animations with `motion-safe:`. Durations stay under 300ms for UI feedback; only ambient illustration loops are longer.
+
+`src/lib/motion.ts` holds the `motion/react` side of this: duration/ease/spring tokens and ready-made presets (`press`, `fadeRise`, `dialog`, `floating`, `toolbarUp`, `shake`, `stepSlide`, `layoutIds`, …) for JS-driven animation that CSS keyframes can't express. The app root wraps `children` in `<MotionConfig reducedMotion="user">` (`src/app/layout.tsx`), so every `motion/react` transform falls back to opacity-only under `prefers-reduced-motion` without each call site handling it.
 
 ## 6. Elements: shadcn first, design through variants
 
@@ -115,14 +152,19 @@ flowchart LR
 
 **Two rules decide where a style goes:**
 
-1. **Defaults stay stock.** The `default` variant and size render exactly like upstream shadcn, so swapping in a new shadcn version never restyles the app. The only approved deviation is WCAG contrast, expressed through tokens.
+1. **Defaults stay stock.** The `default` variant and size render exactly like upstream shadcn, so swapping in a new shadcn version never restyles the app. Approved deviations, each marked `GhostMsg:` in the element source:
+   - WCAG contrast, expressed through tokens.
+   - **600 weight** on `Label`, `FieldLabel`, `FieldTitle`, `FieldLegend` (user-approved 2026-10-31, design `.label` / `.btn`) and, by the same reasoning, the `Button` base (design `.btn` is 600).
+   - `Alert variant="destructive"` uses the design's tinted surface (`.alert[data-v=destructive]`: 7% destructive tint, 40% border, foreground text, red icon, muted description).
+   - `TableHead` uses the design's `th`: 12px uppercase overline, muted, `py-2`.
 2. **`className` is for layout.** Margin, width, grid placement, `rounded-full` for pill-shaped buttons. Colour, typography and state styling belong in a variant. If two call sites need the same look, it becomes a variant.
 
 ### 6.1 Variant catalog (GhostMsg additions in **bold**)
 
 | Element | Variants | Sizes / other axes | Notes |
 | :--- | :--- | :--- | :--- |
-| `Button` | default, destructive, outline, secondary, ghost, link, **primary, accent, glass, brand** | default, xs, sm, **md**, lg, **xl**, icon, icon-xs, icon-sm, icon-lg | Stock v4 (Slot `asChild`). `brand` = gradient hero action. Compose loading with `<Spinner data-icon="inline-start" />` + `disabled`; there is no `isLoading` prop. |
+| `Button` | default, destructive, outline, secondary, ghost, link, **primary, accent, glass, brand, dashed** | default, xs, sm, **md**, lg, **xl**, icon, icon-xs, icon-sm, icon-lg | Stock v4 (Slot `asChild`). `brand` = gradient hero action, `dashed` = pill-shaped, low-commitment (Suggested Message, Smart Reply idea). Compose loading with `<Spinner data-icon="inline-start" />` + `disabled`; there is no `isLoading` prop. |
+| `Alert` | default, destructive, **success, warning, info** | — | Tone sets the icon/text colour and `AlertDescription`'s tint; background stays `bg-card`, except `destructive`, which is the design's tinted error surface (verify-code errors). |
 | `IconButton` | default, accent, destructive, outline, secondary, ghost, link | default, xs, sm, lg | Animate UI motion press; used by palette picker, theme toggler, copy. |
 | `Badge` | default, secondary, destructive, outline, ghost, link, **glass, success, warning, neutral, count, attention** | — | `count`/`attention` invert inside an `on` toggle (`in-data-[state=on]:`). No `size` prop. |
 | `Card` | default, glass, ghost, bordered, **elevated** | default, sm, lg | `elevated` = `shadow-soft`, used by every dashboard card. |
@@ -135,9 +177,15 @@ flowchart LR
 | `Switch` | default, success | sm, md, lg, xl | Settings use `xl`. |
 | `SidebarMenuButton` | default, outline | default, sm, lg, **nav** | `nav` = 44px rounded nav row. `SidebarMenuBadge variant="count"`. |
 | `Dialog` | — | `showCloseButton` | Title required (use `sr-only` if hidden). |
+| `Accordion` | — | `type` single/multiple | Stock shadcn (`radix-ui`). Phone Settings rows restyle the trigger as a 56px list row with a right chevron that turns down when open. |
+| `Toaster` (Sonner) | — | — | All toasts `unstyled` + `classNames`: the design's `.toast` surface (`min-h-[52px]`, `py-3 pr-3 pl-4`, 14px/600, `rounded-2xl`, `shadow-lift`, `bg-popover`), lucide icons per type, primary ghost action (36px, 44px below `md`, exported as `toastActionClassName`). Phones: 12px side offset, 80px above the bottom. No `richColors`. Also renders the assertive live region that `notify.error` writes to. |
+| `notify` (`elements/sonner/notify.ts`) | `success`, `info`, `warning`, `error` | `TOAST_DURATION_MS` | The app's toast API. Success 3 s, info/warning 5 s, error 6 s (until dismissed when it carries an `action`). Errors are also announced assertively; the rest stay polite. Tests mock `@/components/elements/sonner` → `{ notify: sonner.toast }`. |
+| `Table` | — | — | `TableHead` is the design's overline header (see deviations). |
 | `CommandDialog` | — | **`label`**, **`filter`** | `label` names the search input (cmdk labels it); the palette passes a substring filter. |
 
-Installed shadcn elements: alert, alert-dialog, avatar, badge, breadcrumb, button, card, checkbox, command, dialog, dropdown-menu, empty, field, input, input-group, input-otp, item, kbd, label, radio-group, scroll-area, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, toggle, toggle-group, tooltip. GhostMsg/Animate UI elements: carousel, copy-button, effects, form, icon-button, liquid-button, palette-picker, text, theme-toggler. The live inventory is [Chapter 11](11-component-registry.md).
+Pattern-level axes added for phones (props, not cva): `BrandMark size="header"` (32px tile), `BulkActionToolbar layout="pill" | "bar"`, `ShareLinkCard layout="default" | "compact"`, `MessageCard showSelect`, `FilterBar disabled`, `IdentityCard onDone` + `IdentitySummary`, `SettingsLayoutProvider layout="cards" | "list"` (switches every `SettingsSection` between a card and an accordion row), `AuthPanel backHref` / `step` / `align` / `iconTone` (`accent`, `brand`, `success`), `AuthOAuthHeader dividerLabel`, `SiteLayout hideHeaderOnPhones`, `CtaBanner subtitle`. CSS-responsive cva steps for the landing: `StoryCardPreview size="fluid" tilt="fluid"` (220px leaning left on phones, 280px leaning right from `sm`). `MessageCard` is a `@container/card`, so "✓ Answered" shows its text from 24rem.
+
+Installed shadcn elements: accordion, alert, alert-dialog, avatar, badge, breadcrumb, button, button-group, card, checkbox, command, dialog, drawer, dropdown-menu, empty, field, hover-card, input, input-group, input-otp, item, kbd, label, popover, progress, radio-group, scroll-area, select, separator, sheet, sidebar, skeleton, sonner, spinner, switch, table, tabs, textarea, toggle, toggle-group, tooltip. GhostMsg/Animate UI elements: carousel, copy-button, effects, form, icon-button, liquid-button, palette-picker, text, theme-toggler. The live inventory is [Chapter 11](11-component-registry.md).
 
 ### 6.2 Composition cheatsheet (what to reach for)
 
@@ -158,6 +206,14 @@ Installed shadcn elements: alert, alert-dialog, avatar, badge, breadcrumb, butto
 | Navigation shell | `SidebarProvider` › `Sidebar` › `SidebarInset` | Custom aside |
 | Command palette | `CommandDialog` | Custom listbox |
 | Menus | `DropdownMenu` (items inside `DropdownMenuGroup`) | Popover + buttons |
+| Feedback toast | `notify.success/info/warning/error` (per-type durations, assertive errors; the `Toaster` styles every toast) | Importing `toast` from `sonner` in app code, `richColors`, `toast.custom()` |
+| Held, reversible action | `showUndoToast` (`patterns/undo-toast`): hold the action, commit in `onCommit` when the toast closes without Undo. Used by Delete all only | Committing first, or a separate `setTimeout` |
+| Message deletes (single, bulk) | `AlertDialog` (`DeleteMessageModal`, `DeleteSelectedModal`), then delete; no Undo ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)) | Silent deletes, an Undo hold |
+| Instant toggle (archive, star, read) | Optimistic mutation + a plain `notify` toast | A dialog |
+| Keyboard key hint | `Kbd` inside a `Tooltip` (`ActionTooltip` in `MessageCard`); the full list lives in `patterns/shortcut-sheet` (`SHORTCUT_GROUPS`) | Hints in visible labels |
+| Phone top-bar controls | `MobileHeaderActions` (right) / `MobileHeaderLeading` (left, hides the brand) + `MobileHeaderAction` (44px icon) from `patterns/mobile-header-actions` | A second header inside the page |
+| Phone vs desktop structure | `useIsMobile()` branch in the block (one tree mounted) | `hidden sm:block` on two copies of a form (duplicate `useId` ids) |
+| Grouped settings list | `SettingsListGroup` + `SettingsListRow` / `SettingsListButton` / `SettingsSection` in `layout="list"` | Hand-made iOS-style rows |
 
 ## 7. Adding to the design system
 

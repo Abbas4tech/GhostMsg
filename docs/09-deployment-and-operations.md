@@ -73,6 +73,7 @@ These are set via [`terraform/`](../terraform/)'s `app_env_vars` input, not by h
 | `VAPID_PRIVATE_KEY` | Web Push VAPID private key. Server only; rotating it invalidates existing device subscriptions. |
 | `VAPID_SUBJECT` | Optional `mailto:`/`https:` contact for push services (default `mailto:support@ghostmsg.app`). |
 | `CRON_SECRET` | Bearer secret for the daily digest cron (`vercel.json` schedules `GET /api/cron/daily-digest` at 17:00 UTC). Vercel Cron sends it automatically; unset = digests off ([ADR 0029](adr/0029-daily-digest-scheduling-and-alert-privacy-fixes.md)). |
+| `NEXT_PUBLIC_LIVE_PROFILE_USERNAME` | Optional. A real public username the landing links as "See a live profile"; unset hides the link. Built into the bundle, so redeploy after changing it. |
 | `SENDER_PEPPER_SECRET` | HMAC pepper for Sender Hashes ([Chapter 17 §2](17-trust-safety-and-privacy.md#2-anonymity-model)). Set a dedicated random value; rotating it makes existing blocks stop matching. |
 
 ---

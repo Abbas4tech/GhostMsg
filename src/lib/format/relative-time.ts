@@ -31,3 +31,31 @@ export function formatRelativeTime(
   }
   return then.toLocaleDateString("en-US", { day: "numeric", month: "short" });
 }
+
+const plural = (count: number, unit: string): string =>
+  `${count} ${unit}${count === 1 ? "" : "s"} ago`;
+
+/**
+ * Inbox subtitle wording (design Inbox: "3 unread · last checked a moment
+ * ago"): "a moment ago", "5 minutes ago", "2 hours ago", then "on Mar 4".
+ */
+export function formatLastChecked(
+  date: number | string | Date,
+  now: Date = new Date()
+): string {
+  const then = new Date(date);
+  const seconds = Math.max(
+    0,
+    Math.round((now.getTime() - then.getTime()) / 1000)
+  );
+  if (seconds < MINUTE) {
+    return "a moment ago";
+  }
+  if (seconds < HOUR) {
+    return plural(Math.floor(seconds / MINUTE), "minute");
+  }
+  if (seconds < DAY) {
+    return plural(Math.floor(seconds / HOUR), "hour");
+  }
+  return `on ${then.toLocaleDateString("en-US", { day: "numeric", month: "short" })}`;
+}

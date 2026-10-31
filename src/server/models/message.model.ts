@@ -3,6 +3,8 @@ import mongoose, { type Document, Schema, type Types } from "mongoose";
 
 export type SentimentTag = "sweet" | "curious" | "spicy" | "advice" | "neutral";
 
+export type QuarantineReason = "hurtful" | "spam" | "threat";
+
 export interface IMessageReply {
   isPublished: boolean;
   publishedAt?: Date | string;
@@ -13,9 +15,11 @@ export interface Message {
   _id: Types.ObjectId | string;
   content: string;
   createdAt: Date | string;
+  isArchived?: boolean;
   isPinned?: boolean;
   isQuarantined?: boolean;
   isRead?: boolean;
+  quarantineReason?: QuarantineReason;
   recipientId?: Types.ObjectId | string;
   reply?: IMessageReply | null;
   senderHash?: string;
@@ -27,9 +31,11 @@ export interface IMessage extends Document {
   _id: Types.ObjectId;
   content: string;
   createdAt: Date;
+  isArchived: boolean;
   isPinned: boolean;
   isQuarantined: boolean;
   isRead: boolean;
+  quarantineReason?: QuarantineReason;
   recipientId: Types.ObjectId;
   reply?: IMessageReply | null;
   senderHash: string;
@@ -55,6 +61,12 @@ const MessageSchema = new Schema<IMessage>(
       trim: true,
       type: String,
     },
+    /** Hidden from every inbox view except Archived. Missing = not archived. */
+    isArchived: {
+      default: false,
+      index: true,
+      type: Boolean,
+    },
     isPinned: {
       default: false,
       index: true,
@@ -69,6 +81,11 @@ const MessageSchema = new Schema<IMessage>(
       default: false,
       index: true,
       type: Boolean,
+    },
+    /** Set only on Quarantined Messages (moderation's category). */
+    quarantineReason: {
+      enum: ["hurtful", "spam", "threat"],
+      type: String,
     },
     recipientId: {
       index: true,

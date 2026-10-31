@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, screen, waitFor, within } from "storybook/test";
 import {
   quarantinedMessage,
+  smartReplyDrafts,
   sweetMessage,
 } from "@/mock/fixtures/messages.fixtures";
 import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
@@ -14,16 +15,21 @@ import { SettingsPage } from "./settings-page";
 /** Page stories chain MSW worker start → session → query; allow realistic load time under parallel runs. */
 const PAGE_LOAD = { timeout: 15_000 };
 
-const DELETE_REGEX = /^delete$/i;
 const REPLY_REGEX = /^reply$/i;
-const WITTY_REGEX = /witty/i;
+/** Palette rows end with their key hint ("Settings g s"). */
+const SETTINGS_OPTION_REGEX = /^settings/i;
+/** "2 unread · last checked a moment ago" (design Inbox). */
+const UNREAD_LINE_REGEX = /^2 unread · last checked/;
 const QUARANTINED_REGEX = /quarantined/i;
-const SMART_REPLY_TEXT = "Thanks for the kind words. You just made my day!";
+/** The witty draft (design Modals board): the drafts load when Reply opens. */
+const SMART_REPLY_TEXT = smartReplyDrafts[1]?.text ?? "";
 
 /**
  * The dashboard with real controllers (React Query, next-auth, SSE hook)
  * talking to MSW handlers. No module mocks (ADR 0016, Q4).
  */
+const DELETE_REGEX = /^delete$/i;
+
 const meta = {
   args: { children: null },
   component: DashboardLayout,
@@ -50,7 +56,7 @@ export const Inbox: Story = {
     await expect(
       await canvas.findByText(sweetMessage.content, undefined, PAGE_LOAD)
     ).toBeVisible();
-    await expect(canvas.getByText("2 unread")).toBeVisible();
+    await expect(canvas.getByText(UNREAD_LINE_REGEX)).toBeVisible();
     const sidebar = canvas.getByRole("complementary", { name: "Sidebar" });
     await expect(within(sidebar).getByText(FIXTURE_USERNAME)).toBeVisible();
     await expect(
@@ -98,7 +104,11 @@ export const RepliesWithAi: Story = {
       name: "Answer this message",
     });
     await userEvent.click(
-      within(dialog).getByRole("button", { name: WITTY_REGEX })
+      await within(dialog).findByRole(
+        "button",
+        { name: SMART_REPLY_TEXT },
+        PAGE_LOAD
+      )
     );
     await waitFor(() =>
       expect(within(dialog).getByLabelText("Your answer")).toHaveValue(
@@ -121,11 +131,7 @@ export const RevealsQuarantined: Story = {
       canvas.getByRole("radio", { name: QUARANTINED_REGEX })
     );
     await expect(
-      await canvas.findByText(
-        "Hidden. Flagged as hurtful.",
-        undefined,
-        PAGE_LOAD
-      )
+      await canvas.findByText("Hidden. Flagged as spam.", undefined, PAGE_LOAD)
     ).toBeVisible();
     await expect(
       canvas.queryByText(quarantinedMessage.content)
@@ -169,7 +175,7 @@ export const CommandPalette: Story = {
       name: "Command palette",
     });
     await expect(
-      within(palette).getByRole("option", { name: "Settings" })
+      within(palette).getByRole("option", { name: SETTINGS_OPTION_REGEX })
     ).toBeVisible();
   },
 };

@@ -7,6 +7,7 @@ import type { MessageFilterStatus } from "@/components/patterns/filter-bar";
 import {
   BlockSenderModal,
   DeleteMessageModal,
+  DeleteSelectedModal,
   RevealMessageModal,
   SmartReplyModal,
   StoryCardModal,
@@ -41,10 +42,15 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
   useInboxKeyboardController({
     focusedId: inbox.focusedId,
     messages: inbox.messages,
+    onArchive: inbox.handleToggleArchive,
+    onBlock: inbox.openBlockModal,
+    onClearSelection: inbox.handleDeselectAll,
+    onDelete: inbox.openDeleteModal,
     onOpenReply: inbox.openReplyModal,
     onStarToggle: inbox.handleStarToggle,
     onToggleSelect: inbox.handleToggleSelect,
     searchInputId: INBOX_SEARCH_INPUT_ID,
+    selectedIds: inbox.selectedIds,
     setFocusedId: inbox.setFocusedId,
   });
 
@@ -72,7 +78,10 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
       onOpenReply: inbox.openReplyModal,
       onOpenStoryCard: inbox.openStoryModal,
       onReveal: inbox.openRevealModal,
+      onSeen: inbox.handleSeen,
       onStarToggle: inbox.handleStarToggle,
+      onToggleArchive: inbox.handleToggleArchive,
+      onToggleRead: inbox.handleToggleRead,
     }),
     [
       inbox.openBlockModal,
@@ -80,7 +89,10 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
       inbox.openReplyModal,
       inbox.openStoryModal,
       inbox.openRevealModal,
+      inbox.handleSeen,
       inbox.handleStarToggle,
+      inbox.handleToggleArchive,
+      inbox.handleToggleRead,
     ]
   );
 
@@ -103,6 +115,7 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
         bulkActions={{
           isPending: inbox.isBulkPending,
           onAction: inbox.handleBulkAction,
+          onDeleteAll: inbox.handleDeleteAllShown,
           onExport: inbox.handleExport,
         }}
         cardActions={cardActions}
@@ -112,6 +125,7 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
         isLoading={inbox.isLoading}
         isRefreshing={inbox.isRefreshing}
         isSenderBlocked={inbox.isSenderBlocked}
+        lastCheckedAt={inbox.lastCheckedAt}
         messages={inbox.messages}
         onCopyLink={link.handleCopy}
         onRefresh={inbox.handleRefresh}
@@ -121,6 +135,7 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
         searchInputId={INBOX_SEARCH_INPUT_ID}
         selection={{
           onClear: inbox.handleDeselectAll,
+          onSelectAll: inbox.handleSelectAll,
           onToggle: inbox.handleToggleSelect,
           selectedIds: inbox.selectedIds,
         }}
@@ -145,6 +160,8 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
         open={inbox.activeModal === "delete"}
       />
 
+      <DeleteSelectedModal {...inbox.bulkDelete} />
+
       <RevealMessageModal
         message={inbox.activeMessage}
         onClose={inbox.closeModal}
@@ -153,15 +170,18 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
       />
 
       <SmartReplyModal
+        drafts={smartReply.drafts}
+        hasDraftsError={smartReply.hasDraftsError}
         isGenerating={smartReply.isGenerating}
         isOpen={inbox.activeModal === "reply"}
         isPublished={smartReply.isPublished}
         isSaving={smartReply.isSaving}
         message={inbox.activeMessage}
         onClose={inbox.closeModal}
-        onGenerate={smartReply.handleGenerate}
+        onPickDraft={smartReply.handlePickDraft}
         onPublishedChange={smartReply.setIsPublished}
         onReplyTextChange={smartReply.setReplyText}
+        onRetryDrafts={smartReply.handleRetryDrafts}
         onSave={smartReply.handleSave}
         onSaveAndShare={handleSaveAndShare}
         replyText={smartReply.replyText}

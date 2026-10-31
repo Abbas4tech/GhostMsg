@@ -23,20 +23,25 @@ type Filter = Record<string, unknown>;
 export const escapeRegExp = (value: string): string =>
   value.replace(REGEX_SPECIAL_CHARS, "\\$&");
 
+/** Older messages have no `isArchived`, so "not archived" is `$ne: true`. */
+const NOT_ARCHIVED = { isArchived: { $ne: true } };
+
 export function statusFilter(status: InboxQueryStatus): Filter {
   switch (status) {
     case "any":
       return {};
+    case "archived":
+      return { isArchived: true };
     case "unread":
-      return { isQuarantined: false, isRead: false };
+      return { ...NOT_ARCHIVED, isQuarantined: false, isRead: false };
     case "starred":
-      return { isPinned: true };
+      return { ...NOT_ARCHIVED, isPinned: true };
     case "quarantined":
-      return { isQuarantined: true };
+      return { ...NOT_ARCHIVED, isQuarantined: true };
     case "answered":
-      return { "reply.text": { $regex: NON_BLANK } };
+      return { ...NOT_ARCHIVED, "reply.text": { $regex: NON_BLANK } };
     default:
-      return { isQuarantined: false };
+      return { ...NOT_ARCHIVED, isQuarantined: false };
   }
 }
 
@@ -95,24 +100,38 @@ const sumWhen = (condition: unknown) => ({
   $sum: { $cond: [condition, 1, 0] },
 });
 
+const notArchived = { $ne: ["$isArchived", true] };
+
 /** One pass over a recipient's messages: the count for every inbox filter. */
 export const inboxCountsPipeline = (recipientId: Types.ObjectId) => [
   { $match: { recipientId } },
   {
     $group: {
       _id: null,
-      all: sumWhen({ $ne: ["$isQuarantined", true] }),
+      all: sumWhen({ $and: [notArchived, { $ne: ["$isQuarantined", true] }] }),
       answered: sumWhen({
-        $regexMatch: {
-          input: { $ifNull: ["$reply.text", ""] },
-          regex: NON_BLANK,
-        },
+        $and: [
+          notArchived,
+          {
+            $regexMatch: {
+              input: { $ifNull: ["$reply.text", ""] },
+              regex: NON_BLANK,
+            },
+          },
+        ],
       }),
-      quarantined: sumWhen({ $eq: ["$isQuarantined", true] }),
-      starred: sumWhen({ $eq: ["$isPinned", true] }),
+      archived: sumWhen({ $eq: ["$isArchived", true] }),
+      quarantined: sumWhen({
+        $and: [notArchived, { $eq: ["$isQuarantined", true] }],
+      }),
+      starred: sumWhen({ $and: [notArchived, { $eq: ["$isPinned", true] }] }),
       total: { $sum: 1 },
       unread: sumWhen({
-        $and: [{ $ne: ["$isQuarantined", true] }, { $ne: ["$isRead", true] }],
+        $and: [
+          notArchived,
+          { $ne: ["$isQuarantined", true] },
+          { $ne: ["$isRead", true] },
+        ],
       }),
     },
   },
@@ -125,6 +144,7 @@ export function toInboxCounts(
   return {
     all: row?.all ?? 0,
     answered: row?.answered ?? 0,
+    archived: row?.archived ?? 0,
     quarantined: row?.quarantined ?? 0,
     starred: row?.starred ?? 0,
     total: row?.total ?? 0,

@@ -13,7 +13,14 @@ import { defaultVerifyPanelArgs } from "./verify-panel.mock";
 
 function VerifyFormSlot(): React.JSX.Element {
   const form = useForm<VerifyCodeValues>({ defaultValues: { code: "" } });
-  return <VerifyCodeForm form={form} onSubmit={noop} />;
+  return (
+    <VerifyCodeForm
+      form={form}
+      onResend={noop}
+      onSubmit={noop}
+      resendSecondsLeft={42}
+    />
+  );
 }
 
 const meta = {
@@ -48,6 +55,16 @@ export const LongUsername: Story = {
   args: { username: "a_really_long_username_20" },
 };
 
+/** Phones: Back to /sign-up and "2 / 2" in the top bar (design MobVerify). */
 export const Mobile: Story = {
   globals: { viewport: { isRotated: false, value: "mobile1" } },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("link", { name: "Back" })).toHaveAttribute(
+      "href",
+      "/sign-up"
+    );
+    await expect(
+      canvas.getByRole("progressbar", { name: "Step 2 of 2" })
+    ).toBeVisible();
+  },
 };

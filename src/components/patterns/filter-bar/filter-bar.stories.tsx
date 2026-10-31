@@ -11,6 +11,7 @@ import {
 const QUARANTINED_REGEX = /quarantined/i;
 const UNREAD_REGEX = /unread/i;
 const ALL_REGEX = /^all/i;
+const ARCHIVED_REGEX = /archived/i;
 
 const meta = {
   args: { ...defaultFilterBarArgs, onStatusChange: fn() },
@@ -18,9 +19,20 @@ const meta = {
     activeStatus: {
       control: "select",
       description: "Selected chip",
-      options: ["all", "unread", "starred", "answered", "quarantined"],
+      options: [
+        "all",
+        "unread",
+        "starred",
+        "answered",
+        "archived",
+        "quarantined",
+      ],
     },
     counts: { control: "object", description: "Count per status" },
+    disabled: {
+      control: "boolean",
+      description: "Phones in selection mode: chips can't change",
+    },
     onStatusChange: { description: "Chip clicked → status" },
   },
   component: FilterBar,
@@ -67,4 +79,33 @@ export const QuarantinedActive: Story = {
 
 export const Mobile: Story = {
   globals: { viewport: { isRotated: false, value: "mobile1" } },
+};
+
+/** The Archived chip appears once anything is archived. */
+export const WithArchived: Story = {
+  args: { counts: { ...mixedMessageCounts, archived: 3 } },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("radio", { name: ARCHIVED_REGEX })
+    ).toBeVisible();
+  },
+};
+
+export const NoArchived: Story = {
+  args: { counts: { ...mixedMessageCounts, archived: 0 } },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.queryByRole("radio", { name: ARCHIVED_REGEX })
+    ).not.toBeInTheDocument();
+  },
+};
+
+/** Phones in selection mode (design MobInboxSelect). */
+export const Disabled: Story = {
+  args: { disabled: true },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("radio", { name: UNREAD_REGEX })
+    ).toBeDisabled();
+  },
 };

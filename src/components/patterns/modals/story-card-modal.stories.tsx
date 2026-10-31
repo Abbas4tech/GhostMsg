@@ -73,3 +73,26 @@ export const ClosesOnEscape: Story = {
     await expect(args.onClose).toHaveBeenCalled();
   },
 };
+
+/** Design MobDrawerStory: preview, Format, "Include my answer", Save + Share…. */
+export const Mobile: Story = {
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+  play: async ({ args, userEvent }) => {
+    const dialog = await screen.findByRole("dialog", {
+      name: "Share as Story Card",
+    });
+    await expect(
+      within(dialog).getByRole("switch", { name: "Include my answer" })
+    ).toBeVisible();
+    await expect(
+      within(dialog).queryByRole("group", { name: "Look" })
+    ).not.toBeInTheDocument();
+    await expect(
+      within(dialog).getByRole("button", { name: "Save" })
+    ).toBeVisible();
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "Close" })
+    );
+    await expect(args.onClose).toHaveBeenCalled();
+  },
+};

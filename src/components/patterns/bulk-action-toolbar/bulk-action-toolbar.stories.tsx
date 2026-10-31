@@ -16,6 +16,12 @@ const meta = {
       control: "boolean",
       description: "Disables mutating actions while a bulk request runs",
     },
+    layout: {
+      control: "radio",
+      description:
+        "pill: above the cards (desktop); bar: over the phone tab bar",
+      options: ["pill", "bar"],
+    },
     onAction: { description: "`read` | `star` | `delete`" },
     onClearSelection: { description: "X clicked" },
     onExport: { description: "`csv` | `json`" },
@@ -83,4 +89,15 @@ export const NothingSelected: Story = {
 
 export const Mobile: Story = {
   globals: { viewport: { isRotated: false, value: "mobile1" } },
+};
+
+/** Design MobInboxSelect: the bottom action bar over the tab bar. */
+export const PhoneBar: Story = {
+  args: { layout: "bar" },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("toolbar", { name: "Bulk actions" })
+    ).toBeVisible();
+  },
 };

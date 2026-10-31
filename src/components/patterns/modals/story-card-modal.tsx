@@ -1,18 +1,19 @@
 "use client";
 
-import { Download, Link2, Share2, ShieldCheck } from "lucide-react";
+import { Download, Link2, Share, ShieldCheck, X } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/elements/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/elements/dialog";
+import { notify } from "@/components/elements/sonner";
 import { Switch } from "@/components/elements/switch";
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/patterns/responsive-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import type { MessageDto } from "@/types/api";
 import {
@@ -81,10 +82,13 @@ function SegmentedOption<T extends string>({
 
 function Segmented<T extends string>({
   label,
+  hideLabel = false,
   options,
   value,
   onChange,
 }: {
+  /** Phones: the group keeps its accessible name, without the visible label. */
+  hideLabel?: boolean;
   label: string;
   onChange: (value: T) => void;
   options: { label: string; value: T }[];
@@ -92,7 +96,9 @@ function Segmented<T extends string>({
 }): React.JSX.Element {
   return (
     <div className="flex flex-col gap-2">
-      <span className="font-semibold text-sm">{label}</span>
+      {hideLabel ? null : (
+        <span className="font-semibold text-sm">{label}</span>
+      )}
       <fieldset
         aria-label={label}
         className="grid grid-cols-2 rounded-full border bg-muted p-[3px]"
@@ -118,7 +124,8 @@ function ToggleRow({
   onCheckedChange,
 }: {
   checked: boolean;
-  hint: string;
+  /** Desktop only: phones show the title alone (design MobDrawerStory). */
+  hint?: string;
   id: string;
   onCheckedChange: (checked: boolean) => void;
   title: string;
@@ -126,18 +133,17 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex flex-col">
-        <label
-          className="cursor-pointer font-semibold text-[15px]"
-          htmlFor={id}
-        >
+        <label className="cursor-pointer text-title" htmlFor={id}>
           {title}
         </label>
-        <p className="text-muted-foreground text-sm" id={`${id}-hint`}>
-          {hint}
-        </p>
+        {hint ? (
+          <p className="text-muted-foreground text-sm" id={`${id}-hint`}>
+            {hint}
+          </p>
+        ) : null}
       </div>
       <Switch
-        aria-describedby={`${id}-hint`}
+        aria-describedby={hint ? `${id}-hint` : undefined}
         checked={checked}
         id={id}
         onCheckedChange={onCheckedChange}
@@ -151,9 +157,17 @@ const canvasToBlob = (canvas: HTMLCanvasElement): Promise<Blob | null> =>
     canvas.toBlob(resolve, "image/png");
   });
 
+/** Preview height per format: phones show a 200px-wide card (design MobDrawerStory). */
+const PREVIEW_HEIGHT = {
+  desktop: { square: "h-[300px]", story: "h-[440px]" },
+  phone: { square: "h-[200px]", story: "h-[356px]" },
+} as const;
+
 /**
  * "Share as Story Card": live preview of the exported PNG plus format, look
  * and content toggles. Owns only local UI state; the sender is never shown.
+ * Phones (design MobDrawerStory): the preview, Format, "Include my answer",
+ * then Save and Share… side by side; Look and the link keep their defaults.
  */
 export const StoryCardModal = ({
   isOpen,
@@ -163,6 +177,7 @@ export const StoryCardModal = ({
   onClose,
   onCopyLink,
 }: StoryCardModalProps): React.JSX.Element => {
+  const isMobile = useIsMobile();
   const [format, setFormat] = useState<StoryCardFormat>("story");
   const [look, setLook] = useState<StoryCardLook>("gradient");
   const [includeAnswer, setIncludeAnswer] = useState(true);
@@ -219,7 +234,7 @@ export const StoryCardModal = ({
     link.href = canvas.toDataURL("image/png");
     link.download = fileName;
     link.click();
-    toast.success("Story Card saved");
+    notify.success("Story Card saved");
   }, [fileName]);
 
   const handleShare = useCallback(async () => {
@@ -249,30 +264,106 @@ export const StoryCardModal = ({
     [onClose]
   );
 
+  const preview = (
+    <div
+      className={cn(
+        "flex justify-center",
+        !isMobile && "rounded-xl bg-muted p-3"
+      )}
+    >
+      <canvas
+        aria-label="Story Card preview"
+        className={cn(
+          "w-auto rounded-2xl shadow-lift",
+          PREVIEW_HEIGHT[isMobile ? "phone" : "desktop"][format]
+        )}
+        ref={canvasRef}
+        role="img"
+      />
+    </div>
+  );
+
+  const answerToggle = answer ? (
+    <ToggleRow
+      checked={includeAnswer}
+      hint={isMobile ? undefined : "Off = message only"}
+      id={answerSwitchId}
+      onCheckedChange={setIncludeAnswer}
+      title="Include my answer"
+    />
+  ) : null;
+
+  if (isMobile) {
+    return (
+      <ResponsiveDialog onOpenChange={handleOpenChange} open={isOpen}>
+        <ResponsiveDialogContent className="gap-4">
+          <div className="flex items-center justify-between gap-2">
+            <ResponsiveDialogHeader>
+              <ResponsiveDialogTitle className="text-h2">
+                Share as Story Card
+              </ResponsiveDialogTitle>
+              <ResponsiveDialogDescription className="sr-only">
+                What you see is the exact image you&apos;ll post.
+              </ResponsiveDialogDescription>
+            </ResponsiveDialogHeader>
+            <Button
+              aria-label="Close"
+              className="-mr-2 size-11 rounded-full"
+              onClick={onClose}
+              size="icon"
+              variant="ghost"
+            >
+              <X aria-hidden="true" className="size-5" />
+            </Button>
+          </div>
+          {preview}
+          <Segmented
+            hideLabel
+            label="Format"
+            onChange={setFormat}
+            options={FORMATS}
+            value={format}
+          />
+          {answerToggle}
+          <div className="mt-auto grid grid-cols-[1fr_1.4fr] gap-2">
+            <Button
+              className="h-13 rounded-full"
+              onClick={handleDownload}
+              variant="outline"
+            >
+              <Download aria-hidden="true" />
+              Save
+            </Button>
+            <Button
+              className="h-13 rounded-full"
+              onClick={handleShare}
+              variant="brand"
+            >
+              <Share aria-hidden="true" />
+              Share…
+            </Button>
+          </div>
+          <p className="flex items-center justify-center gap-1.5 text-muted-foreground text-xs">
+            <ShieldCheck aria-hidden="true" className="size-3.5" />
+            The sender is never shown.
+          </p>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
+    );
+  }
+
   return (
-    <Dialog onOpenChange={handleOpenChange} open={isOpen}>
-      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="font-bold text-[22px]">
-            Share as Story Card
-          </DialogTitle>
-          <DialogDescription>
+    <ResponsiveDialog onOpenChange={handleOpenChange} open={isOpen}>
+      <ResponsiveDialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-3xl">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Share as Story Card</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             What you see is the exact image you&apos;ll post.
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="grid gap-6 md:grid-cols-[auto_minmax(0,1fr)]">
-          <div className="flex justify-center rounded-xl bg-muted p-3">
-            <canvas
-              aria-label="Story Card preview"
-              className={cn(
-                "w-auto rounded-2xl shadow-lift",
-                format === "story" ? "h-[440px]" : "h-[300px]"
-              )}
-              ref={canvasRef}
-              role="img"
-            />
-          </div>
+          {preview}
 
           <div className="flex flex-col gap-4">
             <Segmented
@@ -287,15 +378,7 @@ export const StoryCardModal = ({
               options={LOOKS}
               value={look}
             />
-            {answer ? (
-              <ToggleRow
-                checked={includeAnswer}
-                hint="Off = message only"
-                id={answerSwitchId}
-                onCheckedChange={setIncludeAnswer}
-                title="Include my answer"
-              />
-            ) : null}
+            {answerToggle}
             <ToggleRow
               checked={showLink}
               hint="Footer handle"
@@ -310,7 +393,7 @@ export const StoryCardModal = ({
               size="xl"
               variant="brand"
             >
-              <Share2 aria-hidden="true" />
+              <Share aria-hidden="true" />
               Share…
             </Button>
             <Button
@@ -342,7 +425,7 @@ export const StoryCardModal = ({
             </p>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 };

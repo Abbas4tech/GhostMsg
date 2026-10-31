@@ -82,7 +82,7 @@ export function AmaPromptEditor({
     <Card data-slot="ama-prompt-editor" variant="elevated">
       <CardHeader>
         <CardTitle>
-          <h2 className="font-bold text-xl">AMA Prompt</h2>
+          <h2 className="text-h3">AMA Prompt</h2>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -106,7 +106,7 @@ export function AmaPromptEditor({
             </div>
             <Textarea
               aria-describedby={counterId}
-              className="min-h-24 resize-none bg-card text-base"
+              className="min-h-24 resize-none bg-card text-body"
               id={fieldId}
               maxLength={AMA_PROMPT_MAX_LENGTH}
               onChange={handleChange}
@@ -116,7 +116,7 @@ export function AmaPromptEditor({
             />
           </Field>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 [scrollbar-width:none] *:shrink-0 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
             <ToggleGroup
               aria-label="Prompt ideas"
               onValueChange={handleIdeaChange}
@@ -154,7 +154,9 @@ export function AmaPromptEditor({
 
           <Field orientation="horizontal">
             <FieldContent>
-              <FieldLabel htmlFor={switchId}>Show the AMA banner</FieldLabel>
+              <FieldLabel className="text-title" htmlFor={switchId}>
+                Show the AMA banner
+              </FieldLabel>
               <FieldDescription>
                 Off = your page shows only your name.
               </FieldDescription>

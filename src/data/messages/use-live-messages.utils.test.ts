@@ -60,6 +60,7 @@ describe("toLiveMessageDto", () => {
       _id: "msg-live",
       content: "Hello there friend",
       createdAt: "2026-10-14T10:00:00.000Z",
+      isArchived: false,
       isPinned: false,
       isQuarantined: false,
       isRead: false,

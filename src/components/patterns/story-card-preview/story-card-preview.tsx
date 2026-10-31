@@ -9,10 +9,18 @@ const storyCardPreviewVariants = cva(
     defaultVariants: { size: "md", tilt: "none" },
     variants: {
       size: {
+        /** Landing: 220px on phones (design MobLanding), 280px from `sm`. */
+        fluid:
+          "w-full max-w-[220px] gap-3 rounded-[24px] p-4.5 sm:max-w-[280px] sm:gap-4 sm:rounded-[28px] sm:p-6",
         md: "w-full max-w-[360px] gap-5 rounded-[32px] px-6 py-7",
         sm: "w-full max-w-[280px] gap-4 rounded-[28px] p-6",
       },
-      tilt: { none: "", right: "motion-safe:rotate-2" },
+      tilt: {
+        /** Phones lean left, desktop right (design MobLanding / Landing). */
+        fluid: "motion-safe:-rotate-2 sm:motion-safe:rotate-2",
+        none: "",
+        right: "motion-safe:rotate-2",
+      },
     },
   }
 );
@@ -21,9 +29,26 @@ const questionVariants = cva(
   "text-balance font-bold font-display leading-[1.06]",
   {
     defaultVariants: { size: "md" },
-    variants: { size: { md: "text-[34px]", sm: "text-[26px]" } },
+    variants: {
+      size: {
+        fluid: "text-[21px] sm:text-[26px]",
+        md: "text-[34px]",
+        sm: "text-[26px]",
+      },
+    },
   }
 );
+
+const answerVariants = cva("font-semibold leading-snug", {
+  defaultVariants: { size: "md" },
+  variants: {
+    size: {
+      fluid: "text-[13px] sm:text-[17px]",
+      md: "text-[17px]",
+      sm: "text-[17px]",
+    },
+  },
+});
 
 export interface StoryCardPreviewProps
   extends VariantProps<typeof storyCardPreviewVariants> {
@@ -53,6 +78,9 @@ export function StoryCardPreview({
   tilt,
   className,
 }: StoryCardPreviewProps): React.JSX.Element {
+  // Phones' 220px card (design MobLanding) keeps only the board's content:
+  // no "answered" label or caption, smaller type, so nothing is clipped.
+  const isFluid = size === "fluid";
   return (
     <figure
       className={cn(storyCardPreviewVariants({ size, tilt }), className)}
@@ -68,8 +96,16 @@ export function StoryCardPreview({
       />
 
       <div className="relative flex items-center justify-between">
-        <span className="flex items-center gap-2 font-bold text-[15px]">
-          <Ghost aria-hidden="true" className="size-5" />
+        <span
+          className={cn(
+            "flex items-center gap-2 font-bold text-[15px]",
+            isFluid && "max-sm:gap-1.5 max-sm:text-xs"
+          )}
+        >
+          <Ghost
+            aria-hidden="true"
+            className={cn("size-5", isFluid && "max-sm:size-4")}
+          />
           GhostMsg
         </span>
         {label ? (
@@ -79,28 +115,58 @@ export function StoryCardPreview({
         ) : null}
       </div>
 
-      <div className="relative flex flex-col gap-4">
-        <p className="font-bold text-sm uppercase tracking-wider">
+      <div
+        className={cn(
+          "relative flex flex-col gap-4",
+          isFluid && "max-sm:gap-2.5"
+        )}
+      >
+        <p
+          className={cn(
+            "font-bold text-sm uppercase tracking-wider",
+            isFluid && "max-sm:text-[11px]"
+          )}
+        >
           An Anonymous Message
         </p>
         <blockquote className={questionVariants({ size })}>
           &ldquo;{question}&rdquo;
         </blockquote>
         {answer ? (
-          <div className="rounded-[20px] bg-brand-overlay p-4">
-            <p className="mb-1.5 font-bold text-xs uppercase tracking-wider">
+          <div
+            className={cn(
+              "rounded-[20px] bg-brand-overlay p-4",
+              isFluid && "max-sm:rounded-[14px] max-sm:p-2.5"
+            )}
+          >
+            <p
+              className={cn(
+                "mb-1.5 font-bold text-xs uppercase tracking-wider",
+                isFluid && "max-sm:hidden"
+              )}
+            >
               {username} answered
             </p>
-            <p className="font-semibold text-[17px] leading-snug">{answer}</p>
+            <p className={answerVariants({ size })}>{answer}</p>
           </div>
         ) : null}
       </div>
 
       <figcaption className="relative flex flex-col gap-1">
-        <span className="font-semibold text-[13px]">
+        <span
+          className={cn(
+            "font-semibold text-[13px]",
+            isFluid && "max-sm:hidden"
+          )}
+        >
           Send me one. Nobody will know it&apos;s you.
         </span>
-        <span className="font-display font-extrabold text-lg">
+        <span
+          className={cn(
+            "font-display font-extrabold text-lg",
+            isFluid && "max-sm:font-bold max-sm:font-sans max-sm:text-xs"
+          )}
+        >
           {profileLabel}
         </span>
       </figcaption>

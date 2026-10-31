@@ -4,7 +4,7 @@
 
 Generated inventory of every component module, its public API, stories, interaction tests, mocks, controllers, plus the shared fixtures and MSW scenarios. Rules live in [Chapter 5](05-component-architecture.md), [Chapter 10](10-storybook-and-ui-catalog.md) and the [agent guide](agents/component-architecture.md).
 
-**Totals:** 91 modules · 392 stories · 267 play() interaction tests.
+**Totals:** 103 modules · 456 stories · 314 play() interaction tests.
 
 - Regenerate after adding/renaming a module, story, mock export or scenario: `pnpm docs:registry`.
 - `pnpm docs:registry:check` fails when this file is stale (part of the pre-push gate).
@@ -17,27 +17,31 @@ Generated inventory of every component module, its public API, stories, interact
 
 > Domain-agnostic primitives; defaults are pixel-identical to the original shadcn/Animate UI look.
 
-**44 modules · 138 stories · 72 play() tests**
+**50 modules · 154 stories · 78 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| [`alert`](../src/components/elements/alert) | ✅ | 2 | 1 | 1 | 0 |
+| [`accordion`](../src/components/elements/accordion) | ✅ | 2 | 1 | 1 | 0 |
+| [`alert`](../src/components/elements/alert) | ✅ | 5 | 1 | 1 | 0 |
 | [`alert-dialog`](../src/components/elements/alert-dialog) | ✅ | 2 | 2 | 1 | 0 |
 | [`avatar`](../src/components/elements/avatar) | ✅ | 3 | 1 | 1 | 0 |
 | [`badge`](../src/components/elements/badge) | ✅ | 4 | 2 | 1 | 0 |
 | [`breadcrumb`](../src/components/elements/breadcrumb) | ✅ | 1 | 1 | 1 | 0 |
 | [`button`](../src/components/elements/button) | ✅ | 10 | 5 | 1 | 0 |
+| [`button-group`](../src/components/elements/button-group) | ✅ | 3 | 1 | 1 | 0 |
 | [`card`](../src/components/elements/card) | ✅ | 8 | 2 | 1 | 0 |
 | [`carousel`](../src/components/elements/carousel) | ✅ | 3 | 2 | 1 | 0 |
 | [`checkbox`](../src/components/elements/checkbox) | ✅ | 3 | 2 | 1 | 0 |
 | [`command`](../src/components/elements/command) | ✅ | 1 | 1 | 1 | 0 |
 | [`copy-button`](../src/components/elements/copy-button) | ✅ | 4 | 2 | 1 | 0 |
 | [`dialog`](../src/components/elements/dialog) | ✅ | 3 | 3 | 1 | 0 |
+| [`drawer`](../src/components/elements/drawer) | ✅ | 1 | 1 | 1 | 0 |
 | [`dropdown-menu`](../src/components/elements/dropdown-menu) | ✅ | 1 | 1 | 1 | 0 |
 | [`effects`](../src/components/elements/effects) | ✅ | 4 | 2 | 1 | 0 |
 | [`empty`](../src/components/elements/empty) | ✅ | 1 | 1 | 1 | 0 |
 | [`field`](../src/components/elements/field) | ✅ | 2 | 2 | 1 | 0 |
 | [`form`](../src/components/elements/form) | ✅ | 3 | 2 | 1 | 0 |
+| [`hover-card`](../src/components/elements/hover-card) | ✅ | 2 | 1 | 1 | 0 |
 | [`icon-button`](../src/components/elements/icon-button) | ✅ | 4 | 1 | 1 | 0 |
 | [`input`](../src/components/elements/input) | ✅ | 7 | 2 | 1 | 0 |
 | [`input-group`](../src/components/elements/input-group) | ✅ | 4 | 1 | 1 | 0 |
@@ -47,6 +51,8 @@ Generated inventory of every component module, its public API, stories, interact
 | [`label`](../src/components/elements/label) | ✅ | 2 | 1 | 1 | 0 |
 | [`liquid-button`](../src/components/elements/liquid-button) | ✅ | 5 | 2 | 1 | 0 |
 | [`palette-picker`](../src/components/elements/palette-picker) | ✅ | 2 | 2 | 1 | 0 |
+| [`popover`](../src/components/elements/popover) | ✅ | 2 | 1 | 1 | 0 |
+| [`progress`](../src/components/elements/progress) | ✅ | 3 | 1 | 1 | 0 |
 | [`radio-group`](../src/components/elements/radio-group) | ✅ | 2 | 1 | 1 | 0 |
 | [`scroll-area`](../src/components/elements/scroll-area) | ✅ | 1 | 1 | 1 | 0 |
 | [`select`](../src/components/elements/select) | ✅ | 2 | 1 | 1 | 0 |
@@ -66,10 +72,16 @@ Generated inventory of every component module, its public API, stories, interact
 | [`toggle-group`](../src/components/elements/toggle-group) | ✅ | 3 | 1 | 1 | 0 |
 | [`tooltip`](../src/components/elements/tooltip) | ✅ | 3 | 2 | 1 | 0 |
 
+#### `elements/accordion`
+
+- **Public API (index.ts):** `Accordion`, `AccordionContent`, `AccordionItem`, `AccordionTrigger`
+- **Stories** `accordion.stories.tsx` → _Elements/Accordion_: `Single`, `Multiple`
+- **Mocks:** `accordion.mock.ts` → `accordionMockItems`
+
 #### `elements/alert`
 
 - **Public API (index.ts):** —
-- **Stories** `alert.stories.tsx` → _Elements/Alert_: `Default`, `Destructive`
+- **Stories** `alert.stories.tsx` → _Elements/Alert_: `Default`, `Destructive`, `Success`, `Warning`, `Info`
 - **Mocks:** `alert.mock.ts` → `ALERT_VARIANTS`, `alertMockContent`
 
 #### `elements/alert-dialog`
@@ -101,6 +113,12 @@ Generated inventory of every component module, its public API, stories, interact
 - **Public API (index.ts):** `Button`, `ButtonProps (type)`, `buttonVariants`
 - **Stories** `button.stories.tsx` → _Elements/Button_: `Default`, `Destructive`, `AllVariants`, `Sizes`, `WithIcon`, `IconOnly`, `Loading`, `Disabled`, `AsLink`, `LongLabel`
 - **Mocks:** `button.mock.ts` → `BUTTON_VARIANTS`, `BUTTON_SIZES`, `BUTTON_ICON_SIZES`, `defaultButtonArgs`, `destructiveButtonArgs`
+
+#### `elements/button-group`
+
+- **Public API (index.ts):** —
+- **Stories** `button-group.stories.tsx` → _Elements/ButtonGroup_: `Default`, `Vertical`, `WithTextAndSeparator`
+- **Mocks:** `button-group.mock.ts` → `BUTTON_GROUP_ORIENTATIONS`, `defaultButtonGroupArgs`
 
 #### `elements/card`
 
@@ -138,6 +156,12 @@ Generated inventory of every component module, its public API, stories, interact
 - **Stories** `dialog.stories.tsx` → _Elements/Dialog_: `Default`, `OpenByDefault`, `ClosesOnEscape`
 - **Mocks:** `dialog.mock.ts` → `dialogMockContent`, `defaultDialogArgs`
 
+#### `elements/drawer`
+
+- **Public API (index.ts):** —
+- **Stories** `drawer.stories.tsx` → _Elements/Drawer_: `OpenAndClose`
+- **Mocks:** `drawer.mock.ts` → `drawerMockContent`, `defaultDrawerArgs`
+
 #### `elements/dropdown-menu`
 
 - **Public API (index.ts):** —
@@ -167,6 +191,12 @@ Generated inventory of every component module, its public API, stories, interact
 - **Public API (index.ts):** —
 - **Stories** `form.stories.tsx` → _Elements/Form_: `Default`, `ValidationError`, `Prefilled`
 - **Mocks:** `form.mock.ts` → `formMockContent`, `defaultFormValues`
+
+#### `elements/hover-card`
+
+- **Public API (index.ts):** —
+- **Stories** `hover-card.stories.tsx` → _Elements/HoverCard_: `OnHover`, `Open`
+- **Mocks:** `hover-card.mock.ts` → `hoverCardMockContent`, `defaultHoverCardArgs`
 
 #### `elements/icon-button`
 
@@ -222,6 +252,18 @@ Generated inventory of every component module, its public API, stories, interact
 - **Stories** `palette-picker.stories.tsx` → _Elements/PalettePicker_: `PickPalette`, `MidnightSelected`
 - **Mocks:** `palette-picker.mock.ts` → `defaultPalettePickerArgs`
 
+#### `elements/popover`
+
+- **Public API (index.ts):** —
+- **Stories** `popover.stories.tsx` → _Elements/Popover_: `OpenAndClose`, `Open`
+- **Mocks:** `popover.mock.ts` → `popoverMockContent`, `defaultPopoverArgs`
+
+#### `elements/progress`
+
+- **Public API (index.ts):** —
+- **Stories** `progress.stories.tsx` → _Elements/Progress_: `Default`, `Empty`, `Complete`
+- **Mocks:** `progress.mock.ts` → `defaultProgressArgs`
+
 #### `elements/radio-group`
 
 - **Public API (index.ts):** —
@@ -266,7 +308,7 @@ Generated inventory of every component module, its public API, stories, interact
 
 #### `elements/sonner`
 
-- **Public API (index.ts):** —
+- **Public API (index.ts):** `assertiveAnnouncements`, `notify`, `TOAST_DURATION_MS`
 - **Stories** `sonner.stories.tsx` → _Elements/Toaster_: `Success`, `ErrorToast`, `WithDescription`
 - **Mocks:** `sonner.mock.ts` → `toastMockMessages`
 
@@ -335,33 +377,38 @@ Generated inventory of every component module, its public API, stories, interact
 
 > Pure, domain-aware compositions of elements. Data in, callbacks out.
 
-**24 modules · 152 stories · 115 play() tests**
+**29 modules · 186 stories · 144 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | [`ama-banner`](../src/components/patterns/ama-banner) | ✅ | 6 | 2 | 1 | 0 |
 | [`ama-prompt-editor`](../src/components/patterns/ama-prompt-editor) | ✅ | 6 | 6 | 1 | 0 |
-| [`auth-form`](../src/components/patterns/auth-form) | ✅ | 20 | 15 | 1 | 0 |
+| [`auth-form`](../src/components/patterns/auth-form) | ✅ | 21 | 16 | 1 | 0 |
 | [`brand-mark`](../src/components/patterns/brand-mark) | ✅ | 3 | 1 | 1 | 0 |
-| [`bulk-action-toolbar`](../src/components/patterns/bulk-action-toolbar) | ✅ | 5 | 3 | 1 | 0 |
-| [`claim-link-form`](../src/components/patterns/claim-link-form) | ✅ | 2 | 2 | 1 | 0 |
+| [`bulk-action-toolbar`](../src/components/patterns/bulk-action-toolbar) | ✅ | 6 | 4 | 1 | 0 |
+| [`claim-link-form`](../src/components/patterns/claim-link-form) | ✅ | 4 | 3 | 1 | 0 |
 | [`command-palette`](../src/components/patterns/command-palette) | ✅ | 3 | 3 | 1 | 0 |
-| [`filter-bar`](../src/components/patterns/filter-bar) | ✅ | 5 | 3 | 1 | 0 |
-| [`how-it-works`](../src/components/patterns/how-it-works) | ✅ | 1 | 1 | 1 | 0 |
-| [`identity-card`](../src/components/patterns/identity-card) | ✅ | 4 | 4 | 1 | 0 |
+| [`filter-bar`](../src/components/patterns/filter-bar) | ✅ | 8 | 6 | 1 | 0 |
+| [`how-it-works`](../src/components/patterns/how-it-works) | ✅ | 2 | 2 | 1 | 0 |
+| [`identity-card`](../src/components/patterns/identity-card) | ✅ | 5 | 5 | 1 | 0 |
+| [`message-actions-menu`](../src/components/patterns/message-actions-menu) | ✅ | 2 | 2 | 1 | 0 |
 | [`message-card`](../src/components/patterns/message-card) | ✅ | 14 | 11 | 1 | 0 |
-| [`modals`](../src/components/patterns/modals) | ✅ | 34 | 32 | 1 | 0 |
+| [`mobile-header-actions`](../src/components/patterns/mobile-header-actions) | ✅ | 2 | 2 | 1 | 0 |
+| [`modals`](../src/components/patterns/modals) | ✅ | 41 | 38 | 1 | 0 |
 | [`page-heading`](../src/components/patterns/page-heading) | ✅ | 3 | 2 | 1 | 0 |
 | [`public-qa-feed`](../src/components/patterns/public-qa-feed) | ✅ | 5 | 3 | 1 | 0 |
+| [`responsive-dialog`](../src/components/patterns/responsive-dialog) | ✅ | 2 | 2 | 1 | 0 |
 | [`section-nav`](../src/components/patterns/section-nav) | ✅ | 2 | 1 | 1 | 0 |
 | [`send-message-form`](../src/components/patterns/send-message-form) | ✅ | 6 | 4 | 1 | 0 |
 | [`sentiment-badge`](../src/components/patterns/sentiment-badge) | ✅ | 7 | 3 | 1 | 0 |
-| [`share-link-card`](../src/components/patterns/share-link-card) | ✅ | 4 | 2 | 1 | 0 |
-| [`story-card-preview`](../src/components/patterns/story-card-preview) | ✅ | 3 | 1 | 1 | 0 |
+| [`share-link-card`](../src/components/patterns/share-link-card) | ✅ | 5 | 3 | 1 | 0 |
+| [`shortcut-sheet`](../src/components/patterns/shortcut-sheet) | ✅ | 4 | 3 | 1 | 0 |
+| [`story-card-preview`](../src/components/patterns/story-card-preview) | ✅ | 4 | 1 | 1 | 0 |
 | [`suggested-messages`](../src/components/patterns/suggested-messages) | ✅ | 5 | 3 | 1 | 0 |
+| [`undo-toast`](../src/components/patterns/undo-toast) | ✅ | 2 | 2 | 1 | 0 |
 | [`unsaved-changes-bar`](../src/components/patterns/unsaved-changes-bar) | ✅ | 3 | 3 | 1 | 0 |
 | [`username-field`](../src/components/patterns/username-field) | ✅ | 4 | 4 | 1 | 0 |
-| [`verify-code-form`](../src/components/patterns/verify-code-form) | ✅ | 3 | 3 | 1 | 0 |
+| [`verify-code-form`](../src/components/patterns/verify-code-form) | ✅ | 7 | 6 | 1 | 0 |
 | [`visitor-preview`](../src/components/patterns/visitor-preview) | ✅ | 4 | 3 | 1 | 0 |
 
 #### `patterns/ama-banner`
@@ -379,7 +426,7 @@ Generated inventory of every component module, its public API, stories, interact
 #### `patterns/auth-form`
 
 - **Public API (index.ts):** `AuthFormFooter`, `AuthFormFooterProps (type)`, `AuthOAuthHeader`, `AuthOAuthHeaderProps (type)`, `PasswordField`, `PasswordFieldProps (type)`, `SignInForm`, `SignInFormProps (type)`, `SignInValues (type)`, `SignUpForm`, `SignUpFormProps (type)`, `SignUpValues (type)`
-- **Stories** `auth-form-footer.stories.tsx` → _Patterns/AuthForm/AuthFormFooter_: `SignIn`, `SignUp`, `Submitting`, `Disabled`, `GoogleHeader`
+- **Stories** `auth-form-footer.stories.tsx` → _Patterns/AuthForm/AuthFormFooter_: `SignIn`, `SignUp`, `Submitting`, `Disabled`, `GoogleHeaderSignIn`, `GoogleHeader`
 - **Stories** `password-field.stories.tsx` → _Patterns/AuthForm/PasswordField_: `Empty`, `Reveals`
 - **Stories** `sign-in-form.stories.tsx` → _Patterns/AuthForm/SignInForm_: `Default`, `SubmitsCredentials`, `ShortPassword`, `TogglesPasswordVisibility`, `GoogleSignIn`, `Submitting`
 - **Stories** `sign-up-form.stories.tsx` → _Patterns/AuthForm/SignUpForm_: `Default`, `SubmitsDetails`, `InvalidEmail`, `InvalidUsername`, `CheckingUsername`, `UsernameTaken`, `Submitting`
@@ -394,13 +441,13 @@ Generated inventory of every component module, its public API, stories, interact
 #### `patterns/bulk-action-toolbar`
 
 - **Public API (index.ts):** `BulkAction (type)`, `BulkActionToolbar`, `BulkActionToolbarProps (type)`
-- **Stories** `bulk-action-toolbar.stories.tsx` → _Patterns/BulkActionToolbar_: `Default`, `SingleSelected`, `Pending`, `NothingSelected`, `Mobile`
+- **Stories** `bulk-action-toolbar.stories.tsx` → _Patterns/BulkActionToolbar_: `Default`, `SingleSelected`, `Pending`, `NothingSelected`, `Mobile`, `PhoneBar`
 - **Mocks:** `bulk-action-toolbar.mock.ts` → `defaultBulkActionToolbarArgs`
 
 #### `patterns/claim-link-form`
 
 - **Public API (index.ts):** `ClaimLinkForm`, `ClaimLinkFormProps (type)`
-- **Stories** `claim-link-form.stories.tsx` → _Patterns/ClaimLinkForm_: `Typing`, `Submit`
+- **Stories** `claim-link-form.stories.tsx` → _Patterns/ClaimLinkForm_: `Typing`, `Submit`, `WithoutLiveProfile`, `Mobile`
 - **Mocks:** `claim-link-form.mock.ts` → `defaultClaimLinkFormArgs`, `filledClaimLinkFormArgs`
 
 #### `patterns/command-palette`
@@ -412,20 +459,26 @@ Generated inventory of every component module, its public API, stories, interact
 #### `patterns/filter-bar`
 
 - **Public API (index.ts):** `FilterBar`, `FilterBarProps (type)`, `MessageFilterCounts (type)`, `MessageFilterStatus (type)`
-- **Stories** `filter-bar.stories.tsx` → _Patterns/FilterBar_: `Default`, `KeepsOneSelected`, `NoQuarantine`, `QuarantinedActive`, `Mobile`
+- **Stories** `filter-bar.stories.tsx` → _Patterns/FilterBar_: `Default`, `KeepsOneSelected`, `NoQuarantine`, `QuarantinedActive`, `Mobile`, `WithArchived`, `NoArchived`, `Disabled`
 - **Mocks:** `filter-bar.mock.ts` → `defaultFilterBarArgs`, `noQuarantineFilterBarArgs`, `quarantinedActiveFilterBarArgs`
 
 #### `patterns/how-it-works`
 
 - **Public API (index.ts):** `HowItWorks`, `HowItWorksProps (type)`
-- **Stories** `how-it-works.stories.tsx` → _Patterns/HowItWorks_: `FourSteps`
+- **Stories** `how-it-works.stories.tsx` → _Patterns/HowItWorks_: `FourSteps`, `Mobile`
 - **Mocks:** `how-it-works.mock.ts` → `defaultHowItWorksArgs`
 
 #### `patterns/identity-card`
 
 - **Public API (index.ts):** —
-- **Stories** `identity-card.stories.tsx` → _Patterns/IdentityCard_: `Default`, `SelectsPhoto`, `WithPhoto`, `ProcessingPhoto`
-- **Mocks:** `identity-card.mock.ts` → `FIXTURE_AVATAR_DATA_URL`, `defaultIdentityCardArgs`, `withPhotoIdentityCardArgs`
+- **Stories** `identity-card.stories.tsx` → _Patterns/IdentityCard_: `Default`, `SelectsPhoto`, `WithPhoto`, `ProcessingPhoto`, `Summary`
+- **Mocks:** `identity-card.mock.ts` → `FIXTURE_AVATAR_DATA_URL`, `defaultIdentityCardArgs`, `withPhotoIdentityCardArgs`, `defaultIdentitySummaryArgs`
+
+#### `patterns/message-actions-menu`
+
+- **Public API (index.ts):** `MessageAction (type)`, `MessageActionsMenu`, `MessageActionsMenuProps (type)`
+- **Stories** `message-actions-menu.stories.tsx` → _Patterns/MessageActionsMenu_: `Desktop`, `Mobile`
+- **Mocks:** `message-actions-menu.mock.ts` → `messageActionsMock`
 
 #### `patterns/message-card`
 
@@ -433,19 +486,26 @@ Generated inventory of every component module, its public API, stories, interact
 - **Stories** `message-card.stories.tsx` → _Patterns/MessageCard_: `Unread`, `EmitsEveryAction`, `Selected`, `Focused`, `AnsweredPublic`, `AnsweredPrivately`, `Quarantined`, `QuarantinedRevealed`, `BlockedSender`, `WithoutSenderHash`, `ListRow`, `ReadOnly`, `LongContent`, `Mobile`
 - **Mocks:** `message-card.mock.ts` → `messageCardCallbacks`, `MESSAGE_CARD_NOW`, `defaultMessageCardArgs`, `answeredMessageCardArgs`, `privateReplyMessageCardArgs`, `quarantinedMessageCardArgs`, `blockedSenderMessageCardArgs`, `noSenderHashMessageCardArgs`, `longContentMessageCardArgs`, `revealedQuarantinedMessageCardArgs`, `listMessageCardArgs`
 
+#### `patterns/mobile-header-actions`
+
+- **Public API (index.ts):** `MobileHeaderAction`, `MobileHeaderActions`, `MobileHeaderLeading`, `MobileHeaderSlotProvider`, `MobileHeaderSlots (type)`
+- **Stories** `mobile-header-actions.stories.tsx` → _Patterns/MobileHeaderActions_: `InboxActions`, `WithLeading`
+- **Mocks:** `mobile-header-actions.mock.ts` → `mobileHeaderActionsMock`
+
 #### `patterns/modals`
 
-- **Public API (index.ts):** `BlockSenderModal`, `BlockSenderModalProps (type)`, `ChangeUsernameModal`, `ChangeUsernameModalProps (type)`, `DeleteAccountModal`, `DeleteAccountModalProps (type)`, `DeleteAllMessagesModal`, `DeleteAllMessagesModalProps (type)`, `DeleteMessageModal`, `DeleteMessageModalProps (type)`, `DiscardChangesModal`, `DiscardChangesModalProps (type)`, `RevealMessageModal`, `RevealMessageModalProps (type)`, `REPLY_MAX_LENGTH`, `SmartReplyModal`, `SmartReplyModalProps (type)`, `SmartReplyTone (type)`, `StoryCardModal`, `StoryCardModalProps (type)`
+- **Public API (index.ts):** `BlockSenderModal`, `BlockSenderModalProps (type)`, `ChangeUsernameModal`, `ChangeUsernameModalProps (type)`, `DeleteAccountModal`, `DeleteAccountModalProps (type)`, `DeleteAllMessagesModal`, `DeleteAllMessagesModalProps (type)`, `DeleteMessageModal`, `DeleteMessageModalProps (type)`, `DeleteSelectedModal`, `DeleteSelectedModalProps (type)`, `DiscardChangesModal`, `DiscardChangesModalProps (type)`, `RevealMessageModal`, `RevealMessageModalProps (type)`, `REPLY_MAX_LENGTH`, `SmartReplyModal`, `SmartReplyModalProps (type)`, `StoryCardModal`, `StoryCardModalProps (type)`
 - **Stories** `block-sender-modal.stories.tsx` → _Patterns/Modals/BlockSenderModal_: `Block`, `Unblock`, `BlockOnly`, `Pending`, `Cancels`, `WithoutSenderHash`
 - **Stories** `change-username-modal.stories.tsx` → _Patterns/Modals/ChangeUsernameModal_: `Available`, `Taken`, `Checking`, `Cancels`
 - **Stories** `delete-account-modal.stories.tsx` → _Patterns/Modals/DeleteAccountModal_: `TypeToConfirm`, `Pending`
 - **Stories** `delete-all-messages-modal.stories.tsx` → _Patterns/Modals/DeleteAllMessagesModal_: `Default`, `SingleMessage`, `Cancels`
 - **Stories** `delete-message-modal.stories.tsx` → _Patterns/Modals/DeleteMessageModal_: `Default`, `Pending`, `Cancels`, `PublicAnswer`, `NoMessage`
+- **Stories** `delete-selected-modal.stories.tsx` → _Patterns/Modals/DeleteSelectedModal_: `Default`, `KeepsThem`, `OneMessage`, `Mobile`
 - **Stories** `discard-changes-modal.stories.tsx` → _Patterns/Modals/DiscardChangesModal_: `KeepEditingIsDefault`, `Discards`
 - **Stories** `reveal-message-modal.stories.tsx` → _Patterns/Modals/RevealMessageModal_: `KeepHiddenIsDefault`, `KeepHidden`
-- **Stories** `smart-reply-modal.stories.tsx` → _Patterns/Modals/SmartReplyModal_: `NewReply`, `GeneratesWithAi`, `TogglesPublish`, `EditingExistingReply`, `Generating`, `Saving`, `Private`
-- **Stories** `story-card-modal.stories.tsx` → _Patterns/Modals/StoryCardModal_: `WithAnswer`, `WithoutAnswer`, `ClosesOnEscape`
-- **Mocks:** `modals.mock.ts` → `defaultBlockSenderModalArgs`, `defaultDeleteMessageModalArgs`, `defaultSmartReplyModalArgs`, `editingSmartReplyModalArgs`, `defaultStoryCardModalArgs`, `defaultRevealMessageModalArgs`, `defaultChangeUsernameModalArgs`, `defaultDeleteAllMessagesModalArgs`, `defaultDeleteAccountModalArgs`, `defaultDiscardChangesModalArgs`
+- **Stories** `smart-reply-modal.stories.tsx` → _Patterns/Modals/SmartReplyModal_: `NewReply`, `PicksSmartReplyIdea`, `TogglesPublish`, `EditingExistingReply`, `Generating`, `DraftsFailed`, `Mobile`, `Saving`, `Private`
+- **Stories** `story-card-modal.stories.tsx` → _Patterns/Modals/StoryCardModal_: `WithAnswer`, `WithoutAnswer`, `ClosesOnEscape`, `Mobile`
+- **Mocks:** `modals.mock.ts` → `defaultBlockSenderModalArgs`, `defaultDeleteMessageModalArgs`, `defaultDeleteSelectedModalArgs`, `defaultSmartReplyModalArgs`, `editingSmartReplyModalArgs`, `defaultStoryCardModalArgs`, `defaultRevealMessageModalArgs`, `defaultChangeUsernameModalArgs`, `defaultDeleteAllMessagesModalArgs`, `defaultDeleteAccountModalArgs`, `defaultDiscardChangesModalArgs`
 
 #### `patterns/page-heading`
 
@@ -458,6 +518,12 @@ Generated inventory of every component module, its public API, stories, interact
 - **Public API (index.ts):** `PublicQaFeed`, `PublicQaFeedProps (type)`, `PublicQaItem (type)`
 - **Stories** `public-qa-feed.stories.tsx` → _Patterns/PublicQaFeed_: `WithAnswers`, `Loading`, `Empty`, `LongReply`, `Mobile`
 - **Mocks:** `public-qa-feed.mock.ts` → `defaultPublicQaFeedArgs`, `emptyPublicQaFeedArgs`, `longReplyPublicQaFeedArgs`
+
+#### `patterns/responsive-dialog`
+
+- **Public API (index.ts):** `ResponsiveDialog`, `ResponsiveDialogContent`, `ResponsiveDialogContentProps (type)`, `ResponsiveDialogDescription`, `ResponsiveDialogDescriptionProps (type)`, `ResponsiveDialogFooter`, `ResponsiveDialogFooterProps (type)`, `ResponsiveDialogHeader`, `ResponsiveDialogHeaderProps (type)`, `ResponsiveDialogProps (type)`, `ResponsiveDialogTitle`, `ResponsiveDialogTitleProps (type)`
+- **Stories** `responsive-dialog.stories.tsx` → _Patterns/ResponsiveDialog_: `Desktop`, `Mobile`
+- **Mocks:** `responsive-dialog.mock.ts` → `responsiveDialogMock`
 
 #### `patterns/section-nav`
 
@@ -480,13 +546,19 @@ Generated inventory of every component module, its public API, stories, interact
 #### `patterns/share-link-card`
 
 - **Public API (index.ts):** `ShareLinkCard`, `ShareLinkCardProps (type)`
-- **Stories** `share-link-card.stories.tsx` → _Patterns/ShareLinkCard_: `Default`, `WithoutShare`, `LongUrl`, `Mobile`
+- **Stories** `share-link-card.stories.tsx` → _Patterns/ShareLinkCard_: `Default`, `WithoutShare`, `LongUrl`, `Mobile`, `Compact`
 - **Mocks:** `share-link-card.mock.ts` → `defaultShareLinkCardArgs`, `longUrlShareLinkCardArgs`
+
+#### `patterns/shortcut-sheet`
+
+- **Public API (index.ts):** `SHORTCUT_GROUPS`, `Shortcut (type)`, `ShortcutGroup (type)`, `ShortcutSheet`, `ShortcutSheetProps (type)`
+- **Stories** `shortcut-sheet.stories.tsx` → _Patterns/ShortcutSheet_: `Default`, `ClosesWithDone`, `ClosesOnEscape`, `Mobile`
+- **Mocks:** `shortcut-sheet.mock.ts` → `defaultShortcutSheetArgs`
 
 #### `patterns/story-card-preview`
 
 - **Public API (index.ts):** `StoryCardPreview`, `StoryCardPreviewProps (type)`
-- **Stories** `story-card-preview.stories.tsx` → _Patterns/StoryCardPreview_: `Answered`, `QuestionOnly`, `SmallTilted`
+- **Stories** `story-card-preview.stories.tsx` → _Patterns/StoryCardPreview_: `Answered`, `QuestionOnly`, `SmallTilted`, `FluidOnPhone`
 - **Mocks:** `story-card-preview.mock.ts` → `defaultStoryCardPreviewArgs`, `questionOnlyStoryCardPreviewArgs`
 
 #### `patterns/suggested-messages`
@@ -494,6 +566,12 @@ Generated inventory of every component module, its public API, stories, interact
 - **Public API (index.ts):** `SuggestedMessages`, `SuggestedMessagesProps (type)`
 - **Stories** `suggested-messages.stories.tsx` → _Patterns/SuggestedMessages_: `Default`, `Loading`, `Empty`, `LongSuggestion`, `Mobile`
 - **Mocks:** `suggested-messages.mock.ts` → `defaultSuggestedMessagesArgs`, `emptySuggestedMessagesArgs`, `longSuggestedMessagesArgs`
+
+#### `patterns/undo-toast`
+
+- **Public API (index.ts):** `ShowUndoToastOptions (type)`, `showUndoToast`, `UndoToastAction`, `UndoToastActionProps (type)`
+- **Stories** `undo-toast.stories.tsx` → _Patterns/UndoToast_: `Undoes`, `Commits`
+- **Mocks:** `undo-toast.mock.ts` → `defaultUndoToastOptions`
 
 #### `patterns/unsaved-changes-bar`
 
@@ -509,9 +587,9 @@ Generated inventory of every component module, its public API, stories, interact
 
 #### `patterns/verify-code-form`
 
-- **Public API (index.ts):** `OTP_LENGTH`, `VerifyCodeForm`, `VerifyCodeFormProps (type)`, `VerifyCodeValues (type)`
-- **Stories** `verify-code-form.stories.tsx` → _Patterns/VerifyCodeForm_: `Default`, `SubmitsValidCode`, `Submitting`
-- **Mocks:** `verify-code-form.mock.ts` → `VALID_OTP`, `defaultVerifyCodeFormArgs`
+- **Public API (index.ts):** `OTP_LENGTH`, `VerifyCodeError (type)`, `VerifyCodeForm`, `VerifyCodeFormProps (type)`, `VerifyCodeValues (type)`
+- **Stories** `verify-code-form.stories.tsx` → _Patterns/VerifyCodeForm_: `Default`, `SubmitsValidCode`, `Submitting`, `TimerFinished`, `WrongCode`, `Locked`, `Mobile`
+- **Mocks:** `verify-code-form.mock.ts` → `VALID_OTP`, `defaultVerifyCodeFormArgs`, `wrongCodeError`, `lockedCodeError`
 
 #### `patterns/visitor-preview`
 
@@ -523,35 +601,36 @@ Generated inventory of every component module, its public API, stories, interact
 
 > Pure page sections composing patterns (slots + grouped props).
 
-**14 modules · 59 stories · 40 play() tests**
+**15 modules · 69 stories · 49 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| [`auth-panel`](../src/components/blocks/auth-panel) | ✅ | 3 | 2 | 1 | 0 |
-| [`cta-banner`](../src/components/blocks/cta-banner) | ✅ | 1 | 1 | 1 | 0 |
+| [`auth-panel`](../src/components/blocks/auth-panel) | ✅ | 4 | 4 | 1 | 0 |
+| [`cta-banner`](../src/components/blocks/cta-banner) | ✅ | 2 | 2 | 1 | 0 |
 | [`dashboard-shell`](../src/components/blocks/dashboard-shell) | ✅ | 7 | 5 | 1 | 0 |
 | [`hero`](../src/components/blocks/hero) | ✅ | 3 | 1 | 1 | 0 |
-| [`inbox`](../src/components/blocks/inbox) | ✅ | 15 | 11 | 1 | 0 |
+| [`inbox`](../src/components/blocks/inbox) | ✅ | 17 | 13 | 1 | 0 |
 | [`not-found-panel`](../src/components/blocks/not-found-panel) | ✅ | 3 | 2 | 1 | 0 |
 | [`profile-panel`](../src/components/blocks/profile-panel) | ✅ | 5 | 2 | 1 | 0 |
 | [`public-profile`](../src/components/blocks/public-profile) | ✅ | 7 | 5 | 1 | 0 |
-| [`qa-showcase`](../src/components/blocks/qa-showcase) | ✅ | 1 | 1 | 1 | 0 |
+| [`qa-showcase`](../src/components/blocks/qa-showcase) | ✅ | 2 | 1 | 1 | 0 |
 | [`settings-panel`](../src/components/blocks/settings-panel) | ✅ | 6 | 5 | 1 | 0 |
-| [`site-footer`](../src/components/blocks/site-footer) | ✅ | 1 | 1 | 1 | 0 |
+| [`site-footer`](../src/components/blocks/site-footer) | ✅ | 2 | 1 | 1 | 0 |
 | [`site-header`](../src/components/blocks/site-header) | ✅ | 3 | 2 | 1 | 0 |
-| [`trust-section`](../src/components/blocks/trust-section) | ✅ | 1 | 1 | 1 | 0 |
-| [`verify-panel`](../src/components/blocks/verify-panel) | ✅ | 3 | 1 | 1 | 0 |
+| [`trust-section`](../src/components/blocks/trust-section) | ✅ | 2 | 2 | 1 | 0 |
+| [`verify-panel`](../src/components/blocks/verify-panel) | ✅ | 3 | 2 | 1 | 0 |
+| [`verify-success`](../src/components/blocks/verify-success) | ✅ | 3 | 2 | 1 | 0 |
 
 #### `blocks/auth-panel`
 
 - **Public API (index.ts):** `AuthPanel`, `AuthPanelProps (type)`
-- **Stories** `auth-panel.stories.tsx` → _Blocks/AuthPanel_: `SignIn`, `SignUp`, `Mobile`
+- **Stories** `auth-panel.stories.tsx` → _Blocks/AuthPanel_: `SignIn`, `SignUp`, `Mobile`, `MobileSignUp`
 - **Mocks:** `auth-panel.mock.ts` → `signInAuthPanelArgs`, `signUpAuthPanelArgs`
 
 #### `blocks/cta-banner`
 
 - **Public API (index.ts):** `CtaBanner`, `CtaBannerProps (type)`
-- **Stories** `cta-banner.stories.tsx` → _Blocks/CtaBanner_: `GetYourLink`
+- **Stories** `cta-banner.stories.tsx` → _Blocks/CtaBanner_: `GetYourLink`, `Mobile`
 - **Mocks:** `cta-banner.mock.ts` → `defaultCtaBannerArgs`
 
 #### `blocks/dashboard-shell`
@@ -571,8 +650,8 @@ Generated inventory of every component module, its public API, stories, interact
 #### `blocks/inbox`
 
 - **Public API (index.ts):** `INBOX_SEARCH_INPUT_ID`, `Inbox`, `InboxBulkActions (type)`, `InboxCardActions (type)`, `InboxFilters (type)`, `InboxPagination (type)`, `InboxProps (type)`, `InboxSelection (type)`, `InboxViewMode (type)`
-- **Stories** `inbox.stories.tsx` → _Blocks/Inbox_: `Grid`, `EmitsInteractions`, `ListView`, `Focused`, `Loading`, `Refreshing`, `WithSelection`, `Empty`, `NoMatches`, `QuarantinedOnly`, `LongContent`, `MoreToLoad`, `LoadingMore`, `LastPage`, `Mobile`
-- **Mocks:** `inbox.mock.ts` → `defaultInboxArgs`, `loadingInboxArgs`, `emptyInboxArgs`, `noMatchesInboxArgs`, `quarantinedInboxArgs`, `longContentInboxArgs`, `moreToLoadInboxArgs`, `loadingMoreInboxArgs`
+- **Stories** `inbox.stories.tsx` → _Blocks/Inbox_: `Grid`, `EmitsInteractions`, `ListView`, `Focused`, `Loading`, `Refreshing`, `WithSelection`, `Empty`, `NoMatches`, `SearchNoMatches`, `NothingQuarantined`, `QuarantinedOnly`, `LongContent`, `MoreToLoad`, `LoadingMore`, `LastPage`, `Mobile`
+- **Mocks:** `inbox.mock.ts` → `defaultInboxArgs`, `loadingInboxArgs`, `emptyInboxArgs`, `noMatchesInboxArgs`, `unreadFilterOverride`, `searchFilterOverride`, `quarantinedFilterOverride`, `quarantinedInboxArgs`, `longContentInboxArgs`, `moreToLoadInboxArgs`, `loadingMoreInboxArgs`
 
 #### `blocks/not-found-panel`
 
@@ -590,24 +669,24 @@ Generated inventory of every component module, its public API, stories, interact
 
 - **Public API (index.ts):** `PublicProfile`, `PublicProfileAnswers (type)`, `PublicProfileProps (type)`, `PublicProfileSendForm (type)`, `PublicProfileSuggestions (type)`
 - **Stories** `public-profile.stories.tsx` → _Blocks/PublicProfile_: `Accepting`, `Sent`, `Paused`, `NotFound`, `NewProfile`, `Loading`, `Mobile`
-- **Mocks:** `public-profile.mock.ts` → `defaultPublicProfileArgs`, `newProfilePublicProfileArgs`
+- **Mocks:** `public-profile.mock.ts` → `defaultPublicProfileArgs`, `sentPublicProfileArgs`, `newProfilePublicProfileArgs`
 
 #### `blocks/qa-showcase`
 
 - **Public API (index.ts):** `QaShowcase`, `QaShowcaseProps (type)`
-- **Stories** `qa-showcase.stories.tsx` → _Blocks/QaShowcase_: `QaAndStoryCard`
+- **Stories** `qa-showcase.stories.tsx` → _Blocks/QaShowcase_: `QaAndStoryCard`, `Mobile`
 - **Mocks:** `qa-showcase.mock.ts` → `defaultQaShowcaseArgs`
 
 #### `blocks/settings-panel`
 
-- **Public API (index.ts):** `BlockedSenderRow (type)`, `formatSenderHash`, `SafetySettingsProps (type)`, `SettingsPanel`, `SettingsPanelProps (type)`
+- **Public API (index.ts):** `BlockedSenderRow (type)`, `formatSenderHash`, `SafetySettingsProps (type)`, `SettingsAccount (type)`, `SettingsPanel`, `SettingsPanelProps (type)`
 - **Stories** `settings-panel.stories.tsx` → _Blocks/SettingsPanel_: `Defaults`, `EmitsChanges`, `ClosedWithBlockedSenders`, `AllPending`, `QuarantineOff`, `Mobile`
 - **Mocks:** `settings-panel.mock.ts` → `defaultSettingsPanelArgs`, `closedWithBlocksSettingsPanelArgs`
 
 #### `blocks/site-footer`
 
 - **Public API (index.ts):** `SiteFooter`, `SiteFooterProps (type)`
-- **Stories** `site-footer.stories.tsx` → _Blocks/SiteFooter_: `Default`
+- **Stories** `site-footer.stories.tsx` → _Blocks/SiteFooter_: `Default`, `Mobile`
 - **Mocks:** `site-footer.mock.ts` → `defaultSiteFooterArgs`
 
 #### `blocks/site-header`
@@ -619,7 +698,7 @@ Generated inventory of every component module, its public API, stories, interact
 #### `blocks/trust-section`
 
 - **Public API (index.ts):** `TrustSection`, `TrustSectionProps (type)`
-- **Stories** `trust-section.stories.tsx` → _Blocks/TrustSection_: `ThreePromises`
+- **Stories** `trust-section.stories.tsx` → _Blocks/TrustSection_: `ThreePromises`, `Mobile`
 - **Mocks:** `trust-section.mock.ts` → `defaultTrustSectionArgs`
 
 #### `blocks/verify-panel`
@@ -628,21 +707,27 @@ Generated inventory of every component module, its public API, stories, interact
 - **Stories** `verify-panel.stories.tsx` → _Blocks/VerifyPanel_: `Default`, `LongUsername`, `Mobile`
 - **Mocks:** `verify-panel.mock.ts` → `defaultVerifyPanelArgs`
 
+#### `blocks/verify-success`
+
+- **Public API (index.ts):** `VerifySuccess`, `VerifySuccessProps (type)`
+- **Stories** `verify-success.stories.tsx` → _Blocks/VerifySuccess_: `Default`, `WithoutShare`, `Mobile`
+- **Mocks:** `verify-success.mock.ts` → `defaultVerifySuccessArgs`
+
 ### Tier 4 · Pages (`src/components/pages/`)
 
 > Route components; the only tier with business logic (controllers).
 
-**9 modules · 43 stories · 40 play() tests**
+**9 modules · 47 stories · 43 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | [`auth/shared`](../src/components/pages/auth/shared) | — | 0 | 0 | 1 | 1 |
 | [`auth/sign-in`](../src/components/pages/auth/sign-in) | ✅ | 4 | 3 | 0 | 1 |
 | [`auth/sign-up`](../src/components/pages/auth/sign-up) | ✅ | 5 | 4 | 0 | 2 |
-| [`auth/verify`](../src/components/pages/auth/verify) | ✅ | 3 | 3 | 0 | 1 |
-| [`dashboard`](../src/components/pages/dashboard) | ✅ | 14 | 14 | 1 | 15 |
+| [`auth/verify`](../src/components/pages/auth/verify) | ✅ | 6 | 5 | 0 | 3 |
+| [`dashboard`](../src/components/pages/dashboard) | ✅ | 14 | 14 | 1 | 16 |
 | [`home`](../src/components/pages/home) | ✅ | 4 | 3 | 0 | 2 |
-| [`layouts/site-layout`](../src/components/pages/layouts/site-layout) | ✅ | 2 | 2 | 0 | 0 |
+| [`layouts/site-layout`](../src/components/pages/layouts/site-layout) | ✅ | 3 | 3 | 0 | 0 |
 | [`not-found`](../src/components/pages/not-found) | ✅ | 1 | 1 | 0 | 0 |
 | [`public-profile`](../src/components/pages/public-profile) | ✅ | 10 | 10 | 1 | 3 |
 
@@ -672,18 +757,18 @@ Generated inventory of every component module, its public API, stories, interact
 #### `pages/auth/verify`
 
 - **Public API (index.ts):** `VerifyPage`, `VerifyPageProps (type)`
-- **Controllers:** `useVerifyController`
-- **Stories** `verify-page.stories.tsx` → _Pages/Auth/Verify_: `Default`, `Verifies`, `InvalidCode`
+- **Controllers:** `useResendCooldownController`, `useVerifyController`
+- **Stories** `verify-page.stories.tsx` → _Pages/Auth/Verify_: `Default`, `Verifies`, `InvalidCode`, `Locked`, `Expired`, `Mobile`
 - **Mocks:** —
-- **Unit tests:** `use-verify.controller.test.ts`
+- **Unit tests:** `use-resend-cooldown.controller.test.ts`, `use-verify.controller.test.ts`, `verify.utils.test.ts`
 
 #### `pages/dashboard`
 
 - **Public API (index.ts):** `DashboardLayout`, `DashboardLayoutProps (type)`, `isFilterStatus`, `InboxPage`, `InboxPageProps (type)`, `ProfilePage`, `SettingsPage`, `SettingsPageProps (type)`
-- **Controllers:** `useAppearanceController`, `useChangeUsernameController`, `useDangerZoneController`, `useDashboardShellController`, `useInboxDataController`, `useInboxFiltersController`, `useInboxKeyboardController`, `useInboxController`, `useProfileLinkController`, `useProfileController`, `useSettingsController`, `useSmartReplyController`
+- **Controllers:** `useAppearanceController`, `useChangeUsernameController`, `useDangerZoneController`, `useDashboardShellController`, `useGlobalShortcutsController`, `useInboxDataController`, `useInboxFiltersController`, `useInboxKeyboardController`, `useInboxController`, `useProfileLinkController`, `useProfileController`, `useSettingsController`, `useSmartReplyController`
 - **Stories** `dashboard.stories.tsx` → _Pages/Dashboard_: `Inbox`, `DeletesAMessage`, `RepliesWithAi`, `RevealsQuarantined`, `KeyboardTriage`, `CommandPalette`, `EmptyInbox`, `InboxError`, `InboxLoading`, `Settings`, `Profile`, `SessionLoading`, `SignedOut`, `Mobile`
 - **Mocks:** `dashboard.mock.ts` → `dashboardHandlers`
-- **Unit tests:** `dashboard.utils.test.ts`, `inbox.utils.test.ts`, `profile.utils.test.ts`, `use-appearance.controller.test.ts`, `use-change-username.controller.test.ts`, `use-danger-zone.controller.test.ts`, `use-dashboard-shell.controller.test.ts`, `use-inbox-data.controller.test.ts`, `use-inbox-filters.controller.test.ts`, `use-inbox-keyboard.controller.test.ts`, `use-inbox.controller.test.ts`, `use-profile-link.controller.test.ts`, `use-profile.controller.test.ts`, `use-settings.controller.test.ts`, `use-smart-reply.controller.test.ts`
+- **Unit tests:** `dashboard.utils.test.ts`, `inbox.utils.test.ts`, `profile.utils.test.ts`, `use-appearance.controller.test.ts`, `use-change-username.controller.test.ts`, `use-danger-zone.controller.test.ts`, `use-dashboard-shell.controller.test.ts`, `use-global-shortcuts.controller.test.ts`, `use-inbox-data.controller.test.ts`, `use-inbox-filters.controller.test.ts`, `use-inbox-keyboard.controller.test.ts`, `use-inbox.controller.test.ts`, `use-profile-link.controller.test.ts`, `use-profile.controller.test.ts`, `use-settings.controller.test.ts`, `use-smart-reply.controller.test.ts`
 
 #### `pages/home`
 
@@ -696,7 +781,7 @@ Generated inventory of every component module, its public API, stories, interact
 #### `pages/layouts/site-layout`
 
 - **Public API (index.ts):** `SiteLayout`, `SiteLayoutProps (type)`
-- **Stories** `site-layout.stories.tsx` → _Pages/Layouts/SiteLayout_: `SignedIn`, `SignedOut`
+- **Stories** `site-layout.stories.tsx` → _Pages/Layouts/SiteLayout_: `SignedIn`, `AuthRouteOnPhone`, `SignedOut`
 - **Mocks:** —
 
 #### `pages/not-found`
@@ -721,7 +806,7 @@ Single source of mock domain data for stories, MSW handlers and tests.
 
 | File | Builders & datasets | Types |
 | :--- | :--- | :--- |
-| [`messages.fixtures.ts`](../src/mock/fixtures/messages.fixtures.ts) | `fixtureDate`, `sweetMessage`, `curiousMessage`, `answeredSpicyMessage`, `privateReplyAdviceMessage`, `quarantinedMessage`, `noSenderHashMessage`, `longContentMessage`, `messageScenarios`, `mixedMessageCounts`, `buildMessage` | `MessageFixture` |
+| [`messages.fixtures.ts`](../src/mock/fixtures/messages.fixtures.ts) | `fixtureDate`, `sweetMessage`, `curiousMessage`, `answeredSpicyMessage`, `privateReplyAdviceMessage`, `quarantinedMessage`, `noSenderHashMessage`, `longContentMessage`, `smartReplyDrafts`, `messageScenarios`, `mixedMessageCounts`, `buildMessage` | `MessageFixture` |
 | [`public-profile.fixtures.ts`](../src/mock/fixtures/public-profile.fixtures.ts) | `FIXTURE_USERNAME`, `FIXTURE_AMA_PROMPT`, `publicAnswerScenarios`, `suggestionScenarios`, `joinSuggestions`, `buildPublicAnswer` | `PublicAnswerFixture` |
 | [`session.fixtures.ts`](../src/mock/fixtures/session.fixtures.ts) | `sessionScenarios`, `buildSession` | — |
 | [`user.fixtures.ts`](../src/mock/fixtures/user.fixtures.ts) | `userSettingsScenarios`, `buildNotificationSettings`, `buildBlockedHashes`, `buildBlockedSenders`, `buildUserProfile`, `buildUserPreferences` | `NotificationSettingsFixture` |
@@ -732,13 +817,14 @@ Compose with `withScenario(...overrides)` (overrides first, then `defaultHandler
 
 | Group | Scenarios |
 | :--- | :--- |
-| `scenarios.ai` | `ai.default`, `ai.error`, `ai.loading`, `ai.none` |
+| `scenarios.ai` | `ai.default`, `ai.error`, `ai.loading`, `ai.none`, `ai.smartReplyError` |
 | `scenarios.answers` | `answers.error`, `answers.loading`, `answers.none`, `answers.paused`, `answers.some` |
 | `scenarios.credentials` | `credentials.invalid` |
 | `scenarios.inbox` | `inbox.allQuarantined`, `inbox.empty`, `inbox.error`, `inbox.loading`, `inbox.longContent`, `inbox.mixed` |
+| `scenarios.resendCode` | `resendCode.cooldown`, `resendCode.success` |
 | `scenarios.send` | `send.notAccepting`, `send.success` |
 | `scenarios.session` | `session.authenticated`, `session.loading`, `session.unauthenticated` |
 | `scenarios.settings` | `settings.closedWithBlocks`, `settings.defaults`, `settings.usernameTaken` |
 | `scenarios.signUp` | `signUp.error`, `signUp.success` |
 | `scenarios.username` | `username.available`, `username.taken` |
-| `scenarios.verify` | `verify.invalid`, `verify.success` |
+| `scenarios.verify` | `verify.expired`, `verify.invalid`, `verify.locked`, `verify.success` |

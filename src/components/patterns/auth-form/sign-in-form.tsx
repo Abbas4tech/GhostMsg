@@ -67,12 +67,12 @@ export function SignInForm({
   return (
     <Form {...form}>
       <form
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 max-sm:flex-1"
         data-slot="sign-in-form"
         noValidate
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <AuthOAuthHeader onGoogleSignIn={onGoogleSignIn} />
+        <AuthOAuthHeader dividerLabel="or" onGoogleSignIn={onGoogleSignIn} />
 
         <FormField
           control={form.control}
@@ -88,7 +88,7 @@ export function SignInForm({
 
         <AuthFormFooter
           alternateHref="/sign-up"
-          alternateLabel="Get your link"
+          alternateLabel="Make your link"
           alternatePrompt="New here?"
           isSubmitDisabled={!form.formState.isValid || isSubmitting}
           isSubmitting={isSubmitting}

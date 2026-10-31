@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { ApiError } from "@/data/api-client";
 import { queryKeys } from "@/data/query-keys";
 import { usePushSubscriptionMutation } from "@/data/user/use-push-subscription-mutation";
@@ -108,11 +108,11 @@ export function usePushNotification(): PushNotificationState {
   const { mutateAsync: registerAsync } = pushMutation;
   const subscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported) {
-      toast.error("Web push notifications are not supported in this browser");
+      notify.error("Web push notifications are not supported in this browser");
       return false;
     }
     if (!isConfigured) {
-      toast.error(PUSH_NOT_CONFIGURED_MESSAGE);
+      notify.error(PUSH_NOT_CONFIGURED_MESSAGE);
       return false;
     }
 
@@ -121,7 +121,7 @@ export function usePushNotification(): PushNotificationState {
       const perm = await Notification.requestPermission();
       setPermission(perm);
       if (perm !== "granted") {
-        toast.error("Notification permission was denied by your browser");
+        notify.error("Notification permission was denied by your browser");
         return false;
       }
 
@@ -143,7 +143,7 @@ export function usePushNotification(): PushNotificationState {
       // API failures are already toasted by the mutation.
       if (!(err instanceof ApiError)) {
         console.error("Enabling web push failed:", err);
-        toast.error(describePushError(err));
+        notify.error(describePushError(err));
       }
       return false;
     } finally {
@@ -176,7 +176,7 @@ export function usePushNotification(): PushNotificationState {
       return true;
     } catch (err: unknown) {
       if (!(err instanceof ApiError)) {
-        toast.error(
+        notify.error(
           err instanceof Error
             ? err.message
             : "Failed to disable push notifications"

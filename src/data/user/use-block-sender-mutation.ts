@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "@/data/query-keys";
 
@@ -14,10 +14,10 @@ export const useBlockSenderMutation = () => {
         })
       ),
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to block sender");
+      notify.error(err.message || "Failed to block sender");
     },
     onSuccess: () => {
-      toast.success(
+      notify.success(
         "Sender blocked. You will no longer receive their messages."
       );
       queryClient.invalidateQueries({ queryKey: queryKeys.messages.all });
@@ -39,10 +39,10 @@ export const useUnblockSenderMutation = () => {
         })
       ),
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to unblock sender");
+      notify.error(err.message || "Failed to unblock sender");
     },
     onSuccess: (data) => {
-      toast.success(data.message || "Sender unblocked successfully.");
+      notify.success(data.message || "Sender unblocked successfully.");
       queryClient.invalidateQueries({ queryKey: queryKeys.messages.all });
       queryClient.invalidateQueries({
         queryKey: queryKeys.user.blockedSenders(),

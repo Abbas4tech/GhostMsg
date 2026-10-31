@@ -253,18 +253,19 @@ sequenceDiagram
     Ctl->>API: messagesQueries.inbox() + counts(), mutations, useLiveMessages()
     Tab->>Block: messages, filters, selection, cardActions…
     Block->>Card: message + stable callbacks (memo-safe)
-    Card-->>Tab: onOpenDelete(message)
-    Tab->>Tab: DeleteMessageModal open (single hoisted instance)
-    Tab->>Ctl: handleDeleteConfirm → mutation → closeModal
+    Card-->>Tab: onOpenBlock(message)
+    Tab->>Tab: BlockSenderModal open (single hoisted instance)
+    Tab->>Ctl: handleBlockConfirm → mutation → closeModal
 ```
 
 ### 5.2 Hoisted overlays
 
 - **Mount each modal once**, as a sibling of the list in the page component, never inside `map()`.
-- The controller holds one modal state `{ kind: "block" | "delete" | "reply" | "reveal" | "story" | null, messageId, snapshot }` (`InboxModalState` in `inbox.utils.ts`).
+- The controller holds one modal state `{ kind: "block" | "delete" | "reply" | "reveal" | "story" | null, messageId, snapshot }` (`InboxModalState` in `inbox.utils.ts`). Single delete confirms in `DeleteMessageModal`; bulk delete's `DeleteSelectedModal` is driven by `bulkDelete` from the controller. Neither has an Undo ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)).
 - The dialog's message is resolved by id from the live cache (`resolveModalMessage`), so it never shows a stale copy; `snapshot` is used only once the message is gone (e.g. deleted while the dialog closes).
 - `closeModal` clears only `kind`. The id is kept so the dialog animates out with its content.
-- **Openers are stable `useCallback`s** (`openDeleteModal`, …) so memoized cards don't re-render.
+- **Openers are stable `useCallback`s** (`openBlockModal`, `openDeleteModal`, `handleToggleArchive`, `handleSeen`, …) so memoized cards don't re-render.
+- **Phone-only chrome goes through portals, not hidden duplicates.** A page or block renders `MobileHeaderActions` / `MobileHeaderLeading` (`patterns/mobile-header-actions`) to put controls in the shell's phone top bar; blocks branch on `useIsMobile()` so only one tree (and one set of `useId` ids) is mounted.
 
 ### 5.3 Forms owned by pages
 
@@ -354,7 +355,7 @@ Other overrides: a11y relaxations apply only to `elements/effects/**`, `elements
 | Thing | Convention |
 | :--- | :--- |
 | Folder | `kebab-case`, one component module per folder |
-| Component | `PascalCase` named export, plus `export default` for the main component |
+| Component | `PascalCase` named export only (no default exports in `src/components`; Next.js route files in `src/app` and Storybook `meta` are the only `export default`s) |
 | Props | `export interface <Name>Props`, members sorted alphabetically (Biome assist) |
 | Variants | `<name>Variants` via `cva`, exported |
 | Controller | `use-<concern>.controller.ts` → `use<Concern>Controller` |

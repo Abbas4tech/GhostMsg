@@ -3,7 +3,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 
 export interface OptimisticResourceMutationOptions<TData, TVariables, TResult> {
   /** Extra caches to refresh once this resource has settled (e.g. public pages). */
@@ -56,7 +56,7 @@ export function useOptimisticResourceMutation<TData, TVariables, TResult>({
       if (isLastPending() && context?.previous !== undefined) {
         queryClient.setQueryData(queryKey, context.previous);
       }
-      toast.error(error.message || errorMessage);
+      notify.error(error.message || errorMessage);
     },
     onMutate: async (variables: TVariables) => {
       await queryClient.cancelQueries({ queryKey });
@@ -79,7 +79,7 @@ export function useOptimisticResourceMutation<TData, TVariables, TResult>({
     onSuccess: (result) => {
       const message = successMessage?.(result);
       if (message) {
-        toast.success(message);
+        notify.success(message);
       }
     },
     scope: { id: scopeId },

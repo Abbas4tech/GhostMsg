@@ -8,12 +8,18 @@ export interface CtaBannerProps {
   actionHref: string;
   actionLabel: string;
   className?: string;
+  /**
+   * Second sentence. Desktop: part of the heading. Phones (design
+   * MobLanding): its own line under a shorter heading.
+   */
+  subtitle?: React.ReactNode;
   title: React.ReactNode;
 }
 
 /** Closing call to action on the brand gradient. */
 export function CtaBanner({
   title,
+  subtitle,
   actionHref,
   actionLabel,
   className,
@@ -21,18 +27,26 @@ export function CtaBanner({
   return (
     <section
       className={cn(
-        "mx-auto w-full max-w-[1180px] px-4 pb-10 sm:px-6",
+        "mx-auto w-full max-w-[1180px] px-gutter pt-10 sm:pt-0 sm:pb-10",
         className
       )}
       data-slot="cta-banner"
     >
-      <div className="flex flex-wrap items-center justify-between gap-6 rounded-[32px] bg-brand-gradient px-6 py-12 text-brand-foreground sm:px-8">
-        <h2 className="max-w-[620px] text-balance font-bold text-[clamp(30px,4vw,46px)] leading-[1.05] tracking-tight">
-          {title}
-        </h2>
+      <div className="flex flex-col gap-4.5 rounded-[28px] bg-brand-gradient px-5 py-7 text-brand-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:rounded-[32px] sm:px-8 sm:py-12">
+        <div className="flex max-w-[620px] flex-col gap-4.5">
+          <h2 className="text-balance text-h1 sm:text-h2 md:text-h1">
+            {title}
+            {subtitle ? (
+              <span className="max-sm:hidden"> {subtitle}</span>
+            ) : null}
+          </h2>
+          {subtitle ? (
+            <p className="text-body opacity-95 sm:hidden">{subtitle}</p>
+          ) : null}
+        </div>
         <Button
           asChild
-          className="rounded-full bg-card text-primary hover:bg-card/90"
+          className="rounded-full bg-card text-primary hover:bg-card/90 max-sm:h-13 max-sm:w-full"
           size="xl"
         >
           <Link href={actionHref}>

@@ -17,11 +17,11 @@ src/
 │   └── u/[username]/page.tsx         # → pages/public-profile
 └── components/
     ├── elements/                     # Tier 1: shadcn (Radix) + Animate UI primitives with GhostMsg CVA variants
-    │   ├── button/  icon-button/  liquid-button/  copy-button/  theme-toggler/  palette-picker/
-    │   ├── sidebar/  sheet/  dialog/  alert-dialog/  command/  dropdown-menu/  tooltip/  tabs/
+    │   ├── button/  button-group/  icon-button/  liquid-button/  copy-button/  theme-toggler/  palette-picker/
+    │   ├── sidebar/  sheet/  drawer/  dialog/  alert-dialog/  command/  dropdown-menu/  popover/  hover-card/  tooltip/  tabs/  accordion/
     │   ├── field/  form/  input/  input-group/  input-otp/  textarea/  select/  checkbox/  radio-group/  switch/  label/
-    │   ├── toggle/  toggle-group/  badge/  avatar/  kbd/  item/  table/  empty/  alert/  breadcrumb/
-    │   ├── card/  separator/  scroll-area/  skeleton/  spinner/  sonner/  text/  carousel/
+    │   ├── toggle/  toggle-group/  badge/  avatar/  kbd/  item/  table/  empty/  alert/  breadcrumb/  progress/
+    │   ├── card/  separator/  scroll-area/  skeleton/  spinner/  sonner/ (Toaster + notify)  text/  carousel/
     │   └── effects/                  # slot, auto-height, highlight, particles, gravity-stars
     ├── patterns/                     # Tier 2: pure compositions (no data access)
     │   ├── auth-form/  username-field/  verify-code-form/
@@ -29,23 +29,54 @@ src/
     │   ├── ama-banner/  send-message-form/  suggested-messages/  public-qa-feed/
     │   ├── brand-mark/  claim-link-form/  how-it-works/  story-card-preview/
     │   ├── page-heading/  section-nav/  unsaved-changes-bar/  visitor-preview/  identity-card/
-    │   └── share-link-card/  ama-prompt-editor/
-    │       (modals/: block-sender, delete-message, reveal-message, smart-reply, story-card,
+    │   ├── share-link-card/  ama-prompt-editor/  shortcut-sheet/  undo-toast/
+    │   ├── responsive-dialog/  mobile-header-actions/  message-actions-menu/
+    │       (modals/: block-sender, delete-message, delete-selected, reveal-message, smart-reply, story-card,
     │        change-username, delete-all-messages, delete-account, discard-changes)
     ├── blocks/                       # Tier 3: pure page sections
     │   ├── site-header/  hero/  trust-section/  qa-showcase/  cta-banner/  site-footer/
-    │   ├── auth-panel/  verify-panel/  not-found-panel/
+    │   ├── auth-panel/  verify-panel/  verify-success/  not-found-panel/
     │   ├── dashboard-shell/  inbox/  profile-panel/  settings-panel/
     │   └── public-profile/
     └── pages/                        # Tier 4: route components + ALL business logic
         ├── layouts/site-layout/      # session → SiteHeader
         ├── home/
-        ├── auth/ (shared/use-google-sign-in, sign-in/use-sign-in, sign-up/use-sign-up + use-username-availability, verify/use-verify)
+        ├── auth/ (shared/use-google-sign-in, sign-in/use-sign-in, sign-up/use-sign-up + use-username-availability,
+        │          verify/use-verify + use-resend-cooldown + verify.utils)
         ├── dashboard/ (dashboard-layout, inbox-page, profile-page, settings-page; controllers: dashboard-shell,
-        │              inbox (= inbox-filters + inbox-data), inbox-keyboard, smart-reply, profile, profile-link,
-        │              change-username, settings, appearance, danger-zone)
+        │              global-shortcuts, inbox (= inbox-filters + inbox-data), inbox-keyboard, smart-reply, profile,
+        │              profile-link, change-username, settings, appearance, danger-zone)
         ├── public-profile/ (public-profile-page, use-send-message / use-public-answers controllers)
         └── not-found/
+```
+
+### One example per tier
+
+```tsx
+// Tier 1, elements/: stock shadcn + opt-in variants. No GhostMsg data.
+<Button size="xl" variant="brand">Get my link</Button>
+
+// Tier 2, patterns/: a pure composition. Props in, callbacks out.
+export function VerifyCodeForm({ form, codeError, resendSecondsLeft, onResend, onSubmit }: VerifyCodeFormProps) {
+  /* InputOTP + Alert + the one main action; no fetch, no router */
+}
+
+// Tier 3, blocks/: a page section built from patterns. Still pure.
+export function VerifyPanel({ username, children }: VerifyPanelProps) {
+  return <AuthPanel backHref="/sign-up" step={{ current: 2, total: 2 }} title="Check your email" …>{children}</AuthPanel>;
+}
+
+// Tier 4, pages/: the only tier with logic. Controllers own queries, mutations, router, session.
+export function VerifyPage({ username }: VerifyPageProps) {
+  const verify = useVerifyController(username); // mutations, cooldown, error mapping
+  const link = useProfileLinkController(username);
+  if (verify.isVerified) return <VerifySuccess onCopy={link.handleCopy} profileUrl={link.profileUrl} />;
+  return (
+    <VerifyPanel username={username}>
+      <VerifyCodeForm form={verify.form} onResend={verify.handleResend} onSubmit={verify.handleSubmit} … />
+    </VerifyPanel>
+  );
+}
 ```
 
 ### Strict Unidirectional Dependency Rule (DAG), lint-enforced
@@ -192,7 +223,7 @@ Tokens beyond stock shadcn (all wired into `@theme inline`):
 ## 4. State Management, Form Lifecycle & Render Boundaries
 
 - **Component Segregation**: Pages are split into focused pure patterns (`SendMessageForm`, `SuggestedMessages`, `PublicQaFeed`, `MessageCard`, `StoryCardModal`). The dashboard is three routes (`/dashboard`, `/dashboard/profile`, `/dashboard/settings`) inside one `DashboardLayout`, each page with its own controller, so render and query boundaries stay isolated.
-- **Hoisted Modal Overlays**: Each modal (`BlockSenderModal`, `DeleteMessageModal`, `RevealMessageModal`, `SmartReplyModal`, `StoryCardModal`) is mounted **once**, as a sibling of the `Inbox` block, inside the page-level `inbox-page.tsx`. The same holds for `ChangeUsernameModal` and `DiscardChangesModal` (in `profile-page.tsx`) and `DeleteAllMessagesModal` / `DeleteAccountModal` (in `settings-page.tsx`). `useInboxController` holds one modal state `{ kind, messageId, snapshot }`; the dialog's message is resolved from the live cache by id (`resolveModalMessage`), falling back to the snapshot, and `closeModal` clears only `kind`, so dialogs animate out with their content and never show a stale copy ([ADR 0014](adr/0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md), [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
+- **Hoisted Modal Overlays**: Each modal (`BlockSenderModal`, `DeleteSelectedModal`, `RevealMessageModal`, `SmartReplyModal`, `StoryCardModal`) is mounted **once**, as a sibling of the `Inbox` block, inside the page-level `inbox-page.tsx`. The same holds for `ChangeUsernameModal` and `DiscardChangesModal` (in `profile-page.tsx`) and `DeleteAllMessagesModal` / `DeleteAccountModal` (in `settings-page.tsx`). `useInboxController` holds one modal state `{ kind, messageId, snapshot }`; the dialog's message is resolved from the live cache by id (`resolveModalMessage`), falling back to the snapshot, and `closeModal` clears only `kind`, so dialogs animate out with their content and never show a stale copy ([ADR 0014](adr/0014-architectural-deepening-pure-patterns-hoisted-overlays-and-push-adapter.md), [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md)).
 - **Ports & Adapters for Browser Infrastructure**: External browser APIs (`PushManager`, ServiceWorker, Web Push) are encapsulated in dedicated adapters (`src/data/user/use-push-notification.ts`) rather than leaking into React component trees.
 - **Form Validation & Shadcn Compound Primitives**: Page controllers create the `react-hook-form` instance with `zodResolver(schema)` and `mode: "onChange"`. Form patterns receive it as `form: UseFormReturn<Values>`, render fields using shadcn `<Form>` compound primitives (`Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage` from `src/components/elements/form/form.tsx`), suppress native browser validation popups via `<form noValidate ...>`, and call `form.handleSubmit(onSubmit)`. Pending state comes from the controller (`isSubmitting`) ([ADR 0033](adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md)).
 - **Server-fed drafts**: the Profile page's form is `useForm({ values: serverValues, resetOptions: { keepDirtyValues: true } })`: it follows the server profile, keeps fields being edited when a refetch lands, and `isDirty` drives the `UnsavedChangesBar` and the leave guard (`useLeaveGuard` + `DiscardChangesModal`). Saving sends only the dirty fields in one `PATCH` (`buildProfilePatch`) ([ADR 0031](adr/0031-state-management-consistency-and-structure.md) D11).

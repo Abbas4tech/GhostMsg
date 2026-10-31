@@ -17,9 +17,23 @@ type Story = StoryObj<typeof meta>;
 
 export const ThreePromises: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getAllByRole("heading", { level: 2 })).toHaveLength(3);
     await expect(
-      canvas.getByRole("heading", { name: "Senders stay anonymous" })
+      canvas.getByRole("heading", { level: 2, name: "Safe by default" })
+    ).toBeInTheDocument();
+    await expect(canvas.getAllByRole("heading", { level: 3 })).toHaveLength(3);
+    await expect(
+      canvas.getByRole("heading", { level: 3, name: "Senders stay anonymous" })
     ).toBeVisible();
+  },
+};
+
+/** Design MobLanding: a visible "Safe by default" over three icon rows. */
+export const Mobile: Story = {
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("heading", { level: 2, name: "Safe by default" })
+    ).toBeVisible();
+    await expect(canvas.getAllByRole("listitem")).toHaveLength(3);
   },
 };

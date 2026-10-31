@@ -29,6 +29,8 @@ export const MESSAGE_MAX_LENGTH = 300;
 const MESSAGE_WARN_AT = 260;
 
 export interface SendMessageFormProps {
+  /** Layout/surface for the form, e.g. the public page's card. */
+  className?: string;
   /** Form instance owned by the parent controller (validation + value state). */
   form: UseFormReturn<SendMessageValues>;
   isSubmitting?: boolean;
@@ -40,6 +42,7 @@ export interface SendMessageFormProps {
 
 /** Anonymous Message box with reassurance, character count and Send. */
 export function SendMessageForm({
+  className,
   form,
   isSubmitting = false,
   onSubmit,
@@ -55,11 +58,11 @@ export function SendMessageForm({
       field: ControllerRenderProps<SendMessageValues, "content">;
     }) => (
       <FormItem className="gap-2.5">
-        <FormLabel>Your Anonymous Message</FormLabel>
+        <FormLabel className="text-title">Your Anonymous Message</FormLabel>
         <FormControl>
           <Textarea
             {...field}
-            className="min-h-[124px] resize-none rounded-md bg-card text-base"
+            className="min-h-[124px] resize-none rounded-md bg-card text-body"
             maxLength={MESSAGE_MAX_LENGTH}
             placeholder="Write something honest…"
           />
@@ -89,7 +92,7 @@ export function SendMessageForm({
     <Form {...form}>
       <form
         aria-label="Send an Anonymous Message"
-        className="flex w-full flex-col gap-3"
+        className={cn("flex w-full flex-col gap-3", className)}
         data-slot="send-message-form"
         noValidate
         onSubmit={form.handleSubmit(onSubmit)}

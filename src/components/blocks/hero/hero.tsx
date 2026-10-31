@@ -14,7 +14,10 @@ export interface HeroProps
   title: React.ReactNode;
 }
 
-/** Landing hero: eyebrow, headline, lead, call to action and a showcase. */
+/**
+ * Landing hero: eyebrow, headline, lead, call to action and a showcase.
+ * Phones (design MobLanding): one column, 16px rhythm, showcase below.
+ */
 export function Hero({
   eyebrow,
   title,
@@ -27,7 +30,7 @@ export function Hero({
   return (
     <section
       className={cn(
-        "relative mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center gap-12 px-4 pt-6 pb-14 sm:px-6 md:pt-10",
+        "relative mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center gap-9 px-gutter pt-5 pb-0 md:gap-12 md:pt-10 md:pb-14",
         className
       )}
       data-slot="hero"
@@ -35,19 +38,17 @@ export function Hero({
     >
       <Sparkles
         aria-hidden="true"
-        className="absolute top-2 left-[46%] size-5 text-star motion-safe:animate-float"
+        className="absolute top-2 left-[46%] size-5 text-star motion-safe:animate-float max-sm:hidden"
       />
       <Sparkles
         aria-hidden="true"
-        className="absolute top-56 right-2 size-4 text-primary motion-safe:animate-float motion-safe:[animation-delay:-2s]"
+        className="absolute top-56 right-2 size-4 text-primary motion-safe:animate-float max-sm:hidden motion-safe:[animation-delay:-2s]"
       />
 
-      <div className="flex flex-col items-start gap-6">
+      <div className="flex flex-col items-start gap-4 md:gap-6">
         {eyebrow}
-        <h1 className="text-balance font-bold text-[clamp(44px,6vw,76px)] leading-[0.98] tracking-tight">
-          {title}
-        </h1>
-        <p className="max-w-[520px] text-pretty text-muted-foreground text-xl">
+        <h1 className="text-balance text-display">{title}</h1>
+        <p className="max-w-[520px] text-balance text-body-lg text-muted-foreground">
           {description}
         </p>
         {children}

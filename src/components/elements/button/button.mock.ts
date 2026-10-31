@@ -12,6 +12,7 @@ export const BUTTON_VARIANTS = [
   "glass",
   "link",
   "brand",
+  "dashed",
 ] as const;
 
 export const BUTTON_SIZES = ["sm", "default", "lg", "xl"] as const;

@@ -52,7 +52,7 @@ export const SignIn: Story = {
       canvas.getByRole("button", { name: "Sign in" })
     ).toHaveAttribute("type", "submit");
     await expect(
-      canvas.getByRole("link", { name: "Get your link" })
+      canvas.getByRole("link", { name: "Make your link" })
     ).toHaveAttribute("href", "/sign-up");
   },
 };
@@ -73,6 +73,19 @@ export const Submitting: Story = {
 };
 
 export const Disabled: Story = { args: { isSubmitDisabled: true } };
+
+/** Sign-in uses the shorter "or" divider (design MobSignIn). */
+export const GoogleHeaderSignIn: Story = {
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText("or")).toBeVisible();
+  },
+  render: () => {
+    const onGoogleSignIn = fn();
+    return (
+      <AuthOAuthHeader dividerLabel="or" onGoogleSignIn={onGoogleSignIn} />
+    );
+  },
+};
 
 export const GoogleHeader: Story = {
   play: async ({ canvas, userEvent }) => {

@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/elements/alert-dialog";
+import { quarantineRevealReason } from "@/lib/messages/quarantine-reason";
 import type { MessageDto } from "@/types/api";
 
 export interface RevealMessageModalProps {
@@ -53,12 +54,12 @@ export function RevealMessageModal({
     <AlertDialog onOpenChange={handleOpenChange} open={open}>
       <AlertDialogContent className="rounded-2xl shadow-lift sm:max-w-md">
         <AlertDialogHeader className="text-left sm:text-left">
-          <AlertDialogTitle className="font-bold text-xl">
+          <AlertDialogTitle className="text-h3">
             Reveal this message?
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-[15px]">
-            It was flagged for hurtful language. You don&apos;t have to read it.
-            Keeping it hidden is always fine.
+          <AlertDialogDescription className="text-sm">
+            {quarantineRevealReason(message?.quarantineReason)} You don&apos;t
+            have to read it. Keeping it hidden is always fine.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
