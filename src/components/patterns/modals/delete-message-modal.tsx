@@ -58,10 +58,10 @@ export function DeleteMessageModal({
           <span className="grid size-11 place-items-center rounded-[14px] bg-destructive/15 text-destructive">
             <Trash2 aria-hidden="true" className="size-5" />
           </span>
-          <AlertDialogTitle className="font-bold text-[22px]">
+          <AlertDialogTitle className="text-h3">
             Delete this message?
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-[15px]">
+          <AlertDialogDescription className="text-sm">
             {hasPublicAnswer
               ? "It has a public answer on your profile, so that answer goes too. This can't be undone."
               : "It will be removed from your inbox for good. This can't be undone."}

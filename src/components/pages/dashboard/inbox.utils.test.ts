@@ -17,19 +17,28 @@ import {
 describe("isFilterStatus", () => {
   it("accepts known filters and rejects anything else", () => {
     expect(isFilterStatus("starred")).toBe(true);
-    expect(isFilterStatus("archived")).toBe(false);
+    expect(isFilterStatus("archived")).toBe(true);
+    expect(isFilterStatus("trash")).toBe(false);
     expect(isFilterStatus(undefined)).toBe(false);
   });
 });
 
 describe("resolveInboxShortcut", () => {
-  it("maps j/k/x/s/r and slash", () => {
+  it("maps the design keyboard map", () => {
     expect(resolveInboxShortcut("j")).toBe("next");
+    expect(resolveInboxShortcut("ArrowDown")).toBe("next");
     expect(resolveInboxShortcut("k")).toBe("prev");
+    expect(resolveInboxShortcut("ArrowUp")).toBe("prev");
+    expect(resolveInboxShortcut("J")).toBe("extend-next");
+    expect(resolveInboxShortcut("K")).toBe("extend-prev");
     expect(resolveInboxShortcut("x")).toBe("select");
     expect(resolveInboxShortcut("s")).toBe("star");
     expect(resolveInboxShortcut("r")).toBe("reply");
+    expect(resolveInboxShortcut("e")).toBe("archive");
+    expect(resolveInboxShortcut("#")).toBe("delete");
+    expect(resolveInboxShortcut("B")).toBe("block");
     expect(resolveInboxShortcut("/")).toBe("search");
+    expect(resolveInboxShortcut("Escape")).toBe("clear-selection");
     expect(resolveInboxShortcut("q")).toBeNull();
   });
 });

@@ -23,6 +23,8 @@ export interface PublicProfileStoryArgs {
   onSelectSuggestion: (suggestion: string) => void;
   onSendAnother: () => void;
   onSubmit: (values: { content: string }) => void;
+  /** The message just sent ("You sent" on the Sent screen). */
+  sentContent: string | null;
   suggestions: string[];
   username: string;
 }
@@ -40,9 +42,16 @@ export const defaultPublicProfileArgs: PublicProfileStoryArgs = {
   onSelectSuggestion: noop,
   onSendAnother: noop,
   onSubmit: noop,
+  sentContent: null,
   suggestions: suggestionScenarios.default,
   username: FIXTURE_USERNAME,
 };
+
+/** Design MobPublicSent. */
+export const sentPublicProfileArgs = {
+  isSent: true,
+  sentContent: "Your newsletter is the only one I read start to finish.",
+} satisfies Partial<PublicProfileStoryArgs>;
 
 export const newProfilePublicProfileArgs = {
   amaPrompt: null,

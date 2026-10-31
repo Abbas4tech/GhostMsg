@@ -45,3 +45,18 @@ export const Submit: Story = {
     await expect(args.onSubmit).toHaveBeenCalledOnce();
   },
 };
+
+/** No showcase profile configured: the "See a live profile" link is hidden. */
+export const WithoutLiveProfile: Story = {
+  args: { liveProfileHref: undefined },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.queryByRole("link", { name: "See a live profile" })
+    ).not.toBeInTheDocument();
+  },
+};
+
+/** Design MobLanding: the field over a full-width "Get my link". */
+export const Mobile: Story = {
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+};

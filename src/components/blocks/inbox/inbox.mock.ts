@@ -31,6 +31,8 @@ export const defaultInboxArgs: InboxProps = {
   isLoading: false,
   isRefreshing: false,
   isSenderBlocked: (hash?: string) => hash === "hash-sender-2",
+  /** Fetched just now: "2 unread · last checked a moment ago". */
+  lastCheckedAt: new Date(fixtureDate()).getTime() + 3 * 60 * 60 * 1000,
   messages: visible(messageScenarios.mixed),
   /** Three hours after the newest fixture, so ages render as 3h, 6h, 1d… */
   now: new Date(new Date(fixtureDate()).getTime() + 3 * 60 * 60 * 1000),
@@ -53,10 +55,30 @@ export const emptyInboxArgs = {
   totalMessages: 0,
 } satisfies Partial<InboxProps>;
 
+/**
+ * An empty result while the inbox has messages. Pair it with one of the
+ * filter overrides below (spread onto the story's spied `filters`):
+ * design Feedback board, "Empty · four situations".
+ */
 export const noMatchesInboxArgs = {
   messages: [],
   totalMessages: messageScenarios.mixed.length,
 } satisfies Partial<InboxProps>;
+
+/** "Nothing unread" with Clear filter. */
+export const unreadFilterOverride = {
+  activeStatus: "unread",
+} satisfies Partial<InboxProps["filters"]>;
+
+/** `No matches for "jacket"`. */
+export const searchFilterOverride = {
+  searchQuery: "jacket",
+} satisfies Partial<InboxProps["filters"]>;
+
+/** "Nothing held back". */
+export const quarantinedFilterOverride = {
+  activeStatus: "quarantined",
+} satisfies Partial<InboxProps["filters"]>;
 
 export const quarantinedInboxArgs = {
   messages: messageScenarios.allQuarantined,

@@ -9,6 +9,12 @@ import {
 const meta = {
   args: { ...defaultShareLinkCardArgs, onCopy: fn(), onShare: fn() },
   argTypes: {
+    layout: {
+      control: "radio",
+      description:
+        "default: pill field (desktop); compact: phones / verified screen",
+      options: ["default", "compact"],
+    },
     onCopy: { description: "Copy clicked (page copies + toasts)" },
     onShare: { description: "Share sheet clicked" },
     profileUrl: {
@@ -56,4 +62,17 @@ export const LongUrl: Story = { args: longUrlShareLinkCardArgs };
 
 export const Mobile: Story = {
   globals: { viewport: { isRotated: false, value: "mobile1" } },
+};
+
+/** Design MobProfile / MobVerifySuccess: overline, the link as a heading, Copy + Share…. */
+export const Compact: Story = {
+  args: { layout: "compact" },
+  play: async ({ args, canvas, userEvent }) => {
+    await expect(
+      canvas.getByRole("region", { name: "Your Public Profile Link" })
+    ).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Copy" }));
+    await expect(args.onCopy).toHaveBeenCalledOnce();
+    await expect(canvas.getByRole("button", { name: "Share…" })).toBeVisible();
+  },
 };

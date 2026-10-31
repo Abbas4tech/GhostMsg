@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import type { BulkAction } from "@/components/patterns/bulk-action-toolbar";
 import type { MessageFilterStatus } from "@/components/patterns/filter-bar";
+import { useArchiveMessageMutation } from "@/data/messages/use-archive-message-mutation";
 import { useBulkActionMutation } from "@/data/messages/use-bulk-action-mutation";
 import { useDeleteMessageMutation } from "@/data/messages/use-delete-message-mutation";
 import { useUpdateMessageMutation } from "@/data/messages/use-update-message-mutation";
@@ -135,6 +136,10 @@ export function useInboxController({
   const handleDeselectAll = useCallback(() => {
     setSelection({ ids: NO_IDS, scope });
   }, [scope]);
+  /** Phones' selection bar: select every loaded message in this view. */
+  const handleSelectAll = useCallback(() => {
+    setSelection({ ids: [...loadedIds], scope });
+  }, [loadedIds, scope]);
 
   // ── Dialogs ─────────────────────────────────────────────────────────────
   const openModal = useCallback((kind: InboxModalKind, message: MessageDto) => {
@@ -226,8 +231,9 @@ export function useInboxController({
     [blockAsync, unblockAsync, deleteMessageAsync, activeMessage, closeModal]
   );
 
-  // Optimistic: close the dialog and drop the card at once. The mutation
-  // removes it from the cache and rolls back with a toast if the server fails.
+  // Single delete confirms first (DeleteMessageModal), then deletes at once.
+  // Optimistic: close the dialog and drop the card; the mutation removes it
+  // from the cache and rolls back with a toast if the server fails.
   const handleDeleteConfirm = useCallback(
     async (message: MessageDto) => {
       closeModal();
@@ -240,9 +246,71 @@ export function useInboxController({
     [deleteMessageAsync, closeModal]
   );
 
+  // Archive / move back: optimistic, plain toast (no Undo, ADR 0034).
+  const { mutate: archiveMessage } = useArchiveMessageMutation();
+  const handleToggleArchive = useCallback(
+    (message: MessageDto) => {
+      archiveMessage({
+        isArchived: !message.isArchived,
+        messageId: String(message._id),
+      });
+    },
+    [archiveMessage]
+  );
+
+  /** Phones' "More actions": Mark as unread / Mark as read. */
+  const handleToggleRead = useCallback(
+    (message: MessageDto) => {
+      updateMessage({
+        isRead: !message.isRead,
+        messageId: String(message._id),
+      });
+    },
+    [updateMessage]
+  );
+
+  // Bulk delete asks first (DeleteSelectedModal), then deletes at once.
+  const [bulkDeleteIds, setBulkDeleteIds] = useState<readonly string[] | null>(
+    null
+  );
+  const bulkDeletePublicCount = useMemo(
+    () =>
+      bulkDeleteIds
+        ? messages.filter(
+            (message) =>
+              bulkDeleteIds.includes(String(message._id)) &&
+              message.reply?.isPublished
+          ).length
+        : 0,
+    [bulkDeleteIds, messages]
+  );
+  const handleBulkDeleteOpenChange = useCallback((isOpen: boolean) => {
+    if (!isOpen) {
+      setBulkDeleteIds(null);
+    }
+  }, []);
+  /** Quarantined view's "Delete all quarantined": every loaded message here. */
+  const handleDeleteAllShown = useCallback(() => {
+    setBulkDeleteIds([...loadedIds]);
+  }, [loadedIds]);
+  const handleConfirmBulkDelete = useCallback(async () => {
+    const ids = [...(bulkDeleteIds ?? NO_IDS)];
+    setBulkDeleteIds(null);
+    setSelection({ ids: NO_IDS, scope });
+    try {
+      await bulkAsync({ action: "delete", ids });
+    } catch {
+      // Rolled back + toasted by the mutation
+    }
+  }, [bulkAsync, bulkDeleteIds, scope]);
+
   const handleBulkAction = useCallback(
     async (action: BulkAction) => {
       const ids = selectedIds;
+      if (action === "delete") {
+        setBulkDeleteIds(ids);
+        return;
+      }
       setSelection({ ids: NO_IDS, scope });
       try {
         await bulkAsync({ action, ids });
@@ -267,18 +335,31 @@ export function useInboxController({
     activeMessage,
     activeModal: modal.kind,
     activeStatus: filters.activeStatus,
+    bulkDelete: {
+      count: bulkDeleteIds?.length ?? 0,
+      onConfirm: handleConfirmBulkDelete,
+      onOpenChange: handleBulkDeleteOpenChange,
+      open: bulkDeleteIds !== null,
+      publicAnswerCount: bulkDeletePublicCount,
+    },
     closeModal,
     concealSpicy: Boolean(preferencesData?.preferences.safety.blurSpicy),
     counts: data.counts,
     focusedId,
     handleBlockConfirm,
     handleBulkAction,
+    handleDeleteAllShown,
     handleDeleteConfirm,
     handleDeselectAll,
     handleExport,
     handleRefresh: data.handleRefresh,
     handleRevealConfirm,
+    /** Auto-read after 600ms in view (cards call it via `onSeen`). */
+    handleSeen: markRead,
+    handleSelectAll,
     handleStarToggle,
+    handleToggleArchive,
+    handleToggleRead,
     handleToggleSelect,
     isBlockPending: blockMutation.isPending || unblockMutation.isPending,
     isBulkPending: bulkMutation.isPending,
@@ -286,6 +367,7 @@ export function useInboxController({
     isLoading: data.isLoading,
     isRefreshing: data.isRefreshing,
     isSenderBlocked,
+    lastCheckedAt: data.lastCheckedAt,
     messages,
     openBlockModal,
     openDeleteModal,

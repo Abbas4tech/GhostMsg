@@ -1,4 +1,10 @@
-export const ALERT_VARIANTS = ["default", "destructive"] as const;
+export const ALERT_VARIANTS = [
+  "default",
+  "destructive",
+  "success",
+  "warning",
+  "info",
+] as const;
 
 export const alertMockContent = {
   description:

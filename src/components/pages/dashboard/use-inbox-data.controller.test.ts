@@ -13,6 +13,11 @@ import { useInboxDataController } from "./use-inbox-data.controller";
 vi.mock("sonner", () => ({
   toast: { error: vi.fn(), info: vi.fn(), success: vi.fn() },
 }));
+// `notify` (the design's toast API) forwards to the mocked Sonner spies above.
+vi.mock("@/components/elements/sonner", async () => {
+  const sonner = await import("sonner");
+  return { notify: sonner.toast };
+});
 
 describe("useInboxDataController", () => {
   beforeEach(() => {

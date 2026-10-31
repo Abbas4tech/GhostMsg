@@ -21,3 +21,12 @@ export const verifyCodeRequestSchema = z
     }),
   })
   .openapi("VerifyCodeRequest");
+
+export const resendCodeRequestSchema = z
+  .object({
+    username: z.string().trim().min(1).openapi({
+      description: "Username whose Verification Code to resend",
+      example: "johndoe",
+    }),
+  })
+  .openapi("ResendCodeRequest");

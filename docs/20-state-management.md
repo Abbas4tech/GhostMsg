@@ -150,4 +150,4 @@ The original review listed these in order of impact:
 7–12. Consistency and speed (Phase 2, done).
 13–22. Structure (Phase 3, done).
 
-What to keep: React Query factories and the shared cache helpers; logic only in page controllers; close-first optimistic deletes; the undo timer in a ref; no global client store.
+What to keep: React Query factories and the shared cache helpers; logic only in page controllers; close-first optimistic deletes, confirmed first; only Delete all is held behind an Undo toast that commits on close ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)); AI drafts as a query keyed per message outside `messages.all` (`queryKeys.smartReplies`, never refetched on focus or retried); no global client store. Phone-only UI state (search open, selection mode, Profile edit fold) is local to the block, since it's purely visual.

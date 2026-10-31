@@ -19,6 +19,10 @@ export {
   type DeleteMessageModalProps,
 } from "./delete-message-modal";
 export {
+  DeleteSelectedModal,
+  type DeleteSelectedModalProps,
+} from "./delete-selected-modal";
+export {
   DiscardChangesModal,
   type DiscardChangesModalProps,
 } from "./discard-changes-modal";
@@ -30,7 +34,6 @@ export {
   REPLY_MAX_LENGTH,
   SmartReplyModal,
   type SmartReplyModalProps,
-  type SmartReplyTone,
 } from "./smart-reply-modal";
 export {
   StoryCardModal,

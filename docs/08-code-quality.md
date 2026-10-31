@@ -20,6 +20,35 @@ pnpm check
 pnpm fix
 ```
 
+### Where the gates run
+
+```mermaid
+flowchart LR
+    EDIT["Edit"] --> HOOK["Editor / agent hook:<br/>biome format (removes unused imports)"]
+    HOOK --> COMMIT["git commit"] --> PRE["Husky pre-commit:<br/>lint-staged → ultracite fix"]
+    PRE --> PUSH["Before push<br/>(.agents/rules/pre-push-quality-checks.md)"]
+    PUSH --> G1["pnpm check"] --> G2["tsc --noEmit"] --> G3["pnpm build"] --> G4["pnpm test:all"] --> G5["pnpm docs:registry:check"] --> G6["pnpm security:check"]
+```
+
+### Rules people trip on, with the fix
+
+```tsx
+// noJsxPropsBind: no new function per render in a list
+{drafts.map((d) => <button onClick={() => onPick(d.text)}>{d.text}</button>)}   // ✗
+{drafts.map((d) => <DraftIdeaButton draft={d} key={d.tone} onPick={onPick} />)} // ✓ (useCallback inside)
+
+// noLeakedRender: a ternary whose branch is a variable
+<p>{isQuarantineView ? `${n} held back` : inboxLine}</p>                         // ✗
+let subtitle = describeUnread(unread);                                              // ✓ compute first
+if (isQuarantineView) subtitle = `${n} held back · never in your main inbox`;
+<p>{subtitle}</p>
+
+// useTopLevelRegex: regexes are module constants
+const DELETE_REGEX = /^delete$/i;                                                   // ✓
+```
+
+More, with causes: [Chapter 27 §4](27-developer-troubleshooting.md#4-lint-biome--ultracite).
+
 ---
 
 ## 2. TypeScript Strict Mode & Compiler Configuration
@@ -47,6 +76,9 @@ pnpm exec tsc --noEmit
 | Untyped `any` casting | Strongly typed Zod schemas (`z.infer<typeof schema>`) |
 | Unverified string endpoints | Strongly typed OpenAPI `paths` |
 | Array index as React `key` (`key={index}`) | Stable unique IDs (`key={item.id}` or deterministic item attributes) |
+| `import { toast } from "sonner"` in app code | `notify` from `@/components/elements/sonner` (per-type durations, assertive errors; [Chapter 25 §5.2](25-accessibility-and-feedback.md#52-notify)) |
+| Two DOM copies of a form for phone and desktop | One tree chosen with `useIsMobile()` ([Chapter 26 §2](26-responsive-design.md#2-two-techniques)) |
+| Raw type sizes (`text-[22px] font-bold`) for headings and body | Semantic scale (`text-h3`, `text-body`, …) ([Chapter 13 §3.1](13-design-system-and-theming.md#31-type-scale)) |
 
 ---
 

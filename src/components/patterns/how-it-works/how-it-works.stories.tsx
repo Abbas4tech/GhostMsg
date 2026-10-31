@@ -38,3 +38,15 @@ export const FourSteps: Story = {
     await expect(canvas.queryByRole("button")).toBeNull();
   },
 };
+
+/** Design MobLanding: "How it works", a step counter and one card plus a peek. */
+export const Mobile: Story = {
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.getByRole("heading", { level: 2, name: "How it works" })
+    ).toBeVisible();
+    await expect(canvas.getByText("1 / 4")).toBeVisible();
+    await expect(canvas.getByText("Step 1 · Share your link")).toBeVisible();
+  },
+};

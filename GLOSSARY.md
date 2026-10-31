@@ -21,7 +21,7 @@ A toggleable user preference controlling whether a recipient's public profile is
 _Avoid_: Active status, open inbox, message switch, receiving toggle
 
 **Verification Code**:
-A temporary, time-limited numerical one-time pass code sent via email to confirm ownership of an email address during registration.
+A temporary, time-limited numerical one-time pass code sent via email to confirm ownership of an email address during registration. Valid for an hour and three tries; a new one can be requested once a minute.
 _Avoid_: OTP, activation code, auth token, confirm PIN
 
 **Suggested Message**:
@@ -37,8 +37,12 @@ A published pairing of an anonymous message and the recipient's authored respons
 _Avoid_: Thread, post, broadcast, comment reply
 
 **Quarantined Message**:
-An anonymous message flagged by content moderation as toxic, abusive, or spam, isolated into a separate inbox view rather than delivered to the primary inbox.
+An anonymous message flagged by content moderation as toxic, abusive, or spam, isolated into a separate inbox view rather than delivered to the primary inbox. It carries a **quarantine reason** (hurtful, spam or threat) shown as its tag.
 _Avoid_: Spam, deleted message, hidden feedback
+
+**Archived Message**:
+An anonymous message the recipient set aside with Archive (`e`). It leaves All, Unread and Starred and is listed only under the Archived filter until moved back to the inbox. Archiving deletes nothing.
+_Avoid_: Hidden message, deleted message, snoozed
 
 **AMA Prompt**:
 A recipient-defined theme, topic, or question displayed on their public profile link to guide visitor submissions.
@@ -77,7 +81,7 @@ An alert that says "New Anonymous Message" instead of showing the message text. 
 _Avoid_: Private notification, redacted alert
 
 **Smart Reply**:
-An AI-drafted answer to an anonymous message in a chosen tone (witty, wholesome or thoughtful) that the recipient edits before saving.
+An AI-drafted answer to an anonymous message. Opening Reply offers three drafts at once, one per tone (thoughtful, witty, wholesome); the recipient picks one and edits it before saving.
 _Avoid_: Auto-reply, AI answer, canned response
 
 **Story Card**:

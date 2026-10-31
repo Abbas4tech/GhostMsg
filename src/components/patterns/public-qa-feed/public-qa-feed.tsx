@@ -49,7 +49,7 @@ export function PublicQaFeed({
       className="flex flex-col gap-2"
       data-slot="public-qa-feed"
     >
-      <h2 className="font-bold text-lg" id="public-qa-title">
+      <h2 className="text-h3" id="public-qa-title">
         Public Q&amp;A
       </h2>
       {answers.map((item) => (
@@ -62,9 +62,7 @@ export function PublicQaFeed({
             sentiment={item.sentimentTag}
             size="sm"
           />
-          <p className="font-message font-semibold text-[15px]">
-            {item.content}
-          </p>
+          <p className="font-message font-semibold text-body">{item.content}</p>
           <p className="text-muted-foreground text-sm">
             <span className="sr-only">{username} answered: </span>
             {item.reply.text}

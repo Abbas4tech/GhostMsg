@@ -23,8 +23,16 @@ export const authPageHandlers = {
     scenarios.username.taken,
     scenarios.session.unauthenticated
   ),
+  verifyExpired: withScenario(
+    scenarios.verify.expired,
+    scenarios.session.unauthenticated
+  ),
   verifyInvalid: withScenario(
     scenarios.verify.invalid,
+    scenarios.session.unauthenticated
+  ),
+  verifyLocked: withScenario(
+    scenarios.verify.locked,
     scenarios.session.unauthenticated
   ),
 };

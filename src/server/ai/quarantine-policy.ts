@@ -49,3 +49,14 @@ export function shouldQuarantine(
 
 export const isToxicityLevel = (value: unknown): value is ToxicityLevel =>
   typeof value === "string" && value in TOXICITY_RANK;
+
+/**
+ * The tag a Quarantined Message shows. Moderation's category when it has
+ * one; anything held back without a category reads as hurtful, which is what
+ * the Quarantine setting promises to catch.
+ */
+export function toQuarantineReason(
+  category: "none" | "hurtful" | "spam" | "threat"
+): "hurtful" | "spam" | "threat" {
+  return category === "none" ? "hurtful" : category;
+}

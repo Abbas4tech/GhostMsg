@@ -81,10 +81,14 @@ sequenceDiagram
     SU->>API: POST /api/sign-up
     API->>M: 6-digit Verification Code (expires in 1 hour)
     SU->>V: redirect
-    R->>V: Enters the code
+    R->>V: Enters the code (3 tries per code)
     V->>API: POST /api/verify-code
-    V->>R: → /sign-in → credentials → /dashboard
-    R->>D: Copies the Public Profile Link from the sidebar
+    opt Wrong, expired or locked
+        V->>API: POST /api/verify-code/resend (after the 60 s cooldown)
+        API->>M: New code, tries reset
+    end
+    V->>R: "You're in. Your link is live." + Copy / Share…
+    R->>D: Sign in to open your inbox → /sign-in → /dashboard
 ```
 
 Google sign-in skips the code: `controlGoogleSignInFlow` creates or links the account ([ADR 0002](adr/0002-dual-authentication-and-email-verification.md)).
@@ -144,19 +148,22 @@ Each entry lists **what**, **rules** (invariants to keep), and **where** (UI →
 
 ### 5.1 Claim your link (landing)
 
-- **What:** The hero's `ClaimLinkForm` shows `<host>/u/` and a username box; submitting opens `/sign-up?username=<name>`. The landing also has How it works, Trust, a Q&A showcase and a CTA banner ([screenshot](assets/screenshots/landing.png)).
-- **Rules:** The landing is marketing only; it never calls the API. Copy for the illustrations lives in `content/landing.ts` and is example data, never real users.
-- **Where:** `pages/home/home-page.tsx` → `use-claim-link.controller.ts` (`buildClaimHref`, `buildLinkPrefix` in `home.utils.ts`).
+- **What:** The hero's `ClaimLinkForm` shows `<host>/u/` and a username box; submitting opens `/sign-up?username=<name>`. The landing also has How it works, Trust, a Q&A showcase and a CTA banner ([screenshot](assets/screenshots/landing.png), [phone](assets/screenshots/landing-mobile.png)). Phones follow MobLanding: full-width "Get my link", a How it works carousel with a step counter and pill dots, trust as icon rows, the Story Card alone (no Q&A sample), and a split CTA.
+- **Rules:** The landing is marketing only; it never calls the API. Copy for the illustrations lives in `content/landing.ts` and is example data, never real users. "See a live profile" shows only when `NEXT_PUBLIC_LIVE_PROFILE_USERNAME` names a real public profile. Landing sections switch layouts with CSS only, so the server-rendered page never changes after hydration.
+- **Where:** `pages/home/home-page.tsx` → `use-claim-link.controller.ts` (`buildClaimHref`, `buildLinkPrefix`, `buildLiveProfileHref` in `home.utils.ts`).
 
 ### 5.2 Sign up, verify, sign in
 
-- **What:** Username (live availability), email, password; or Google. A 6-digit **Verification Code** is emailed (1-hour expiry). Sign in accepts email **or** username.
-- **Rules:** Unverified credential accounts can't sign in. Google accounts have no password (sign-in says "Please sign in with Google").
-- **Where:** `pages/auth/*` → `data/auth/*` → `/api/check-username-unique`, `/api/sign-up`, `/api/verify-code`, NextAuth `/api/auth/*`. Username availability logic: `lib/users/username-availability.ts` (shared with Change username).
+- **What:** Username (live availability), email, password (Show / Hide); or Google. A 6-digit **Verification Code** is emailed (1-hour expiry). The verify screen counts down to **Resend code** (60 s), shows the tries left after a wrong code ("That code isn't right. 2 tries left."), and ends on **"You're in. Your link is live."** with the new link, Copy / Share… and **Sign in to open your inbox** (verifying doesn't sign in). Sign in accepts email **or** username. Phones: no site header; each screen has its own Back arrow (sign-up and verify add "1 / 2", "2 / 2" progress) and the primary action pinned to the bottom.
+- **Rules:**
+  - Unverified credential accounts can't sign in. Google accounts have no password (sign-in says "Please sign in with Google").
+  - Three wrong guesses lock the code (429, `reason: "locked"`); an expired code answers 400 `reason: "expired"`. Both need a new code.
+  - Resend waits 60 s after the last code (429 with `retryAfterSeconds`), is limited to 5 per username per 10 minutes, and resets the tries. Rules live in `lib/users/verification.ts`; codes come from `server/users/verification-code.ts` (`crypto.randomInt`).
+- **Where:** `pages/auth/*` → `data/auth/*` → `/api/check-username-unique`, `/api/sign-up`, `/api/verify-code`, `/api/verify-code/resend`, NextAuth `/api/auth/*`. Verify: `use-verify.controller.ts`, `use-resend-cooldown.controller.ts`, `verify.utils.ts` → `patterns/verify-code-form`, `blocks/verify-panel`, `blocks/verify-success`. Username availability logic: `lib/users/username-availability.ts` (shared with Change username).
 
 ### 5.3 Public profile (`/u/[username]`)
 
-- **What:** Identity (photo or initial, **Display Name** or username, acceptance dot), the **AMA Prompt** banner, the send form with **Suggested Messages**, and the **Public Q&A** feed. States: sending, sent ("Sent. maya will never know it was you." + Send another), **paused**, **not found** ([screens](14-ui-screens-and-user-flows.md#5-public-profile-uusername)).
+- **What:** Identity (photo or initial, **Display Name** or username, "@handle · Accepting" / "@handle · Paused"), the **AMA Prompt** banner, the send form with **Suggested Messages**, and the **Public Q&A** feed. States: sending; **sent** (the whole page becomes "Sent. maya will never know it was you." with the message under "You sent", Send another and Get your own link, and a "‹ Name" back); **paused** (a calm card and one "Make your own link"); **not found** (Claim /u/name, Go to GhostMsg) ([screens](14-ui-screens-and-user-flows.md#5-public-profile-uusername)).
 - **Rules:**
   - The AMA banner shows only when `showAmaBanner` is on. Suggested Messages show and load only when `offerSuggestions` is on, and only after the profile has loaded.
   - When paused, answers stay readable and the form is replaced, never silently broken.
@@ -167,16 +174,17 @@ Each entry lists **what**, **rules** (invariants to keep), and **where** (UI →
 
 | Capability | Behaviour | Code |
 | :--- | :--- | :--- |
-| **Filters** | All · Unread · Starred · Answered · Quarantined, with counts from the server (Quarantined shows an attention badge). A ToggleGroup of chips. Each filter is fetched from the server; `?filter=` deep-links one. | `patterns/filter-bar`, `messagesQueries.inbox` / `messagesQueries.counts`, rules in `lib/messages/inbox-filter.ts` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)) |
+| **Filters** | All · Unread · Starred · Answered · Quarantined, plus **Archived** once anything is archived, with counts from the server (Quarantined shows an attention badge). A ToggleGroup of chips. Each filter is fetched from the server; `?filter=` deep-links one. Archived messages appear only under Archived. | `patterns/filter-bar`, `messagesQueries.inbox` / `messagesQueries.counts`, rules in `lib/messages/inbox-filter.ts` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)) |
 | **Search** | Server-side, case-insensitive match on the message or its answer, 250 ms after typing stops; `/` focuses the box. The filter and search are kept in the URL (`?filter=&q=`), so refresh and shared links restore the view. | `searchFilter` in `server/messages/inbox-query.ts`, `use-inbox-filters.controller.ts` |
 | **Paging** | 30 messages per page, newest first; **Load more** fetches the next page. Counts and "Delete all N" use server totals, not the loaded page. | `useInfiniteQuery`, keyset cursor (`lib/messages/inbox-cursor.ts`) |
-| **Read state** | Opening Reply or the Story Card, revealing and starring mark a message read (optimistic); answering marks it read on the server too. Bulk **Mark read** still works. | `markRead` in `use-inbox.controller.ts` |
+| **Read state** | A card that stays at least 60% on screen for 600 ms is marked read (never quarantined or blurred ones). Opening Reply or the Story Card, revealing and starring also mark it read (optimistic); answering marks it read on the server too. Bulk **Mark read** and the phone sheet's Mark as unread/read still work. | `markRead` / `handleSeen` in `use-inbox.controller.ts`, `useMarkSeen` in `patterns/message-card` |
+| **Archive** | `e`, the card's Archive icon or the phone sheet. The card leaves the list at once with a plain "Message archived" toast (no Undo); in the Archived view the same action says "Moved back to Inbox". | `use-archive-message-mutation.ts` → `PATCH /api/messages/{id}` (`isArchived`) |
 | **Layouts** | Grid or list (segmented ToggleGroup), remembered on this device. | `viewMode` (`localStorage`) in `use-inbox.controller.ts` |
-| **Live updates** | New messages appear at once through Server-Sent Events (inserted into the list and counts, then re-synced). If the stream drops, the inbox polls every 30 s; it also refreshes when the tab regains focus. | `data/messages/use-live-messages.ts` → `/api/messages/stream`, `use-inbox-data.controller.ts` |
-| **Keyboard triage** | `j`/`k` move, `x` select, `s` star, `r` reply, `/` search, `⌘K`/`Ctrl+K` command palette. Ignored while typing or when a dialog is open; never acts on a quarantined message. | `use-inbox-keyboard.controller.ts`, `inbox.utils.ts` (`resolveInboxShortcut`) |
-| **Bulk actions** | Select cards → Mark read, Star, Export CSV/JSON, Delete. Optimistic with rollback. The selection belongs to the current filter + search: changing either clears it, so an action never reaches a hidden message. | `patterns/bulk-action-toolbar`, `use-bulk-action-mutation.ts` → `POST /api/messages/bulk` |
-| **Message card** | Sentiment Tag, relative time, star, answer preview with Public badge, Reply/Edit answer, Story Card, Block, Delete. States: default, unread (accent bar), selected, answered, quarantined (dashed + hidden body). | `patterns/message-card` |
-| **Empty / error / loading** | shadcn `Empty` states per filter; skeleton grid while loading. A failed load shows the empty state and the error toasts on **Refresh** (the initial load fails quietly). | `blocks/inbox`, `handleRefresh` in `use-inbox-data.controller.ts` |
+| **Live updates** | New messages appear at once through Server-Sent Events (inserted into the list and counts, then re-synced). Scrolled down, a "1 new Anonymous Message" pill appears instead of the list jumping. If the stream drops, the inbox polls every 30 s; it also refreshes when the tab regains focus. The subtitle says when the list last came back ("3 unread · last checked a moment ago"). | `data/messages/use-live-messages.ts` → `/api/messages/stream`, `use-inbox-data.controller.ts` |
+| **Keyboard triage** | `j`/`k` move, `⇧J`/`⇧K` extend the selection, `x` select, `s` star, `r` reply, `e` archive, `⇧B` block, `#` delete (confirms), `esc` clear the selection, `/` search, `⌘K`/`Ctrl+K` command palette. Anywhere in the dashboard: `g i` / `g p` / `g s` go to Inbox / Profile / Settings, `⇧C` copies your link, `?` opens the shortcut sheet. Ignored while typing or when a dialog is open; never acts on a quarantined message. Tooltips on card actions show their key. | `use-inbox-keyboard.controller.ts`, `use-global-shortcuts.controller.ts`, `inbox.utils.ts` (`resolveInboxShortcut`), `lib/browser/shortcuts.ts`, `patterns/shortcut-sheet` |
+| **Bulk actions** | Select cards → Mark read, Star, Export CSV/JSON, Delete. Mark read / Star are optimistic with rollback. **Delete asks first** ("Delete N messages?", counting public answers that go too, "This can't be undone."), then deletes at once, optimistic with rollback; there is no Undo ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)). The selection belongs to the current filter + search: changing either clears it, so an action never reaches a hidden message. Phones: tap **Select** in the top bar for checkboxes, a "N selected · Select all" header and a bottom bar (Mark read, Star, Export, Delete). | `patterns/bulk-action-toolbar` (`layout="pill"` / `"bar"`), `patterns/modals/delete-selected-modal.tsx`, `bulkDelete` in `use-inbox.controller.ts` → `POST /api/messages/bulk` |
+| **Message card** | Sentiment Tag, relative time, star, answer preview with Public badge, Reply/Edit answer, Story Card, Archive, Block, Delete (tooltips show `s`, `r`, `e`, `⇧B`, `#`). States: default, unread (accent bar), selected, answered (✓, "✓ Answered" once the card is 24rem wide; tinted card), quarantined (dashed + hidden body, tagged with its reason: Hurtful language, Spam or Threat; older ones say Quarantined). Phones: tonal Reply, Share, and a **More actions** sheet (Reply, Star, Share as Story Card, Archive / Move to Inbox, Mark as unread/read, Block sender…, Delete); quarantined cards show Reveal + Block sender (or Delete). | `patterns/message-card`, `patterns/message-actions-menu` |
+| **Empty / error / loading** | Four empty states (design Feedback board): first run ("No Anonymous Messages yet", floating ghost, Copy link), an empty filter ("Nothing unread · You're all caught up." + Clear filter), nothing quarantined ("Nothing held back"), and no search matches (`No matches for "q"`). Skeletons appear only after 150 ms. A failed load shows the empty state and the error toasts on **Refresh** (the initial load fails quietly). | `blocks/inbox` (`InboxEmptyState`, `useDelayedFlag`), `handleRefresh` in `use-inbox-data.controller.ts` |
 
 **Sentiment Tags** (set by moderation, never by the Recipient): 💖 Sweet · 🤔 Curious · 🔥 Spicy · 💡 Advice · 👻 Note (`neutral`).
 
@@ -184,11 +192,11 @@ Each entry lists **what**, **rules** (invariants to keep), and **where** (UI →
 
 | Dialog | Trigger | Rules | Code |
 | :--- | :--- | :--- | :--- |
-| **Smart Reply** | Reply / Edit answer / `r` | Three AI tones (🔥 Witty, 💖 Wholesome, 🤔 Thoughtful) fill the draft; the Recipient edits freely. "Show in my Public Q&A" starts at the `publishByDefault` preference. Save, or Save & share (opens the Story Card). | `patterns/modals/smart-reply-modal.tsx`, `use-smart-reply.controller.ts` → `POST /api/ai/smart-reply`, `POST /api/messages/{id}/reply` |
-| **Story Card** | Share icon | Renders the exact PNG: Story 9:16 or Square 1:1, Gradient or Plain, include answer, show link. Uses the live palette tokens. Native share when the browser supports files, else Save image. Never shows the sender. | `patterns/modals/story-card-modal.tsx`, `story-card.canvas.ts` |
+| **Smart Reply** | Reply / Edit answer / `r` | Opening it loads **three drafts, one per tone** (thoughtful, witty, wholesome) from **one** AI request, cached per message for the session (never refetched on focus or retried); three skeleton rows while loading, "Try again" if it fails. Picking an idea fills the answer; the Recipient edits freely. "Show in my Public Q&A" starts at the `publishByDefault` preference. Save answer, or Answer + Story Card. Phones: a "Reply" drawer, ideas scroll sideways, Save + Story Card side by side. | `patterns/modals/smart-reply-modal.tsx`, `use-smart-reply.controller.ts`, `data/messages/smart-reply.queries.ts` → `POST /api/ai/smart-reply`, `POST /api/messages/{id}/reply` |
+| **Story Card** | Share icon | Renders the exact PNG: Story 9:16 or Square 1:1, Gradient or Plain, include answer, show link. Uses the live palette tokens. Native share when the browser supports files, else Save image. Never shows the sender. Phones (MobDrawerStory): the preview, Format, "Include my answer", then Save + Share…; Look and the link keep their defaults. | `patterns/modals/story-card-modal.tsx`, `story-card.canvas.ts` |
 | **Reveal** | Reveal on a quarantined (or blurred Spicy) card | Quarantined: confirm dialog where **Keep hidden** has initial focus. Spicy blur reveals without a dialog. | `reveal-message-modal.tsx` |
 | **Block sender** | Block icon | Blocks the Sender Hash (silent to the sender) and optionally deletes the message. Not offered for legacy messages without a hash. | `block-sender-modal.tsx` → `POST /api/block-sender` |
-| **Delete message** | Trash icon | Close-first, optimistic, rollback on failure ([ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md)). | `delete-message-modal.tsx` → `DELETE /api/delete-message/{id}` |
+| **Delete message** | Trash icon / `#` / Delete in the phone sheet | **Asks first** ("Delete this message? … This can't be undone."), then deletes at once, optimistic: the dialog closes and the card goes before the server answers; a failure brings it back with an error toast. No Undo ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)). | `delete-message-modal.tsx`, `handleDeleteConfirm` in `use-inbox.controller.ts` → `DELETE /api/delete-message/{id}` |
 
 ### 5.6 Profile (`/dashboard/profile`)
 
@@ -225,15 +233,17 @@ A scroll-spy **section nav** (desktop) follows the sections. Every control saves
 | Appearance | Mode: Light · Dark · System | `next-themes` (browser storage) | Per device, not per account. |
 | Appearance | Palette: Soft spectral · Midnight confessional · Playful paper | `localStorage["ghostmsg-palette"]` | Per device ([Chapter 13](13-design-system-and-theming.md)). |
 | Data & account | Export all messages (CSV / JSON) | — | Pages through the server for **every** message (quarantined included) and builds the file in the browser. Both formats use an allow-list of fields; Sender Hashes are never included. |
-| Danger zone | Delete all messages | — | Confirm dialog → **10-second Undo toast** → `DELETE /api/messages`. Leaving the page commits immediately. |
+| Danger zone | Delete all messages | — | Confirm dialog → **10-second Undo toast** (with a time-left bar) → `DELETE /api/messages` when the toast closes without Undo. Leaving the page commits immediately. |
 | Danger zone | Delete account and link | — | Type the username to enable → `DELETE /api/user` → sign out to `/`. |
 
 ### 5.8 Dashboard shell
 
-- **Sidebar** (desktop): brand, **Jump to… ⌘K**, nav (Inbox with unread count, Profile, Settings), the link card with Copy, **Message Acceptance** switch with status, and a user row (avatar, palette picker, light/dark toggle, log out).
-- **Phones:** top bar (brand, ⌘K button, avatar that opens the sidebar as a sheet) and a bottom tab bar ([screenshot](assets/screenshots/dashboard-inbox-mobile.png)).
-- **Command palette (⌘K):** Copy my link, Pause/Resume Message Acceptance, View my public profile, Inbox, Inbox · Unread, Inbox · Starred, Profile, Settings. Typing filters by substring.
-- **Where:** `blocks/dashboard-shell`, `patterns/command-palette`, `pages/dashboard/use-dashboard-shell.controller.ts`.
+- **Sidebar** (desktop): brand, **Jump to… ⌘K**, nav (Inbox with unread count, Profile, Settings), the link card with Copy (and a Share icon where the browser can share), **Message Acceptance** switch with status, and a user row (avatar, light/dark toggle, log out). Palettes are chosen in Settings → Appearance only.
+- **Phones:** a 52px top bar (brand tile plus the page's own actions) and a bottom tab bar ([screenshot](assets/screenshots/dashboard-inbox-mobile.png)); Message Acceptance and Sign out live in Settings.
+- **Command palette (⌘K):** Copy my link (`⇧C`), Pause/Resume Message Acceptance, View my public profile, Inbox (`g i`), Inbox · Unread, Inbox · Starred, Profile (`g p`), Settings (`g s`). Typing filters by substring.
+- **Shortcut sheet (`?`):** every key, grouped Inbox / Message / Anywhere.
+- **Toasts:** through `notify` (success 3 s, info/warning 5 s, errors 6 s or until dismissed when they carry an action; errors are also announced assertively).
+- **Where:** `blocks/dashboard-shell`, `patterns/command-palette`, `patterns/shortcut-sheet`, `pages/dashboard/use-dashboard-shell.controller.ts`, `use-global-shortcuts.controller.ts`, `elements/sonner/notify.ts`.
 
 ## 6. Known gaps and non-goals
 
@@ -242,8 +252,8 @@ Record of what is intentionally **not** built, so nobody "fixes" an expected abs
 | Gap | Status | Why / next step |
 | :--- | :--- | :--- |
 | Unblock all | `DELETE /api/block-sender { senderHash: "ALL" }` and `handleUnblockAll` exist; no button in the redesigned Settings. | Design omitted it. Add a row action if users ask. |
-| Archive (`e`) | Not built. | Designed in the canvas, no data model. |
-| Resend Verification Code | Not built. | Users sign up again after expiry. |
+| Forgot password | Not built; the sign-in screen has no "Forgot?" link. | Left out on purpose until a reset flow exists. |
+| Undo for single and bulk message deletes | Not offered: those deletes confirm first. | Product decision ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)); only Delete all keeps an Undo. |
 | Rate limiting / live events across instances | In-memory per server instance. | Fine on a single long-lived Node server; on multi-instance serverless each instance limits and broadcasts separately ([Chapter 18 §5](18-notifications-and-realtime.md#scaling-limits)). |
 | Avatar storage | Base64 data URL inside the User document. | Small (≈15–40 KB) and simple; move to object storage before profile pictures get larger ([ADR 0024](adr/0024-profile-preferences-data-model-and-settings-api.md)). |
 | Username redirects | Old links 404 after a rename. | Deliberate privacy choice ([ADR 0027](adr/0027-destructive-account-actions-undo-window-and-typed-confirmation.md)). |

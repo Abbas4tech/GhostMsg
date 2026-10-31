@@ -10,6 +10,8 @@ const brandMarkTileVariants = cva(
     defaultVariants: { size: "md" },
     variants: {
       size: {
+        /** Phone dashboard top bar: 32px tile. */
+        header: "size-8 rounded-[10px] [&_svg]:size-[18px]",
         md: "size-9 rounded-xl [&_svg]:size-5",
         sm: "size-7 rounded-[9px] [&_svg]:size-4",
       },
@@ -19,7 +21,9 @@ const brandMarkTileVariants = cva(
 
 const wordmarkVariants = cva("font-bold font-display tracking-tight", {
   defaultVariants: { size: "md" },
-  variants: { size: { md: "text-[22px]", sm: "text-base" } },
+  variants: {
+    size: { header: "text-base", md: "text-[22px]", sm: "text-base" },
+  },
 });
 
 export interface BrandMarkProps

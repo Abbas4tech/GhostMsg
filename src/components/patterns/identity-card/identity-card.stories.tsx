@@ -1,12 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn } from "storybook/test";
-import { IdentityCard } from "./identity-card";
+import { IdentityCard, IdentitySummary } from "./identity-card";
 import {
   defaultIdentityCardArgs,
+  defaultIdentitySummaryArgs,
   withPhotoIdentityCardArgs,
 } from "./identity-card.mock";
 
 const CHANGE_PHOTO_REGEX = /change photo/i;
+const onEditSummary = fn();
 
 const meta = {
   args: {
@@ -86,4 +88,19 @@ export const ProcessingPhoto: Story = {
       canvas.getByRole("button", { name: CHANGE_PHOTO_REGEX })
     ).toBeDisabled();
   },
+};
+
+/** Design MobProfile: phones show this row; Edit unfolds the full card. */
+export const Summary: Story = {
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+  play: async ({ canvas, userEvent }) => {
+    await expect(
+      canvas.getByRole("region", { name: "Identity" })
+    ).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Edit" }));
+    await expect(onEditSummary).toHaveBeenCalledOnce();
+  },
+  render: () => (
+    <IdentitySummary {...defaultIdentitySummaryArgs} onEdit={onEditSummary} />
+  ),
 };

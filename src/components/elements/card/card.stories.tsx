@@ -68,7 +68,7 @@ export const Glass: Story = {
   args: { variant: "glass" },
   decorators: [
     (Story) => (
-      <div className="rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 p-8">
+      <div className="rounded-xl bg-brand-gradient p-8">
         <Story />
       </div>
     ),

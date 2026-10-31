@@ -1,5 +1,6 @@
 "use client";
 
+import { BellIcon } from "lucide-react";
 import type React from "react";
 import { useCallback, useId } from "react";
 import {
@@ -25,6 +26,21 @@ const EMAIL_OPTIONS: { label: string; value: EmailAlertMode }[] = [
   { label: "Daily digest", value: "daily" },
   { label: "Never", value: "off" },
 ];
+
+const EMAIL_SUMMARY: Record<EmailAlertMode, string> = {
+  daily: "Daily digest",
+  instant: "Instant email",
+  off: "Email off",
+};
+
+/** Phone row summary, e.g. "Daily digest · quiet 22:00–08:00". */
+const summarizeNotifications = (
+  emailAlerts: EmailAlertMode,
+  quietHours: QuietHoursValue
+): string =>
+  quietHours.enabled
+    ? `${EMAIL_SUMMARY[emailAlerts]} · quiet ${quietHours.start}–${quietHours.end}`
+    : EMAIL_SUMMARY[emailAlerts];
 
 const isEmailAlertMode = (value: string): value is EmailAlertMode =>
   EMAIL_OPTIONS.some((option) => option.value === value);
@@ -128,7 +144,12 @@ export function NotificationSettings({
   );
 
   return (
-    <SettingsSection id="notifications" title="Notifications">
+    <SettingsSection
+      icon={<BellIcon />}
+      id="notifications"
+      summary={summarizeNotifications(emailAlerts, quietHours)}
+      title="Notifications"
+    >
       <SettingRow
         control={
           <Select

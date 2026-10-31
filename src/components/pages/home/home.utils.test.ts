@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildClaimHref, buildLinkPrefix } from "./home.utils";
+import {
+  buildClaimHref,
+  buildLinkPrefix,
+  buildLiveProfileHref,
+} from "./home.utils";
 
 describe("buildClaimHref", () => {
   it("passes the trimmed username to sign-up", () => {
@@ -24,5 +28,16 @@ describe("buildLinkPrefix", () => {
 
   it("falls back to the brand host", () => {
     expect(buildLinkPrefix(undefined)).toBe("ghostmsg.app/u/");
+  });
+});
+
+describe("buildLiveProfileHref", () => {
+  it("links the configured showcase profile", () => {
+    expect(buildLiveProfileHref(" maya ")).toBe("/u/maya");
+  });
+
+  it("hides the link when no profile is configured", () => {
+    expect(buildLiveProfileHref(undefined)).toBeUndefined();
+    expect(buildLiveProfileHref("  ")).toBeUndefined();
   });
 });

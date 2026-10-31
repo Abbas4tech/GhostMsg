@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { api, clientFetch } from "@/data/api-client";
 import { queryKeys } from "@/data/query-keys";
 
@@ -19,7 +19,7 @@ export const publicQueries = {
           );
         } catch (error) {
           if (!signal.aborted) {
-            toast.error(
+            notify.error(
               error instanceof Error && error.message
                 ? error.message
                 : "Failed to suggest messages"

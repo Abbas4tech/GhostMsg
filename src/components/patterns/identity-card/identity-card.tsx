@@ -40,6 +40,8 @@ export interface IdentityCardProps {
   linkPrefix: string;
   onChangeUsername: () => void;
   onDisplayNameChange: (value: string) => void;
+  /** Phones: collapse back to `IdentitySummary` (shows a "Done" button). */
+  onDone?: () => void;
   onPhotoRemove: () => void;
   onPhotoSelect: (file: File) => void;
   username: string;
@@ -56,6 +58,7 @@ export function IdentityCard({
   onPhotoSelect,
   onPhotoRemove,
   onChangeUsername,
+  onDone,
 }: IdentityCardProps): React.JSX.Element {
   const fileRef = useRef<HTMLInputElement>(null);
   const displayNameId = useId();
@@ -84,10 +87,19 @@ export function IdentityCard({
 
   return (
     <Card data-slot="identity-card" variant="elevated">
-      <CardHeader>
+      <CardHeader className="flex items-center justify-between gap-3">
         <CardTitle>
-          <h2 className="font-bold text-xl">Identity</h2>
+          <h2 className="text-h3">Identity</h2>
         </CardTitle>
+        {onDone ? (
+          <Button
+            className="h-11 rounded-full px-4"
+            onClick={onDone}
+            variant="outline"
+          >
+            Done
+          </Button>
+        ) : null}
       </CardHeader>
       <CardContent>
         <FieldGroup>
@@ -145,7 +157,7 @@ export function IdentityCard({
               </span>
             </div>
             <Input
-              className="h-12 bg-card text-base"
+              className="h-12 bg-card text-body"
               id={displayNameId}
               maxLength={DISPLAY_NAME_MAX_LENGTH}
               onChange={handleDisplayNameChange}
@@ -183,6 +195,50 @@ export function IdentityCard({
           </Field>
         </FieldGroup>
       </CardContent>
+    </Card>
+  );
+}
+
+export interface IdentitySummaryProps {
+  avatarUrl?: string | null;
+  displayName: string;
+  onEdit: () => void;
+  username: string;
+}
+
+/** Phones (design MobProfile): avatar, name, @handle and "Edit" in one row. */
+export function IdentitySummary({
+  avatarUrl,
+  displayName,
+  onEdit,
+  username,
+}: IdentitySummaryProps): React.JSX.Element {
+  const name = displayName || username;
+  return (
+    <Card
+      aria-label="Identity"
+      className="flex-row items-center gap-3.5 p-4"
+      data-slot="identity-summary"
+      role="region"
+      variant="elevated"
+    >
+      <Avatar className="data-[size=xl]:size-15" size="xl">
+        {avatarUrl ? <AvatarImage alt="" src={avatarUrl} /> : null}
+        <AvatarFallback className="text-2xl" variant="brand">
+          {name.charAt(0)}
+        </AvatarFallback>
+      </Avatar>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-h3">{name}</p>
+        <p className="truncate text-muted-foreground text-sm">@{username}</p>
+      </div>
+      <Button
+        className="h-11 rounded-full px-4"
+        onClick={onEdit}
+        variant="outline"
+      >
+        Edit
+      </Button>
     </Card>
   );
 }

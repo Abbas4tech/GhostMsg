@@ -4,8 +4,6 @@ import { LogOut } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { Button } from "@/components/elements/button";
-import { PalettePickerButton } from "@/components/elements/palette-picker";
-import { ThemeTogglerButton } from "@/components/elements/theme-toggler";
 import { BrandMark } from "@/components/patterns/brand-mark";
 
 export interface SiteHeaderProps {
@@ -14,8 +12,9 @@ export interface SiteHeaderProps {
 }
 
 /**
- * Global header: brand, primary nav (Safety / Sign in / Get your link, or
- * Dashboard / Log out when signed in), palette picker and theme toggle.
+ * Global header: brand and primary nav (Safety / Sign in / Get your link, or
+ * Dashboard / Log out when signed in). Palettes and the theme live in
+ * Settings → Appearance only.
  */
 export function SiteHeader({
   isAuthenticated,
@@ -58,13 +57,11 @@ export function SiteHeader({
             <Button asChild className="rounded-full" variant="ghost">
               <Link href="/sign-in">Sign in</Link>
             </Button>
-            <Button asChild className="rounded-full">
+            <Button asChild className="hidden rounded-full sm:inline-flex">
               <Link href="/sign-up">Get your link</Link>
             </Button>
           </>
         )}
-        <PalettePickerButton />
-        <ThemeTogglerButton modes={["dark", "light"]} variant="ghost" />
       </nav>
     </header>
   );

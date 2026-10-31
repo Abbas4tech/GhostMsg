@@ -41,6 +41,7 @@ export function HomePage(): React.JSX.Element {
         >
           <ClaimLinkForm
             linkPrefix={claim.linkPrefix}
+            liveProfileHref={claim.liveProfileHref}
             onSubmit={claim.handleSubmit}
             onValueChange={claim.setUsername}
             value={claim.username}
@@ -54,7 +55,8 @@ export function HomePage(): React.JSX.Element {
         <CtaBanner
           actionHref="/sign-up"
           actionLabel="Get your link"
-          title="Your friends have things to say. Give them a safe place to say it."
+          subtitle="Give them a safe place to say it."
+          title="Your friends have things to say."
         />
       </main>
       <SiteFooter />

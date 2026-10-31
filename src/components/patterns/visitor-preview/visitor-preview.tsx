@@ -51,8 +51,9 @@ export function VisitorPreview({
               <AvatarFallback variant="brand">{name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <b className="block truncate font-display text-[22px]">{name}</b>
+              <b className="block truncate font-display text-h3">{name}</b>
               <p className="text-muted-foreground text-sm">
+                {/* Design ProfilePage: "@maya.writes · Accepting Anonymous Messages". */}
                 @{username} ·{" "}
                 {isAccepting
                   ? "Accepting Anonymous Messages"
@@ -65,7 +66,7 @@ export function VisitorPreview({
           ) : null}
           <div
             aria-hidden="true"
-            className="min-h-[84px] rounded-md border border-input bg-card px-3.5 py-3 text-[15px] text-muted-foreground"
+            className="min-h-[84px] rounded-md border border-input bg-card px-3.5 py-3 text-body text-muted-foreground"
           >
             Write something honest…
           </div>

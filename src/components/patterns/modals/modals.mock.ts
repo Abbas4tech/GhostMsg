@@ -1,6 +1,7 @@
 import {
   answeredSpicyMessage,
   quarantinedMessage,
+  smartReplyDrafts,
   sweetMessage,
 } from "@/mock/fixtures/messages.fixtures";
 import { FIXTURE_USERNAME } from "@/mock/fixtures/public-profile.fixtures";
@@ -10,6 +11,7 @@ import type { ChangeUsernameModalProps } from "./change-username-modal";
 import type { DeleteAccountModalProps } from "./delete-account-modal";
 import type { DeleteAllMessagesModalProps } from "./delete-all-messages-modal";
 import type { DeleteMessageModalProps } from "./delete-message-modal";
+import type { DeleteSelectedModalProps } from "./delete-selected-modal";
 import type { DiscardChangesModalProps } from "./discard-changes-modal";
 import type { RevealMessageModalProps } from "./reveal-message-modal";
 import type { SmartReplyModalProps } from "./smart-reply-modal";
@@ -32,16 +34,27 @@ export const defaultDeleteMessageModalArgs: DeleteMessageModalProps = {
   open: true,
 };
 
+export const defaultDeleteSelectedModalArgs: DeleteSelectedModalProps = {
+  count: 2,
+  onConfirm: noop,
+  onOpenChange: noop,
+  open: true,
+  publicAnswerCount: 1,
+};
+
 export const defaultSmartReplyModalArgs: SmartReplyModalProps = {
+  drafts: smartReplyDrafts,
+  hasDraftsError: false,
   isGenerating: false,
   isOpen: true,
   isPublished: true,
   isSaving: false,
   message: sweetMessage,
   onClose: noop,
-  onGenerate: noop,
+  onPickDraft: noop,
   onPublishedChange: noop,
   onReplyTextChange: noop,
+  onRetryDrafts: noop,
   onSave: noop,
   onSaveAndShare: noop,
   replyText: "",

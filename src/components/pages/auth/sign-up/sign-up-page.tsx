@@ -10,13 +10,21 @@ export interface SignUpPageProps {
   initialUsername?: string;
 }
 
+/** Sign-up is step 1 of 2; the Verification Code is step 2. */
+const SIGN_UP_STEP = { current: 1, total: 2 } as const;
+
 export function SignUpPage({
   initialUsername,
 }: SignUpPageProps): React.JSX.Element {
   const signUpForm = useSignUpController({ initialUsername });
 
   return (
-    <AuthPanel title="Make your link">
+    <AuthPanel
+      backHref="/"
+      description="Pick a username. That's your link."
+      step={SIGN_UP_STEP}
+      title="Make your link"
+    >
       <SignUpForm
         form={signUpForm.form}
         isSubmitting={signUpForm.isSubmitting}

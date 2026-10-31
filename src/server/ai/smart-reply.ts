@@ -1,31 +1,70 @@
 import "server-only";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { generateText } from "ai";
+import { generateObject } from "ai";
+import { z } from "zod";
+import { SMART_REPLY_TONES } from "@/schemas/message-schema";
 
-export type ReplyTone = "witty" | "wholesome" | "thoughtful";
+export type ReplyTone = (typeof SMART_REPLY_TONES)[number];
+
+export interface SmartReplyDraft {
+  text: string;
+  tone: ReplyTone;
+}
+
+/** Drafts stay short enough to read at a glance (at most 2 sentences). */
+const DRAFT_MAX_LENGTH = 180;
 
 const TONE_INSTRUCTIONS: Record<ReplyTone, string> = {
   thoughtful:
-    "Respond with reflective depth, honesty, maturity, and insight. Give a meaningful, well-considered perspective.",
+    "reflective depth, honesty, maturity and insight: a meaningful, well-considered perspective.",
   wholesome:
-    "Respond with genuine gratitude, warmth, positive energy, and kindness. Make the sender feel appreciated.",
+    "genuine gratitude, warmth, positive energy and kindness: make the sender feel appreciated.",
   witty:
-    "Respond with sharp wit, clever humor, or lighthearted playful sarcasm. Keep it funny and memorable without being genuinely cruel.",
+    "sharp wit, clever humour or lighthearted playful sarcasm: funny and memorable, never cruel.",
 };
 
-export async function generateSmartReply(
-  messageContent: string,
-  tone: ReplyTone
-): Promise<string> {
+/** Used without an AI key or when the call fails, so the list is never empty. */
+export const FALLBACK_DRAFTS: Record<ReplyTone, string> = {
+  thoughtful:
+    "That's a really interesting point. It definitely got me thinking!",
+  wholesome: "Thank you so much! That means a lot to me. ✨",
+  witty: "Haha, thanks for keeping me on my toes! 😉",
+};
+
+/**
+ * Gemini's structured-output mode returns all three drafts in one call; an
+ * object that doesn't fit fails the call, which falls back below.
+ */
+const draftsSchema = z.object({
+  thoughtful: z.string().min(1),
+  wholesome: z.string().min(1),
+  witty: z.string().min(1),
+});
+
+const QUOTE_EDGES = /^["']|["']$/g;
+
+const clean = (text: string): string =>
+  text.replace(QUOTE_EDGES, "").trim().slice(0, DRAFT_MAX_LENGTH);
+
+const toDrafts = (byTone: Record<ReplyTone, string>): SmartReplyDraft[] =>
+  SMART_REPLY_TONES.map((tone) => ({ text: byTone[tone], tone }));
+
+const buildPrompt = (messageContent: string): string =>
+  [
+    "You help a person reply to an Anonymous Message they received on their GhostMsg profile.",
+    `Anonymous Message: "${messageContent}"`,
+    "Write three different replies, one per tone:",
+    ...SMART_REPLY_TONES.map((tone) => `- ${tone}: ${TONE_INSTRUCTIONS[tone]}`),
+    `Each reply is the reply text only: no quotes, explanations or greetings, at most 2 sentences and under ${DRAFT_MAX_LENGTH} characters.`,
+  ].join("\n");
+
+/** Three Smart Reply drafts (thoughtful, witty, wholesome) for one message. */
+export async function generateSmartReplies(
+  messageContent: string
+): Promise<SmartReplyDraft[]> {
   const apiKey = process.env.GOOGLE_AI_STUDIO_SECRET;
   if (!apiKey) {
-    const fallbacks: Record<ReplyTone, string> = {
-      thoughtful:
-        "That's a really interesting point. It definitely got me thinking!",
-      wholesome: "Thank you so much! That means a lot to me. ✨",
-      witty: "Haha, thanks for keeping me on my toes! 😉",
-    };
-    return fallbacks[tone];
+    return toDrafts(FALLBACK_DRAFTS);
   }
 
   try {
@@ -33,22 +72,19 @@ export async function generateSmartReply(
       apiKey,
     }).chat("gemini-2.5-flash-lite");
 
-    const instruction = TONE_INSTRUCTIONS[tone] || TONE_INSTRUCTIONS.wholesome;
-
-    const prompt = `You are an AI assistant helping a user reply to an anonymous message received on their GhostMsg profile.
-Anonymous Message: "${messageContent}"
-Tone Required: ${tone.toUpperCase()}
-Style Guidelines: ${instruction}
-Constraint: Output ONLY the reply text directly. Do not add quotes, explanations, or greeting boilerplate. Maximum 2 sentences (under 180 characters).`;
-
-    const response = await generateText({
+    const { object } = await generateObject({
       model,
-      prompt,
+      prompt: buildPrompt(messageContent),
+      schema: draftsSchema,
     });
 
-    return response.text.replace(/^["']|["']$/g, "").trim();
+    return toDrafts({
+      thoughtful: clean(object.thoughtful),
+      wholesome: clean(object.wholesome),
+      witty: clean(object.witty),
+    });
   } catch (err) {
     console.warn("AI smart reply failed, using fallback:", err);
-    return "Thanks for sending this message!";
+    return toDrafts(FALLBACK_DRAFTS);
   }
 }

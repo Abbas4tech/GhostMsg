@@ -39,10 +39,11 @@ This is the complete list, checked against every `process.env`, `import.meta.env
 | `SMTP_PORT` | No | [`mailer.ts`](../src/server/email/mailer.ts) | `587` (STARTTLS); `465` switches to TLS |
 | `SMTP_FROM` | No | [`mailer.ts`](../src/server/email/mailer.ts) | `GhostMsg 👻 <SMTP_USER>` |
 | `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` | No | [`options.ts`](../src/app/api/auth/[...nextauth]/options.ts) | Only email sign-up |
-| `GOOGLE_AI_STUDIO_SECRET` | No | [`moderation.ts`](../src/server/ai/moderation.ts), [`smart-reply.ts`](../src/server/ai/smart-reply.ts), [`ama-suggestions.ts`](../src/server/ai/ama-suggestions.ts), [`suggest-messages/route.ts`](../src/app/api/suggest-messages/route.ts) | Every message is delivered as clean (nothing quarantined); AI features use fixed fallbacks |
+| `GOOGLE_AI_STUDIO_SECRET` | No | [`moderation.ts`](../src/server/ai/moderation.ts), [`smart-reply.ts`](../src/server/ai/smart-reply.ts), [`ama-suggestions.ts`](../src/server/ai/ama-suggestions.ts), [`suggested-messages.ts`](../src/server/ai/suggested-messages.ts) | Every message is delivered as clean (nothing quarantined); AI features use fixed fallbacks ([Chapter 24](24-ai-features.md)) |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | No | [`use-push-notification.ts`](../src/data/user/use-push-notification.ts) (browser), [`web-push.ts`](../src/server/push/web-push.ts) | Push reported as not configured. Built into the browser bundle: rebuild after changing it |
 | `VAPID_PRIVATE_KEY` | No | [`web-push.ts`](../src/server/push/web-push.ts) | No pushes are sent |
 | `VAPID_SUBJECT` | No | [`web-push.ts`](../src/server/push/web-push.ts) | `mailto:support@ghostmsg.app` |
+| `NEXT_PUBLIC_LIVE_PROFILE_USERNAME` | No | [`use-claim-link.controller.ts`](../src/components/pages/home/use-claim-link.controller.ts) (browser) | The landing hides "See a live profile". Must name a real public profile. Built into the bundle: rebuild after changing it |
 | `SENDER_PEPPER_SECRET` | Recommended (prod) | [`security.ts`](../src/server/security/security.ts) | Falls back to `NEXT_AUTH_SECRET` |
 | `CRON_SECRET` | No | [`daily-digest/route.ts`](../src/app/api/cron/daily-digest/route.ts) | Digest route answers 503; no digests |
 | `ANALYZE` | No | [`next.config.ts`](../next.config.ts) | Set by `pnpm analyze` |
@@ -74,6 +75,16 @@ Tests never need a real `.env.local`: the network is mocked with MSW. Tests that
 
 ## 3. Installation & First Run
 
+```mermaid
+flowchart LR
+    A["pnpm install"] --> B["cp .env.example .env.local<br/>(MONGODB_URI, NEXT_AUTH_SECRET, NEXTAUTH_URL)"]
+    B --> C["pnpm typegen"]
+    C --> D["pnpm dev → :3000"]
+    C --> E["pnpm storybook → :6006<br/>(no database needed: MSW)"]
+    D --> F{"Sign up works?"}
+    F -- "no email arrives" --> G["Set SMTP_* or use Google sign-in"]
+```
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Abbas4tech/GhostMsg.git
@@ -98,6 +109,8 @@ pnpm storybook        # http://localhost:6006
 > **First test run:** `pnpm test:stories` can fail once with "failed to find the current suite" while Vite optimizes dependencies. Re-run it.
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+**Done when:** you can sign up, receive the Verification Code (or sign in with Google), and see the empty inbox ("No Anonymous Messages yet"). Without `GOOGLE_AI_STUDIO_SECRET` everything still works with stock AI text. If something is off, see [Chapter 27](27-developer-troubleshooting.md).
 
 ---
 

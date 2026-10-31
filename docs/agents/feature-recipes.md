@@ -118,3 +118,40 @@ Example: adding `SOME_NEW_SECRET` used by a new server module.
 
 **Done when** the Vercel dashboard shows the variable in Production and Preview, `terraform plan` is clean (no changes), and all tests pass without a real `.env.local`.
 
+
+## Recipe K: Add an inbox keyboard shortcut
+
+Example: `p` pins a message to the top. Full rules: [Chapter 25 §2.3](../25-accessibility-and-feedback.md#23-adding-a-shortcut).
+
+1. **Map:** add `"pin"` to `InboxShortcut` and `p: "pin"` to `SHORTCUT_KEYS` (`pages/dashboard/inbox.utils.ts`) + a case in `inbox.utils.test.ts`.
+2. **Controller:** add `onPin` to `UseInboxKeyboardControllerOptions` and a `case "pin"` in `runMessageShortcut` (skip quarantined messages unless the action is safe for them).
+3. **Page:** pass `onPin: inbox.handlePin` from `InboxPage`.
+4. **Sheet and tooltip:** add `{ keys: ["p"], label: "Pin" }` to `SHORTCUT_GROUPS` (`patterns/shortcut-sheet`); give the matching card button `shortcut="p"`.
+5. **Test:** `press("p")` in `use-inbox-keyboard.controller.test.ts`, plus "ignored while typing / dialog open" is already covered by `shouldIgnoreShortcut`.
+6. **Docs:** Chapter 23 §7 table and Chapter 12 keyboard row.
+
+**Done when** the key works on the focused card, appears in the `?` sheet, and does nothing inside a field.
+
+## Recipe L: Add or change an AI feature
+
+Follow [Chapter 24 §8](../24-ai-features.md#8-adding-or-changing-an-ai-feature): module in `src/server/ai/` (`server-only`, same-shape fallback), route + OpenAPI schemas + `pnpm typegen`, a query (cacheable, `retry: false`) or mutation, MSW handler + fixture, a mocked-SDK unit test, and a story for loading and error states.
+
+**Done when** the feature works with no `GOOGLE_AI_STUDIO_SECRET` and makes one model call per user action.
+
+## Recipe M: Add a phone-specific variation
+
+Pick the technique with the flowchart in [Chapter 26 §2](../26-responsive-design.md#2-two-techniques): CSS-only for server-rendered screens and plain layout, a `useIsMobile()` branch when the trees differ. Then:
+
+1. Add the phone layout (prop on the pattern or block, or a utility class), keeping one tree mounted.
+2. Put top-bar controls through `MobileHeaderActions` / `MobileHeaderLeading`, not a second header.
+3. Add a `Mobile` story (`mobile1` viewport) asserting the phone-only parts.
+4. Compare against the `Mob*` board; touch targets ≥ 44px.
+5. Docs: Chapter 26 §3.3 and §4, and Chapter 14 for the screen.
+
+**Done when** the story passes axe on both viewports and no `id` is duplicated.
+
+## Recipe N: Show feedback to the user
+
+Use the decision flowchart in [Chapter 25 §5.1](../25-accessibility-and-feedback.md#51-which-to-use): inline `Alert` / `FormMessage` for field or form errors, a confirm `AlertDialog` for irreversible actions, `showUndoToast` only for Delete all, otherwise `notify.success | info | warning | error`. One line, verb first, never message text. In tests mock `sonner` and `@/components/elements/sonner` together.
+
+**Done when** the controller test asserts the `toast.*` spy and no component imports `toast` from `sonner` directly.

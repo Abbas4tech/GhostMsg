@@ -9,6 +9,8 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+/ghostmsg-handoff
+/ghostmsg-handoff.zip
 
 # testing
 /coverage
@@ -53,6 +55,3 @@ terraform/*.tfstate.*
 terraform/terraform.tfvars
 terraform/*.auto.tfvars
 terraform/crash.log
-branch_structure.json
-temp_auto_push.bat
-temp_interactive_push.bat

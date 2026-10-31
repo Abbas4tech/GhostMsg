@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
 import { api, clientFetch } from "@/data/api-client";
 
 /**
@@ -28,9 +28,9 @@ export const usePushSubscriptionMutation = () =>
       );
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to register web push subscription");
+      notify.error(err.message || "Failed to register web push subscription");
     },
     onSuccess: () => {
-      toast.success("Web push notifications enabled! 🔔");
+      notify.success("Web push notifications enabled! 🔔");
     },
   });

@@ -5,11 +5,12 @@ import { cn } from "@/lib/utils";
 
 /**
  * Stock shadcn (new-york v4) Button. GhostMsg additions are opt-in only:
- * `primary`, `accent`, `glass`, `brand` variants and the 48px `xl` size.
+ * `primary`, `accent`, `glass`, `brand`, `dashed` variants and the 48px `xl` size.
  * `destructive` uses `text-destructive-foreground` (AA in every palette, ADR 0022).
  */
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  // GhostMsg: 600 weight like the design `.btn` (approved deviation from stock 500).
+  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md font-semibold text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     defaultVariants: {
       size: "default",
@@ -34,6 +35,9 @@ const buttonVariants = cva(
         /** Hero CTAs and "Send anonymously": the palette's brand gradient. */
         brand:
           "bg-brand-gradient text-brand-foreground shadow-lift hover:brightness-110",
+        /** Suggested Message / Smart Reply ideas: low-commitment, pill-shaped. */
+        dashed:
+          "rounded-full border border-input border-dashed bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground",
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",

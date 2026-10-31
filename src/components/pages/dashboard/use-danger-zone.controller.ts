@@ -1,8 +1,11 @@
 "use client";
 
+import { Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { createElement, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { notify } from "@/components/elements/sonner";
+import { showUndoToast } from "@/components/patterns/undo-toast";
 import { useDeleteAllMessagesMutation } from "@/data/messages/use-delete-all-messages-mutation";
 import { useDeleteAccountMutation } from "@/data/user/use-delete-account-mutation";
 
@@ -10,9 +13,9 @@ import { useDeleteAccountMutation } from "@/data/user/use-delete-account-mutatio
 export const DELETE_ALL_UNDO_MS = 10_000;
 
 /**
- * Danger zone: "Delete all" waits 10 s with an Undo toast before calling the
- * API (and commits at once if the page unmounts); "Delete account" needs the
- * typed username, then signs out.
+ * Danger zone: "Delete all" holds the API call behind a 10 s Undo toast and
+ * sends it when the toast closes without Undo (or at once if the page
+ * unmounts); "Delete account" needs the typed username, then signs out.
  */
 export function useDangerZoneController(username: string) {
   const deleteAllMutation = useDeleteAllMessagesMutation();
@@ -22,37 +25,44 @@ export function useDangerZoneController(username: string) {
   const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
   const [confirmValue, setConfirmValue] = useState("");
 
-  const pendingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingToastRef = useRef<number | string | null>(null);
   const { mutate: deleteAll } = deleteAllMutation;
 
   const commitDeleteAll = useCallback(() => {
-    if (pendingRef.current) {
-      clearTimeout(pendingRef.current);
-      pendingRef.current = null;
+    if (pendingToastRef.current !== null) {
+      pendingToastRef.current = null;
       deleteAll();
     }
   }, [deleteAll]);
 
-  // Leaving the page doesn't cancel a confirmed delete; it commits it.
-  useEffect(() => commitDeleteAll, [commitDeleteAll]);
+  // Leaving the page doesn't cancel a confirmed delete; it commits it and
+  // takes the Undo toast down with it.
+  useEffect(
+    () => () => {
+      const toastId = pendingToastRef.current;
+      commitDeleteAll();
+      if (toastId !== null) {
+        toast.dismiss(toastId);
+      }
+    },
+    [commitDeleteAll]
+  );
+
+  const handleUndoDeleteAll = useCallback(() => {
+    pendingToastRef.current = null;
+    notify.success("Nothing was deleted");
+  }, []);
 
   const handleConfirmDeleteAll = useCallback(() => {
     setIsDeleteAllOpen(false);
-    pendingRef.current = setTimeout(commitDeleteAll, DELETE_ALL_UNDO_MS);
-    toast("Deleting all messages…", {
-      action: {
-        label: "Undo",
-        onClick: () => {
-          if (pendingRef.current) {
-            clearTimeout(pendingRef.current);
-            pendingRef.current = null;
-          }
-          toast.success("Nothing was deleted");
-        },
-      },
-      duration: DELETE_ALL_UNDO_MS,
+    pendingToastRef.current = showUndoToast({
+      durationMs: DELETE_ALL_UNDO_MS,
+      icon: createElement(Trash2),
+      message: "Deleting all messages…",
+      onCommit: commitDeleteAll,
+      onUndo: handleUndoDeleteAll,
     });
-  }, [commitDeleteAll]);
+  }, [commitDeleteAll, handleUndoDeleteAll]);
 
   const { mutateAsync: deleteAccount } = deleteAccountMutation;
   const handleConfirmDeleteAccount = useCallback(async () => {

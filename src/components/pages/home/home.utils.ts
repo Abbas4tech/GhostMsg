@@ -12,3 +12,11 @@ export function buildClaimHref(username: string): string {
 export function buildLinkPrefix(host: string | undefined): string {
   return `${host || "ghostmsg.app"}/u/`;
 }
+
+/** "/u/<name>" for the landing's "See a live profile", or none when unset. */
+export function buildLiveProfileHref(
+  username: string | undefined
+): string | undefined {
+  const trimmed = username?.trim();
+  return trimmed ? `/u/${encodeURIComponent(trimmed)}` : undefined;
+}

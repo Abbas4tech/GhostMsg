@@ -11,8 +11,15 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
+        /** GhostMsg: design `.alert[data-v=destructive]`, a 7% tint, foreground text and a red icon. */
         destructive:
-          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 [&>svg]:text-current",
+          "border-destructive/40 bg-destructive/7 text-foreground *:data-[slot=alert-description]:text-muted-foreground [&>svg]:text-destructive",
+        info: "bg-card text-info *:data-[slot=alert-description]:text-info/90 [&>svg]:text-current",
+        success:
+          "bg-card text-success *:data-[slot=alert-description]:text-success/90 [&>svg]:text-current",
+        /** --warning is a light fill colour, not AA as text; pair with its own -foreground. */
+        warning:
+          "bg-card text-warning-foreground *:data-[slot=alert-description]:text-warning-foreground/90 [&>svg]:text-warning",
       },
     },
   }

@@ -14,13 +14,13 @@ const meta = {
     question: { control: "text", description: "The Anonymous Message" },
     size: {
       control: "radio",
-      description: "Card width",
-      options: ["sm", "md"],
+      description: "Card width (fluid: 220px on phones, 280px from sm)",
+      options: ["fluid", "sm", "md"],
     },
     tilt: {
       control: "radio",
-      description: "Playful tilt",
-      options: ["none", "right"],
+      description: "Playful tilt (fluid: left on phones, right from sm)",
+      options: ["none", "right", "fluid"],
     },
   },
   component: StoryCardPreview,
@@ -42,3 +42,9 @@ export const Answered: Story = {
 export const QuestionOnly: Story = { args: questionOnlyStoryCardPreviewArgs };
 
 export const SmallTilted: Story = { args: { size: "sm", tilt: "right" } };
+
+/** Landing on a phone (design MobLanding): 220px, tilted left. */
+export const FluidOnPhone: Story = {
+  args: { size: "fluid", tilt: "fluid" },
+  globals: { viewport: { isRotated: false, value: "mobile1" } },
+};

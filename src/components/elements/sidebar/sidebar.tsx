@@ -497,7 +497,7 @@ const sidebarMenuButtonVariants = cva(
         default: "h-8 text-sm",
         lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
         /** GhostMsg 44px nav row: rounded-xl, 15px semibold. */
-        nav: "h-11 rounded-xl px-3 font-semibold text-[15px] data-[active=true]:font-semibold [&>svg]:size-[18px]",
+        nav: "h-11 rounded-xl px-3 text-title data-[active=true]:font-semibold [&>svg]:size-[18px]",
         sm: "h-7 text-xs",
       },
       variant: {

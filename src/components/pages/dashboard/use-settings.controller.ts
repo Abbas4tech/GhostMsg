@@ -1,12 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { signOut } from "next-auth/react";
 import { useCallback, useState } from "react";
-import { toast } from "sonner";
 import type {
   EmailAlertMode,
   QuietHoursValue,
+  SettingsAccount,
 } from "@/components/blocks/settings-panel";
+import { notify } from "@/components/elements/sonner";
 import { fetchAllMessages } from "@/data/messages/fetch-all-messages";
 import { messagesQueries } from "@/data/messages/messages.queries";
 import { useAcceptMessageMutation } from "@/data/user/use-accept-message-mutation";
@@ -40,8 +42,9 @@ const currentTimeZone = (): string =>
 
 /**
  * Settings page: Message Acceptance, Messages + Safety preferences,
- * notifications (email, push, hidden text, quiet hours), the blocklist and
- * exporting every message. Browser push APIs stay behind the push adapter.
+ * notifications (email, push, hidden text, quiet hours), the blocklist,
+ * exporting every message and (phones) the account card + Sign out. Browser
+ * push APIs stay behind the push adapter.
  */
 export function useSettingsController({
   acceptMessages: controlledAcceptMessages,
@@ -115,7 +118,7 @@ export function useSettingsController({
       const messages = await fetchAllMessages("any");
       downloadTextFile(buildMessagesExport(messages, format));
     } catch (error) {
-      toast.error(
+      notify.error(
         error instanceof Error && error.message
           ? error.message
           : "Couldn't export your messages"
@@ -125,16 +128,31 @@ export function useSettingsController({
     }
   }, []);
 
+  const handleSignOut = useCallback(() => {
+    signOut({ callbackUrl: "/" });
+  }, []);
+
+  const profile = profileData?.profile;
+  const account: SettingsAccount | undefined = profile
+    ? {
+        avatarUrl: profile.avatarUrl,
+        displayName: profile.displayName,
+        email: profile.email,
+        username: profile.username,
+      }
+    : undefined;
+
   const notifications = notifData?.notificationSettings;
   const blockedHashes = blockedData?.blockedSenderHashes ?? [];
 
   return {
+    account,
     blockedHashes,
     blockedSenders:
       blockedData?.blockedSenders ?? blockedHashes.map((hash) => ({ hash })),
     blurSpicy: preferences?.safety.blurSpicy ?? false,
     // Notifications
-    email: profileData?.profile.email ?? "",
+    email: profile?.email ?? "",
     emailAlerts: (notifications?.emailAlerts ?? "instant") as EmailAlertMode,
     handleBlurSpicyChange: (blurSpicy: boolean) =>
       updatePreferences({ safety: { blurSpicy } }),
@@ -150,6 +168,7 @@ export function useSettingsController({
     handleQuietHoursChange,
     handleSensitivityChange: (sensitivity: QuarantineSensitivity) =>
       updatePreferences({ safety: { sensitivity } }),
+    handleSignOut,
     handleToggleAcceptance,
     handleToggleWebPush,
     handleUnblock,

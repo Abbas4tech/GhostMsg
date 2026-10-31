@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import dbConnect from "@/server/db/db-connect";
 import { sendVerificationEmail } from "@/server/email/send-verification-email";
 import UserModel from "@/server/models/user.model";
+import { issueVerificationCode } from "@/server/users/verification-code";
 export async function POST(req: NextRequest): Promise<Response> {
   try {
     await dbConnect();
@@ -23,7 +24,8 @@ export async function POST(req: NextRequest): Promise<Response> {
 
     const existingUserByEmail = await UserModel.findOne({ email });
 
-    const verifyCode = Math.floor(100_000 + Math.random() * 900_000).toString();
+    const issued = issueVerificationCode();
+    const { verifyCode } = issued;
 
     if (existingUserByEmail) {
       if (existingUserByEmail.isVerified) {
@@ -39,14 +41,11 @@ export async function POST(req: NextRequest): Promise<Response> {
       }
       const hashedPassword = await bcrypt.hash(password, 10);
       existingUserByEmail.password = hashedPassword;
-      existingUserByEmail.verifyCode = verifyCode;
-      existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3_600_000);
+      Object.assign(existingUserByEmail, issued);
 
       await existingUserByEmail.save();
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const expiryDate = new Date();
-      expiryDate.setHours(expiryDate.getHours() + 1);
       const newUser = new UserModel({
         email,
         isAcceptingMessage: true,
@@ -54,8 +53,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         messages: [],
         password: hashedPassword,
         username,
-        verifyCode,
-        verifyCodeExpiry: expiryDate,
+        ...issued,
       });
 
       await newUser.save();

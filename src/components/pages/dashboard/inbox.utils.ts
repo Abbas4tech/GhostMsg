@@ -12,23 +12,41 @@ export const isFilterStatus = (value: unknown): value is MessageFilterStatus =>
   isInboxStatus(value);
 
 export type InboxShortcut =
+  | "archive"
+  | "block"
+  | "clear-selection"
+  | "delete"
+  | "extend-next"
+  | "extend-prev"
   | "next"
   | "prev"
-  | "select"
-  | "star"
   | "reply"
-  | "search";
+  | "search"
+  | "select"
+  | "star";
 
+/**
+ * Design UX board keyboard map. `event.key` already reflects Shift, so
+ * ⇧B arrives as "B", ⇧J/⇧K as "J"/"K" and # as "#".
+ */
 const SHORTCUT_KEYS: Record<string, InboxShortcut> = {
   "/": "search",
+  "#": "delete",
+  ArrowDown: "next",
+  ArrowUp: "prev",
+  B: "block",
+  Escape: "clear-selection",
+  e: "archive",
+  J: "extend-next",
   j: "next",
+  K: "extend-prev",
   k: "prev",
   r: "reply",
   s: "star",
   x: "select",
 };
 
-/** Maps a bare key press to an inbox shortcut (modifiers are handled by the caller). */
+/** Maps a key press to an inbox shortcut (Ctrl/⌘/Alt are handled by the caller). */
 export const resolveInboxShortcut = (key: string): InboxShortcut | null =>
   SHORTCUT_KEYS[key] ?? null;
 

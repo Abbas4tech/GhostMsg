@@ -87,6 +87,8 @@ export const SendsMessage: Story = {
         PAGE_LOAD
       )
     ).toBeVisible();
+    // Design MobPublicSent: the message is repeated under "You sent".
+    await expect(canvas.getByText(MESSAGE)).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: "Send another" }));
     await waitFor(() =>
       expect(canvas.getByLabelText("Your Anonymous Message")).toHaveValue("")

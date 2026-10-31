@@ -13,10 +13,15 @@ function setup(focusedId: string | null = null) {
   const options = {
     focusedId,
     messages: [sweetMessage, curiousMessage],
+    onArchive: vi.fn(),
+    onBlock: vi.fn(),
+    onClearSelection: vi.fn(),
+    onDelete: vi.fn(),
     onOpenReply: vi.fn(),
     onStarToggle: vi.fn(),
     onToggleSelect: vi.fn(),
     searchInputId: "inbox-search",
+    selectedIds: [] as string[],
     setFocusedId: vi.fn(),
   };
   renderHook(() => useInboxKeyboardController(options));
@@ -50,6 +55,37 @@ describe("useInboxKeyboardController", () => {
     );
     expect(options.onStarToggle).toHaveBeenCalledWith(sweetMessage);
     expect(options.onOpenReply).toHaveBeenCalledWith(sweetMessage);
+  });
+
+  it("archives, deletes (via the confirm) and blocks the focused message", () => {
+    const options = setup(String(sweetMessage._id));
+    press("e");
+    press("#");
+    press("B");
+    expect(options.onArchive).toHaveBeenCalledWith(sweetMessage);
+    expect(options.onDelete).toHaveBeenCalledWith(sweetMessage);
+    expect(options.onBlock).toHaveBeenCalledWith(sweetMessage);
+  });
+
+  it("moves with the arrow keys and extends the selection with shift", () => {
+    const options = setup(String(sweetMessage._id));
+    press("ArrowDown");
+    expect(options.setFocusedId).toHaveBeenCalledWith(
+      String(curiousMessage._id)
+    );
+    press("J");
+    expect(options.onToggleSelect).toHaveBeenCalledWith(
+      String(sweetMessage._id)
+    );
+    expect(options.onToggleSelect).toHaveBeenCalledWith(
+      String(curiousMessage._id)
+    );
+  });
+
+  it("clears the selection on escape", () => {
+    const options = setup();
+    press("Escape");
+    expect(options.onClearSelection).toHaveBeenCalled();
   });
 
   it("focuses search on slash", () => {
