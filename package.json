@@ -15,6 +15,7 @@
     "lint": "ultracite check",
     "lint:fix": "ultracite fix",
     "prepare": "husky",
+    "security:check": "tsx scripts/check-suspicious-code.ts",
     "start": "next start",
     "storybook": "storybook dev -p 6006",
     "test": "vitest run --project unit",

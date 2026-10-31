@@ -16,6 +16,7 @@ Start here when you are an AI agent working in GhostMsg. Each guide covers one k
 | [../25-accessibility-and-feedback.md](../25-accessibility-and-feedback.md) | Add a shortcut, toast, dialog, animation or form field. |
 | [../26-responsive-design.md](../26-responsive-design.md) | Add a phone-only or desktop-only behaviour. |
 | [../27-developer-troubleshooting.md](../27-developer-troubleshooting.md) | Hit a confusing error (styling, types, stories, lint, merges, Storybook). |
+| [../28-supply-chain-security.md](../28-supply-chain-security.md) | Add or review a config file, copy files from another project, see something obfuscated, or `pnpm security:check` fails. |
 | [../../terraform/README.md](../../terraform/README.md) | Change the Vercel project, sync an environment variable to Production/Preview, or touch the MongoDB Atlas cluster/database users. |
 | [documentation-maintenance.md](documentation-maintenance.md) | Finish any change: which docs, screenshots and indexes to update. |
 | [domain.md](domain.md) | Explore the codebase (read `GLOSSARY.md` and relevant ADRs first). |
@@ -41,8 +42,9 @@ Start here when you are an AI agent working in GhostMsg. Each guide covers one k
 | Which keys, focus rules, live regions and toast rules apply? | [25 Accessibility & Feedback](../25-accessibility-and-feedback.md) |
 | How do phone and desktop differ, and which technique do I use? | [26 Responsive Design](../26-responsive-design.md) |
 | I'm stuck on an error | [27 Developer Troubleshooting](../27-developer-troubleshooting.md) |
+| Is this file safe; what do I do if a payload is found? | [28 Supply-Chain Security](../28-supply-chain-security.md) |
 | Which modules, stories, mocks and scenarios exist? | [11 Component Registry](../11-component-registry.md) (generated) |
 
 ## Gates before you hand off
 
-`.agents/rules/pre-push-quality-checks.md`: `pnpm check` → `pnpm exec tsc --noEmit` → `pnpm build` → `pnpm test:all` → `pnpm docs:registry:check`. Add `pnpm theme:contrast` for token changes and `pnpm docs:screenshots` for visible changes.
+`.agents/rules/pre-push-quality-checks.md`: `pnpm check` → `pnpm exec tsc --noEmit` → `pnpm build` → `pnpm test:all` → `pnpm docs:registry:check` → `pnpm security:check`. Add `pnpm theme:contrast` for token changes and `pnpm docs:screenshots` for visible changes.

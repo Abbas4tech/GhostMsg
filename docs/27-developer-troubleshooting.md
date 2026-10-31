@@ -48,6 +48,15 @@ npx tsc --noEmit -p . # then fix every caller the compiler points at
 
 MSW handlers are typed from the same file (`ok("/api/…", "post", body)`), so a contract change also breaks the mocks that need updating. That is intended.
 
+### 2.1b `pnpm check` fails (or a 5,000-line diff appears) after `pnpm build`
+**Cause.** `pnpm build` runs `pnpm typegen`, which rewrites `src/generated/api-schema.d.ts` unformatted. The committed file is formatted.
+**Fix.** Format it; the diff against HEAD then disappears unless the API contract really changed:
+
+```bash
+npx biome check --write src/generated/api-schema.d.ts
+git diff --stat -- src/generated/api-schema.d.ts   # empty = no contract change
+```
+
 ### 2.2 The client can't see `retryAfterSeconds` (or another field) on a 4xx
 **Cause.** `clientFetch` throws an `ApiError` for non-2xx responses; the JSON body is in `error.details`, not `error.message`.
 **Fix.**
@@ -145,6 +154,9 @@ git diff <last-redesign-commit> HEAD -- src | grep -E '^-.*text-(h1|h2|h3|title|
 ```
 
 ## 6. Local tooling
+
+### 6.0 A config file or font contains a huge unreadable blob
+**Cause.** Possibly the supply-chain payload described in [Chapter 28](28-supply-chain-security.md). **Fix.** Stop running the project, run `pnpm security:check` (it only reads files) and follow the first-hour steps there.
 
 ### 6.1 Storybook won't start: port 6006 in use
 **Fix.** Stop only the process on that port (not every `node`):

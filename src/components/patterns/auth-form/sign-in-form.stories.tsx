@@ -16,7 +16,7 @@ const LOGGING_IN_REGEX = /signing in/i;
 const GOOGLE_REGEX = /continue with google/i;
 const SHOW_PASSWORD_REGEX = /show password/i;
 const HIDE_PASSWORD_REGEX = /hide password/i;
-const SIGN_UP_LINK_REGEX = /get your link/i;
+const SIGN_UP_LINK_REGEX = /make your link/i;
 
 /** Creates the form with the real schema, as `useSignInController` does. */
 function SignInFormHarness({

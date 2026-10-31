@@ -16,6 +16,8 @@ import { SettingsPage } from "./settings-page";
 const PAGE_LOAD = { timeout: 15_000 };
 
 const REPLY_REGEX = /^reply$/i;
+/** Palette rows end with their key hint ("Settings g s"). */
+const SETTINGS_OPTION_REGEX = /^settings/i;
 /** "2 unread · last checked a moment ago" (design Inbox). */
 const UNREAD_LINE_REGEX = /^2 unread · last checked/;
 const QUARANTINED_REGEX = /quarantined/i;
@@ -129,11 +131,7 @@ export const RevealsQuarantined: Story = {
       canvas.getByRole("radio", { name: QUARANTINED_REGEX })
     );
     await expect(
-      await canvas.findByText(
-        "Hidden. Flagged as hurtful.",
-        undefined,
-        PAGE_LOAD
-      )
+      await canvas.findByText("Hidden. Flagged as spam.", undefined, PAGE_LOAD)
     ).toBeVisible();
     await expect(
       canvas.queryByText(quarantinedMessage.content)
@@ -177,7 +175,7 @@ export const CommandPalette: Story = {
       name: "Command palette",
     });
     await expect(
-      within(palette).getByRole("option", { name: "Settings" })
+      within(palette).getByRole("option", { name: SETTINGS_OPTION_REGEX })
     ).toBeVisible();
   },
 };

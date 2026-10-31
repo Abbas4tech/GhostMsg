@@ -41,12 +41,10 @@ export const Guest: Story = {
       "href",
       "/sign-in"
     );
+    // Palettes and the theme live in Settings → Appearance only.
     await expect(
-      canvas.getByRole("button", { name: "Toggle theme" })
-    ).toBeVisible();
-    await expect(
-      canvas.getByRole("button", { name: "Color theme" })
-    ).toBeVisible();
+      canvas.queryByRole("button", { name: "Color theme" })
+    ).not.toBeInTheDocument();
   },
 };
 

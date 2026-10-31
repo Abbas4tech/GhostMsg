@@ -90,6 +90,7 @@ describe("buildInboxFilter", () => {
 
   it("adds no $and without search or cursor", () => {
     expect(buildInboxFilter(RECIPIENT, { status: "all" })).toEqual({
+      isArchived: { $ne: true },
       isQuarantined: false,
       recipientId: RECIPIENT,
     });
@@ -129,6 +130,7 @@ describe("inbox counts", () => {
     expect(toInboxCounts(undefined)).toEqual({
       all: 0,
       answered: 0,
+      archived: 0,
       quarantined: 0,
       starred: 0,
       total: 0,

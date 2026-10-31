@@ -17,7 +17,7 @@ import {
 const SUBMIT_REGEX = /^verify$/i;
 const CHECKING_REGEX = /checking your code/i;
 const RESEND_REGEX = /^resend code$/i;
-const RESEND_IN_REGEX = /resend in 0:42/i;
+const RESEND_IN_REGEX = /resend in/i;
 const CHANGE_EMAIL_REGEX = /wrong email\? change it/i;
 
 /** Creates the form with the real schema, as the verify page controller does. */
@@ -93,6 +93,7 @@ export const Default: Story = {
       canvas.getByRole("button", { name: SUBMIT_REGEX })
     ).toBeDisabled();
     await expect(canvas.getByText(RESEND_IN_REGEX)).toBeVisible();
+    await expect(canvas.getByText("0:42")).toBeVisible();
     await expect(
       canvas.getByRole("link", { name: CHANGE_EMAIL_REGEX })
     ).toHaveAttribute("href", "/sign-up");

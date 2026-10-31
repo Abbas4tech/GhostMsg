@@ -41,8 +41,8 @@ export const Mobile: Story = {
         name: "Your friends have things to say.",
       })
     ).toBeVisible();
-    await expect(
-      canvas.getByText("Give them a safe place to say it.")
-    ).toBeVisible();
+    const subtitles = canvas.getAllByText("Give them a safe place to say it.");
+    await expect(subtitles.some((node) => node.tagName === "P")).toBe(true);
+    await expect(subtitles.find((node) => node.tagName === "P")).toBeVisible();
   },
 };

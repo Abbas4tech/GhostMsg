@@ -2,14 +2,14 @@
 
 Welcome to the comprehensive engineering documentation for GhostMsg. This documentation is organized into numbered chapters for sequential onboarding and reference.
 
-**New here?** Read [12 Product Guide](12-product-guide-and-features.md) for what the product does, [14 UI Screens](14-ui-screens-and-user-flows.md) for how it looks, then [03 System Architecture](03-system-architecture.md). Feature deep-dives: [22 Auth](22-authentication-and-verification.md), [23 Inbox](23-inbox-triage.md), [24 AI](24-ai-features.md). Cross-cutting guides: [25 Accessibility & Feedback](25-accessibility-and-feedback.md), [26 Responsive Design](26-responsive-design.md), [27 Troubleshooting](27-developer-troubleshooting.md). **AI agents** start at [agents/README.md](agents/README.md).
+**New here?** Read [12 Product Guide](12-product-guide-and-features.md) for what the product does, [14 UI Screens](14-ui-screens-and-user-flows.md) for how it looks, then [03 System Architecture](03-system-architecture.md). Feature deep-dives: [22 Auth](22-authentication-and-verification.md), [23 Inbox](23-inbox-triage.md), [24 AI](24-ai-features.md). Cross-cutting guides: [25 Accessibility & Feedback](25-accessibility-and-feedback.md), [26 Responsive Design](26-responsive-design.md), [27 Troubleshooting](27-developer-troubleshooting.md), [28 Supply-Chain Security](28-supply-chain-security.md). **AI agents** start at [agents/README.md](agents/README.md).
 
 ```mermaid
 flowchart LR
     START["New to GhostMsg"] --> P["12 Product"] --> S["14 Screens"] --> A["03 Architecture"]
     A --> DEEP["Deep-dives<br/>22 Auth · 23 Inbox · 24 AI"]
     A --> REF["Reference<br/>13 Design · 15 Data · 16 API · 17 Safety · 18 Notifications · 20 State"]
-    A --> HOW["How-to<br/>25 Accessibility · 26 Responsive · 27 Troubleshooting"]
+    A --> HOW["How-to<br/>25 Accessibility · 26 Responsive · 27 Troubleshooting · 28 Security"]
     A --> OPS["Run it<br/>02 Setup · 06 Workflow · 07 Tests · 09 Deploy · 21 Terraform"]
 ```
 
@@ -48,6 +48,7 @@ flowchart LR
 | **25** | [**Accessibility & Feedback**](25-accessibility-and-feedback.md) | Keyboard map and guard, adding a shortcut, focus rules, live regions, `notify` and toast rules, Undo toast lifecycle, motion, forms, PR checklist. |
 | **26** | [**Responsive Design**](26-responsive-design.md) | Breakpoints, CSS-only vs `useIsMobile` branch, ResponsiveDialog, top-bar portals, layout props, container queries, screen-by-screen phone vs desktop. |
 | **27** | [**Developer Troubleshooting**](27-developer-troubleshooting.md) | Symptom → cause → fix for styling, types, tests, lint, merges and local tooling. |
+| **28** | [**Supply-Chain Security**](28-supply-chain-security.md) | The payload found in `postcss.config.mjs` and a fake font, what it did, first-hour response, secrets to rotate, `pnpm security:check`, prevention habits. |
 
 ---
 

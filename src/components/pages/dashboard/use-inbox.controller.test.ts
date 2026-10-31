@@ -207,8 +207,12 @@ describe("useInboxController", () => {
     );
   });
 
-  it("archives a message: it leaves the list at once and a toast confirms", async () => {
-    const requests = recordRequests();
+  it("archives a message: it leaves the list before the server answers", async () => {
+    server.use(
+      http.patch(mswPath("/api/messages/{messageId}"), async () => {
+        await delay("infinite");
+      })
+    );
     const { result } = await renderLoadedInbox();
 
     act(() => result.current.handleToggleArchive(sweetMessage));
@@ -218,6 +222,14 @@ describe("useInboxController", () => {
         String(sweetMessage._id)
       )
     );
+  });
+
+  it("archives a message: sends isArchived and confirms with a toast", async () => {
+    const requests = recordRequests();
+    const { result } = await renderLoadedInbox();
+
+    act(() => result.current.handleToggleArchive(sweetMessage));
+
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith("Message archived")
     );

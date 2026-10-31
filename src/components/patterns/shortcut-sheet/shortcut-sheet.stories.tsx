@@ -32,6 +32,16 @@ export const Default: Story = {
   },
 };
 
+export const ClosesWithDone: Story = {
+  play: async ({ args, userEvent }) => {
+    const dialog = await screen.findByRole("dialog", {
+      name: "Keyboard shortcuts",
+    });
+    await userEvent.click(within(dialog).getByRole("button", { name: "Done" }));
+    await expect(args.onOpenChange).toHaveBeenCalledWith(false);
+  },
+};
+
 export const ClosesOnEscape: Story = {
   play: async ({ args, userEvent }) => {
     await screen.findByRole("dialog", { name: "Keyboard shortcuts" });

@@ -1,11 +1,14 @@
 "use client";
 
 import type React from "react";
+import { useCallback } from "react";
+import { Button } from "@/components/elements/button";
 import { Kbd } from "@/components/elements/kbd";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
   ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from "@/components/patterns/responsive-dialog";
@@ -62,6 +65,7 @@ export function ShortcutSheet({
   onOpenChange,
   open,
 }: ShortcutSheetProps): React.JSX.Element {
+  const handleDone = useCallback(() => onOpenChange(false), [onOpenChange]);
   return (
     <ResponsiveDialog onOpenChange={onOpenChange} open={open}>
       <ResponsiveDialogContent className="gap-5 shadow-lift sm:max-w-lg">
@@ -93,6 +97,16 @@ export function ShortcutSheet({
             </dl>
           </section>
         ))}
+        {/* Also the keyboard route into a scrolling phone drawer (axe: scrollable-region-focusable). */}
+        <ResponsiveDialogFooter>
+          <Button
+            className="rounded-full"
+            onClick={handleDone}
+            variant="outline"
+          >
+            Done
+          </Button>
+        </ResponsiveDialogFooter>
       </ResponsiveDialogContent>
     </ResponsiveDialog>
   );

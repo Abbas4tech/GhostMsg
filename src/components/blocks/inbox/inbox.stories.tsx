@@ -144,8 +144,9 @@ export const Focused: Story = {
 export const Loading: Story = {
   args: loadingInboxArgs,
   play: async ({ canvas }) => {
+    // Skeletons show only after 150 ms (no flash on fast loads).
     await expect(
-      canvas.getByRole("status", { name: "Loading messages" })
+      await canvas.findByRole("status", { name: "Loading messages" })
     ).toBeVisible();
   },
 };

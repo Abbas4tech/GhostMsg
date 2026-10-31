@@ -22,6 +22,7 @@ Which docs a change must update, how to keep screenshots and diagrams current, a
 | A prompt, model, AI route or AI client hook | [Chapter 24](../24-ai-features.md) | — |
 | A keyboard shortcut, toast copy or duration, focus rule, live region, animation | [Chapter 25](../25-accessibility-and-feedback.md) (and the `?` sheet's `SHORTCUT_GROUPS`) | — |
 | A phone/desktop difference, a breakpoint, a layout prop | [Chapter 26](../26-responsive-design.md) | phone screenshots |
+| A config file, install script, editor task or anything that runs code at start-up | [Chapter 28](../28-supply-chain-security.md) (and `scripts/check-suspicious-code.ts` if a new shape needs a check) | `pnpm security:check` |
 | A confusing error you solved | [Chapter 27](../27-developer-troubleshooting.md) (symptom → cause → fix) | — |
 | A domain term | [`GLOSSARY.md`](../../GLOSSARY.md) (with `_Avoid_`) | — |
 | A hard-to-reverse or surprising decision | New ADR in `docs/adr/` (next number) + [docs/README.md](../README.md) index + root README list | — |

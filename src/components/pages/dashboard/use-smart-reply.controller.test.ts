@@ -121,7 +121,10 @@ describe("useSmartReplyController", () => {
     act(() => result.current.setReplyText("   "));
     await act(() => result.current.handleSave());
 
-    expect(requests).toEqual([]);
+    // Opening the modal loads the drafts, but no answer is saved.
+    expect(
+      requests.filter((request) => request.includes("/api/messages/"))
+    ).toEqual([]);
     expect(onSaved).not.toHaveBeenCalled();
   });
 });

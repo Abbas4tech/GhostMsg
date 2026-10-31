@@ -4,7 +4,7 @@
 
 Generated inventory of every component module, its public API, stories, interaction tests, mocks, controllers, plus the shared fixtures and MSW scenarios. Rules live in [Chapter 5](05-component-architecture.md), [Chapter 10](10-storybook-and-ui-catalog.md) and the [agent guide](agents/component-architecture.md).
 
-**Totals:** 103 modules · 455 stories · 313 play() interaction tests.
+**Totals:** 103 modules · 456 stories · 314 play() interaction tests.
 
 - Regenerate after adding/renaming a module, story, mock export or scenario: `pnpm docs:registry`.
 - `pnpm docs:registry:check` fails when this file is stale (part of the pre-push gate).
@@ -377,7 +377,7 @@ Generated inventory of every component module, its public API, stories, interact
 
 > Pure, domain-aware compositions of elements. Data in, callbacks out.
 
-**29 modules · 185 stories · 143 play() tests**
+**29 modules · 186 stories · 144 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -402,7 +402,7 @@ Generated inventory of every component module, its public API, stories, interact
 | [`send-message-form`](../src/components/patterns/send-message-form) | ✅ | 6 | 4 | 1 | 0 |
 | [`sentiment-badge`](../src/components/patterns/sentiment-badge) | ✅ | 7 | 3 | 1 | 0 |
 | [`share-link-card`](../src/components/patterns/share-link-card) | ✅ | 5 | 3 | 1 | 0 |
-| [`shortcut-sheet`](../src/components/patterns/shortcut-sheet) | ✅ | 3 | 2 | 1 | 0 |
+| [`shortcut-sheet`](../src/components/patterns/shortcut-sheet) | ✅ | 4 | 3 | 1 | 0 |
 | [`story-card-preview`](../src/components/patterns/story-card-preview) | ✅ | 4 | 1 | 1 | 0 |
 | [`suggested-messages`](../src/components/patterns/suggested-messages) | ✅ | 5 | 3 | 1 | 0 |
 | [`undo-toast`](../src/components/patterns/undo-toast) | ✅ | 2 | 2 | 1 | 0 |
@@ -552,7 +552,7 @@ Generated inventory of every component module, its public API, stories, interact
 #### `patterns/shortcut-sheet`
 
 - **Public API (index.ts):** `SHORTCUT_GROUPS`, `Shortcut (type)`, `ShortcutGroup (type)`, `ShortcutSheet`, `ShortcutSheetProps (type)`
-- **Stories** `shortcut-sheet.stories.tsx` → _Patterns/ShortcutSheet_: `Default`, `ClosesOnEscape`, `Mobile`
+- **Stories** `shortcut-sheet.stories.tsx` → _Patterns/ShortcutSheet_: `Default`, `ClosesWithDone`, `ClosesOnEscape`, `Mobile`
 - **Mocks:** `shortcut-sheet.mock.ts` → `defaultShortcutSheetArgs`
 
 #### `patterns/story-card-preview`

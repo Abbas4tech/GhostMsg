@@ -157,8 +157,9 @@ export const AnsweredPrivately: Story = {
 export const Quarantined: Story = {
   args: quarantinedMessageCardArgs,
   play: async ({ args, canvas, userEvent }) => {
-    await expect(canvas.getByText("Quarantined")).toBeVisible();
-    await expect(canvas.getByText("Hidden. Flagged as hurtful.")).toBeVisible();
+    // The fixture was held as spam: the tag and the blur note say so.
+    await expect(canvas.getByText("Spam")).toBeVisible();
+    await expect(canvas.getByText("Hidden. Flagged as spam.")).toBeVisible();
     await expect(
       canvas.queryByText(quarantinedMessage.content)
     ).not.toBeInTheDocument();

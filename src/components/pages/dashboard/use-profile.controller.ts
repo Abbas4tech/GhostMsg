@@ -98,13 +98,18 @@ export function useProfileController() {
     [setAvatarUrl]
   );
 
-  const handleDiscard = useCallback(() => reset(), [reset]);
+  // Reset to the server values explicitly: a bare `reset()` combined with
+  // `values` + `keepDirtyValues` can keep the draft the recipient is discarding.
+  const handleDiscard = useCallback(
+    () => reset(serverValues, { keepDirtyValues: false }),
+    [reset, serverValues]
+  );
 
   const handleSave = useCallback(async () => {
     const current = getValues();
     const patch = buildProfilePatch(current, dirtyFields);
     if (Object.keys(patch).length === 0) {
-      reset();
+      handleDiscard();
       return;
     }
     try {
@@ -118,7 +123,14 @@ export function useProfileController() {
     } catch {
       // Rolled back + toasted by the mutation
     }
-  }, [getValues, dirtyFields, saveProfile, reset, serverValues.amaPrompt]);
+  }, [
+    getValues,
+    dirtyFields,
+    saveProfile,
+    reset,
+    handleDiscard,
+    serverValues.amaPrompt,
+  ]);
 
   const { mutateAsync: suggest } = suggestMutation;
   const handleSuggest = useCallback(async () => {
@@ -138,9 +150,9 @@ export function useProfileController() {
       return;
     }
     clearPendingHref();
-    reset();
+    handleDiscard();
     router.push(pendingHref);
-  }, [pendingHref, clearPendingHref, reset, router]);
+  }, [pendingHref, clearPendingHref, handleDiscard, router]);
 
   return {
     aiIdeas,
