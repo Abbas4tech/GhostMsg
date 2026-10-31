@@ -429,7 +429,7 @@ registry.registerPath({
         .optional()
         .openapi({ description: "`nextCursor` from the previous page" }),
       limit: z.string().optional().openapi({
-        description: "Page size 1-100 (default 30)",
+        description: "Page size 1-100 (default 12)",
         example: "30",
       }),
       q: z

@@ -5,7 +5,7 @@ import type { InboxQueryStatus } from "@/lib/messages/inbox-filter";
 import type { MessagesPageDto } from "@/types/api";
 
 /** Messages per inbox page (the server caps it at 100). */
-export const INBOX_PAGE_SIZE = 30;
+export const INBOX_PAGE_SIZE = 12;
 
 export interface InboxQueryFilters {
   /** Trimmed search text; empty = no search. */

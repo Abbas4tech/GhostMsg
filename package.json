@@ -1,6 +1,6 @@
 {
   "name": "ghostmsg",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "private": true,
   "scripts": {
     "analyze": "cross-env ANALYZE=true next build",

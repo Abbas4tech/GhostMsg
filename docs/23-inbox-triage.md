@@ -57,7 +57,7 @@ if (message.isArchived) return false;
 
 - `?filter=unread&q=jacket` is the source of truth; `useInboxFiltersController` writes it with `history.replaceState` (no navigation) and debounces search by `INBOX_SEARCH_DEBOUNCE_MS` (250 ms).
 - Search is a case-insensitive literal match on the message **or** its answer (regex characters escaped on the server).
-- Pages are 30 messages (`INBOX_PAGE_SIZE`), newest first, with a keyset cursor `"<ISO createdAt>_<id>"`. **Load more** calls `fetchNextPage`.
+- Pages are 12 messages (`INBOX_PAGE_SIZE`), newest first, with a keyset cursor `"<ISO createdAt>_<id>"`. **Load more** calls `fetchNextPage`.
 - Changing the filter or the search clears the selection, so a bulk action never reaches a message that isn't on screen.
 
 ## 3. Read state

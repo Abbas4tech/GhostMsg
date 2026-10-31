@@ -173,7 +173,7 @@ Messages migrated from the old embedded model carry a placeholder hash (`sha256(
 | single-field: `recipientId`, `isQuarantined`, `isPinned`, `isRead`, `isArchived`, `senderHash` | Filters, bulk updates, blocklist joins |
 | `users.username` unique, `users.email` unique | Lookups by link and sign-in |
 
-`GET /api/get-messages` filters by status, searches `content` and `reply.text` with an escaped case-insensitive pattern, sorts by `{ createdAt: -1, _id: -1 }` and pages with a keyset cursor (default 30, max 100). `GET /api/messages/counts` computes every filter count in one `$group` over the recipient's messages (`recipientId` index). Both are built in `src/server/messages/inbox-query.ts` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). The public feed returns at most 50 published answers sorted by `reply.publishedAt`.
+`GET /api/get-messages` filters by status, searches `content` and `reply.text` with an escaped case-insensitive pattern, sorts by `{ createdAt: -1, _id: -1 }` and pages with a keyset cursor (default 12, max 100). `GET /api/messages/counts` computes every filter count in one `$group` over the recipient's messages (`recipientId` index). Both are built in `src/server/messages/inbox-query.ts` ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)). The public feed returns at most 50 published answers sorted by `reply.publishedAt`.
 
 ## 4. Compatibility: documents older than a field
 

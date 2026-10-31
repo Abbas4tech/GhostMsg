@@ -62,7 +62,7 @@ OpenAPI paths are registered under the new **Profile & Settings** tag; `pnpm typ
 
 | Endpoint | Change | Compatible? |
 | :--- | :--- | :--- |
-| `GET /api/get-messages` | Serves **one page of one filter**: `status` (`all` default, `unread`, `starred`, `answered`, `quarantined`, `any`), `q`, `cursor`, `limit` (30, max 100); returns `nextCursor`. `400` for an unknown status or a bad cursor. | **No**: callers that expected every message must page (`fetchAllMessages`). |
+| `GET /api/get-messages` | Serves **one page of one filter**: `status` (`all` default, `unread`, `starred`, `answered`, `quarantined`, `any`), `q`, `cursor`, `limit` (12, max 100); returns `nextCursor`. `400` for an unknown status or a bad cursor. | **No**: callers that expected every message must page (`fetchAllMessages`). |
 | `GET /api/messages/counts` | **New.** `{ all, unread, starred, answered, quarantined, total }` in one aggregation. | Additive |
 | `POST /api/messages/{id}/reply` | Also marks the message read. | Additive |
 | `DELETE /api/user/push-subscription` | Turns `webPushEnabled` off when no device is left (also after gone-pruning). | Behaviour |

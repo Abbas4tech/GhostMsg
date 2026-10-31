@@ -127,7 +127,7 @@ One page of one inbox filter, filtered and searched on the server ([ADR 0030](ad
 | :--- | :--- |
 | `status` | `all` (default: not quarantined, not archived) · `unread` · `starred` · `answered` · `archived` · `quarantined` · `any` (every message, for exports). Archived messages appear only under `archived` (and `any`). |
 | `q` | Case-insensitive literal match on the message **or its answer** (regex characters are escaped) |
-| `limit` | 1–100, default 30 |
+| `limit` | 1–100, default 12 |
 | `cursor` | `nextCursor` from the previous page (`"<ISO createdAt>_<id>"`) |
 
 **200** `{ success, messages: MessageDto[], total, nextCursor }`: newest first (`createdAt`, then `_id`); `total` counts everything matching the filter + search; `nextCursor` is `null` on the last page. **400** for an unknown status or a malformed cursor. Each `MessageDto` includes `senderHash` (for blocking), `reply`, `isArchived` and, for quarantined messages, `quarantineReason`. Client: `messagesQueries.inbox({ status, q })` (`useInfiniteQuery`), `fetchAllMessages(status)` (exports).

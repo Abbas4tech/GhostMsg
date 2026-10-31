@@ -124,7 +124,7 @@ sequenceDiagram
     UI->>C: filter = Quarantined
     C->>URL: replaceState ?filter=quarantined (no navigation)
     C->>Q: inbox({ status: "quarantined", q }) (keepPreviousData)
-    Q->>API: GET ?status=quarantined&limit=30
+    Q->>API: GET ?status=quarantined&limit=12
     API-->>Q: { messages, total, nextCursor }
     Q-->>C: pages → messages (selection for the old filter no longer counts)
     UI->>C: Load more

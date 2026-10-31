@@ -11,7 +11,7 @@ import type {
  * status filters, escaped search, keyset paging and per-status counts.
  */
 
-export const DEFAULT_INBOX_PAGE_SIZE = 30;
+export const DEFAULT_INBOX_PAGE_SIZE = 12;
 export const MAX_INBOX_PAGE_SIZE = 100;
 
 const REGEX_SPECIAL_CHARS = /[.*+?^${}()|[\]\\]/g;
@@ -87,7 +87,7 @@ export function buildInboxFilter(
   };
 }
 
-/** `?limit=` within 1..100, default 30. */
+/** `?limit=` within 1..100, default 12. */
 export function parsePageSize(raw: string | null): number {
   const value = Number(raw);
   if (!(Number.isInteger(value) && value > 0)) {

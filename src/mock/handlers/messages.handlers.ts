@@ -25,7 +25,7 @@ import {
 
 const success = (message: string) => ({ message, success: true });
 
-const DEFAULT_PAGE_SIZE = 30;
+const DEFAULT_PAGE_SIZE = 12;
 
 /**
  * One inbox page exactly as the server builds it: status filter, search on

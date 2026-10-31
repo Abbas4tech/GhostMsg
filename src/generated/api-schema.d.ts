@@ -579,7 +579,7 @@ export interface paths {
         query?: {
           /** @description `nextCursor` from the previous page */
           cursor?: string;
-          /** @description Page size 1-100 (default 30) */
+          /** @description Page size 1-100 (default 12) */
           limit?: string;
           /** @description Search query string */
           q?: string;
