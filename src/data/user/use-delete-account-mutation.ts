@@ -13,5 +13,8 @@ export function useDeleteAccountMutation() {
     onSuccess(data) {
       notify.success(data.message);
     },
+    onSuccess(data) {
+      toast.success(data.message);
+    },
   });
 }
