@@ -42,7 +42,7 @@ Step 1: Schemas (SSoT) ──▶ Step 2: Registry ──▶ Step 3: Typegen ─�
 ### Step 5: Update the MSW handlers and fixtures
 - Every endpoint used by a page needs a handler in `src/mock/handlers/<domain>.handlers.ts`, typed with `ok(path, method, body)` (200) or `created(path, method, body)` (201). A contract change then breaks the handler at compile time.
 - Response data comes from `src/mock/fixtures`. Add a named scenario (e.g. `error`, `empty`, `loading`) and expose it in `scenarios` (`src/mock/handlers/index.ts`).
-- Run `pnpm docs:registry` so the scenario appears in Chapter 11. See [ADR 0016](../adr/0016-storybook-msw-and-story-driven-component-testing.md).
+- Run `pnpm docs:registry` so the scenario appears in Component Registry. See [ADR 0016](../adr/0016-storybook-msw-and-story-driven-component-testing.md).
 
 ```typescript
 // 1. Define queryOptions in src/data/resource/resource.queries.ts
@@ -102,7 +102,7 @@ export function useUpdateResourceMutation() {
 | Is a one-shot form action (sign-up, verify, send, change username, delete account) | plain `useMutation`; the page controller shows the toast or redirect | `use-sign-up-mutation.ts` |
 | Only reads (`GET`), even AI ideas | a **query** in `<domain>.queries.ts`; "load again" is `refetch` | `publicQueries.suggestions()` |
 
-Full rules: [Chapter 20 §2](../20-state-management.md#2-rules).
+Full rules: [State Management §2](../guides/state-management.md#2-rules).
 
 ---
 

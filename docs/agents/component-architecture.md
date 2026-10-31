@@ -310,7 +310,7 @@ Other overrides: a11y relaxations apply only to `elements/effects/**`, `elements
 ### 7.1 New element
 1. Create `elements/<name>/<name>.tsx`, with CVA variants whose `default` matches the source design exactly.
 2. Add `index.ts` exporting the component, its props type and `<name>Variants`.
-3. Add `<name>.mock.ts` (args built from `src/mock/fixtures`) and `<name>.stories.tsx` meeting the story standard ([chapter 10 §4](../10-storybook-and-ui-catalog.md)). Behaviour is asserted in `play()`, not in a `*.test.tsx`.
+3. Add `<name>.mock.ts` (args built from `src/mock/fixtures`) and `<name>.stories.tsx` meeting the story standard ([chapter 10 §4](../guides/storybook-and-ui-catalog.md)). Behaviour is asserted in `play()`, not in a `*.test.tsx`.
 
 **Done when** nothing outside `elements/` reaches past `index.ts`, and the story renders every variant.
 
@@ -382,7 +382,7 @@ Rules:
 - **Network.** Only MSW answers requests. In stories, use `parameters.msw.handlers`. In unit tests, use `server.use(...)` from `src/test/msw-server.ts`. An unhandled request fails the test.
 - **Pages** need `parameters.pageProviders: true`, which provides `SessionProvider` and a fresh `QueryClient` per story. Never share a client across stories.
 - **Queries.** Query by role and label. If a label doesn't resolve, fix the markup: `FormControl` must wrap the `<input>`.
-- **Story-test reliability** (animations off in test mode, local-state wrappers instead of `useArgs`, form harnesses, `PAGE_LOAD` waits, preloading lazy chunks, scenario ordering, `screen` for portals): follow [chapter 10 §7](../10-storybook-and-ui-catalog.md). The happy-dom WAAPI shim in `src/test/setup.ts` is for the unit project only; don't import `motion/react` there.
+- **Story-test reliability** (animations off in test mode, local-state wrappers instead of `useArgs`, form harnesses, `PAGE_LOAD` waits, preloading lazy chunks, scenario ordering, `screen` for portals): follow [chapter 10 §7](../guides/storybook-and-ui-catalog.md). The happy-dom WAAPI shim in `src/test/setup.ts` is for the unit project only; don't import `motion/react` there.
 
 ## 10. Completion gate for any component change
 
@@ -393,7 +393,7 @@ pnpm check                 # Biome, including the tier import rules
 pnpm exec tsc --noEmit
 pnpm test:all              # unit + story tests, exit code 0, no "Unhandled Errors" section
 pnpm build                 # production build
-pnpm docs:registry:check   # Chapter 11 registry is current (run `pnpm docs:registry` to fix)
+pnpm docs:registry:check   # Component Registry registry is current (run `pnpm docs:registry` to fix)
 ```
 
 Then confirm by reading the diff:
@@ -401,4 +401,4 @@ Then confirm by reading the diff:
 - [ ] No default variant of an element changed. If one had to change, say so explicitly in the summary.
 - [ ] Every new module folder has `index.ts`, `*.mock.ts` (fixture-built args) and stories meeting the five-point standard.
 - [ ] `pnpm docs:registry` re-run after adding or renaming modules, stories, mock exports or scenarios.
-- [ ] Docs updated if a rule or the structure changed: chapter 5/10, this guide, and an ADR for any new decision.
+- [ ] Docs updated if a rule or the structure changed: Component Architecture, Storybook & UI Catalog, this guide, and an ADR for any new decision.

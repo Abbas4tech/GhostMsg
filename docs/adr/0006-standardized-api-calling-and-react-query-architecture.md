@@ -118,7 +118,7 @@ flowchart TD
 ---
 
 ## References & Code Pointers
-- Architecture Blueprint: [`docs/api-and-react-query-architecture.md`](../api-and-react-query-architecture.md)
+- Architecture Blueprint: [`docs/archive/api-and-react-query-architecture.md`](../archive/api-and-react-query-architecture.md)
 - Agent API Guidelines: [`docs/agents/api-patterns.md`](../agents/api-patterns.md)
 - API Type Safety ADR: [`docs/adr/0005-type-safe-api-and-scalar-documentation.md`](0005-type-safe-api-and-scalar-documentation.md)
 - Domain Glossary: [`GLOSSARY.md`](../../GLOSSARY.md)

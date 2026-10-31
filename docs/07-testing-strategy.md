@@ -1,4 +1,4 @@
-# Chapter 7: Testing Strategy & Test Architecture
+# Testing Strategy & Test Architecture
 
 GhostMsg runs **two Vitest projects** from one `vitest.config.ts`:
 - **`unit`** (happy-dom, MSW-isolated) for logic, controllers and page integration.
@@ -152,7 +152,7 @@ flowchart LR
 
 **Controller test recipe** ([ADR 0019](adr/0019-controller-test-harness-renderhook-msw-and-edge-mocking.md)). `renderHookWithProviders(() => useXController(), { session? })` from `src/test/test-utils.tsx` wraps the hook in `SessionProvider` (session passed directly, default `null`, so no session fetch and no SSE) and a fresh `QueryClient`. Network goes to the shared MSW handlers; override with `server.use(...scenarios.x.y)`. Assert endpoints with `recordRequests()`. Mock only the edges MSW can't see: `vi.mock("next/navigation")` for `useRouter`, `vi.mock("sonner")` plus `vi.mock("@/components/elements/sonner", () => ({ notify: sonner.toast }))` for toasts (app code calls `notify`), `vi.mock("next-auth/react")` for `signIn`, and browser side effects like `@/lib/browser/download`.
 
-Story-test inventory (all components and pages) is generated in [Chapter 11: Component Registry](11-component-registry.md).
+Story-test inventory (all components and pages) is generated in [Component Registry](reference/component-registry.md).
 
 ---
 
@@ -173,7 +173,7 @@ Gotchas already solved (don't reintroduce them):
 
 ## 5. Story tests (summary)
 
-Full rules: [Chapter 10](10-storybook-and-ui-catalog.md).
+Full rules: [Storybook & UI Catalog](guides/storybook-and-ui-catalog.md).
 - **Smoke tests:** every story renders as one, with axe checks at `a11y.test: "error"`.
 - **Interaction tests:** `play()` functions drive the UI with `userEvent` and assert both callbacks (`fn()` spies) and the visible result.
 - **No animation:** Motion and CSS animations are disabled in test mode, which keeps assertions deterministic.
@@ -182,4 +182,4 @@ Full rules: [Chapter 10](10-storybook-and-ui-catalog.md).
 ---
 
 ## 6. Next Chapter
-Proceed to [Chapter 8: Code Quality & Standards](08-code-quality.md).
+Proceed to [Code Quality & Standards](08-code-quality.md).

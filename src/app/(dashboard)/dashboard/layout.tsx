@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 /**
  * The session is read on the server and handed to the client, so the
  * dashboard renders signed-in at once instead of flashing a skeleton while
- * `useSession` fetches it (Chapter 20).
+ * `useSession` fetches it (State Management).
  */
 const layout = async ({
   children,

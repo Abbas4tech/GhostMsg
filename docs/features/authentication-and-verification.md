@@ -1,8 +1,8 @@
-# Chapter 22: Authentication & Verification
+# Authentication & Verification
 
 How a Recipient gets an account, proves their email with a **Verification Code**, and signs in, plus the rules the code enforces at each step. Read this before touching `/sign-up`, `/verify/[username]`, `/sign-in`, NextAuth or the `verify-code` routes.
 
-Decisions: [ADR 0002](adr/0002-dual-authentication-and-email-verification.md) (credentials + Google, email verification), [ADR 0033](adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md) (form architecture). Screens: [Chapter 14 §2](14-ui-screens-and-user-flows.md#2-authentication-sign-up-verifyusername-sign-in). Endpoints: [Chapter 16 §3](16-api-reference.md#3-auth--verification).
+Decisions: [ADR 0002](../adr/0002-dual-authentication-and-email-verification.md) (credentials + Google, email verification), [ADR 0033](../adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md) (form architecture). Screens: [UI Screens & User Flows §2](screens-and-user-flows.md#2-authentication-sign-up-verifyusername-sign-in). Endpoints: [API Reference §3](../reference/api-reference.md#3-auth--verification).
 
 ---
 
@@ -13,7 +13,7 @@ Decisions: [ADR 0002](adr/0002-dual-authentication-and-email-verification.md) (c
 | `/sign-up` (`?username=` pre-fills) | Guests | `pages/auth/sign-up` | `use-sign-up`, `use-username-availability`, `use-google-sign-in` |
 | `/verify/[username]` | Guests | `pages/auth/verify` | `use-verify`, `use-resend-cooldown`, `useProfileLinkController(username)` |
 | `/sign-in` (`?callbackUrl=`) | Guests | `pages/auth/sign-in` | `use-sign-in`, `use-google-sign-in` |
-| `/dashboard/*` | Signed in | `pages/dashboard` | (see [Chapter 23](23-inbox-triage.md)) |
+| `/dashboard/*` | Signed in | `pages/dashboard` | (see [Inbox Triage](inbox-triage.md)) |
 
 `src/middleware.ts` reads the NextAuth JWT and redirects before any page renders:
 
@@ -93,7 +93,7 @@ stateDiagram-v2
     Verified --> [*]
 ```
 
-Stored on the user (never returned to the client): `verifyCode`, `verifyCodeExpiry`, `verifyAttempts`, `verifyCodeSentAt` ([Chapter 15 §2.1](15-data-model-and-database.md#21-identity-and-account)).
+Stored on the user (never returned to the client): `verifyCode`, `verifyCodeExpiry`, `verifyAttempts`, `verifyCodeSentAt` ([Data Model §2.1](../reference/data-model.md#21-identity-and-account)).
 
 ### 3.1 `POST /api/verify-code`
 
@@ -130,7 +130,7 @@ Content-Type: application/json
 | Unknown user | 404 | `{ "success": false, "message": "User not found!!" }` |
 | Email failed | 500 | `{ "success": false, "message": … }` |
 
-A successful resend replaces the code, resets the tries and restarts the hour. The per-username limit uses `checkRateLimit` (in-memory per server instance, see [Chapter 17](17-trust-safety-and-privacy.md)).
+A successful resend replaces the code, resets the tries and restarts the hour. The per-username limit uses `checkRateLimit` (in-memory per server instance, see [Trust, Safety & Privacy](trust-safety-and-privacy.md)).
 
 ## 4. The verify screen
 
@@ -174,7 +174,7 @@ toVerifyFailureFromError(new ApiError("…", 400, { reason: "expired" }));
 | Verified | Screen becomes `VerifySuccess` | |
 
 - A wrong code shakes the slots once (`shake` from `src/lib/motion.ts`) and turns them red until the next keystroke clears the error.
-- **Verified** shows "You're in. Your link is live." with the new link (`ShareLinkCard layout="compact"`), Copy / Share… and **Sign in to open your inbox** (`/sign-in`). Verifying never signs the person in. Focus moves to the heading because the form disappears ([Chapter 25 §3](25-accessibility-and-feedback.md#3-focus-management)).
+- **Verified** shows "You're in. Your link is live." with the new link (`ShareLinkCard layout="compact"`), Copy / Share… and **Sign in to open your inbox** (`/sign-in`). Verifying never signs the person in. Focus moves to the heading because the form disappears ([Accessibility & Feedback §3](../guides/accessibility-and-feedback.md#3-focus-management)).
 
 ## 5. Sign-in
 
@@ -200,7 +200,7 @@ session?.user.isVerified; // boolean
 
 ## 6. Phone layout
 
-Below 640 px the auth screens have no site header and no card ([Chapter 26](26-responsive-design.md)):
+Below 640 px the auth screens have no site header and no card ([Responsive Design](../guides/responsive-design.md)):
 
 ```tsx
 // src/app/(app)/layout.tsx: wraps only the three auth routes
@@ -246,4 +246,4 @@ expect(result.current.needsNewCode).toBe(true);
 
 ## 9. Where to go next
 
-[Chapter 17](17-trust-safety-and-privacy.md) for rate limits and privacy, [Chapter 25](25-accessibility-and-feedback.md) for focus and live regions, [Chapter 26](26-responsive-design.md) for the phone layout rules.
+[Trust, Safety & Privacy](trust-safety-and-privacy.md) for rate limits and privacy, [Accessibility & Feedback](../guides/accessibility-and-feedback.md) for focus and live regions, [Responsive Design](../guides/responsive-design.md) for the phone layout rules.

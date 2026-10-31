@@ -1,8 +1,8 @@
-# Chapter 20: State Management
+# State Management
 
 Where each kind of state lives in GhostMsg, the rules for adding new state, and the outcome of the state-management review (October 2026). Read this before adding a query, a mutation, a `useState` in a controller, or anything stored in the URL, the session or the browser.
 
-Decisions: [ADR 0006](adr/0006-standardized-api-calling-and-react-query-architecture.md) (React Query), [ADR 0015](adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md) (logic only in controllers), [ADR 0021](adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md) (optimistic mutations), [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md) (server-side inbox), [ADR 0031](adr/0031-state-management-consistency-and-structure.md) (consistency and structure).
+Decisions: [ADR 0006](../adr/0006-standardized-api-calling-and-react-query-architecture.md) (React Query), [ADR 0015](../adr/0015-four-tier-components-pages-layer-and-vendor-consolidation.md) (logic only in controllers), [ADR 0021](../adr/0021-optimistic-inbox-mutations-close-first-and-shared-cache-helpers.md) (optimistic mutations), [ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md) (server-side inbox), [ADR 0031](../adr/0031-state-management-consistency-and-structure.md) (consistency and structure).
 
 ---
 
@@ -45,9 +45,9 @@ flowchart TB
 | **Session** | NextAuth JWT | Identity (`_id`, `username`, `isVerified`) | App settings (they go stale in the token) |
 | **URL** | Route `searchParams` in, `window.history.replaceState` out | Shareable view state (`?filter=`, `?q=`; `?username=` to prefill sign-up) | Secrets, large state |
 | **Controller UI state** | `useState` in `pages/**/use-*.controller.ts` | Ephemeral UI: open dialog (by message id), scoped selection, focus, the Smart Reply draft | Data that exists on the server |
-| **Forms** | react-hook-form in controllers ([ADR 0033](adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md)) | Validated user input (paired exclusively with shadcn `<Form>` compound primitives in patterns); the Profile draft (`values` from the server, `keepDirtyValues`) | Mirroring server results into errors via effects |
+| **Forms** | react-hook-form in controllers ([ADR 0033](../adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md)) | Validated user input (paired exclusively with shadcn `<Form>` compound primitives in patterns); the Profile draft (`values` from the server, `keepDirtyValues`) | Mirroring server results into errors via effects |
 | **Device** | `localStorage`, `next-themes`, browser APIs | Per-device preferences (palette, mode, inbox layout) and capabilities (push subscription) | Account settings |
-| **Server process** | `src/server/security`, `src/server/realtime` | Rate limiting, live events | Anything that must survive a restart (see [Chapter 9 §4](09-deployment-and-operations.md#4-process-local-state-scaling-note)) |
+| **Server process** | `src/server/security`, `src/server/realtime` | Rate limiting, live events | Anything that must survive a restart (see [Deployment & Operations §4](../09-deployment-and-operations.md#4-process-local-state-scaling-note)) |
 
 **No global client store.** The only app-wide state is the session; everything else is server data, URL or controller state. Don't add Zustand, Redux or context stores for server data.
 
@@ -55,7 +55,7 @@ flowchart TB
 
 1. **One source of truth per value.** If the server has it, read it from React Query. Derive, don't copy (no `useEffect` that sets state from a query).
 2. **Query-key factories only.** Keys come from `src/data/query-keys.ts`; queries from `<domain>.queries.ts`. Invalidate the narrowest key that changed (`user.profile`, not `user.all`).
-3. **Lists are filtered and paged on the server.** Use `messagesQueries.inbox({ status, q })` and `messagesQueries.counts()`; never count or filter a downloaded page to show totals ([ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
+3. **Lists are filtered and paged on the server.** Use `messagesQueries.inbox({ status, q })` and `messagesQueries.counts()`; never count or filter a downloaded page to show totals ([ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md)).
 4. **Mutations behind switches and cards are optimistic** with a snapshot rollback and an error toast; silent on success unless the user needs confirmation. Use `updateCachedMessages` / `patchCachedMessage` / `restoreCachedMessages` for message lists (they handle paged and single-page cache data).
 5. **Stable callbacks.** Depend on `mutate` / `mutateAsync`, never on the mutation object (it changes every render).
 6. **Scope UI state to what it describes.** Selection belongs to one filter + search and only to loaded ids; focus only to a loaded message. Derive the valid subset instead of resetting in effects.
@@ -69,7 +69,7 @@ flowchart TB
 
 The review found 22 items ([full findings](#5-review-findings-reference)). All three phases are **done**.
 
-### Phase 1: correctness (done, [ADR 0030](adr/0030-server-side-inbox-filtering-paging-and-counts.md))
+### Phase 1: correctness (done, [ADR 0030](../adr/0030-server-side-inbox-filtering-paging-and-counts.md))
 
 | # | Was | Now |
 | :-- | :--- | :--- |
@@ -82,7 +82,7 @@ The review found 22 items ([full findings](#5-review-findings-reference)). All t
 | (15) | Inbox callbacks rebuilt every render | Callbacks depend on stable `mutateAsync` |
 | — | Inbox search was an unescaped regex | User input is regex-escaped server-side |
 
-### Phase 2: consistency and speed (done, [ADR 0031](adr/0031-state-management-consistency-and-structure.md))
+### Phase 2: consistency and speed (done, [ADR 0031](../adr/0031-state-management-consistency-and-structure.md))
 
 | # | Was | Now |
 | :-- | :--- | :--- |
@@ -93,7 +93,7 @@ The review found 22 items ([full findings](#5-review-findings-reference)). All t
 | 11 | Suggestions (GET) as mutation + effect | `publicQueries.suggestions()` query; "New ideas" = `refetch` |
 | 12 | Unused `detail` key | Removed |
 
-### Phase 3: structure (done, [ADR 0031](adr/0031-state-management-consistency-and-structure.md))
+### Phase 3: structure (done, [ADR 0031](../adr/0031-state-management-consistency-and-structure.md))
 
 | # | Was | Now |
 | :-- | :--- | :--- |
@@ -150,4 +150,4 @@ The original review listed these in order of impact:
 7–12. Consistency and speed (Phase 2, done).
 13–22. Structure (Phase 3, done).
 
-What to keep: React Query factories and the shared cache helpers; logic only in page controllers; close-first optimistic deletes, confirmed first; only Delete all is held behind an Undo toast that commits on close ([ADR 0034](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)); AI drafts as a query keyed per message outside `messages.all` (`queryKeys.smartReplies`, never refetched on focus or retried); no global client store. Phone-only UI state (search open, selection mode, Profile edit fold) is local to the block, since it's purely visual.
+What to keep: React Query factories and the shared cache helpers; logic only in page controllers; close-first optimistic deletes, confirmed first; only Delete all is held behind an Undo toast that commits on close ([ADR 0034](../adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)); AI drafts as a query keyed per message outside `messages.all` (`queryKeys.smartReplies`, never refetched on focus or retried); no global client store. Phone-only UI state (search open, selection mode, Profile edit fold) is local to the block, since it's purely visual.

@@ -8,7 +8,7 @@ interface SendMessagePageProps {
 
 /**
  * The profile is rendered on the server (fast first paint, crawlable, link
- * previews) and handed to the page as initial query data (Chapter 20).
+ * previews) and handed to the page as initial query data (State Management).
  */
 const SendMessagePage = async ({
   params,

@@ -13,7 +13,7 @@ Moderation returned a yes/no `isToxic`, and every "toxic" message was quarantine
 
 | # | Decision |
 | :-- | :--- |
-| D1 | Moderation returns a **graded `toxicity`**: `none` < `borderline` < `hurtful` < `severe` (definitions in the prompt, [Chapter 17 §4.1](../17-trust-safety-and-privacy.md#41-graded-toxicity)). `isToxic` is kept as `hurtful` or worse for any caller that needs a boolean. An old-shape reply `{ isToxic: true }` maps to `severe`. |
+| D1 | Moderation returns a **graded `toxicity`**: `none` < `borderline` < `hurtful` < `severe` (definitions in the prompt, [Trust, Safety & Privacy §4.1](../features/trust-safety-and-privacy.md#41-graded-toxicity)). `isToxic` is kept as `hurtful` or worse for any caller that needs a boolean. An old-shape reply `{ isToxic: true }` maps to `severe`. |
 | D2 | A pure policy `shouldQuarantine(toxicity, safetySettings)` (`src/server/ai/quarantine-policy.ts`) quarantines when `quarantineEnabled` and `rank(toxicity) ≥ rank(threshold)`, with thresholds **Relaxed → severe, Balanced → hurtful, Strict → borderline**. Defaults: enabled + Balanced. |
 | D3 | The decision is **made once at send time** and stored as `isQuarantined`. Changing sensitivity affects future messages only. |
 | D4 | **Fail open for delivery:** without an AI key, on error or on unparsable output, toxicity is `none` (delivered to the inbox). Never block a message because AI was unavailable. |

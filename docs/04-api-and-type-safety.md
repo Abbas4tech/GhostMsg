@@ -1,4 +1,4 @@
-# Chapter 4: API & Type-Safety Architecture
+# API & Type-Safety Architecture
 
 This chapter details GhostMsg's type-safe API infrastructure, single-source-of-truth OpenAPI 3.1 contracts, automatic TypeScript typegen, and client-server communication using `openapi-fetch` and `@tanstack/react-query`.
 
@@ -52,7 +52,7 @@ export const signUpSchema = z
 
 ## 3. Registered Operations Matrix
 
-> Behaviour, examples, side effects and the client hook for every endpoint are in [Chapter 16: API Reference](16-api-reference.md). This matrix is the quick index.
+> Behaviour, examples, side effects and the client hook for every endpoint are in [API Reference](reference/api-reference.md). This matrix is the quick index.
 
 The OpenAPI registry in [`src/server/openapi/openapi.ts`](../src/server/openapi/openapi.ts) defines operations across auth, messaging, AI, moderation, and real-time streaming:
 
@@ -88,7 +88,7 @@ The OpenAPI registry in [`src/server/openapi/openapi.ts`](../src/server/openapi/
 | `/api/user` | `DELETE` | Yes (Session) | Body: `{ confirmUsername }` | `200 OK` | `400`, `401`, `404`, `500` | Delete account, link, messages and answers |
 | `/api/messages` | `DELETE` | Yes (Session) | None | `200 OK` | `401`, `500` | Delete every message (client offers a 10 s undo first) |
 | `/api/ai/ama-suggestions` | `POST` | Yes (Session) | Body: `{ currentPrompt? }` | `200 OK` | `401`, `500` | AI ideas for the AMA Prompt |
-| `/api/messages/stream` | `GET` | Yes (Session) | None (SSE Stream) | `200 OK` | `401`, `500` | Live real-time SSE stream (*not in the OpenAPI spec*; see [Chapter 18 §5](18-notifications-and-realtime.md#5-live-feed-server-sent-events)) |
+| `/api/messages/stream` | `GET` | Yes (Session) | None (SSE Stream) | `200 OK` | `401`, `500` | Live real-time SSE stream (*not in the OpenAPI spec*; see [Notifications & Real-Time §5](features/notifications-and-realtime.md#5-live-feed-server-sent-events)) |
 | `/api/cron/daily-digest` | `GET` | `Authorization: Bearer CRON_SECRET` | None | `200 OK` | `401`, `503` | Daily digest run (Vercel Cron); `503` when `CRON_SECRET` is unset |
 | `/api/accept-message` | `GET` | Yes (Session) | None | `200 OK` | `401`, `404`, `500` | Check acceptance status |
 | `/api/accept-message` | `POST` | Yes (Session) | Body: `AcceptMessageRequest` | `200 OK` | `400`, `401`, `500` | Toggle acceptance preference |
@@ -125,10 +125,10 @@ This generates [`src/generated/api-schema.d.ts`](../src/generated/api-schema.d.t
 
 Axios is deprecated and uninstalled. GhostMsg uses `createClient<paths>()` from `openapi-fetch` wrapped in a throwing `clientFetch` helper in [`src/data/api-client.ts`](../src/data/api-client.ts) alongside domain `queryOptions` and custom mutation hooks as established in [ADR 0006](adr/0006-standardized-api-calling-and-react-query-architecture.md).
 
-For complete implementation blueprints, query key hierarchies, and optimistic update recipes, see [API & React Query Architecture Blueprint](api-and-react-query-architecture.md).
+For complete implementation blueprints, query key hierarchies, and optimistic update recipes, see [API & React Query Architecture Blueprint](archive/api-and-react-query-architecture.md).
 
 ---
 
 ## 7. Next Chapter
-Proceed to [Chapter 5: Component Architecture & UI](05-component-architecture.md).
+Proceed to [Component Architecture & UI](05-component-architecture.md).
 

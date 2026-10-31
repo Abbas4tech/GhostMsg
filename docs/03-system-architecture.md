@@ -1,4 +1,4 @@
-# Chapter 3: System Architecture & Technical Design
+# System Architecture & Technical Design
 
 This chapter details the high-level system architecture, data models, authentication lifecycle, and runtime boundaries of GhostMsg.
 
@@ -6,7 +6,7 @@ This chapter details the high-level system architecture, data models, authentica
 
 ## 1. High-Level Architecture Overview
 
-GhostMsg is built on the **Next.js 15 App Router** using React 19, Tailwind CSS v4, MongoDB (Mongoose), NextAuth.js v4, and Google AI Studio. The Vercel project settings, environment variables, and MongoDB Atlas cluster are managed as code in [`terraform/`](../terraform/) ([Chapter 21](21-infrastructure-and-terraform.md), [ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)).
+GhostMsg is built on the **Next.js 15 App Router** using React 19, Tailwind CSS v4, MongoDB (Mongoose), NextAuth.js v4, and Google AI Studio. The Vercel project settings, environment variables, and MongoDB Atlas cluster are managed as code in [`terraform/`](../terraform/) ([Infrastructure & Terraform](guides/infrastructure-and-terraform.md), [ADR 0032](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)).
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -79,7 +79,7 @@ flowchart TB
 
 The full placement rules and recipes are in the [Source Structure Guide](agents/source-structure.md).
 
-Where state lives at runtime (React Query cache, URL, device storage, form drafts, the server session) and how the inbox pages, counts and live updates fit together is in [Chapter 20: State Management](20-state-management.md).
+Where state lives at runtime (React Query cache, URL, device storage, form drafts, the server session) and how the inbox pages, counts and live updates fit together is in [State Management](guides/state-management.md).
 
 ---
 
@@ -178,7 +178,7 @@ interface IUser {
 }
 ```
 
-Every field, default, write path and compatibility rule is documented in [Chapter 15: Data Model & Database](15-data-model-and-database.md) (ER diagram included).
+Every field, default, write path and compatibility rule is documented in [Data Model & Database](reference/data-model.md) (ER diagram included).
 
 ### Key Database Compound Indexes
 * `{ recipientId: 1, isQuarantined: 1, createdAt: -1 }` (Primary Inbox Feed)
@@ -200,9 +200,9 @@ Every field, default, write path and compatibility rule is documented in [Chapte
 
 ## 5. Privacy, Abuse Prevention & Real-Time Transport
 
-- **In-Memory Rate Limiting**: a sliding window in a process-local `Map` (`checkRateLimit`, 5 messages per 10 minutes per IP). Raw IPs are never written to MongoDB. Per-instance only; see the scaling note in [Chapter 9 §4](09-deployment-and-operations.md#4-process-local-state-scaling-note).
+- **In-Memory Rate Limiting**: a sliding window in a process-local `Map` (`checkRateLimit`, 5 messages per 10 minutes per IP). Raw IPs are never written to MongoDB. Per-instance only; see the scaling note in [Deployment & Operations §4](09-deployment-and-operations.md#4-process-local-state-scaling-note).
 - **Cryptographic Sender Hash**: Computed as $\text{HMAC-SHA256}(\text{IP} + \text{RecipientId},\; \text{SECRET\_SALT})$. Allows recipients to shadowban abusive senders without compromising visitor anonymity.
-- **Server-Sent Events (SSE) Live Feed**: a process-wide Node `EventEmitter` (`src/server/realtime/event-bus.ts`, channel `recipient:{userId}:message`) streamed over `/api/messages/stream` with a 30 s ping. No Redis is used today ([Chapter 18](18-notifications-and-realtime.md)).
+- **Server-Sent Events (SSE) Live Feed**: a process-wide Node `EventEmitter` (`src/server/realtime/event-bus.ts`, channel `recipient:{userId}:message`) streamed over `/api/messages/stream` with a 30 s ping. No Redis is used today ([Notifications & Real-Time](features/notifications-and-realtime.md)).
 - **Web Push** ([ADR 0020](adr/0020-web-push-delivery-vapid-and-subscription-lifecycle.md)): each device's `PushSubscription` is stored in `User.pushSubscriptions`. `POST /api/send-message` calls `sendPushToUser` (`src/server/push/web-push.ts`, VAPID-signed via `web-push`) for messages that aren't quarantined and arrive outside quiet hours, without blocking the response. Preview text is hidden unless the Recipient turns `hideMessageText` off ([ADR 0026](adr/0026-notification-delivery-policy-quiet-hours-and-hidden-previews.md)). Endpoints that answer 404/410 are pruned.
 
 ```mermaid
@@ -223,5 +223,5 @@ flowchart LR
 ---
 
 ## 6. Master Blueprint & Next Chapter
-For the exhaustive implementation specification, see the [Feature & Implementation Master Blueprint](feature-and-implementation-blueprint.md).
-Proceed to [Chapter 4: API & Type Safety Architecture](04-api-and-type-safety.md).
+The original, now historical, implementation plan is in the [archive](archive/feature-and-implementation-blueprint.md); the live docs are mapped in the [documentation index](README.md).
+Proceed to [API & Type Safety Architecture](04-api-and-type-safety.md).
