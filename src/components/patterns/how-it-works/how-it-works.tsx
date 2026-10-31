@@ -179,10 +179,7 @@ export function HowItWorks(props: HowItWorksProps): React.JSX.Element {
       >
         {desktopSteps.map((step, index) => (
           <li
-            className={cn(
-              "motion-safe:animate-rise",
-              index % 2 === 1 && "mt-7"
-            )}
+            className={cn("motion-safe:animate-rise")}
             data-slot="how-it-works-step"
             key={step.key}
             style={{ animationDelay: `${index * 80}ms` }}
