@@ -115,6 +115,7 @@ flowchart TD
 - [**ADR 0032: Terraform-Managed Vercel and MongoDB Atlas Infrastructure**](adr/0032-terraform-managed-vercel-and-mongodb-atlas-infrastructure.md)
 - [**ADR 0033: Standardized Form Architecture with React Hook Form and Shadcn Primitives**](adr/0033-standardized-form-architecture-with-react-hook-form-and-shadcn-primitives.md)
 - [**ADR 0034: Confirmed Message Deletes, Undo Only for Delete All, Toast Lifecycle Commits and Phone Dashboard Chrome**](adr/0034-confirmed-message-deletes-undo-for-delete-all-and-phone-dashboard-chrome.md)
+- [**ADR 0035: CSS-First Motion, LazyMotion for Presence and Layout, Lazy Overlays and a Motion Budget**](adr/0035-css-first-motion-lazymotion-and-lazy-overlays.md) (proposed)
 
 ---
 

@@ -236,6 +236,18 @@ _Avoid_: Navigation blocker, exit popup
 The 10-second delay, with an Undo toast, between confirming Delete all and the request being sent. Leaving the page commits it.
 _Avoid_: Soft delete, trash
 
+**Interaction feedback**:
+The instant, CSS-only response of a control to touch, hover or focus (press scale, focus ring ease). Never changes colour, size or layout.
+_Avoid_: Micro-animation, hover effect
+
+**Delight moment**:
+A screen state where expressive motion is allowed: the landing hero, the sent screen, the verified mark and the first-run empty inbox. Everywhere else motion stays restrained.
+_Avoid_: Celebration, easter egg
+
+**Motion budget**:
+The ceiling on JavaScript and animated properties that motion may cost: no first-load growth on the landing page, about 5 KB gzipped on the dashboard, only `transform` and `opacity` animated.
+_Avoid_: Performance target, animation limit
+
 **Documentation screenshot**:
 A PNG in `docs/assets/screenshots/` generated from a Storybook story by `pnpm docs:screenshots`. Never hand-made.
 _Avoid_: Mockup, hand-captured image
