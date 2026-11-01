@@ -1,5 +1,6 @@
 import { Sparkles } from "lucide-react";
 import type React from "react";
+import { Parallax } from "@/components/animate/parallax";
 import { cn } from "@/lib/utils";
 
 export interface HeroProps
@@ -36,25 +37,46 @@ export function Hero({
       data-slot="hero"
       {...props}
     >
-      <Sparkles
+      {/* Decorative depth: sparkles drift faster than the page (Rich motion only). */}
+      <Parallax
         aria-hidden="true"
-        className="absolute top-2 left-[46%] size-5 text-star motion-safe:animate-float max-sm:hidden"
-      />
-      <Sparkles
+        className="absolute top-2 left-[46%] max-sm:hidden"
+        offset={90}
+      >
+        <Sparkles className="size-5 text-star motion-safe:animate-float" />
+      </Parallax>
+      <Parallax
         aria-hidden="true"
-        className="absolute top-56 right-2 size-4 text-primary motion-safe:animate-float max-sm:hidden motion-safe:[animation-delay:-2s]"
-      />
+        className="absolute top-56 right-2 max-sm:hidden"
+        offset={140}
+      >
+        <Sparkles className="size-4 text-primary motion-safe:animate-float motion-safe:[animation-delay:-2s]" />
+      </Parallax>
 
+      {/* Entrance is CSS so it plays from first paint, before hydration. The
+          headline (LCP) never fades: only the pieces around it rise in. */}
       <div className="flex flex-col items-start gap-4 md:gap-6">
-        {eyebrow}
+        <div className="motion-safe:animate-rise">{eyebrow}</div>
         <h1 className="text-balance text-display">{title}</h1>
-        <p className="max-w-[520px] text-balance text-body-lg text-muted-foreground">
+        <p className="max-w-[520px] text-balance text-body-lg text-muted-foreground motion-safe:animate-rise motion-safe:[animation-delay:90ms]">
           {description}
         </p>
-        {children}
+        {children ? (
+          <div className="w-full motion-safe:animate-rise motion-safe:[animation-delay:180ms]">
+            {children}
+          </div>
+        ) : null}
       </div>
 
-      {showcase ? <div className="relative">{showcase}</div> : null}
+      {showcase ? (
+        // Parallax (transform via motion) wraps the CSS rise (transform via
+        // keyframes) so the two never fight over the same element.
+        <Parallax className="relative" offset={36}>
+          <div className="motion-safe:animate-rise motion-safe:[animation-delay:260ms]">
+            {showcase}
+          </div>
+        </Parallax>
+      ) : null}
     </section>
   );
 }

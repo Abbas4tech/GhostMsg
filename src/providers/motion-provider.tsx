@@ -11,10 +11,10 @@ export interface MotionProviderProps {
 }
 
 /**
- * App-wide motion setup (ADR 0035). `m.*` components render their initial state
- * on the server and animate once the feature chunk has loaded, so the engine
- * never blocks first paint. `strict` makes a stray full `motion.*` component
- * throw instead of silently pulling the whole engine into the bundle.
+ * App-wide motion setup (ADR 0035, ADR 0036). The full feature set (`domMax`:
+ * animation, gestures, layout, drag) loads as one async chunk after first
+ * paint, so it never counts toward first-load JS. `strict` makes a stray full
+ * `motion.*` component throw instead of pulling the whole engine in sync.
  * `reducedMotion="user"` keeps transforms off when the OS asks for it.
  */
 export function MotionProvider({ children }: MotionProviderProps) {

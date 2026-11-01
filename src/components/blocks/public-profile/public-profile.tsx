@@ -1,8 +1,10 @@
 "use client";
 
 import { Check, ChevronLeft, Ghost, Pause } from "lucide-react";
+import { span as MotionSpan } from "motion/react-m";
 import Link from "next/link";
 import type React from "react";
+import { Burst } from "@/components/animate/burst";
 import {
   Avatar,
   AvatarFallback,
@@ -20,6 +22,7 @@ import {
   type SendMessageFormProps,
 } from "@/components/patterns/send-message-form";
 import { SuggestedMessages } from "@/components/patterns/suggested-messages";
+import { celebrate } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export interface PublicProfileSuggestions {
@@ -119,8 +122,15 @@ function SentScreen({
   return (
     <div className="flex flex-1 flex-col gap-6 pt-6" role="status">
       <div className="flex flex-col items-center gap-4 text-center">
-        <span className="grid size-19 place-items-center rounded-full bg-success text-success-foreground shadow-[0_0_0_10px_color-mix(in_oklch,var(--success)_16%,transparent)] motion-safe:animate-pop">
-          <Check aria-hidden="true" className="size-9" />
+        {/* Delight moment: the mark springs in with a tilt, then a burst. */}
+        <span className="relative grid place-items-center">
+          <MotionSpan
+            {...celebrate}
+            className="grid size-19 place-items-center rounded-full bg-success text-success-foreground shadow-[0_0_0_10px_color-mix(in_oklch,var(--success)_16%,transparent)]"
+          >
+            <Check aria-hidden="true" className="size-9" />
+          </MotionSpan>
+          <Burst count={12} dotClassName="size-2 bg-success" radius={72} />
         </span>
         <h1 className="max-w-80 text-h1 motion-safe:animate-rise motion-safe:[animation-delay:120ms]">
           Sent. {name} will never know it was you.

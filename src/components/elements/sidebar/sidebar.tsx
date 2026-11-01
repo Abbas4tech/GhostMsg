@@ -502,6 +502,9 @@ const sidebarMenuButtonVariants = cva(
       },
       variant: {
         default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        /** Transparent active fill, for menus that draw a sliding LayoutIndicator behind the active item. */
+        glide:
+          "relative isolate hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground data-[active=true]:bg-transparent",
         outline:
           "bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]",
       },

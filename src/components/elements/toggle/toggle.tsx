@@ -24,6 +24,12 @@ const toggleVariants = cva(
         /** GhostMsg filter / idea chip: pill, card fill, primary when on. */
         chip: "rounded-full border border-border bg-card font-semibold text-foreground hover:bg-accent hover:text-accent-foreground data-[state=on]:border-transparent data-[state=on]:bg-primary data-[state=on]:text-primary-foreground",
         default: "bg-transparent",
+        /**
+         * `chip` with a transparent "on" fill, for groups that draw a sliding
+         * LayoutIndicator behind the active chip (filter bar).
+         */
+        glide:
+          "relative isolate rounded-full border border-border bg-card font-semibold text-foreground hover:bg-accent hover:text-accent-foreground data-[state=on]:border-transparent data-[state=on]:bg-transparent data-[state=on]:text-primary-foreground data-[state=on]:hover:text-primary-foreground",
         outline:
           "border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground",
         /** GhostMsg segmented control item (inside a `segment` ToggleGroup track). */

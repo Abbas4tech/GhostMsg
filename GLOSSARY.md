@@ -241,12 +241,16 @@ The instant, CSS-only response of a control to touch, hover or focus (press scal
 _Avoid_: Micro-animation, hover effect
 
 **Delight moment**:
-A screen state where expressive motion is allowed: the landing hero, the sent screen, the verified mark and the first-run empty inbox. Everywhere else motion stays restrained.
+A screen state that gets the most expressive motion (springs, bursts): the sent screen, the verified mark and the first-run empty inbox. Public pages may be rich; the dashboard chrome stays quick.
 _Avoid_: Celebration, easter egg
 
 **Motion budget**:
-The ceiling on JavaScript and animated properties that motion may cost: no first-load growth on the landing page, about 5 KB gzipped on the dashboard, only `transform` and `opacity` animated.
+The ceiling on what motion may cost: at most 15 kB gzipped of extra first-load JavaScript per route, and the largest above-the-fold element never waits on an animation.
 _Avoid_: Performance target, animation limit
+
+**Rich motion**:
+Decorative depth that only capable devices get: parallax, scroll-linked movement and bursts. Off under reduced motion, Save-Data or a low-end device.
+_Avoid_: Fancy animation, effects mode
 
 **Documentation screenshot**:
 A PNG in `docs/assets/screenshots/` generated from a Storybook story by `pnpm docs:screenshots`. Never hand-made.

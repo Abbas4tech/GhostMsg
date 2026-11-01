@@ -93,7 +93,7 @@
     },
     {
       "includes": [
-        "src/components/elements/effects/**",
+        "src/components/animate/**",
         "src/components/elements/**/*.primitive.tsx"
       ],
       "linter": {
@@ -111,6 +111,53 @@
         "rules": {
           "style": {
             "noExportedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      // ADR 0036: animate/ is visual-only motion. It may use motion, lib/motion,
+      // lib/utils and generic hooks, and nothing from the other component tiers.
+      "includes": [
+        "src/components/animate/**",
+        "!src/components/animate/**/*.stories.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "@tanstack/react-query",
+                      "next-auth/react",
+                      "next/navigation",
+                      "@/data",
+                      "@/data/**",
+                      "server-only",
+                      "@/server",
+                      "@/server/**"
+                    ],
+                    "message": "animate/ is visual-only: no data, session, router or server code (ADR 0036)."
+                  },
+                  {
+                    "group": [
+                      "@/components/elements",
+                      "@/components/elements/**",
+                      "@/components/patterns",
+                      "@/components/patterns/**",
+                      "@/components/blocks",
+                      "@/components/blocks/**",
+                      "@/components/pages",
+                      "@/components/pages/**"
+                    ],
+                    "message": "animate/ imports no other component tier; every tier may import animate/ instead (ADR 0036)."
+                  }
+                ]
+              }
+            }
           }
         }
       }
@@ -147,7 +194,7 @@
                       "@/components/pages",
                       "@/components/pages/**"
                     ],
-                    "message": "Elements are Tier 1: they may only import other elements (ADR 0015)."
+                    "message": "Elements are Tier 1: they may only import other elements and animate/ (ADR 0015, ADR 0036)."
                   }
                 ]
               }

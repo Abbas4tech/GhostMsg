@@ -4,7 +4,7 @@ import type { HTMLMotionProps } from "motion/react";
 import { button as MotionButton } from "motion/react-m";
 import type * as React from "react";
 
-import { Slot, type WithAsChild } from "@/components/elements/effects/slot";
+import { Slot, type WithAsChild } from "@/components/animate/slot";
 
 type LiquidButtonProps = WithAsChild<
   HTMLMotionProps<"button"> & {

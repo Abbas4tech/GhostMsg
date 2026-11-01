@@ -18,11 +18,8 @@ import { AnimatePresence } from "motion/react";
 import { div as MotionDiv } from "motion/react-m";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Presence, PresenceItem } from "@/components/animate/presence";
 import { Button } from "@/components/elements/button";
-import {
-  PresenceItem,
-  PresenceList,
-} from "@/components/elements/effects/presence-list";
 import {
   Empty,
   EmptyContent,
@@ -64,7 +61,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatLastChecked } from "@/lib/format/relative-time";
 import type { MessageExportFormat } from "@/lib/messages/export";
-import { pillDrop } from "@/lib/motion";
+import { pillDrop, transition } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { MessageDto } from "@/types/api";
 
@@ -728,20 +725,32 @@ function InboxResults({
 }): React.JSX.Element | null {
   const showSkeleton = useDelayedFlag(isLoading, SKELETON_DELAY_MS);
   if (isLoading) {
-    if (!showSkeleton) {
-      return null;
-    }
     return (
-      <div
-        aria-busy="true"
-        aria-label="Loading messages"
-        className="grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-3.5"
-        role="status"
-      >
-        {SKELETON_KEYS.map((key) => (
-          <Skeleton className="h-[188px] rounded-xl" key={key} />
-        ))}
-      </div>
+      // The skeleton fades in (after the 150 ms delay) and shimmers; when data
+      // lands the cards take over with their own staggered rise (PresenceItem).
+      <AnimatePresence>
+        {showSkeleton ? (
+          <MotionDiv
+            animate={{ opacity: 1 }}
+            aria-busy="true"
+            aria-label="Loading messages"
+            className="grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-3.5"
+            exit={{ opacity: 0, transition: transition.exit }}
+            initial={{ opacity: 0 }}
+            key="inbox-skeleton"
+            role="status"
+            transition={transition.base}
+          >
+            {SKELETON_KEYS.map((key) => (
+              <Skeleton
+                className="h-[188px] rounded-xl"
+                key={key}
+                variant="shimmer"
+              />
+            ))}
+          </MotionDiv>
+        ) : null}
+      </AnimatePresence>
     );
   }
 
@@ -766,7 +775,7 @@ function InboxResults({
             : "flex flex-col gap-2"
         }
       >
-        <PresenceList>
+        <Presence>
           {messages.map((message, index) => {
             const messageId = String(message._id);
             return (
@@ -791,7 +800,7 @@ function InboxResults({
               </PresenceItem>
             );
           })}
-        </PresenceList>
+        </Presence>
       </div>
       {pagination?.hasMore ? (
         <div className="flex justify-center">

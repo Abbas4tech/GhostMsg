@@ -2,14 +2,11 @@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { type ReactNode, useCallback, useState } from "react";
+import { Particles, ParticlesEffect } from "@/components/animate/particles";
 import {
   Button as ButtonPrimitive,
   type ButtonProps as ButtonPrimitiveProps,
 } from "@/components/elements/button/button.primitive";
-import {
-  Particles,
-  ParticlesEffect,
-} from "@/components/elements/effects/particles";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(

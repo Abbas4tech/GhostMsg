@@ -6,7 +6,6 @@ import {
   DashboardShell,
   DashboardSkeleton,
 } from "@/components/blocks/dashboard-shell";
-import { MotionLayoutProvider } from "@/providers/motion-layout-provider";
 import {
   LazyCommandPalette,
   LazyShortcutSheet,
@@ -36,7 +35,7 @@ export function DashboardLayout({
   }
 
   return (
-    <MotionLayoutProvider>
+    <>
       <DashboardShell
         acceptance={shell.acceptance}
         activeNav={shell.activeNav}
@@ -62,6 +61,6 @@ export function DashboardLayout({
           open={shell.isShortcutsOpen}
         />
       </MountOnFirstOpen>
-    </MotionLayoutProvider>
+    </>
   );
 }

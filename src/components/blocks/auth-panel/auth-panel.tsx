@@ -116,13 +116,23 @@ export function AuthPanel({
           )}
         >
           {icon ? (
+            // Outer span carries the entrance so it never collides with the
+            // success tone's pulse-ring keyframe on the inner span.
             <span
               className={cn(
-                "grid place-items-center",
-                ICON_TONE_CLASS[iconTone]
+                iconTone === "success"
+                  ? "motion-safe:animate-pop"
+                  : "motion-safe:animate-rise"
               )}
             >
-              {icon}
+              <span
+                className={cn(
+                  "grid place-items-center",
+                  ICON_TONE_CLASS[iconTone]
+                )}
+              >
+                {icon}
+              </span>
             </span>
           ) : null}
           <div className="flex flex-col gap-1.5">
@@ -136,7 +146,7 @@ export function AuthPanel({
             {description ? (
               <p
                 className={cn(
-                  "text-body text-muted-foreground",
+                  "text-body text-muted-foreground motion-safe:animate-rise motion-safe:[animation-delay:80ms]",
                   isCentered && "mx-auto max-w-75"
                 )}
               >
@@ -145,7 +155,10 @@ export function AuthPanel({
             ) : null}
           </div>
         </header>
-        {children}
+        {/* First paint: CSS rise (ADR 0035, R2). The title (LCP) stays still. */}
+        <div className="flex flex-col gap-5 motion-safe:animate-rise max-sm:flex-1 sm:gap-4.5 motion-safe:[animation-delay:160ms]">
+          {children}
+        </div>
       </section>
     </main>
   );

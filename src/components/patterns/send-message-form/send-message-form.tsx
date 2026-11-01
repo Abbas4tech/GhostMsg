@@ -1,6 +1,8 @@
 "use client";
 
 import { Loader2, Lock } from "lucide-react";
+import { AnimatePresence } from "motion/react";
+import { span as MotionSpan } from "motion/react-m";
 import type React from "react";
 import { useCallback } from "react";
 import {
@@ -19,6 +21,7 @@ import {
   FormMessage,
 } from "@/components/elements/form";
 import { Textarea } from "@/components/elements/textarea";
+import { spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { messageSchema } from "@/schemas/message-schema";
 
@@ -106,18 +109,30 @@ export function SendMessageForm({
         {suggestions}
 
         <Button
-          className="w-full rounded-full"
+          className="w-full overflow-hidden rounded-full"
           disabled={!isFormValid || isSubmitting}
           size="xl"
           type="submit"
           variant="brand"
         >
-          {isSubmitting ? (
-            <Loader2 aria-hidden="true" className="animate-spin" />
-          ) : (
-            <Lock aria-hidden="true" />
-          )}
-          {isSubmitting ? "Sending..." : "Send anonymously"}
+          {/* Label morph: the idle label slides up and out as "Sending..." rises in. */}
+          <AnimatePresence initial={false} mode="popLayout">
+            <MotionSpan
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-2"
+              exit={{ opacity: 0, y: -14 }}
+              initial={{ opacity: 0, y: 14 }}
+              key={isSubmitting ? "sending" : "idle"}
+              transition={spring.snappy}
+            >
+              {isSubmitting ? (
+                <Loader2 aria-hidden="true" className="animate-spin" />
+              ) : (
+                <Lock aria-hidden="true" />
+              )}
+              {isSubmitting ? "Sending..." : "Send anonymously"}
+            </MotionSpan>
+          </AnimatePresence>
         </Button>
       </form>
     </Form>

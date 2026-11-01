@@ -17,6 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useInView } from "motion/react";
+import { span as MotionSpan } from "motion/react-m";
 import type React from "react";
 import { memo, useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/elements/button";
@@ -38,6 +39,7 @@ import {
   quarantineConcealNote,
   quarantineTagLabel,
 } from "@/lib/messages/quarantine-reason";
+import { layoutIds } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { MessageDto } from "@/types/api";
 
@@ -897,6 +899,7 @@ export const MessageCard = memo(function MessageCardInner({
     showSelect,
   };
   useMarkSeen(articleRef, message, model.isHidden, onSeen);
+  const canMorphToStory = Boolean(onOpenStoryCard) && !message.isQuarantined;
 
   return (
     <article
@@ -910,6 +913,15 @@ export const MessageCard = memo(function MessageCardInner({
       ref={articleRef}
       {...props}
     >
+      {canMorphToStory ? (
+        // Invisible morph source: the Story Card preview grows out of this
+        // card's box (shared layoutId). Empty, so resizes never stretch text.
+        <MotionSpan
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 rounded-[inherit]"
+          layoutId={layoutIds.storyCard(messageId)}
+        />
+      ) : null}
       {layout === "list" ? <ListBody {...model} /> : <GridBody {...model} />}
     </article>
   );

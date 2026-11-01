@@ -1,5 +1,7 @@
 import { EyeOff, Ghost, Pause } from "lucide-react";
 import type React from "react";
+import { Reveal, RevealItem } from "@/components/animate/reveal";
+
 import { cn } from "@/lib/utils";
 
 /** `short` is the phone copy (design MobLanding), `body` the desktop copy. */
@@ -47,16 +49,20 @@ export function TrustSection({
     <section
       aria-label="Safety"
       className={cn(
-        "reveal mx-auto w-full max-w-[1180px] scroll-mt-6 px-gutter pt-10 pb-0 sm:pt-6 sm:pb-16",
+        "mx-auto w-full max-w-[1180px] scroll-mt-6 px-gutter pt-10 pb-0 sm:pt-6 sm:pb-16",
         className
       )}
       data-slot="trust-section"
       id={id}
     >
       <h2 className="mb-3.5 text-h2 sm:sr-only">Safe by default</h2>
-      <ul className="overflow-hidden rounded-xl border bg-card text-card-foreground max-sm:divide-y sm:grid sm:grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] sm:gap-7 sm:p-8 sm:shadow-soft">
+      <Reveal
+        as="ul"
+        className="overflow-hidden rounded-xl border bg-card text-card-foreground max-sm:divide-y sm:grid sm:grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] sm:gap-7 sm:p-8 sm:shadow-soft"
+      >
         {TRUST_POINTS.map(({ icon: Icon, title, body, short }) => (
-          <li
+          <RevealItem
+            as="li"
             className="flex items-start gap-3 p-4 sm:flex-col sm:gap-2 sm:p-0"
             key={title}
           >
@@ -68,9 +74,9 @@ export function TrustSection({
               <p className="text-muted-foreground text-sm sm:hidden">{short}</p>
               <p className="text-muted-foreground max-sm:hidden">{body}</p>
             </div>
-          </li>
+          </RevealItem>
         ))}
-      </ul>
+      </Reveal>
     </section>
   );
 }

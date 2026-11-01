@@ -33,7 +33,7 @@ function ToggleGroup({
       className={cn(
         "group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-md data-[spacing=default]:data-[variant=outline]:shadow-xs",
         // GhostMsg: segmented-control track; chip groups wrap.
-        "data-[variant=chip]:flex-wrap data-[variant=segment]:rounded-full data-[variant=segment]:border data-[variant=segment]:bg-muted data-[variant=segment]:p-[3px]",
+        "data-[variant=chip]:flex-wrap data-[variant=glide]:flex-wrap data-[variant=segment]:rounded-full data-[variant=segment]:border data-[variant=segment]:bg-muted data-[variant=segment]:p-[3px]",
         className
       )}
       data-size={size}
@@ -61,7 +61,10 @@ function ToggleGroupItem({
   const context = useContext(ToggleGroupContext);
   const resolvedVariant = context.variant || variant;
   // Pills keep their own corners instead of the joined-button look.
-  const isPill = resolvedVariant === "chip" || resolvedVariant === "segment";
+  const isPill =
+    resolvedVariant === "chip" ||
+    resolvedVariant === "glide" ||
+    resolvedVariant === "segment";
 
   return (
     <ToggleGroupPrimitive.Item

@@ -1,4 +1,4 @@
-# ADR 0035: CSS-First Motion, LazyMotion for Presence and Layout, Lazy Overlays and a Motion Budget
+# ADR 0035: Motion Strategy: LazyMotion, Rich Choreography, Lazy Overlays and a Motion Budget
 
 ## Status
 **Accepted** (2026-11-01), implemented on `feat/motion-polish` with the deviations listed under "As built". Extends [ADR 0022](0022-palette-theming-and-claude-design-redesign.md) (motion tokens) and relaxes one rule of [ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md) / [ADR 0023](0023-shadcn-first-elements-and-profile-settings-backend.md) (default-variant parity).
@@ -22,6 +22,19 @@
 | M7 | **Lazy overlays in the pages tier.** `next/dynamic` wraps the hoisted modals (Story Card, Smart Reply, Reveal, Block, Delete account, Change username), CommandPalette and ShortcutSheet, the landing carousel, and the Particles/GravityStars effects. Chunks are prefetched on hover, focus or idle. Component `index.ts` APIs do not change. |
 | M8 | **Surface order:** inbox, public-profile send flow, landing, auth, settings, profile. Elements and foundation cover every screen first. |
 | M9 | **Extras in scope:** circular-reveal theme toggle, count-badge pop, a small "sent" burst, and the Story Card shared-element morph. Out of scope: swipe-to-archive, pull-to-refresh. |
+
+## Revision 2 (2026-11-01): rich motion
+
+The product owner asked to use `motion` for rich, choreographed experiences rather than as a fallback behind CSS. These rows **supersede** M1, M2 and M6 above.
+
+| # | Decision |
+| :-- | :--- |
+| R1 (was M1) | **Rich on public surfaces, polished-but-quick in the dashboard.** Landing, auth, public profile and the sent/verified screens get springs, choreography, scroll-linked depth and bursts. Dashboard chrome stays at or under 300 ms with no bounce; content inside it (lists, counters, indicators) may use soft springs. |
+| R2 (was M2) | **Motion for choreography, CSS for trivial state feedback.** Stagger, scroll-linked, springs, gestures, shared layout and sequences use `motion/react`. Press, hover, focus and colour fades stay CSS (`press`, `hover-lift`). **Exception, first paint:** anything visible in the server-rendered first paint (hero copy, auth panel, dashboard route enter) animates with CSS keyframes, because an `m.*` `initial` state hides content until the lazy feature chunk loads. |
+| R3 (was M6) | **Budget: at most +15 kB gzipped First Load JS on any route**, measured with `pnpm analyze`, and the LCP element never waits on motion (no opacity animation on it). |
+| R4 | **Device policy.** `reducedMotion="user"` everywhere. Parallax, scroll-linked effects and bursts are off under `prefers-reduced-motion`, `Save-Data`, or `navigator.hardwareConcurrency <= 4` (`useRichMotion`). They are decoration, so nothing functional is lost. |
+| R5 | **Visual review.** Each new effect is captured from interactive Storybook as a frame sequence with Playwright and reviewed before merge, in addition to its Motion story. |
+| R6 | **Gestures deferred.** No swipe actions or custom drawer drag (Vaul already owns drawer drag). |
 
 ## As built (deviations from the table above)
 

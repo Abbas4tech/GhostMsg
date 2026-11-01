@@ -1,6 +1,7 @@
 "use client";
 
 import { Download, Link2, Share, ShieldCheck, X } from "lucide-react";
+import { div as MotionDiv } from "motion/react-m";
 import type React from "react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/elements/button";
@@ -14,6 +15,8 @@ import {
   ResponsiveDialogTitle,
 } from "@/components/patterns/responsive-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useRichMotion } from "@/hooks/use-rich-motion";
+import { layoutIds } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { MessageDto } from "@/types/api";
 import {
@@ -178,6 +181,7 @@ export const StoryCardModal = ({
   onCopyLink,
 }: StoryCardModalProps): React.JSX.Element => {
   const isMobile = useIsMobile();
+  const isRich = useRichMotion();
   const [format, setFormat] = useState<StoryCardFormat>("story");
   const [look, setLook] = useState<StoryCardLook>("gradient");
   const [includeAnswer, setIncludeAnswer] = useState(true);
@@ -264,12 +268,20 @@ export const StoryCardModal = ({
     [onClose]
   );
 
+  // Desktop + Rich motion: the preview grows out of the message card it came
+  // from (shared layoutId with MessageCard). Phones use the Drawer's slide.
+  const morphId =
+    isRich && !isMobile && message
+      ? layoutIds.storyCard(String(message._id))
+      : undefined;
+
   const preview = (
-    <div
+    <MotionDiv
       className={cn(
         "flex justify-center",
         !isMobile && "rounded-xl bg-muted p-3"
       )}
+      layoutId={morphId}
     >
       <canvas
         aria-label="Story Card preview"
@@ -280,7 +292,7 @@ export const StoryCardModal = ({
         ref={canvasRef}
         role="img"
       />
-    </div>
+    </MotionDiv>
   );
 
   const answerToggle = answer ? (

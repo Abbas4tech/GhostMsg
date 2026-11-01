@@ -2,11 +2,14 @@
 
 import type React from "react";
 import { useCallback } from "react";
+import { LayoutIndicator } from "@/components/animate/layout-indicator";
+import { NumberTicker } from "@/components/animate/number-ticker";
 import { Badge } from "@/components/elements/badge";
 import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/elements/toggle-group";
+import { layoutIds } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export type MessageFilterStatus =
@@ -38,6 +41,20 @@ const isFilterStatus = (value: string): value is MessageFilterStatus =>
   value === "quarantined" ||
   value === "archived" ||
   FILTERS.some((f) => f.status === value);
+
+/** The primary pill that glides to whichever chip is active. */
+function ActivePill({
+  isActive,
+}: {
+  isActive: boolean;
+}): React.JSX.Element | null {
+  return isActive ? (
+    <LayoutIndicator
+      className="rounded-full bg-primary"
+      layoutId={layoutIds.filterPill}
+    />
+  ) : null;
+}
 
 export interface FilterBarProps {
   activeStatus: MessageFilterStatus;
@@ -76,7 +93,7 @@ export function FilterBar({
     <ToggleGroup
       aria-label="Filter messages"
       className={cn(
-        "-mx-4 w-auto snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 [scrollbar-width:none] *:shrink-0 *:snap-start data-[variant=chip]:flex-nowrap sm:mx-0 sm:snap-none sm:overflow-visible sm:px-0 sm:data-[variant=chip]:flex-wrap",
+        "-mx-4 w-auto snap-x snap-mandatory scroll-px-4 overflow-x-auto px-4 [scrollbar-width:none] *:shrink-0 *:snap-start data-[variant=glide]:flex-nowrap sm:mx-0 sm:snap-none sm:overflow-visible sm:px-0 sm:data-[variant=glide]:flex-wrap",
         className
       )}
       data-slot="filter-bar"
@@ -87,24 +104,35 @@ export function FilterBar({
       spacing={2}
       type="single"
       value={activeStatus}
-      variant="chip"
+      variant="glide"
     >
       {FILTERS.map(({ status, label }) => (
         <ToggleGroupItem key={status} value={status}>
+          <ActivePill isActive={activeStatus === status} />
           {label}
-          {counts ? <Badge variant="count">{counts[status]}</Badge> : null}
+          {counts ? (
+            <Badge variant="count">
+              <NumberTicker value={counts[status] ?? 0} />
+            </Badge>
+          ) : null}
         </ToggleGroupItem>
       ))}
       {showQuarantined ? (
         <ToggleGroupItem value="quarantined">
+          <ActivePill isActive={activeStatus === "quarantined"} />
           Quarantined
-          <Badge variant="attention">{counts?.quarantined}</Badge>
+          <Badge variant="attention">
+            <NumberTicker value={counts?.quarantined ?? 0} />
+          </Badge>
         </ToggleGroupItem>
       ) : null}
       {showArchived ? (
         <ToggleGroupItem value="archived">
+          <ActivePill isActive={activeStatus === "archived"} />
           Archived
-          <Badge variant="count">{counts?.archived ?? 0}</Badge>
+          <Badge variant="count">
+            <NumberTicker value={counts?.archived ?? 0} />
+          </Badge>
         </ToggleGroupItem>
       ) : null}
     </ToggleGroup>

@@ -11,13 +11,13 @@ import type * as React from "react";
 import {
   AutoHeight,
   type AutoHeightProps,
-} from "@/components/elements/effects/auto-height";
+} from "@/components/animate/auto-height";
 import {
   Highlight,
   HighlightItem,
   type HighlightItemProps,
   type HighlightProps,
-} from "@/components/elements/effects/highlight";
+} from "@/components/animate/highlight";
 import { getStrictContext } from "@/hooks/get-strict-context";
 import { useControlledState } from "@/hooks/use-controlled-state";
 
