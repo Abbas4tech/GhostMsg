@@ -1,6 +1,7 @@
 "use client";
 
-import { type HTMLMotionProps, motion } from "motion/react";
+import type { HTMLMotionProps } from "motion/react";
+import { button as MotionButton } from "motion/react-m";
 import type * as React from "react";
 
 import { Slot, type WithAsChild } from "@/components/elements/effects/slot";
@@ -22,7 +23,7 @@ function LiquidButton({
   asChild = false,
   ...props
 }: LiquidButtonProps) {
-  const Component = asChild ? Slot : motion.button;
+  const Component = asChild ? Slot : MotionButton;
 
   return (
     <Component

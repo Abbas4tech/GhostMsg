@@ -2,7 +2,8 @@
 
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
+import { span as MotionSpan } from "motion/react-m";
 import { type MouseEvent, useCallback } from "react";
 import {
   Button as ButtonPrimitive,
@@ -103,7 +104,7 @@ function CopyButton({
       {...props}
     >
       <AnimatePresence mode="popLayout">
-        <motion.span
+        <MotionSpan
           animate={{ filter: "blur(0px)", opacity: 1, scale: 1 }}
           data-slot="copy-button-icon"
           exit={{ filter: "blur(4px)", opacity: 0.4, scale: 0 }}
@@ -112,7 +113,7 @@ function CopyButton({
           transition={{ duration: 0.25 }}
         >
           <Icon />
-        </motion.span>
+        </MotionSpan>
       </AnimatePresence>
     </ButtonPrimitive>
   );

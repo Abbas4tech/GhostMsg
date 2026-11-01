@@ -72,6 +72,7 @@ flowchart TD
 | [**State Management**](guides/state-management.md) | Where each kind of state lives, the rules, the inbox data flow. |
 | [**Accessibility & Feedback**](guides/accessibility-and-feedback.md) | Keyboard, focus, live regions, `notify` toasts, motion. |
 | [**Responsive Design**](guides/responsive-design.md) | Breakpoints, CSS-only versus JS branches, phone versus desktop. |
+| [**Motion**](guides/motion.md) | CSS-first engine choice, `m.*` + LazyMotion, press utilities, the motion budget. |
 | [**Storybook & UI Catalog**](guides/storybook-and-ui-catalog.md) | Story standard, MSW page stories, fixtures, reliability rules. |
 | [**Infrastructure & Terraform**](guides/infrastructure-and-terraform.md) | Terraform-managed Vercel and MongoDB Atlas, env var flow. |
 | [**Troubleshooting**](guides/troubleshooting.md) | Symptom, cause and fix for styling, types, tests, lint, tooling. |

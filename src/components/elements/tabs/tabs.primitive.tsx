@@ -3,9 +3,9 @@
 import {
   AnimatePresence,
   type HTMLMotionProps,
-  motion,
   type Transition,
 } from "motion/react";
+import { div as MotionDiv } from "motion/react-m";
 import { Tabs as TabsPrimitive } from "radix-ui";
 import type * as React from "react";
 import {
@@ -101,7 +101,7 @@ function TabsContent({
   return (
     <AnimatePresence mode="wait">
       <TabsPrimitive.Content asChild forceMount={forceMount} value={value}>
-        <motion.div
+        <MotionDiv
           animate={{ filter: "blur(0px)", opacity: 1 }}
           data-slot="tabs-content"
           exit={{ filter: "blur(4px)", opacity: 0 }}
@@ -159,7 +159,7 @@ function TabsContents(props: TabsContentsProps) {
   const { transition = defaultTransition, style, ...layoutProps } = props;
 
   return (
-    <motion.div
+    <MotionDiv
       data-slot="tabs-contents"
       layout="size"
       layoutDependency={value}

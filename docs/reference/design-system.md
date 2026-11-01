@@ -135,6 +135,8 @@ Other baseline rules, enforced in review and story tests:
 | `animate-countdown` | width 100% → 0, linear; set `animationDuration` inline | Undo toast time-left bar. **Not** `motion-safe`: it carries information. Paused with `in-data-[expanded=true]:[animation-play-state:paused]` so it stops when Sonner's timer does. |
 | Motion library (`motion`) | Spring presses and morphs | Icon buttons, copy button, theme toggler (Animate UI elements) |
 
+Interaction feedback utilities (`press`, `press-deep`, `hover-lift`, in `globals.css`) are CSS-only and already skip transforms under reduced motion. The engine choice, `m.*` rule and motion budget are in the [Motion Guide](../guides/motion.md) ([ADR 0035](../adr/0035-css-first-motion-lazymotion-and-lazy-overlays.md)).
+
 Always prefix CSS animations with `motion-safe:`. Durations stay under 300ms for UI feedback; only ambient illustration loops are longer.
 
 `src/lib/motion.ts` holds the `motion/react` side of this: duration/ease/spring tokens and ready-made presets (`press`, `fadeRise`, `dialog`, `floating`, `toolbarUp`, `shake`, `stepSlide`, `layoutIds`, …) for JS-driven animation that CSS keyframes can't express. The app root wraps `children` in `<MotionConfig reducedMotion="user">` (`src/app/layout.tsx`), so every `motion/react` transform falls back to opacity-only under `prefers-reduced-motion` without each call site handling it.

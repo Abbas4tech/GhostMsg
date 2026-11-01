@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion, type Transition } from "motion/react";
+import { AnimatePresence, type Transition } from "motion/react";
+import { div as MotionDiv } from "motion/react-m";
 import {
   Children,
   type ComponentProps,
@@ -290,7 +291,7 @@ function Highlight<T extends ElementType = "div">({
         >
           <AnimatePresence initial={false} mode="wait">
             {boundsState ? (
-              <motion.div
+              <MotionDiv
                 animate={{
                   height: boundsState.height,
                   left: boundsState.left,
@@ -589,7 +590,7 @@ function HighlightItem<T extends ElementType>({
         <>
           <AnimatePresence initial={false} mode="wait">
             {isActive && !isDisabled && (
-              <motion.div
+              <MotionDiv
                 animate={{ opacity: 1 }}
                 className={cn(contextClassName, activeClassName)}
                 data-slot="motion-highlight"
@@ -651,7 +652,7 @@ function HighlightItem<T extends ElementType>({
       {mode === "children" && (
         <AnimatePresence initial={false} mode="wait">
           {isActive && !isDisabled && (
-            <motion.div
+            <MotionDiv
               animate={{ opacity: 1 }}
               className={cn(contextClassName, activeClassName)}
               data-slot="motion-highlight"

@@ -2,7 +2,8 @@
 
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { AlertCircle, Clock, Loader2, RefreshCw } from "lucide-react";
-import { motion, useAnimation } from "motion/react";
+import { useAnimation } from "motion/react";
+import { div as MotionDiv } from "motion/react-m";
 import Link from "next/link";
 import type React from "react";
 import { useCallback, useEffect } from "react";
@@ -163,7 +164,7 @@ export function VerifyCodeForm({
       <FormItem>
         <FormLabel className="sr-only">Verification Code</FormLabel>
         {/* The shake wraps FormControl, so the label stays on the input. */}
-        <motion.div animate={shakeControls} initial="idle" variants={shake}>
+        <MotionDiv animate={shakeControls} initial="idle" variants={shake}>
           <FormControl>
             <InputOTP
               autoComplete="one-time-code"
@@ -185,7 +186,7 @@ export function VerifyCodeForm({
               </InputOTPGroup>
             </InputOTP>
           </FormControl>
-        </motion.div>
+        </MotionDiv>
         <FormMessage />
       </FormItem>
     ),

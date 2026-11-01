@@ -9,6 +9,8 @@ import { useState } from "react";
 import { Toaster } from "../src/components/elements/sonner";
 import { isPalette } from "../src/lib/theme/palette";
 import { defaultHandlers } from "../src/mock/handlers";
+import { MotionLayoutProvider } from "../src/providers/motion-layout-provider";
+import { MotionProvider } from "../src/providers/motion-provider";
 import PaletteProvider from "../src/providers/palette-provider";
 import "../src/app/globals.css";
 
@@ -57,9 +59,13 @@ const withTheme: Decorator = (Story, context) => {
       forcedTheme={context.globals.theme ?? "light"}
     >
       <PaletteProvider forcedPalette={palette}>
-        <div className="bg-background font-sans text-foreground">
-          <Story />
-        </div>
+        <MotionProvider>
+          <MotionLayoutProvider>
+            <div className="bg-background font-sans text-foreground">
+              <Story />
+            </div>
+          </MotionLayoutProvider>
+        </MotionProvider>
         <Toaster />
       </PaletteProvider>
     </ThemeProvider>

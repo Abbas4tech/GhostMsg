@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
+import { AnimatePresence, type HTMLMotionProps } from "motion/react";
+import { div as MotionDiv } from "motion/react-m";
 import type * as React from "react";
 import { getStrictContext } from "@/hooks/get-strict-context";
 import { type UseIsInViewOptions, useIsInView } from "@/hooks/use-is-in-view";
@@ -40,7 +41,7 @@ function Particles({
     { inView, inViewMargin, inViewOnce }
   );
 
-  const Component = asChild ? Slot : motion.div;
+  const Component = asChild ? Slot : MotionDiv;
 
   return (
     <ParticlesProvider value={{ animate, isInView }}>
@@ -163,7 +164,7 @@ function ParticlesEffect({
     <AnimatePresence>
       {animate && isInView
         ? particles.map((p) => (
-            <motion.div
+            <MotionDiv
               animate={{
                 opacity: [0, 1, 0],
                 scale: [0, 1, 0],

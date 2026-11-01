@@ -7,6 +7,7 @@ Cross-cutting how-tos and rules that apply to many features: state, accessibilit
 | [State Management](state-management.md) |
 | [Accessibility & Feedback](accessibility-and-feedback.md) |
 | [Responsive Design](responsive-design.md) |
+| [Motion](motion.md) |
 | [Storybook & UI Catalog](storybook-and-ui-catalog.md) |
 | [Infrastructure & Terraform](infrastructure-and-terraform.md) |
 | [Troubleshooting](troubleshooting.md) |

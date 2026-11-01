@@ -1,9 +1,12 @@
-// Motion tokens + presets for motion/react, used with shadcn/Radix elements only
-// (animate-ui twins where they exist, otherwise `motion.create(Component)` or
-// Radix `asChild` + a motion element). Never fork a base component for motion.
+// Motion tokens + presets for motion/react (ADR 0035). CSS is the default for
+// press, hover, focus, overlays, skeletons and the rise/float keyframes (see
+// globals.css). Use these presets only where CSS cannot: presence (enter/exit),
+// layout (reorder, shared indicators) and gestures.
 //
-// App root wraps in <MotionConfig reducedMotion="user">, so every transform
-// falls back to opacity-only when the OS asks for reduced motion.
+// Render them on `m.*` components (`motion/react-m`), never the full `motion.*`:
+// the app root's <MotionProvider> is `strict` and loads the engine lazily.
+// It also sets reducedMotion="user", so transforms fall back to opacity-only
+// when the OS asks for it.
 
 import type { MotionProps, Transition, Variants } from "motion/react";
 
@@ -41,32 +44,6 @@ export const transition = {
   swap: { duration: duration.base, ease: ease.inOut },
 } as const satisfies Record<string, Transition>;
 
-/* ───────── interaction presets ───────── */
-
-/** Button / Toggle / chip press. */
-export const press = {
-  transition: spring.snappy,
-  whileTap: { scale: 0.97 },
-} satisfies MotionProps;
-
-/** Icon-only buttons press a little deeper. */
-export const pressIcon = {
-  transition: spring.snappy,
-  whileTap: { scale: 0.92 },
-} satisfies MotionProps;
-
-/** Desktop-only card hover (gate with `(hover: hover)` media / useMediaQuery). */
-export const hoverLift = {
-  transition: transition.fast,
-  whileHover: { y: -2 },
-} satisfies MotionProps;
-
-/** Star toggle: pop on press. Pair with a dot burst rendered only when pressed. */
-export const starPop: Variants = {
-  off: { scale: 1 },
-  on: { scale: [1, 1.3, 1], transition: spring.bouncy },
-};
-
 /* ───────── enter / exit ───────── */
 
 /** Cards, list rows, alerts. Use inside <AnimatePresence initial={false}> with `layout`. */
@@ -99,35 +76,7 @@ export const crossfade = {
   initial: { opacity: 0 },
 } satisfies MotionProps;
 
-/* ───────── overlays ───────── */
-
-/** <DialogContent asChild forceMount><motion.div {...dialog} /></DialogContent> */
-export const dialog = {
-  animate: { opacity: 1, scale: 1, transition: transition.base, y: 0 },
-  exit: { opacity: 0, scale: 0.98, transition: transition.exit },
-  initial: { opacity: 0, scale: 0.96, y: 8 },
-} satisfies MotionProps;
-
-export const overlay = {
-  animate: { opacity: 1, transition: transition.base },
-  exit: { opacity: 0, transition: transition.exit },
-  initial: { opacity: 0 },
-} satisfies MotionProps;
-
-/** Popover / HoverCard / DropdownMenu / Select content. Set transformOrigin from Radix:
- *  style={{ transformOrigin: "var(--radix-popover-content-transform-origin)" }} */
-export const floating = {
-  animate: { opacity: 1, scale: 1, transition: transition.fast },
-  exit: { opacity: 0, scale: 0.98, transition: transition.exit },
-  initial: { opacity: 0, scale: 0.96 },
-} satisfies MotionProps;
-
-/** Sheet from the side (tablet sidebar, filters). */
-export const sheetRight = {
-  animate: { transition: { duration: duration.slow, ease: ease.out }, x: 0 },
-  exit: { transition: { duration: duration.base, ease: ease.in }, x: "100%" },
-  initial: { x: "100%" },
-} satisfies MotionProps;
+/* ───────── floating surfaces ───────── */
 
 /** Bulk toolbar (desktop pill / mobile 4-up bar). */
 export const toolbarUp = {
@@ -169,16 +118,6 @@ export const stepSlide: Variants = {
 export const celebrate = {
   animate: { opacity: 1, scale: 1, transition: spring.bouncy },
   initial: { opacity: 0, scale: 0.6 },
-} satisfies MotionProps;
-
-/** Idle float — landing hero + first-run empty state ONLY. Pause when off-screen. */
-export const float = {
-  animate: { y: [0, -6, 0] },
-  transition: {
-    duration: 6,
-    ease: "easeInOut",
-    repeat: Number.POSITIVE_INFINITY,
-  },
 } satisfies MotionProps;
 
 /* ───────── shared-layout ids (one source so indicators never collide) ───────── */

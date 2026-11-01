@@ -1,12 +1,12 @@
 "use client";
 
-import {
-  type HTMLMotionProps,
-  type LegacyAnimationControls,
-  motion,
-  type TargetAndTransition,
-  type Transition,
+import type {
+  HTMLMotionProps,
+  LegacyAnimationControls,
+  TargetAndTransition,
+  Transition,
 } from "motion/react";
+import { div as MotionDiv } from "motion/react-m";
 import type * as React from "react";
 import { useAutoHeight } from "@/hooks/use-auto-height";
 import { Slot, type WithAsChild } from "./slot";
@@ -37,7 +37,7 @@ function AutoHeight({
 }: AutoHeightProps) {
   const { ref, height } = useAutoHeight<HTMLDivElement>(deps);
 
-  const Comp = asChild ? Slot : motion.div;
+  const Comp = asChild ? Slot : MotionDiv;
 
   return (
     <Comp

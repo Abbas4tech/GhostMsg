@@ -1,6 +1,7 @@
 "use client";
 
-import { type HTMLMotionProps, motion } from "motion/react";
+import type { HTMLMotionProps } from "motion/react";
+import { button as MotionButton } from "motion/react-m";
 
 import { Slot, type WithAsChild } from "@/components/elements/effects/slot";
 
@@ -17,7 +18,7 @@ function Button({
   asChild = false,
   ...props
 }: ButtonProps) {
-  const Component = asChild ? Slot : motion.button;
+  const Component = asChild ? Slot : MotionButton;
 
   return (
     <Component

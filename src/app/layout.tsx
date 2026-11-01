@@ -1,4 +1,3 @@
-import { MotionConfig } from "motion/react";
 import type { Metadata } from "next";
 import {
   Bricolage_Grotesque,
@@ -14,6 +13,7 @@ import type React from "react";
 import { Toaster } from "@/components/elements/sonner";
 import { DEFAULT_PALETTE, PALETTE_BOOT_SCRIPT } from "@/lib/theme/palette";
 import AuthProvider from "@/providers/auth-provider";
+import { MotionProvider } from "@/providers/motion-provider";
 import PaletteProvider from "@/providers/palette-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import ThemeProvider from "@/providers/theme-provider";
@@ -128,7 +128,7 @@ export default function RootLayout({
               enableSystem
             >
               <PaletteProvider>
-                <MotionConfig reducedMotion="user">{children}</MotionConfig>
+                <MotionProvider>{children}</MotionProvider>
                 <Toaster />
               </PaletteProvider>
             </ThemeProvider>
