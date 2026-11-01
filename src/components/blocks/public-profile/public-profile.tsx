@@ -119,18 +119,18 @@ function SentScreen({
   return (
     <div className="flex flex-1 flex-col gap-6 pt-6" role="status">
       <div className="flex flex-col items-center gap-4 text-center">
-        <span className="grid size-19 place-items-center rounded-full bg-success text-success-foreground shadow-[0_0_0_10px_color-mix(in_oklch,var(--success)_16%,transparent)]">
+        <span className="grid size-19 place-items-center rounded-full bg-success text-success-foreground shadow-[0_0_0_10px_color-mix(in_oklch,var(--success)_16%,transparent)] motion-safe:animate-pop">
           <Check aria-hidden="true" className="size-9" />
         </span>
-        <h1 className="max-w-80 text-h1">
+        <h1 className="max-w-80 text-h1 motion-safe:animate-rise motion-safe:[animation-delay:120ms]">
           Sent. {name} will never know it was you.
         </h1>
-        <p className="max-w-75 text-muted-foreground">
+        <p className="max-w-75 text-muted-foreground motion-safe:animate-rise motion-safe:[animation-delay:200ms]">
           If they answer publicly, it shows up on their page.
         </p>
       </div>
       {sentContent ? (
-        <div className="flex flex-col gap-2 rounded-xl border bg-card p-4 text-card-foreground">
+        <div className="flex flex-col gap-2 rounded-xl border bg-card p-4 text-card-foreground motion-safe:animate-rise motion-safe:[animation-delay:280ms]">
           <span className="text-muted-foreground text-overline uppercase">
             You sent
           </span>

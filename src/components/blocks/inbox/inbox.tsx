@@ -14,9 +14,15 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { AnimatePresence } from "motion/react";
+import { div as MotionDiv } from "motion/react-m";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/elements/button";
+import {
+  PresenceItem,
+  PresenceList,
+} from "@/components/elements/effects/presence-list";
 import {
   Empty,
   EmptyContent,
@@ -58,6 +64,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatLastChecked } from "@/lib/format/relative-time";
 import type { MessageExportFormat } from "@/lib/messages/export";
+import { pillDrop } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { MessageDto } from "@/types/api";
 
@@ -659,18 +666,22 @@ function NewMessagesPill({
       aria-live="polite"
       className="sticky top-16 z-20 flex justify-center md:top-3"
     >
-      {count > 0 ? (
-        <Button
-          className="h-11 rounded-full bg-accent px-5 text-accent-foreground shadow-lift hover:bg-accent/90"
-          onClick={onClick}
-          variant="secondary"
-        >
-          <ArrowUp aria-hidden="true" />
-          {count === 1
-            ? "1 new Anonymous Message"
-            : `${count} new Anonymous Messages`}
-        </Button>
-      ) : null}
+      <AnimatePresence initial={false}>
+        {count > 0 ? (
+          <MotionDiv key="new-messages-pill" {...pillDrop}>
+            <Button
+              className="h-11 rounded-full bg-accent px-5 text-accent-foreground shadow-lift hover:bg-accent/90"
+              onClick={onClick}
+              variant="secondary"
+            >
+              <ArrowUp aria-hidden="true" />
+              {count === 1
+                ? "1 new Anonymous Message"
+                : `${count} new Anonymous Messages`}
+            </Button>
+          </MotionDiv>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
@@ -755,25 +766,32 @@ function InboxResults({
             : "flex flex-col gap-2"
         }
       >
-        {messages.map((message) => {
-          const messageId = String(message._id);
-          return (
-            <MessageCard
-              concealSpicy={concealSpicy}
-              isFocused={focusedId === messageId}
-              isRevealed={revealedIds.includes(messageId)}
-              isSelected={selectedIds.includes(messageId)}
-              isSenderBlocked={isSenderBlocked(message.senderHash)}
-              key={messageId}
-              layout={layout}
-              message={message}
-              now={now}
-              onToggleSelect={onToggleSelect}
-              showSelect={showSelect}
-              {...cardActions}
-            />
-          );
-        })}
+        <PresenceList>
+          {messages.map((message, index) => {
+            const messageId = String(message._id);
+            return (
+              <PresenceItem
+                className="grid min-w-0"
+                index={index}
+                key={messageId}
+              >
+                <MessageCard
+                  concealSpicy={concealSpicy}
+                  isFocused={focusedId === messageId}
+                  isRevealed={revealedIds.includes(messageId)}
+                  isSelected={selectedIds.includes(messageId)}
+                  isSenderBlocked={isSenderBlocked(message.senderHash)}
+                  layout={layout}
+                  message={message}
+                  now={now}
+                  onToggleSelect={onToggleSelect}
+                  showSelect={showSelect}
+                  {...cardActions}
+                />
+              </PresenceItem>
+            );
+          })}
+        </PresenceList>
       </div>
       {pagination?.hasMore ? (
         <div className="flex justify-center">

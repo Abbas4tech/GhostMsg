@@ -51,7 +51,7 @@ export type MessageCardState =
   | "quarantined";
 
 const messageCardVariants = cva(
-  "@container/card relative flex min-w-0 rounded-xl border bg-card text-card-foreground shadow-soft transition-[box-shadow,background-color,border-color] duration-200",
+  "@container/card relative flex min-w-0 rounded-xl border bg-card text-card-foreground shadow-soft",
   {
     defaultVariants: { focused: false, layout: "grid", state: "default" },
     variants: {
@@ -60,8 +60,8 @@ const messageCardVariants = cva(
         true: "outline-2 outline-ring outline-offset-2",
       },
       layout: {
-        grid: "flex-col gap-3 p-4",
-        list: "flex-row items-center gap-3 px-3 py-2.5 sm:px-4",
+        grid: "hover-lift flex-col gap-3 p-4",
+        list: "flex-row items-center gap-3 px-3 py-2.5 transition-[box-shadow,background-color,border-color] duration-(--dur-base) ease-out sm:px-4",
       },
       state: {
         answered: "bg-muted",

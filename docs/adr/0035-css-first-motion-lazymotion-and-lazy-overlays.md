@@ -1,7 +1,7 @@
 # ADR 0035: CSS-First Motion, LazyMotion for Presence and Layout, Lazy Overlays and a Motion Budget
 
 ## Status
-**Proposed** (2026-11-01). Becomes **Accepted** when the user confirms the round-2 specs. Extends [ADR 0022](0022-palette-theming-and-claude-design-redesign.md) (motion tokens) and relaxes one rule of [ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md) / [ADR 0023](0023-shadcn-first-elements-and-profile-settings-backend.md) (default-variant parity).
+**Accepted** (2026-11-01), implemented on `feat/motion-polish` with the deviations listed under "As built". Extends [ADR 0022](0022-palette-theming-and-claude-design-redesign.md) (motion tokens) and relaxes one rule of [ADR 0016](0016-storybook-msw-and-story-driven-component-testing.md) / [ADR 0023](0023-shadcn-first-elements-and-profile-settings-backend.md) (default-variant parity).
 
 ---
 
@@ -23,10 +23,18 @@
 | M8 | **Surface order:** inbox, public-profile send flow, landing, auth, settings, profile. Elements and foundation cover every screen first. |
 | M9 | **Extras in scope:** circular-reveal theme toggle, count-badge pop, a small "sent" burst, and the Story Card shared-element morph. Out of scope: swipe-to-archive, pull-to-refresh. |
 
+## As built (deviations from the table above)
+
+- **M5:** dashboard routes use a CSS `animate-rise` on `app/(dashboard)/dashboard/template.tsx` (`RouteTransition`), not the View Transitions API. React's `ViewTransition` is canary-only and needs an experimental Next flag and canary types, which was too fragile here. The existing theme toggler already runs a View Transition wipe; it now respects reduced motion and runs 450 ms instead of 700 ms.
+- **M9:** the sent mark is a CSS `animate-pop` keyframe (not a JS spring), because `m` made `/u/[username]` 18 kB heavier. The Story Card shared-element morph is **not built** (it crosses a Radix portal and a lazy chunk). Filter chips and the sidebar keep the element's own active style with animated colour fades; only the phone bottom nav has a sliding `layoutId` pill.
+- **M7 shipped for:** Smart Reply, Story Card, Block sender and Reveal modals (inbox page), CommandPalette and ShortcutSheet (dashboard layout), each mounted on first open and prefetched when the browser is idle. **Not done:** the profile/settings modals (small), the landing carousel and the Particles/GravityStars effects (no measurable first-load win on those routes).
+- **Landing reveals** use a CSS scroll-driven `reveal` utility (no JS, nothing hidden before hydration), not `m` with `whileInView`.
+- **M6 result:** landing, auth, sign-up and public profile did not grow; `/verify` shrank by 19 kB. **`/dashboard` grew by about 10 kB (290 to 300 kB), over the 5 kB budget**: the minimal `m` core (about 7 kB) plus `AnimatePresence` (about 2 kB) are new to that route, in exchange for card enter/exit/reflow, the new-message pill drop and the bottom-nav pill. Lazy overlays kept `cmdk` and the heavy modals out of the first load.
+
 ## Considered options
 
 - **All `motion/react`** (Animate UI style, as today): simplest mental model, but every Button becomes a JS-driven component and the runtime ships everywhere.
-- **`template.tsx` fade for routes:** remounts the tree on every navigation and adds JS; rejected for the dashboard in favour of View Transitions.
+- **`template.tsx` fade for routes:** a JS fade was rejected in favour of View Transitions in the plan; as built, `template.tsx` carries only a CSS keyframe (no JS), because View Transitions needed React canary.
 
 ## Consequences
 

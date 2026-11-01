@@ -1,7 +1,7 @@
-export {
-  BlockSenderModal,
-  type BlockSenderModalProps,
-} from "./block-sender-modal";
+// Heavy, rarely opened modals are lazy-loaded by pages/dashboard/lazy-overlays
+// through deep imports. Only their types are exported here, so this barrel
+// never pulls them back into the main chunk (ADR 0035, M7).
+export type { BlockSenderModalProps } from "./block-sender-modal";
 export {
   ChangeUsernameModal,
   type ChangeUsernameModalProps,
@@ -26,16 +26,6 @@ export {
   DiscardChangesModal,
   type DiscardChangesModalProps,
 } from "./discard-changes-modal";
-export {
-  RevealMessageModal,
-  type RevealMessageModalProps,
-} from "./reveal-message-modal";
-export {
-  REPLY_MAX_LENGTH,
-  SmartReplyModal,
-  type SmartReplyModalProps,
-} from "./smart-reply-modal";
-export {
-  StoryCardModal,
-  type StoryCardModalProps,
-} from "./story-card-modal";
+export type { RevealMessageModalProps } from "./reveal-message-modal";
+export type { SmartReplyModalProps } from "./smart-reply-modal";
+export type { StoryCardModalProps } from "./story-card-modal";

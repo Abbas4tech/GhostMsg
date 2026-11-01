@@ -6,8 +6,13 @@ import {
   DashboardShell,
   DashboardSkeleton,
 } from "@/components/blocks/dashboard-shell";
-import { CommandPalette } from "@/components/patterns/command-palette";
-import { ShortcutSheet } from "@/components/patterns/shortcut-sheet";
+import { MotionLayoutProvider } from "@/providers/motion-layout-provider";
+import {
+  LazyCommandPalette,
+  LazyShortcutSheet,
+  MountOnFirstOpen,
+  usePrefetchShellOverlays,
+} from "./lazy-overlays";
 import { useDashboardShellController } from "./use-dashboard-shell.controller";
 
 export interface DashboardLayoutProps {
@@ -20,6 +25,7 @@ export function DashboardLayout({
   children,
 }: DashboardLayoutProps): React.JSX.Element {
   const shell = useDashboardShellController();
+  usePrefetchShellOverlays();
 
   if (shell.status === "loading") {
     return <DashboardSkeleton />;
@@ -30,7 +36,7 @@ export function DashboardLayout({
   }
 
   return (
-    <>
+    <MotionLayoutProvider>
       <DashboardShell
         acceptance={shell.acceptance}
         activeNav={shell.activeNav}
@@ -43,15 +49,19 @@ export function DashboardLayout({
       >
         {children}
       </DashboardShell>
-      <CommandPalette
-        groups={shell.commandGroups}
-        onOpenChange={shell.setIsCommandOpen}
-        open={shell.isCommandOpen}
-      />
-      <ShortcutSheet
-        onOpenChange={shell.setIsShortcutsOpen}
-        open={shell.isShortcutsOpen}
-      />
-    </>
+      <MountOnFirstOpen open={shell.isCommandOpen}>
+        <LazyCommandPalette
+          groups={shell.commandGroups}
+          onOpenChange={shell.setIsCommandOpen}
+          open={shell.isCommandOpen}
+        />
+      </MountOnFirstOpen>
+      <MountOnFirstOpen open={shell.isShortcutsOpen}>
+        <LazyShortcutSheet
+          onOpenChange={shell.setIsShortcutsOpen}
+          open={shell.isShortcutsOpen}
+        />
+      </MountOnFirstOpen>
+    </MotionLayoutProvider>
   );
 }

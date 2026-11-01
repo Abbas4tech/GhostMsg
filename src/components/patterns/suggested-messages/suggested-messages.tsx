@@ -27,7 +27,7 @@ function SuggestionButton({
 
   return (
     <button
-      className="flex min-h-11 items-center rounded-2xl border border-input border-dashed bg-card px-3.5 py-2 text-left font-medium text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring"
+      className="press flex min-h-11 items-center rounded-2xl border border-input border-dashed bg-card px-3.5 py-2 text-left font-medium text-sm hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring"
       onClick={handleClick}
       type="button"
     >

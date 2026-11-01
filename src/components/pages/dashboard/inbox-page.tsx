@@ -5,13 +5,17 @@ import { useCallback, useMemo } from "react";
 import { INBOX_SEARCH_INPUT_ID, Inbox } from "@/components/blocks/inbox";
 import type { MessageFilterStatus } from "@/components/patterns/filter-bar";
 import {
-  BlockSenderModal,
   DeleteMessageModal,
   DeleteSelectedModal,
-  RevealMessageModal,
-  SmartReplyModal,
-  StoryCardModal,
 } from "@/components/patterns/modals";
+import {
+  LazyBlockSenderModal,
+  LazyRevealMessageModal,
+  LazySmartReplyModal,
+  LazyStoryCardModal,
+  MountOnFirstOpen,
+  usePrefetchInboxOverlays,
+} from "./lazy-overlays";
 import {
   type UseInboxControllerOptions,
   useInboxController,
@@ -30,6 +34,7 @@ export interface InboxPageProps extends UseInboxControllerOptions {
  * into the pure Inbox block and mounts the single hoisted modal set (ADR 0014).
  */
 export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
+  usePrefetchInboxOverlays();
   const link = useProfileLinkController();
   const inbox = useInboxController(props);
   const smartReply = useSmartReplyController({
@@ -143,14 +148,18 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
         viewMode={inbox.viewMode}
       />
 
-      <BlockSenderModal
-        isPending={inbox.isBlockPending}
-        isSenderBlocked={inbox.isSenderBlocked(inbox.activeMessage?.senderHash)}
-        message={inbox.activeMessage}
-        onClose={inbox.closeModal}
-        onConfirm={inbox.handleBlockConfirm}
-        open={inbox.activeModal === "block"}
-      />
+      <MountOnFirstOpen open={inbox.activeModal === "block"}>
+        <LazyBlockSenderModal
+          isPending={inbox.isBlockPending}
+          isSenderBlocked={inbox.isSenderBlocked(
+            inbox.activeMessage?.senderHash
+          )}
+          message={inbox.activeMessage}
+          onClose={inbox.closeModal}
+          onConfirm={inbox.handleBlockConfirm}
+          open={inbox.activeModal === "block"}
+        />
+      </MountOnFirstOpen>
 
       <DeleteMessageModal
         isPending={inbox.isDeletePending}
@@ -162,39 +171,45 @@ export function InboxPage(props: InboxPageProps = {}): React.JSX.Element {
 
       <DeleteSelectedModal {...inbox.bulkDelete} />
 
-      <RevealMessageModal
-        message={inbox.activeMessage}
-        onClose={inbox.closeModal}
-        onConfirm={inbox.handleRevealConfirm}
-        open={inbox.activeModal === "reveal"}
-      />
+      <MountOnFirstOpen open={inbox.activeModal === "reveal"}>
+        <LazyRevealMessageModal
+          message={inbox.activeMessage}
+          onClose={inbox.closeModal}
+          onConfirm={inbox.handleRevealConfirm}
+          open={inbox.activeModal === "reveal"}
+        />
+      </MountOnFirstOpen>
 
-      <SmartReplyModal
-        drafts={smartReply.drafts}
-        hasDraftsError={smartReply.hasDraftsError}
-        isGenerating={smartReply.isGenerating}
-        isOpen={inbox.activeModal === "reply"}
-        isPublished={smartReply.isPublished}
-        isSaving={smartReply.isSaving}
-        message={inbox.activeMessage}
-        onClose={inbox.closeModal}
-        onPickDraft={smartReply.handlePickDraft}
-        onPublishedChange={smartReply.setIsPublished}
-        onReplyTextChange={smartReply.setReplyText}
-        onRetryDrafts={smartReply.handleRetryDrafts}
-        onSave={smartReply.handleSave}
-        onSaveAndShare={handleSaveAndShare}
-        replyText={smartReply.replyText}
-      />
+      <MountOnFirstOpen open={inbox.activeModal === "reply"}>
+        <LazySmartReplyModal
+          drafts={smartReply.drafts}
+          hasDraftsError={smartReply.hasDraftsError}
+          isGenerating={smartReply.isGenerating}
+          isOpen={inbox.activeModal === "reply"}
+          isPublished={smartReply.isPublished}
+          isSaving={smartReply.isSaving}
+          message={inbox.activeMessage}
+          onClose={inbox.closeModal}
+          onPickDraft={smartReply.handlePickDraft}
+          onPublishedChange={smartReply.setIsPublished}
+          onReplyTextChange={smartReply.setReplyText}
+          onRetryDrafts={smartReply.handleRetryDrafts}
+          onSave={smartReply.handleSave}
+          onSaveAndShare={handleSaveAndShare}
+          replyText={smartReply.replyText}
+        />
+      </MountOnFirstOpen>
 
-      <StoryCardModal
-        isOpen={inbox.activeModal === "story"}
-        message={inbox.activeMessage}
-        onClose={inbox.closeModal}
-        onCopyLink={link.handleCopy}
-        profileLabel={link.profileLabel}
-        username={link.username || "user"}
-      />
+      <MountOnFirstOpen open={inbox.activeModal === "story"}>
+        <LazyStoryCardModal
+          isOpen={inbox.activeModal === "story"}
+          message={inbox.activeMessage}
+          onClose={inbox.closeModal}
+          onCopyLink={link.handleCopy}
+          profileLabel={link.profileLabel}
+          username={link.username || "user"}
+        />
+      </MountOnFirstOpen>
     </>
   );
 }

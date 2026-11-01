@@ -53,9 +53,13 @@ type Story = StoryObj<typeof meta>;
 
 export const Inbox: Story = {
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText(sweetMessage.content, undefined, PAGE_LOAD)
-    ).toBeVisible();
+    const message = await canvas.findByText(
+      sweetMessage.content,
+      undefined,
+      PAGE_LOAD
+    );
+    // Cards fade in (PresenceItem), so wait for the entry animation to settle.
+    await waitFor(() => expect(message).toBeVisible());
     await expect(canvas.getByText(UNREAD_LINE_REGEX)).toBeVisible();
     const sidebar = canvas.getByRole("complementary", { name: "Sidebar" });
     await expect(within(sidebar).getByText(FIXTURE_USERNAME)).toBeVisible();

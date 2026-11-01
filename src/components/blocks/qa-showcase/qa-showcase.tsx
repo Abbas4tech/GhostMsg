@@ -31,7 +31,7 @@ export function QaShowcase({
   return (
     <section
       className={cn(
-        "mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center gap-3.5 px-gutter pt-10 sm:gap-10 sm:pt-0 sm:pb-18",
+        "reveal mx-auto grid w-full max-w-[1180px] grid-cols-[repeat(auto-fit,minmax(min(440px,100%),1fr))] items-center gap-3.5 px-gutter pt-10 sm:gap-10 sm:pt-0 sm:pb-18",
         className
       )}
       data-slot="qa-showcase"

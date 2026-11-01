@@ -69,7 +69,7 @@ function SegmentedOption<T extends string>({
     <button
       aria-pressed={isActive}
       className={cn(
-        "min-h-10 rounded-full font-semibold text-muted-foreground text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring",
+        "press min-h-10 rounded-full font-semibold text-muted-foreground text-sm focus-visible:outline-2 focus-visible:outline-ring",
         isActive && "bg-card text-foreground shadow-soft"
       )}
       onClick={handleClick}

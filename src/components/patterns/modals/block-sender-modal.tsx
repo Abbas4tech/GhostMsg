@@ -107,7 +107,7 @@ export function BlockSenderModal({
             {BLOCK_OPTIONS.map((option) => (
               <label
                 className={cn(
-                  "flex min-h-11 cursor-pointer items-center gap-3 rounded-[14px] border px-3 py-2.5 text-title transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ring",
+                  "press flex min-h-11 cursor-pointer items-center gap-3 rounded-[14px] border px-3 py-2.5 text-title has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ring",
                   alsoDelete === option.value && "border-primary bg-accent"
                 )}
                 key={option.label}

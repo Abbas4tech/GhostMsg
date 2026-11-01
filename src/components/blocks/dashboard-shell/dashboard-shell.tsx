@@ -9,6 +9,7 @@ import {
   SlidersHorizontalIcon,
   UserIcon,
 } from "lucide-react";
+import { div as MotionDiv } from "motion/react-m";
 import Link from "next/link";
 import type React from "react";
 import {
@@ -61,6 +62,7 @@ import { Switch } from "@/components/elements/switch";
 import { ThemeTogglerButton } from "@/components/elements/theme-toggler";
 import { BrandMark } from "@/components/patterns/brand-mark";
 import { MobileHeaderSlotProvider } from "@/components/patterns/mobile-header-actions";
+import { layoutIds, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export type DashboardNavId = "inbox" | "profile" | "settings";
@@ -252,7 +254,12 @@ function DashboardSidebar({
                     </Link>
                   </SidebarMenuButton>
                   {id === "inbox" && unreadCount > 0 ? (
-                    <SidebarMenuBadge aria-hidden="true" variant="count">
+                    <SidebarMenuBadge
+                      aria-hidden="true"
+                      className="motion-safe:zoom-in-75 motion-safe:animate-in motion-safe:duration-(--dur-base)"
+                      key={unreadCount}
+                      variant="count"
+                    >
                       {unreadCount}
                     </SidebarMenuBadge>
                   ) : null}
@@ -384,12 +391,23 @@ function MobileTabBar({
             href={href}
             key={id}
           >
-            <span className="grid h-[30px] w-14 place-items-center rounded-full transition-colors duration-(--dur-base) ease-out group-aria-[current=page]/tab:bg-accent group-aria-[current=page]/tab:text-accent-foreground">
-              <Icon aria-hidden="true" className="size-5" />
+            <span className="relative grid h-[30px] w-14 place-items-center rounded-full group-aria-[current=page]/tab:text-accent-foreground">
+              {isActive ? (
+                <MotionDiv
+                  className="absolute inset-0 rounded-full bg-accent"
+                  data-slot="bottom-nav-pill"
+                  layoutId={layoutIds.bottomNavPill}
+                  transition={spring.soft}
+                />
+              ) : null}
+              <Icon aria-hidden="true" className="relative size-5" />
             </span>
             {label}
             {id === "inbox" && unreadCount > 0 ? (
-              <span className="absolute top-0.5 left-[calc(50%+8px)] grid h-[18px] min-w-[18px] place-items-center rounded-full bg-primary px-[5px] text-[11px] text-primary-foreground tabular-nums">
+              <span
+                className="motion-safe:zoom-in-75 absolute top-0.5 left-[calc(50%+8px)] grid h-[18px] min-w-[18px] place-items-center rounded-full bg-primary px-[5px] text-[11px] text-primary-foreground tabular-nums motion-safe:animate-in motion-safe:duration-(--dur-base)"
+                key={unreadCount}
+              >
                 <span className="sr-only">Unread: </span>
                 {unreadCount}
               </span>

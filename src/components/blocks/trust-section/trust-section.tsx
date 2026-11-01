@@ -47,7 +47,7 @@ export function TrustSection({
     <section
       aria-label="Safety"
       className={cn(
-        "mx-auto w-full max-w-[1180px] scroll-mt-6 px-gutter pt-10 pb-0 sm:pt-6 sm:pb-16",
+        "reveal mx-auto w-full max-w-[1180px] scroll-mt-6 px-gutter pt-10 pb-0 sm:pt-6 sm:pb-16",
         className
       )}
       data-slot="trust-section"

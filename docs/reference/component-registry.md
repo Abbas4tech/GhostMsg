@@ -4,7 +4,7 @@
 
 Generated inventory of every component module, its public API, stories, interaction tests, mocks, controllers, plus the shared fixtures and MSW scenarios. Rules live in [Component Architecture](../05-component-architecture.md), [Storybook & UI Catalog](../guides/storybook-and-ui-catalog.md) and the [agent guide](../agents/component-architecture.md).
 
-**Totals:** 103 modules · 456 stories · 314 play() interaction tests.
+**Totals:** 103 modules · 458 stories · 316 play() interaction tests.
 
 - Regenerate after adding/renaming a module, story, mock export or scenario: `pnpm docs:registry`.
 - `pnpm docs:registry:check` fails when this file is stale (part of the pre-push gate).
@@ -17,7 +17,7 @@ Generated inventory of every component module, its public API, stories, interact
 
 > Domain-agnostic primitives; defaults are pixel-identical to the original shadcn/Animate UI look.
 
-**50 modules · 154 stories · 78 play() tests**
+**50 modules · 156 stories · 80 play() tests**
 
 | Module | index.ts | Stories | play() | Mocks | Tests |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -27,7 +27,7 @@ Generated inventory of every component module, its public API, stories, interact
 | [`avatar`](../../src/components/elements/avatar) | ✅ | 3 | 1 | 1 | 0 |
 | [`badge`](../../src/components/elements/badge) | ✅ | 4 | 2 | 1 | 0 |
 | [`breadcrumb`](../../src/components/elements/breadcrumb) | ✅ | 1 | 1 | 1 | 0 |
-| [`button`](../../src/components/elements/button) | ✅ | 10 | 5 | 1 | 0 |
+| [`button`](../../src/components/elements/button) | ✅ | 11 | 6 | 1 | 0 |
 | [`button-group`](../../src/components/elements/button-group) | ✅ | 3 | 1 | 1 | 0 |
 | [`card`](../../src/components/elements/card) | ✅ | 8 | 2 | 1 | 0 |
 | [`carousel`](../../src/components/elements/carousel) | ✅ | 3 | 2 | 1 | 0 |
@@ -37,7 +37,7 @@ Generated inventory of every component module, its public API, stories, interact
 | [`dialog`](../../src/components/elements/dialog) | ✅ | 3 | 3 | 1 | 0 |
 | [`drawer`](../../src/components/elements/drawer) | ✅ | 1 | 1 | 1 | 0 |
 | [`dropdown-menu`](../../src/components/elements/dropdown-menu) | ✅ | 1 | 1 | 1 | 0 |
-| [`effects`](../../src/components/elements/effects) | ✅ | 4 | 2 | 1 | 0 |
+| [`effects`](../../src/components/elements/effects) | ✅ | 5 | 3 | 1 | 0 |
 | [`empty`](../../src/components/elements/empty) | ✅ | 1 | 1 | 1 | 0 |
 | [`field`](../../src/components/elements/field) | ✅ | 2 | 2 | 1 | 0 |
 | [`form`](../../src/components/elements/form) | ✅ | 3 | 2 | 1 | 0 |
@@ -111,7 +111,7 @@ Generated inventory of every component module, its public API, stories, interact
 #### `elements/button`
 
 - **Public API (index.ts):** `Button`, `ButtonProps (type)`, `buttonVariants`
-- **Stories** `button.stories.tsx` → _Elements/Button_: `Default`, `Destructive`, `AllVariants`, `Sizes`, `WithIcon`, `IconOnly`, `Loading`, `Disabled`, `AsLink`, `LongLabel`
+- **Stories** `button.stories.tsx` → _Elements/Button_: `Default`, `Destructive`, `AllVariants`, `Sizes`, `WithIcon`, `IconOnly`, `PressFeedback`, `Loading`, `Disabled`, `AsLink`, `LongLabel`
 - **Mocks:** `button.mock.ts` → `BUTTON_VARIANTS`, `BUTTON_SIZES`, `BUTTON_ICON_SIZES`, `defaultButtonArgs`, `destructiveButtonArgs`
 
 #### `elements/button-group`
@@ -171,7 +171,7 @@ Generated inventory of every component module, its public API, stories, interact
 #### `elements/effects`
 
 - **Public API (index.ts):** `AutoHeight`, `AutoHeightProps (type)`, `GravityStarsBackground`, `GravityStarsProps (type)`, `Highlight`, `HighlightItem`, `Particles`, `ParticlesEffect`, `Slot`
-- **Stories** `effects.stories.tsx` → _Elements/Effects_: `GravityStars`, `HoverHighlight`, `ParticleBurst`, `AnimatedHeight`
+- **Stories** `effects.stories.tsx` → _Elements/Effects_: `GravityStars`, `HoverHighlight`, `ParticleBurst`, `AnimatedHeight`, `PresenceListRemoval`
 - **Mocks:** `effects.mock.ts` → `highlightMockItems`, `autoHeightMockParagraphs`
 
 #### `elements/empty`
@@ -494,7 +494,7 @@ Generated inventory of every component module, its public API, stories, interact
 
 #### `patterns/modals`
 
-- **Public API (index.ts):** `BlockSenderModal`, `BlockSenderModalProps (type)`, `ChangeUsernameModal`, `ChangeUsernameModalProps (type)`, `DeleteAccountModal`, `DeleteAccountModalProps (type)`, `DeleteAllMessagesModal`, `DeleteAllMessagesModalProps (type)`, `DeleteMessageModal`, `DeleteMessageModalProps (type)`, `DeleteSelectedModal`, `DeleteSelectedModalProps (type)`, `DiscardChangesModal`, `DiscardChangesModalProps (type)`, `RevealMessageModal`, `RevealMessageModalProps (type)`, `REPLY_MAX_LENGTH`, `SmartReplyModal`, `SmartReplyModalProps (type)`, `StoryCardModal`, `StoryCardModalProps (type)`
+- **Public API (index.ts):** `ChangeUsernameModal`, `ChangeUsernameModalProps (type)`, `DeleteAccountModal`, `DeleteAccountModalProps (type)`, `DeleteAllMessagesModal`, `DeleteAllMessagesModalProps (type)`, `DeleteMessageModal`, `DeleteMessageModalProps (type)`, `DeleteSelectedModal`, `DeleteSelectedModalProps (type)`, `DiscardChangesModal`, `DiscardChangesModalProps (type)`
 - **Stories** `block-sender-modal.stories.tsx` → _Patterns/Modals/BlockSenderModal_: `Block`, `Unblock`, `BlockOnly`, `Pending`, `Cancels`, `WithoutSenderHash`
 - **Stories** `change-username-modal.stories.tsx` → _Patterns/Modals/ChangeUsernameModal_: `Available`, `Taken`, `Checking`, `Cancels`
 - **Stories** `delete-account-modal.stories.tsx` → _Patterns/Modals/DeleteAccountModal_: `TypeToConfirm`, `Pending`
@@ -764,7 +764,7 @@ Generated inventory of every component module, its public API, stories, interact
 
 #### `pages/dashboard`
 
-- **Public API (index.ts):** `DashboardLayout`, `DashboardLayoutProps (type)`, `isFilterStatus`, `InboxPage`, `InboxPageProps (type)`, `ProfilePage`, `SettingsPage`, `SettingsPageProps (type)`
+- **Public API (index.ts):** `DashboardLayout`, `DashboardLayoutProps (type)`, `isFilterStatus`, `InboxPage`, `InboxPageProps (type)`, `ProfilePage`, `RouteTransition`, `SettingsPage`, `SettingsPageProps (type)`
 - **Controllers:** `useAppearanceController`, `useChangeUsernameController`, `useDangerZoneController`, `useDashboardShellController`, `useGlobalShortcutsController`, `useInboxDataController`, `useInboxFiltersController`, `useInboxKeyboardController`, `useInboxController`, `useProfileLinkController`, `useProfileController`, `useSettingsController`, `useSmartReplyController`
 - **Stories** `dashboard.stories.tsx` → _Pages/Dashboard_: `Inbox`, `DeletesAMessage`, `RepliesWithAi`, `RevealsQuarantined`, `KeyboardTriage`, `CommandPalette`, `EmptyInbox`, `InboxError`, `InboxLoading`, `Settings`, `Profile`, `SessionLoading`, `SignedOut`, `Mobile`
 - **Mocks:** `dashboard.mock.ts` → `dashboardHandlers`

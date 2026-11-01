@@ -30,7 +30,7 @@ export function SectionNav({
           <a
             aria-current={isActive ? "true" : undefined}
             className={cn(
-              "flex min-h-10 items-center rounded-[10px] px-3 font-semibold text-muted-foreground text-sm outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              "press flex min-h-10 items-center rounded-[10px] px-3 font-semibold text-muted-foreground text-sm outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50",
               isActive && "bg-accent text-accent-foreground"
             )}
             href={`#${id}`}

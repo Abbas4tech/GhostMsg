@@ -8,6 +8,7 @@ import { autoHeightMockParagraphs, highlightMockItems } from "./effects.mock";
 import { GravityStarsBackground } from "./gravity-stars";
 import { Highlight, HighlightItem } from "./highlight";
 import { Particles, ParticlesEffect } from "./particles";
+import { PresenceItem, PresenceList } from "./presence-list";
 
 /** Motion primitives shared by elements (tabs, icon-button, …). Decorative only. */
 const meta = {
@@ -98,4 +99,43 @@ export const AnimatedHeight: Story = {
     ).toBeInTheDocument();
   },
   render: () => <AutoHeightDemo />,
+};
+
+const ITEM_REGEX = /^Item /;
+const PRESENCE_KEYS = ["a", "b", "c", "d", "e"];
+
+function PresenceDemo() {
+  const [items, setItems] = useState(PRESENCE_KEYS);
+  const handleRemove = useCallback(() => {
+    setItems((current) => current.slice(1));
+  }, []);
+  return (
+    <div className="flex w-80 flex-col gap-3">
+      <Button onClick={handleRemove} size="sm" variant="outline">
+        Remove first
+      </Button>
+      <div className="relative flex flex-col gap-2">
+        <PresenceList>
+          {items.map((key, index) => (
+            <PresenceItem index={index} key={key}>
+              <div className="rounded-md border bg-card p-3 text-sm">
+                Item {key}
+              </div>
+            </PresenceItem>
+          ))}
+        </PresenceList>
+      </div>
+    </div>
+  );
+}
+
+/** Motion: items rise in with a capped stagger; removing one fades it out and the rest slide up. */
+export const PresenceListRemoval: Story = {
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getAllByText(ITEM_REGEX)).toHaveLength(5);
+    await userEvent.click(canvas.getByRole("button", { name: "Remove first" }));
+    await expect(canvas.queryByText("Item a")).toBeNull();
+    await expect(canvas.getAllByText(ITEM_REGEX)).toHaveLength(4);
+  },
+  render: () => <PresenceDemo />,
 };

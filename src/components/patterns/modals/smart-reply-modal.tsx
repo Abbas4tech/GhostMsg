@@ -64,7 +64,7 @@ function DraftIdeaButton({
   return (
     <button
       className={cn(
-        "flex min-h-11 items-center rounded-2xl border border-input border-dashed bg-card px-4 py-2.5 text-left font-medium text-sm leading-snug transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring",
+        "press flex min-h-11 items-center rounded-2xl border border-input border-dashed bg-card px-4 py-2.5 text-left font-medium text-sm leading-snug hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-ring",
         isMobile && "w-55 shrink-0 snap-start"
       )}
       onClick={handleClick}

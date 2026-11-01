@@ -27,7 +27,7 @@ export function CtaBanner({
   return (
     <section
       className={cn(
-        "mx-auto w-full max-w-[1180px] px-gutter pt-10 sm:pt-0 sm:pb-10",
+        "reveal mx-auto w-full max-w-[1180px] px-gutter pt-10 sm:pt-0 sm:pb-10",
         className
       )}
       data-slot="cta-banner"

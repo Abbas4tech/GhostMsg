@@ -35,7 +35,7 @@ export interface BulkActionToolbarProps {
 const toolbarButton =
   "rounded-full text-background hover:bg-background/15 hover:text-background";
 const barButton =
-  "flex min-h-14 flex-col items-center justify-center gap-1 rounded-[14px] font-semibold text-foreground text-xs outline-none transition-colors hover:bg-muted focus-visible:bg-muted disabled:opacity-50 [&_svg]:size-5";
+  "flex min-h-14 flex-col items-center justify-center gap-1 rounded-[14px] font-semibold text-foreground text-xs outline-none press hover:bg-muted focus-visible:bg-muted disabled:opacity-50 [&_svg]:size-5";
 
 /** Dark pill that appears while messages are selected. */
 export function BulkActionToolbar({

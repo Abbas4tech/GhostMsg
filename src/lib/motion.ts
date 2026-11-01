@@ -46,45 +46,6 @@ export const transition = {
 
 /* ───────── enter / exit ───────── */
 
-/** Cards, list rows, alerts. Use inside <AnimatePresence initial={false}> with `layout`. */
-export const fadeRise = {
-  animate: { opacity: 1, transition: transition.moderate, y: 0 },
-  exit: { height: 0, marginTop: 0, opacity: 0, transition: transition.base },
-  initial: { opacity: 0, y: 8 },
-} satisfies MotionProps;
-
-/** Parent for staggered children (cap the animated count; rest appear instantly). */
-export const staggerList: Variants = {
-  hidden: {},
-  show: { transition: { delayChildren: 0.02, staggerChildren: 0.04 } },
-};
-export const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, transition: transition.moderate, y: 0 },
-};
-
-/** Badge arriving with a new message. */
-export const pop = {
-  animate: { opacity: 1, scale: 1, transition: spring.snappy },
-  initial: { opacity: 0, scale: 0.8 },
-} satisfies MotionProps;
-
-/** Skeleton → content crossfade. Key the wrapper on `isLoading`. */
-export const crossfade = {
-  animate: { opacity: 1, transition: transition.base },
-  exit: { opacity: 0, transition: transition.exit },
-  initial: { opacity: 0 },
-} satisfies MotionProps;
-
-/* ───────── floating surfaces ───────── */
-
-/** Bulk toolbar (desktop pill / mobile 4-up bar). */
-export const toolbarUp = {
-  animate: { opacity: 1, transition: spring.soft, y: 0 },
-  exit: { opacity: 0, transition: transition.exit, y: 16 },
-  initial: { opacity: 0, y: 16 },
-} satisfies MotionProps;
-
 /** "1 new Anonymous Message" pill dropping in from the top of the list. */
 export const pillDrop = {
   animate: { opacity: 1, transition: spring.soft, y: 0 },
@@ -103,30 +64,8 @@ export const shake: Variants = {
   },
 };
 
-/** Auth steps: slide in the direction of travel. `custom={direction}` (1 | -1), AnimatePresence mode="wait". */
-export const stepSlide: Variants = {
-  center: { opacity: 1, transition: transition.moderate, x: 0 },
-  enter: (dir: number) => ({ opacity: 0, x: 24 * dir }),
-  exit: (dir: number) => ({
-    opacity: 0,
-    transition: transition.exit,
-    x: -24 * dir,
-  }),
-};
-
-/** Sent / verified success mark. */
-export const celebrate = {
-  animate: { opacity: 1, scale: 1, transition: spring.bouncy },
-  initial: { opacity: 0, scale: 0.6 },
-} satisfies MotionProps;
-
 /* ───────── shared-layout ids (one source so indicators never collide) ───────── */
 
 export const layoutIds = {
   bottomNavPill: "bottom-nav-pill",
-  commandHighlight: "command-highlight",
-  filterPill: "inbox-filter-pill",
-  sidebarActive: "sidebar-active",
-  storyCard: (messageId: string) => `story-card-${messageId}`,
-  tabsUnderline: "tabs-underline",
 } as const;

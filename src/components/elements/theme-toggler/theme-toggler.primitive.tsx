@@ -13,6 +13,12 @@ type ThemeSelection = "light" | "dark" | "system";
 type Resolved = "light" | "dark";
 type Direction = "btt" | "ttb" | "ltr" | "rtl";
 
+/** Page-wide wipe: longer than dashboard chrome (300 ms) but well under the old 700 ms. */
+const THEME_WIPE_MS = 450;
+
+const prefersReducedMotion = (): boolean =>
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 type ChildrenRender =
   | ReactNode
   | ((state: {
@@ -100,7 +106,7 @@ function ThemeToggler({
         return;
       }
 
-      if (!document.startViewTransition) {
+      if (!document.startViewTransition || prefersReducedMotion()) {
         flushSync(() => {
           setPreview({ effective: nextTheme, resolved });
         });
@@ -122,7 +128,7 @@ function ThemeToggler({
         .animate(
           { clipPath: [fromClip, toClip] },
           {
-            duration: 700,
+            duration: THEME_WIPE_MS,
             easing: "ease-in-out",
             pseudoElement: "::view-transition-new(root)",
           }

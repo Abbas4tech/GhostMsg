@@ -88,6 +88,8 @@
   --animate-float: ghost-float 6s ease-in-out infinite;
   --animate-rise: ghost-rise 0.24s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   --animate-pulse-ring: ghost-pulse-ring 2s ease-out 2;
+  /* Success mark: overshoot pop, Delight moments only (sent, verified). */
+  --animate-pop: ghost-pop 0.48s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   /* Undo toast time-left bar. Not motion-safe: it carries information. Set the duration inline. */
   --animate-countdown: ghost-countdown 1s linear forwards;
 
@@ -108,6 +110,16 @@
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+  @keyframes ghost-pop {
+    from {
+      opacity: 0;
+      scale: 0.6;
+    }
+    to {
+      opacity: 1;
+      scale: 1;
     }
   }
   @keyframes ghost-countdown {
@@ -158,11 +170,35 @@
 @utility press-deep {
   --press-scale: 0.92;
 }
+/*
+ * Scroll reveal for below-the-fold sections: pure CSS scroll-driven animation,
+ * no JS and no hidden-until-hydrated content. Browsers without
+ * `animation-timeline` (Firefox) and reduced-motion users just see the content.
+ */
+@keyframes ghost-reveal {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@utility reveal {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: ghost-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
 /* Desktop-only card lift. Pointer devices with hover, motion allowed. */
 @utility hover-lift {
   transition-timing-function: var(--motion-ease-out);
   transition-duration: var(--dur-fast);
-  transition-property: translate, box-shadow;
+  transition-property: translate, box-shadow, background-color, border-color;
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     &:hover {
       translate: 0 -2px;
