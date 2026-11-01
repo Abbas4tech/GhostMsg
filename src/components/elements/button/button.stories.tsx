@@ -123,6 +123,51 @@ export const IconOnly: Story = {
   },
 };
 
+/** Looks up the generated `.press` rule. Story tests zero all durations, so computed style can't be used. */
+function findPressRule(): CSSStyleRule | undefined {
+  const visit = (rules: CSSRuleList): CSSStyleRule | undefined => {
+    for (const rule of Array.from(rules)) {
+      if (rule instanceof CSSStyleRule && rule.selectorText === ".press") {
+        return rule;
+      }
+      if ("cssRules" in rule) {
+        const found = visit((rule as CSSGroupingRule).cssRules);
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return undefined;
+  };
+  for (const sheet of Array.from(document.styleSheets)) {
+    let rules: CSSRuleList;
+    try {
+      rules = sheet.cssRules;
+    } catch {
+      continue; // cross-origin sheet (fonts): not readable, not ours
+    }
+    const found = visit(rules);
+    if (found) {
+      return found;
+    }
+  }
+  return undefined;
+}
+
+/** Motion: hold the mouse down to see the 0.97 press (CSS `press`, skipped under reduced motion). */
+export const PressFeedback: Story = {
+  args: { children: "Press and hold" },
+  play: async ({ canvas }) => {
+    const button = canvas.getByRole("button", { name: "Press and hold" });
+    await expect(button).toHaveClass("press");
+    // Guards the `press` utility in globals.css: it must animate `scale`, never `all`.
+    const property = findPressRule()?.style.getPropertyValue(
+      "transition-property"
+    );
+    await expect(property).toContain("scale");
+  },
+};
+
 export const Loading: Story = {
   args: {
     children: (

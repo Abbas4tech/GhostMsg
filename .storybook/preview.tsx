@@ -1,6 +1,11 @@
 import type { Decorator, Preview } from "@storybook/nextjs-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MotionGlobalConfig } from "motion/react";
+import {
+  domMax,
+  LazyMotion,
+  MotionConfig,
+  MotionGlobalConfig,
+} from "motion/react";
 import { setupWorker } from "msw/browser";
 import { mswLoader } from "msw-storybook-addon/csf3";
 import { SessionProvider } from "next-auth/react";
@@ -9,8 +14,6 @@ import { useState } from "react";
 import { Toaster } from "../src/components/elements/sonner";
 import { isPalette } from "../src/lib/theme/palette";
 import { defaultHandlers } from "../src/mock/handlers";
-import { MotionLayoutProvider } from "../src/providers/motion-layout-provider";
-import { MotionProvider } from "../src/providers/motion-provider";
 import PaletteProvider from "../src/providers/palette-provider";
 import "../src/app/globals.css";
 
@@ -59,13 +62,15 @@ const withTheme: Decorator = (Story, context) => {
       forcedTheme={context.globals.theme ?? "light"}
     >
       <PaletteProvider forcedPalette={palette}>
-        <MotionProvider>
-          <MotionLayoutProvider>
+        {/* Features load synchronously here (the app loads them lazily), so an
+            `m.*` component never sits at its `initial` state while a test asserts. */}
+        <LazyMotion features={domMax} strict>
+          <MotionConfig reducedMotion="user">
             <div className="bg-background font-sans text-foreground">
               <Story />
             </div>
-          </MotionLayoutProvider>
-        </MotionProvider>
+          </MotionConfig>
+        </LazyMotion>
         <Toaster />
       </PaletteProvider>
     </ThemeProvider>

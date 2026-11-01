@@ -16,7 +16,7 @@ function Checkbox({
   return (
     <CheckboxPrimitive.Root
       className={cn(
-        "peer size-4 shrink-0 rounded-[4px] border border-input shadow-xs outline-none transition-shadow focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:bg-input/30 dark:data-[state=checked]:bg-primary dark:aria-invalid:ring-destructive/40",
+        "peer size-4 shrink-0 rounded-[4px] border border-input shadow-xs outline-none transition-[box-shadow,background-color,border-color] duration-(--dur-fast) ease-out focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:bg-input/30 dark:data-[state=checked]:bg-primary dark:aria-invalid:ring-destructive/40",
         "data-[size=lg]:size-[22px] data-[size=lg]:rounded-[7px] data-[size=lg]:border-[1.5px]",
         className
       )}
@@ -25,7 +25,7 @@ function Checkbox({
       {...props}
     >
       <CheckboxPrimitive.Indicator
-        className="grid place-content-center text-current transition-none"
+        className="motion-safe:fade-in-0 motion-safe:zoom-in-50 grid place-content-center text-current motion-safe:animate-in motion-safe:duration-(--dur-fast)"
         data-slot="checkbox-indicator"
       >
         <CheckIcon className="size-3.5" />

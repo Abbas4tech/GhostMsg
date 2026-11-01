@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 // `default` variant + `md` size reproduce the original shadcn switch exactly.
 const switchVariants = cva(
-  "peer inline-flex shrink-0 items-center rounded-full border border-transparent shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
+  "peer inline-flex shrink-0 items-center rounded-full border border-transparent shadow-xs outline-none transition-[background-color,border-color,box-shadow] duration-(--dur-fast) ease-out focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
   {
     defaultVariants: {
       size: "md",
@@ -32,7 +32,7 @@ const switchVariants = cva(
 );
 
 const thumbVariants = cva(
-  "pointer-events-none block rounded-full bg-background ring-0 transition-transform data-[state=unchecked]:translate-x-0 dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground",
+  "pointer-events-none block rounded-full bg-background ring-0 transition-transform duration-(--dur-base) ease-out data-[state=unchecked]:translate-x-0 dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground",
   {
     defaultVariants: {
       size: "md",

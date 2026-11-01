@@ -7,14 +7,16 @@ import { Slot, type WithAsChild } from "@/components/elements/effects/slot";
 
 type ButtonProps = WithAsChild<
   HTMLMotionProps<"button"> & {
+    /** Opt-in JS hover scale. Press and hover feedback is CSS (`press`), ADR 0035. */
     hoverScale?: number;
+    /** Opt-in JS tap scale. Prefer the CSS `press` utility. */
     tapScale?: number;
   }
 >;
 
 function Button({
-  hoverScale = 1.05,
-  tapScale = 0.95,
+  hoverScale,
+  tapScale,
   asChild = false,
   ...props
 }: ButtonProps) {
@@ -22,8 +24,8 @@ function Button({
 
   return (
     <Component
-      whileHover={{ scale: hoverScale }}
-      whileTap={{ scale: tapScale }}
+      whileHover={hoverScale ? { scale: hoverScale } : undefined}
+      whileTap={tapScale ? { scale: tapScale } : undefined}
       {...props}
     />
   );

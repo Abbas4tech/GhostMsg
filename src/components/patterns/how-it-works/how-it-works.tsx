@@ -241,7 +241,7 @@ function HowItWorksMobile({ steps }: { steps: Step[] }): React.JSX.Element {
         {steps.map((step, index) => (
           <span
             className={cn(
-              "h-1.5 rounded-full transition-all",
+              "h-1.5 rounded-full transition-[width,background-color] duration-(--dur-base) ease-out",
               index === selected ? "w-5 bg-primary" : "w-1.5 bg-input"
             )}
             key={step.key}
