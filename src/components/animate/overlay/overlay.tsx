@@ -1,7 +1,8 @@
 "use client";
 
-import type { HTMLMotionProps } from "motion/react";
+import { AnimatePresence, type HTMLMotionProps } from "motion/react";
 import { div as MotionDiv } from "motion/react-m";
+import { Fragment, type ReactNode } from "react";
 
 import { spring, transition } from "@/lib/motion";
 
@@ -126,4 +127,30 @@ function SheetSlide({ side = "right", ...props }: SheetSlideProps) {
   );
 }
 
-export { DialogPop, FloatingPop, OverlayFade, type SheetSide, SheetSlide };
+export interface OverlayPresenceProps {
+  children: ReactNode;
+  /** The overlay's open state, from the element's Root. */
+  open: boolean;
+}
+
+/**
+ * Keeps a Radix overlay mounted until its motion exit has finished. Render it
+ * inside a `forceMount` Portal, with `forceMount` + `asChild` Overlay/Content
+ * children rendering the motion surfaces above.
+ */
+function OverlayPresence({ children, open }: OverlayPresenceProps) {
+  return (
+    <AnimatePresence>
+      {open ? <Fragment key="overlay">{children}</Fragment> : null}
+    </AnimatePresence>
+  );
+}
+
+export {
+  DialogPop,
+  FloatingPop,
+  OverlayFade,
+  OverlayPresence,
+  type SheetSide,
+  SheetSlide,
+};
