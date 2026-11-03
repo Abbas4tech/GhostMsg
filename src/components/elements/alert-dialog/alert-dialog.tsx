@@ -2,10 +2,40 @@
 
 import { AlertDialog as AlertDialogPrimitive } from "radix-ui";
 import type * as React from "react";
+import { createContext, useContext } from "react";
+import {
+  DialogPop,
+  OverlayFade,
+  OverlayPresence,
+} from "@/components/animate/overlay";
 import { buttonVariants } from "@/components/elements/button";
+import { useControlledState } from "@/hooks/use-controlled-state";
 import { cn } from "@/lib/utils";
 
-const AlertDialog = AlertDialogPrimitive.Root;
+/** Open state shared with AlertDialogContent so motion can play the exit (ADR 0036). */
+const AlertDialogOpenContext = createContext(false);
+
+function AlertDialog({
+  defaultOpen,
+  onOpenChange,
+  open,
+  ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
+  const [isOpen, setIsOpen] = useControlledState({
+    defaultValue: defaultOpen ?? false,
+    onChange: onOpenChange,
+    value: open,
+  });
+  return (
+    <AlertDialogOpenContext.Provider value={isOpen}>
+      <AlertDialogPrimitive.Root
+        onOpenChange={setIsOpen}
+        open={isOpen}
+        {...props}
+      />
+    </AlertDialogOpenContext.Provider>
+  );
+}
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 
@@ -16,30 +46,35 @@ function AlertDialogOverlay({
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) {
   return (
-    <AlertDialogPrimitive.Overlay
-      className={cn(
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80 duration-150 data-[state=closed]:animate-out data-[state=open]:animate-in",
-        className
-      )}
-      {...props}
-    />
+    <AlertDialogPrimitive.Overlay asChild forceMount {...props}>
+      <OverlayFade
+        className={cn("fixed inset-0 z-50 bg-black/80", className)}
+      />
+    </AlertDialogPrimitive.Overlay>
   );
 }
 
 function AlertDialogContent({
   className,
+  children,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
+  const isOpen = useContext(AlertDialogOpenContext);
   return (
-    <AlertDialogPortal>
-      <AlertDialogOverlay />
-      <AlertDialogPrimitive.Content
-        className={cn(
-          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border bg-background p-6 shadow-lg duration-150 data-[state=closed]:animate-out data-[state=open]:animate-in sm:max-w-lg",
-          className
-        )}
-        {...props}
-      />
+    <AlertDialogPortal forceMount>
+      <OverlayPresence open={isOpen}>
+        <AlertDialogOverlay />
+        <AlertDialogPrimitive.Content asChild forceMount {...props}>
+          <DialogPop
+            className={cn(
+              "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border bg-background p-6 shadow-lg sm:max-w-lg",
+              className
+            )}
+          >
+            {children}
+          </DialogPop>
+        </AlertDialogPrimitive.Content>
+      </OverlayPresence>
     </AlertDialogPortal>
   );
 }
